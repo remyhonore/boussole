@@ -2,9 +2,9 @@ name: Boussole — CI (syntax + smoke)
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -14,74 +14,119 @@ jobs:
   verify:
     name: Verify repo (JS syntax + smoke checks)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Smoke checks (required files)
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "Checking required files..."
-          test -f "VERSION.txt"
-          test -f "index.html"
-          test -f "app/index.html"
-
-          echo "Checking app entry references..."
-          # Vérifie qu'on référence un JS existant depuis app/index.html (sans imposer un nom exact)
-          JS_REF="$(grep -Eo 'src="[^"]+\.js"' app/index.html | head -n 1 || true)"
-          if [ -z "$JS_REF" ]; then
-            echo "ERROR: app/index.html does not reference any .js script via src=\"...js\""
-            exit 1
-          fi
-
-          JS_PATH="$(echo "$JS_REF" | sed -E 's/^src="([^"]+)".*$/\1/')"
-          # Nettoie un éventuel ./ en début
-          JS_PATH="${JS_PATH#./}"
-          if [ ! -f "app/$JS_PATH" ] && [ ! -f "$JS_PATH" ]; then
-            echo "ERROR: Referenced JS not found: $JS_PATH"
-            echo "Looked for: app/$JS_PATH and $JS_PATH"
-            exit 1
-          fi
-
-          echo "Checking VERSION.txt format..."
-          V="$(cat VERSION.txt | tr -d ' \r\n')"
-          if [[ ! "$V" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "ERROR: VERSION.txt must look like 0.7.21 or v0.7.21 (got: $V)"
-            exit 1
-          fi
-
-          echo "OK ✅"
-
       - name: JS syntax check (node --check)
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "Scanning JS files..."
-          # Exclusions prudentes (si un jour tu ajoutes des dossiers volumineux)
-          mapfile -t FILES < <(find . -type f -name "*.js" \
-            -not -path "./.git/*" \
-            -not -path "./node_modules/*" \
-            -not -path "./dist/*" \
-            -not -path "./.cache/*")
-
+          echo "Node: $(node --version)"
+          mapfile -t FILES < <(git ls-files '*.js')
           if [ "${#FILES[@]}" -eq 0 ]; then
-            echo "No JS files found. Nothing to check."
-            exit 0
+            echo "No JS files found in repo." >&2
+            exit 1
           fi
 
-          echo "Checking syntax for ${#FILES[@]} file(s)..."
+          echo "Checking syntax for ${#FILES[@]} JS files…"
           for f in "${FILES[@]}"; do
-            echo " - $f"
-            node --check "$f"
+            echo "→ node --check ${f}"
+            node --check "${f}"
           done
 
-          echo "JS syntax OK ✅"
+      - name: Version consistency (VERSION.txt / app header / JS constants)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          V="$(tr -d ' \t\r\n' < VERSION.txt)"
+          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION.txt invalid: '$V'" >&2
+            exit 1
+          fi
+          echo "VERSION.txt = $V"
+
+          H="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/index.html").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'v(\d+\.\d+\.\d+)', p)
+print(m.group(1) if m else "")
+PY
+)"
+          if [ -z "$H" ]; then
+            echo "Could not find a 'vX.Y.Z' string in app/index.html" >&2
+            exit 1
+          fi
+          echo "app/index.html shows v$H"
+
+          A="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/app.js").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'APP_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
+print(m.group(1) if m else "")
+PY
+)"
+          if [ -z "$A" ]; then
+            echo "Could not find APP_VERSION in app/app.js" >&2
+            exit 1
+          fi
+          echo "app/app.js APP_VERSION = $A"
+
+          D="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/dashboard.js").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'DASH_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
+print(m.group(1) if m else "")
+PY
+)"
+          if [ -z "$D" ]; then
+            echo "Could not find DASH_VERSION in app/dashboard.js" >&2
+            exit 1
+          fi
+          echo "app/dashboard.js DASH_VERSION = $D"
+
+          if [ "$V" != "$H" ] || [ "$V" != "$A" ] || [ "$V" != "$D" ]; then
+            echo "Version mismatch detected:" >&2
+            echo "  VERSION.txt           = $V" >&2
+            echo "  app/index.html (v...) = $H" >&2
+            echo "  app/app.js            = $A" >&2
+            echo "  app/dashboard.js      = $D" >&2
+            exit 1
+          fi
+
+      - name: Smoke test (serve + curl basic endpoints)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/http.log 2>&1 &
+          PID=$!
+
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:4173/app/" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 0.2
+          done
+
+          echo "GET / …"
+          curl -fsS "http://127.0.0.1:4173/" >/dev/null
+
+          echo "GET /app/ …"
+          curl -fsS "http://127.0.0.1:4173/app/" >/dev/null
+
+          echo "GET /app/app.js …"
+          curl -fsS "http://127.0.0.1:4173/app/app.js" >/dev/null
+
+          echo "GET /app/dashboard.js …"
+          curl -fsS "http://127.0.0.1:4173/app/dashboard.js" >/dev/null
+
+          echo "GET /app/sw.js …"
+          curl -fsS "http://127.0.0.1:4173/app/sw.js" >/dev/null
+
+          echo "GET /VERSION.txt …"
+          curl -fsS "http://127.0.0.1:4173/VERSION.txt" >/dev/null
+
+          kill "$PID"
