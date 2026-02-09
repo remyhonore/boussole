@@ -1,7 +1,6 @@
 # NEXT_OBJECTIVE
 READY: yes
 TARGET_VERSION:
-- test release automatique
 
 ## Contraintes (si spécifiques)
 - Zéro changement fonctionnel hors objectif.
@@ -12,3 +11,4 @@ TARGET_VERSION:
 - Liste ultra courte : 2–4 critères max.
 
 ## Notes (optionnel)
+- Captures, liens internes, contexte.
