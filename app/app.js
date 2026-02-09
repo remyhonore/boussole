@@ -1,4 +1,4 @@
-/* Boussole — v0.7.18
+/* Boussole — v0.7.19
    Données locales. Aucun suivi. Aucun envoi automatique.
 */
 

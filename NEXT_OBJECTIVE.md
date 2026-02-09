@@ -1,7 +1,6 @@
 # NEXT_OBJECTIVE
-READY: yes
+READY: no
 TARGET_VERSION:
-- Décris ici l’unique amélioration en 1–3 phrases, concrètes.
 
 ## Contraintes (si spécifiques)
 - Zéro changement fonctionnel hors objectif.

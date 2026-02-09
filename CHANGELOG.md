@@ -1,5 +1,8 @@
 # Changelog — Boussole
 
+## v0.7.19 — 2026-02-09
+- release
+
 ## v0.7.18 — 2026-02-09
 - Décris ici l’unique amélioration en 1–3 phrases, concrètes.
 
