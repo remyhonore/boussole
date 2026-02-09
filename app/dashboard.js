@@ -3,7 +3,7 @@
    Aucun tracking. Tout local.
 */
 
-const DASH_VERSION = "0.7.15";
+const DASH_VERSION = "0.7.21";
 const $ = (id) => document.getElementById(id);
 
 // v0.6.93 — Accessibilité : lien "Aller au contenu" (skip link) + offset barre sticky
