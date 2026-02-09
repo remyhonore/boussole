@@ -1,9 +1,9 @@
-/* Boussole — v0.7.20
+/* Boussole — v0.7.21
    Données locales. Aucun suivi. Aucun envoi automatique.
 */
 
 const APP_NAME = "Boussole";
-const APP_VERSION = '0.7.15';
+.7.21';
 
 // v0.6.96 — horodatage stable (nom de fichier) pour tous les exports (JSON/PDF/PNG/TXT)
 function makeExportStamp(date = new Date()) {

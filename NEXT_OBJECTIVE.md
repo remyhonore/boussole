@@ -1,7 +1,6 @@
 # NEXT_OBJECTIVE
-READY: yes
+READY: no
 TARGET_VERSION:
-
 ## Contraintes (si spécifiques)
 - Zéro changement fonctionnel hors objectif.
 - Ne rien casser : landing, /app/, dashboard, exports/imports/PDF/modes test.
