@@ -1,8 +1,6 @@
 # NEXT_OBJECTIVE
-
-READY: yes
+READY: no
 TARGET_VERSION:
-OWNER: Remy
 DATE_CREATED: 2026-02-09
 
 ## Objectif (1 idée)
