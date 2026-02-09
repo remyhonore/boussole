@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boussole — Tableau de suivi projet</title>
+  <style>
+    :root{font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;}
+    body{margin:0; background:#0b1220; color:#e7eefc;}
+    .wrap{max-width:980px; margin:0 auto; padding:24px;}
+    h1{font-size:20px; margin:0 0 12px;}
+    .sub{opacity:.8; margin:0 0 18px; font-size:13px; line-height:1.35;}
+    .card{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:16px; margin:12px 0;}
+    .row{display:flex; gap:12px; flex-wrap:wrap;}
+    .kpi{flex:1 1 220px; padding:14px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);}
+    .kpi .label{font-size:12px; opacity:.75;}
+    .kpi .value{font-size:20px; margin-top:6px;}
+    code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;}
+    pre{white-space:pre-wrap; word-break:break-word; background:rgba(0,0,0,.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.08); margin:10px 0 0;}
+    a{color:#9ad1ff;}
+    .pill{display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08);}
+    .ok{border-color:rgba(92,255,155,.35); background:rgba(92,255,155,.10);}
+    .warn{border-color:rgba(255,208,92,.35); background:rgba(255,208,92,.10);}
+    .err{border-color:rgba(255,92,92,.35); background:rgba(255,92,92,.10);}
+    button{cursor:pointer; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08); color:#e7eefc;
+           padding:10px 12px; border-radius:12px; font-size:14px;}
+    button:hover{background:rgba(255,255,255,.12);}
+    .small{font-size:12px; opacity:.8;}
+    input{outline:none;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧭 Boussole — Suivi du projet (en ligne)</h1>
+    <p class="sub">
+      Cette page lit <code>/app/status.json</code> et affiche l’état “déployé”.
+      Dépose ce fichier à la racine du site (recommandé) ou dans <code>/app/</code>.
+    </p>
+
+    <div class="card">
+      <div class="row">
+        <div class="kpi">
+          <div class="label">Version (dans <code>status.json</code>)</div>
+          <div class="value" id="kpiVersion">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Dernière lecture</div>
+          <div class="value" id="kpiFetchedAt">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">URL lue</div>
+          <div class="value" style="font-size:13px; margin-top:10px;">
+            <span class="pill" id="kpiSource">/app/status.json</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button id="btnRefresh">Recharger</button>
+        <span class="small">La page force un “cache-busting” via <code>?v=…</code>.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <strong>Contrôle de cohérence</strong><br/>
+          <span class="small">Compare la version attendue à la version servie par le serveur.</span>
+        </div>
+        <div>
+          <label class="small" for="expected">Version attendue :</label><br/>
+          <input id="expected" placeholder="0.5.29" style="padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:#e7eefc; width:160px;" />
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <span class="pill" id="verdict">—</span>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="small">Détails :</div>
+        <pre id="details">—</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>Contenu brut (<code>status.json</code>)</strong>
+      <pre id="raw">—</pre>
+    </div>
+
+    <div class="card">
+      <strong>Si la version est “en retard” (3 causes typiques)</strong>
+      <pre>1) Cache (navigateur / CDN) : un ancien /app/status.json est servi.
+   → Ouvre /app/status.json directement et fais un hard refresh (Ctrl/Cmd+Shift+R).
+
+2) Champ version non mis à jour : le "version" est écrit par une vieille valeur (hardcodée).
+   → À corriger : mettre à jour status.json à chaque build/déploiement (version + date).
+
+3) Déploiement incomplet : status.json n’a pas été écrasé lors de l’upload.
+   → Vérifie que ton outil de déploiement remplace bien /app/status.json.</pre>
+    </div>
+  </div>
+
+<script>
+const STATUS_URL = '/app/status.json';
+
+function nowFr(){
+  return new Date().toLocaleString('fr-FR', {hour12:false});
+}
+
+function setVerdict(kind, text){
+  const pill = document.getElementById('verdict');
+  pill.classList.remove('ok','warn','err');
+  if(kind) pill.classList.add(kind);
+  pill.textContent = text;
+}
+
+function norm(v){
+  return (v ?? '').toString().trim().replace(/^v/i,'');
+}
+
+async function loadStatus(){
+  const bust = Date.now();
+  const url = `${STATUS_URL}?v=${bust}`;
+  document.getElementById('kpiSource').textContent = url;
+
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) throw new Error(`HTTP ${res.status} sur ${STATUS_URL}`);
+  const json = await res.json();
+
+  document.getElementById('kpiFetchedAt').textContent = nowFr();
+
+  const version =
+    json.version || json.appVersion || (json.build && json.build.version) || (json.meta && json.meta.version) || '—';
+  document.getElementById('kpiVersion').textContent = version;
+
+  document.getElementById('raw').textContent = JSON.stringify(json, null, 2);
+
+  const expected = norm(document.getElementById('expected').value);
+  const got = norm(version);
+
+  const details = [];
+  details.push(`Attendue: ${expected || '(non renseignée)'}`);
+  details.push(`Trouvée:   ${got || '(absente)'}`);
+  details.push(`URL lue:   ${url}`);
+  details.push('');
+  details.push('Note: clés testées: version, appVersion, build.version, meta.version.');
+
+  document.getElementById('details').textContent = details.join('\n');
+
+  if(!expected){
+    setVerdict('warn', '⚠️ Renseigne une version attendue');
+    return;
+  }
+  if(!got || got === '—'){
+    setVerdict('err', '❌ Version absente dans status.json');
+    return;
+  }
+  if(got === expected){
+    setVerdict('ok', '✅ OK');
+    return;
+  }
+  setVerdict('warn', '⚠️ Incohérence (cache ou status.json pas à jour)');
+}
+
+document.getElementById('btnRefresh').addEventListener('click', () => {
+  loadStatus().catch(e => {
+    setVerdict('err','❌ Erreur');
+    document.getElementById('details').textContent = e.stack || e.message || String(e);
+  });
+});
+
+document.getElementById('expected').addEventListener('input', () => {
+  loadStatus().catch(()=>{});
+});
+
+loadStatus().catch(e => {
+  setVerdict('err','❌ Erreur');
+  document.getElementById('details').textContent = e.stack || e.message || String(e);
+});
+</script>
+</body>
+</html>

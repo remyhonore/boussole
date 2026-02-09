@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#fff7f4" name="theme-color"/>
+<title>Boussole — Tableau de bord (v0.7.15)</title>
+<link href="dashboard.css?v=0.7.15" rel="stylesheet"/>
+<link href="manifest.webmanifest?v=0.7.15" rel="manifest"/><link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png" rel="icon" sizes="16x16" type="image/png"/><link href="apple-touch-icon.png" rel="apple-touch-icon"/><link color="#e0aa99" href="safari-pinned-tab.svg" rel="mask-icon"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="default" name="apple-mobile-web-app-status-bar-style"/><meta content="Boussole" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/></head>
+<body>
+<a class="skip-link" href="#main" id="skipLink">Aller au contenu</a>
+<header class="topbar">
+<div class="brand">
+<div class="brand__title">Boussole</div>
+<div class="brand__meta">Tableau de bord • v0.7.15 • local‑first</div>
+</div>
+<div class="topbar__actions">
+<button class="btn btn--ghost" id="btnTryAuto">Recharger (auto)</button>
+<label class="btn btn--ghost filebtn">
+        Charger un fichier…
+        <input accept=".json,application/json" id="file" type="file"/>
+</label>
+<button class="btn" id="btnExportStatus">Exporter status.json</button>
+</div>
+</header>
+<main class="container" id="main" tabindex="-1">
+<section class="card">
+<div class="card__title">Données</div>
+<div class="card__hint">
+        Le tableau de bord peut lire soit un <strong>status.json</strong> (exporté), soit un <strong>diagnostic</strong> (si “Inclure les données” était ON).
+        Tentative auto : <code>./status.json</code>.
+      </div>
+<div class="row">
+<div class="pill" id="srcPill">Source : —</div>
+<div class="pill" id="countPill">Entrées : —</div>
+<div class="pill" id="rangePill">Période : —</div>
+</div>
+</section>
+<section class="card">
+<div class="card__title">Indicateurs (14 jours)</div>
+<div class="kpis" id="kpis"></div>
+</section>
+<section class="card">
+<div class="card__title">Historique (30 dernières entrées)</div>
+<div class="tableWrap">
+<table class="table" id="tbl">
+<thead>
+<tr>
+<th>Date</th>
+<th>Énergie</th>
+<th>Sommeil</th>
+<th>Confort</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="footer__text">Astuce : si tu lances un petit serveur local (ex. “python -m http.server”), le chargement auto de status.json marche mieux qu’en file://.</div>
+</footer>
+<script src="dashboard.js?v=0.7.15"></script>
+</body>
+</html>

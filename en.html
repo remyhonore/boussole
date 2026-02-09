@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>Boussole — 1 minute a day</title>
+<link href="./assets/site.webmanifest" rel="manifest"/>
+<link href="./assets/favicon.ico" rel="icon"/>
+<link href="./assets/apple-touch-icon.png" rel="apple-touch-icon"/>
+<link rel="mask-icon" href="./assets/safari-pinned-tab.svg" color="#e0aa99"/>
+<meta content="#fff7f4" name="theme-color"/>
+<meta content="./assets/og.png" property="og:image"/>
+<style>
+    :root{
+      --bg0:#070a12; --bg1:#0b1020;
+      --txt:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --muted2:rgba(255,255,255,.58);
+      --line:rgba(255,255,255,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(106,169,255,.20), transparent 55%),
+        radial-gradient(900px 500px at 85% 25%, rgba(143,106,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 40% 90%, rgba(0,220,255,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:1100px; margin:0 auto; padding:26px 18px 60px}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:0}
+    .logo{
+      width:40px; height:40px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      display:grid; place-items:center;
+      overflow:hidden;
+    }
+    .logo img{width:28px; height:28px; object-fit:contain; opacity:.95}
+    .brand h1{font-size:16px; margin:0; letter-spacing:.2px}
+    .brand .sub{font-size:12px; color:var(--muted2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      padding:10px 14px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--txt);
+      font-weight:600;
+      font-size:13px;
+      line-height:1;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      border-color: rgba(106,169,255,.35);
+      background: rgba(106,169,255,.16);
+    }
+    .hero{
+      margin-top:26px;
+      padding:34px 28px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+    }
+    .heroGrid{display:grid; grid-template-columns: 1.2fr .8fr; gap:26px; align-items:center}
+    .kicker{color:var(--muted); font-weight:600; letter-spacing:.2px; font-size:13px}
+    .title{margin:10px 0 10px; font-size:48px; line-height:1.04; letter-spacing:-.6px}
+    .lead{margin:0; color:var(--muted); font-size:15px; line-height:1.55; max-width:56ch}
+    .cards{margin-top:22px; display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px}
+    .card{
+      padding:16px 16px;
+      border-radius: 16px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      min-height:92px;
+    }
+    .card h3{margin:0 0 6px; font-size:14px}
+    .card p{margin:0; color:var(--muted); font-size:13px; line-height:1.45}
+    .shot{
+      border-radius: 22px;
+      border:1px solid var(--line);
+      background: radial-gradient(400px 200px at 50% 30%, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      overflow:hidden;
+      padding:18px;
+    }
+    .shot img{width:100%; height:auto; display:block; border-radius: 16px; border:1px solid rgba(255,255,255,.10); opacity:.95}
+    .foot{margin-top:18px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; color:var(--muted2); font-size:12px}
+    .guard{margin-top:22px; padding:16px; border-radius:16px; border:1px solid var(--line); background: rgba(255,255,255,.04); color:var(--muted); font-size:12px; line-height:1.5}
+    .guard b{color:rgba(255,255,255,.78)}
+    @media (max-width:900px){
+      .heroGrid{grid-template-columns:1fr}
+      .title{font-size:40px}
+      .cards{grid-template-columns:1fr}
+    }
+  
+
+    /* =========================================================
+       v0.6.87 — Landing restyle (micronutriment.fr light theme)
+       - Aucun changement fonctionnel : CSS overrides only.
+       ========================================================= */
+
+    :root{
+      color-scheme: light;
+      --bg:#ffffff;
+      --bg-soft:#fff7f4;
+      --surface:#ffffff;
+      --text:#111111;
+      --muted:#6b6b6b;
+      --muted2:#8a8a8a;
+      --border:#ece7e5;
+      --accent:#e0aa99;
+      --accent-hover:#d69483;
+      --accent-soft: rgba(224,170,153,.12);
+      --accent-ring: rgba(224,170,153,.25);
+      --radius:12px;
+      --shadow-soft: 0 10px 30px rgba(17,17,17,.06);
+      --shadow-card: 0 6px 18px rgba(17,17,17,.05);
+
+      /* compat mapping (existing CSS vars) */
+      --bg0: var(--bg);
+      --bg1: var(--bg-soft);
+      --card: var(--surface);
+      --card2: var(--surface);
+      --txt: var(--text);
+      --line: var(--border);
+    }
+
+    body{
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 85% 8%, rgba(224,170,153,.18), transparent 60%),
+        radial-gradient(700px 460px at 12% 92%, rgba(224,170,153,.10), transparent 65%),
+        linear-gradient(180deg, var(--bg-soft), var(--bg));
+    }
+
+    .wrap{max-width:980px; padding:26px 16px 60px}
+
+    header{
+      border-color: var(--border);
+      background: rgba(255,255,255,.82);
+      backdrop-filter: none;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .logo{
+      border-color: var(--border);
+      background: var(--bg-soft);
+    }
+    .logo img{opacity:1}
+
+    .brand .sub{color: var(--muted2)}
+
+    .btn{
+      border-color: var(--border);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 0 rgba(17,17,17,.02);
+    }
+    .btn:hover{
+      background: var(--bg-soft);
+      border-color: rgba(224,170,153,.35);
+    }
+    .btn.primary{
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(224,170,153,.22);
+    }
+    .btn.primary:hover{background: var(--accent-hover); border-color: var(--accent-hover)}
+    .btn:focus-visible{
+      outline: 3px solid var(--accent-ring);
+      outline-offset: 2px;
+    }
+
+    .hero{
+      border-color: var(--border);
+      background: rgba(255,255,255,.86);
+      backdrop-filter: none;
+      box-shadow: var(--shadow-soft);
+      border-radius: 14px;
+    }
+
+    .kicker{color: var(--muted)}
+    .lead{color: var(--muted)}
+
+    .cards{gap:12px}
+    .card{
+      border-color: var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .card p{color: var(--muted)}
+
+    .shot{
+      border-color: var(--border);
+      background: var(--bg-soft);
+      box-shadow: var(--shadow-card);
+    }
+    .shot img{
+      border-color: var(--border);
+      opacity:1;
+      background: var(--surface);
+    }
+
+    .guard{
+      border-color: var(--border);
+      background: var(--bg-soft);
+      color: var(--muted);
+    }
+    .guard b{color: var(--text)}
+
+    .foot{color: var(--muted2)}
+
+    a:focus-visible{
+      outline: 3px solid var(--accent-ring);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
+    @media (max-width:900px){
+      .wrap{padding:20px 16px 56px}
+      header{border-radius: 16px}
+      .hero{padding:28px 20px}
+    }
+    
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="brand">
+<div aria-hidden="true" class="logo"><img alt="" src="./assets/icon-192.png"/></div>
+<div style="min-width:0">
+<h1>Boussole</h1>
+<div class="sub">Multi-symptom tracking • local storage</div>
+</div>
+</div>
+<div class="actions">
+<a class="btn primary" href="./app/">Try the demo</a>
+<a class="btn" href="#guardrails">Guardrails</a>
+<a class="btn" href="./index.html" title="Français">FR</a>
+</div>
+</header>
+<main class="hero">
+<div class="heroGrid">
+<div>
+<div class="kicker">On-device data • no account • no cloud</div>
+<div class="title">1 minute a day.<br/>A 1‑page PDF before your appointment.</div>
+<p class="lead">Ultra-simple tracking to reduce mental load. Three sliders (Energy / Sleep / Comfort) plus optional items if you want.</p>
+<div aria-label="Features" class="cards">
+<div class="card">
+<h3>✅ Daily update</h3>
+<p>3 sliders + optional “multi‑symptom” preset (e.g., Long Covid) if you want.</p>
+</div>
+<div class="card">
+<h3>📈 14‑day trends</h3>
+<p>Clear trends, not a complicated dashboard.</p>
+</div>
+<div class="card">
+<h3>🧾 “Pre‑visit” PDF</h3>
+<p>Export a one‑page A4 summary in one click (print → save as PDF).</p>
+</div>
+<div class="card">
+<h3>🔒 Local‑first</h3>
+<p>Data stays on the device. Can be erased anytime.</p>
+</div>
+</div>
+<div class="guard" id="guardrails">
+<b>Guardrails:</b> Boussole does not provide a diagnosis and does not replace medical advice.
+            In emergencies (chest pain, severe shortness of breath, neurological deficit, fainting): call local emergency services.
+          </div>
+<div class="foot">
+<div>boussole.micronutriment.fr</div>
+<div>App version: v0.7.15</div>
+</div>
+</div>
+<aside aria-label="Preview" class="shot">
+<img alt="Boussole preview" src="./assets/phone.webp"/>
+</aside>
+</div>
+</main>
+</div>
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const id = a.getAttribute('href');
+        const el = document.querySelector(id);
+        if(!el) return;
+        e.preventDefault();
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        history.replaceState(null, "", id);
+      });
+    });
+  </script>
+</body>
+</html>

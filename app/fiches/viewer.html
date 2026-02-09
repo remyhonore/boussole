@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fiche</title>
+  <style>
+:root{
+  color-scheme: light;
+  --bg:#fff7f4;
+  --card:#ffffff;
+  --stroke:#ece7e5;
+  --text:#111111;
+  --muted:#6b6b6b;
+  --accent:#e0aa99;
+  --accent-hover:#d69483;
+  --shadow: 0 8px 24px rgba(17,17,17,.08);
+}
+html,body{height:100%; margin:0; background:var(--bg); color:var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;}
+.wrap{min-height:100%; display:flex; flex-direction:column;}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid var(--stroke); background:rgba(255,255,255,.92); backdrop-filter: blur(10px)}
+.title{font-weight:800; letter-spacing:.2px;}
+.hint{font-size:12px; color:var(--muted);}
+.btn{cursor:pointer; border:1px solid var(--stroke); background: var(--card); color:var(--text); padding:10px 12px; border-radius:12px; font-weight:800;}
+.btn:hover{background: var(--bg);}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.stage{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:14px;}
+img{max-width:min(980px, 96vw); max-height: calc(100vh - 190px); border-radius:12px; border:1px solid var(--stroke); background:#ffffff; box-shadow: var(--shadow)}
+.err{max-width:920px; padding:18px; border:1px solid var(--stroke); background: var(--card); border-radius:12px; box-shadow: var(--shadow)}
+.note{margin-top:12px; font-size:12px; color:var(--muted); text-align:center; padding:10px 12px; border:1px solid var(--stroke); background: var(--card); border-radius:12px; max-width:920px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="title" id="t">Fiche</div>
+        <div class="hint">Affichage plein écran (hors ligne).</div>
+      </div>
+      <button class="btn" onclick="window.close()">Fermer</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="err" id="err" style="display:none"></div>
+      <img id="img" alt="Fiche" style="display:none" />
+      <div class="note" id="note" style="display:none">⚠️ Info générale uniquement. En cas de doute/symptôme : médecin traitant. Urgence : 15.</div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const params = new URLSearchParams(location.search);
+      const src = params.get("src") || "";
+      const title = params.get("title") || "Fiche";
+      document.title = title;
+      document.getElementById("t").textContent = title;
+
+      // Deux modes :
+      // 1) src = 'fiches/xxx.webp' (fichier embarqué)
+      // 2) src = 'db:<key>' (fiche importée, stockée en IndexedDB)
+      const isDb = src.startsWith("db:");
+      if (!isDb) {
+        // Sécurité : n’autoriser que les fichiers dans le dossier 'fiches/'
+        if (!src.startsWith("fiches/") || src.includes("..") || src.includes(":") || src.includes("\\") ) {
+          const e = document.getElementById("err");
+          e.style.display = "block";
+          e.textContent = "Impossible d’ouvrir cette fiche.";
+          return;
+        }
+      }
+
+      // viewer.html est DANS /fiches/ → on charge le fichier depuis le même dossier
+      let file = "";
+      if (!isDb) {
+        file = src.slice("fiches/".length);
+        // Interdire tout sous-dossier
+        if (!file || file.includes("/") || file.includes("\\") ) {
+          const e = document.getElementById("err");
+          e.style.display = "block";
+          e.textContent = "Impossible d’ouvrir cette fiche.";
+          return;
+        }
+        const okExt = /\.(webp|png|jpe?g)$/i.test(file);
+        if (!okExt) {
+          const e = document.getElementById("err");
+          e.style.display = "block";
+          e.textContent = "Format d’image non supporté.";
+          return;
+        }
+      }
+
+      const img = document.getElementById("img");
+      const note = document.getElementById("note");
+
+      function fail(){
+        const e = document.getElementById("err");
+        e.style.display = "block";
+        e.textContent = "Image introuvable ou non supportée.";
+        img.style.display = "none";
+        if (note) note.style.display = "none";
+      }
+
+      function show(url){
+        img.src = url;
+        img.alt = title;
+        img.style.display = "block";
+        img.onload = function(){
+          if (note) note.style.display = "block";
+        };
+      }
+
+      if (isDb) {
+        // Charge depuis IndexedDB (même origine)
+        const key = src.slice(3);
+        if (!key) { fail(); return; }
+
+        const openDb = () => new Promise((resolve) => {
+          try {
+            const req = indexedDB.open("boussole_fiches_db_v1", 1);
+            req.onupgradeneeded = () => {
+              try {
+                const db = req.result;
+                if (!db.objectStoreNames.contains("images")) db.createObjectStore("images");
+              } catch {}
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+          } catch { resolve(null); }
+        });
+
+        (async () => {
+          try {
+            const db = await openDb();
+            if (!db) { fail(); return; }
+            const blob = await new Promise((resolve) => {
+              try {
+                const tx = db.transaction("images", "readonly");
+                const st = tx.objectStore("images");
+                const rq = st.get(key);
+                rq.onsuccess = () => resolve(rq.result || null);
+                rq.onerror = () => resolve(null);
+              } catch { resolve(null); }
+            });
+            if (!blob) { fail(); return; }
+            const url = URL.createObjectURL(blob);
+            show(url);
+          } catch { fail(); }
+        })();
+
+      } else {
+        // Tolérance : si le nom contient des majuscules (liens anciens), tenter un fallback en minuscules
+        const fileLower = file.toLowerCase();
+        let triedLower = false;
+
+        img.onerror = function(){
+          if (!triedLower && fileLower !== file) {
+            triedLower = true;
+            img.src = fileLower;
+            return;
+          }
+          fail();
+        };
+
+        show(file);
+      }
+    })();
+  </script>
+</body>
+</html>

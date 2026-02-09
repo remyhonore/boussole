@@ -1,0 +1,7 @@
+INSTRUCTIONS
+- /app contient l’application (Boussole)
+- /assets contient les ressources du site (icônes, manifest, OG image)
+- /cgi-bin est présent uniquement pour compatibilité d’arborescence (non utilisé)
+
+Ouvrir:
+- index.html (racine) → redirection vers /app/index.html

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#fff7f4" name="theme-color"/>
+<title>Boussole — v0.7.15</title>
+<link href="manifest.webmanifest?v=0.7.15" rel="manifest"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="favicon-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<link color="#e0aa99" href="safari-pinned-tab.svg" rel="mask-icon"/>
+<link href="styles.css?v=0.7.15" rel="stylesheet"/>
+<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<script>
+    // One-time safety reset: unregister old service workers (prevents stale /app/ loads after updates)
+    (function(){
+      const KEY = "boussole_sw_reset_v0_3_9";
+      if(!("serviceWorker" in navigator)) return;
+      try{
+        if(localStorage.getItem(KEY)) return;
+        localStorage.setItem(KEY, "1");
+        navigator.serviceWorker.getRegistrations().then((regs)=>{
+          const targets = (regs||[]).filter(r => (r.scope||"").includes("/app/"));
+          if(!targets.length) return;
+          return Promise.all(targets.map(r => r.unregister())).then(()=> {
+            // Reload once to ensure fresh app shell
+            setTimeout(()=> location.reload(), 80);
+          });
+        }).catch(()=>{});
+      }catch(e){}
+    })();
+  </script>
+<meta content="yes" name="apple-mobile-web-app-capable"/><meta content="default" name="apple-mobile-web-app-status-bar-style"/><meta content="Boussole" name="apple-mobile-web-app-title"/><meta content="yes" name="mobile-web-app-capable"/></head>
+<body>
+<a class="skip-link" href="#main" id="skipLink">Aller au contenu</a>
+<header class="topbar">
+<div class="brand">
+<div class="brand__title">Boussole</div>
+<div class="brand__meta">v0.7.15 • données locales • sans compte • <button aria-controls="releaseNotesModal" aria-haspopup="dialog" class="linkBtn" id="btnReleaseNotes" type="button">Notes de version <span aria-hidden="true" class="rnNewBadge" hidden="" id="releaseNotesNewBadge">Nouveau</span></button></div>
+</div>
+<div class="topbar__actions">
+<button class="btn btn--ghost" id="btnBug">Signaler un problème</button>
+<button class="btn btn--ghost" id="btnBugCopy" title="Copier le message de signalement">Copier</button>
+<button class="btn btn--ghost" id="btnExportStatus">Exporter l’état (status.json)</button>
+<button class="btn btn--ghost" id="btnExportDiag">Exporter diagnostic</button>
+</div>
+</header>
+<nav aria-label="Navigation" class="tabs" role="tablist">
+<button aria-selected="true" class="tab is-active" data-tab="today" role="tab">Aujourd’hui</button>
+<button aria-selected="false" class="tab" data-tab="evolution" role="tab">Évolution</button>
+<button aria-selected="false" class="tab" data-tab="pdf" role="tab">PDF</button>
+<button aria-selected="false" class="tab" data-tab="settings" role="tab">Réglages</button>
+</nav>
+<main class="container" id="main" tabindex="-1">
+<section class="panel is-active" id="tab-today" role="tabpanel">
+<div class="card">
+<div class="card__title">Bilan du jour (≈ 1 minute)</div>
+<div class="card__hint">Échelle 0 → 10 : plus le score est élevé, mieux c’est.</div>
+<div aria-label="Ouvrir les fiches pratiques" class="fichesEntry" id="fichesEntry" role="button" tabindex="0">
+<div class="fichesEntry__text">
+<div class="fichesEntry__title">Fiches pratiques</div>
+<div class="fichesEntry__subRow">
+<div class="fichesEntry__sub">Guides visuels rapides • hors ligne</div>
+<div class="fichesEntry__quick">
+<span class="fichesEntry__count" id="fichesFavCount">⭐ 0 favoris</span>
+<button class="fichesEntry__miniBtn" id="btnFichesFavQuick" type="button">Mes favoris</button>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="fichesEntry__chev">›</div>
+</div>
+<div class="field slotField" id="slotField" style="display:none">
+<div class="field__label slotLabelRow">
+<span>Moment de la journée</span>
+</div>
+<div aria-label="Moment de la journée" class="segmented" id="slotToggle" role="group">
+<button aria-pressed="true" class="seg is-active" data-slot="AM" type="button">☀️ Matin</button>
+<button aria-pressed="false" class="seg" data-slot="PM" type="button">🌙 Soir</button>
+</div>
+<select aria-hidden="true" class="select is-hidden" id="slotSelect" tabindex="-1">
+<option value="AM">Matin</option>
+<option value="PM">Soir</option>
+</select>
+<div class="small slotNote" id="slotNote">Aucun bilan enregistré pour ce moment : champs vides.</div>
+</div>
+<div class="field">
+<label class="field__label" for="energy"><span class="field__labelLeft"><span class="field__labelText">Énergie</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Énergie ?" class="sliderHelpBtn" data-help="energy" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="energyVal">—</span></label>
+<input data-unset="1" id="energy" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="sleep"><span class="field__labelLeft"><span class="field__labelText">Sommeil</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Sommeil ?" class="sliderHelpBtn" data-help="sleep" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="sleepVal">—</span></label>
+<input data-unset="1" id="sleep" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="comfort"><span class="field__labelLeft"><span class="field__labelText">Confort</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Confort ?" class="sliderHelpBtn" data-help="comfort" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="comfortVal">—</span></label>
+<input data-unset="1" id="comfort" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div id="extraSection" style="display:none">
+<div class="divider"></div>
+<div class="field">
+<label class="field__label" for="memory"><span class="field__labelLeft"><span class="field__labelText">Mémoire</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Mémoire ?" class="sliderHelpBtn" data-help="memory" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="memoryVal">—</span></label>
+<input data-unset="1" id="memory" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="concentration"><span class="field__labelLeft"><span class="field__labelText">Concentration</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Concentration ?" class="sliderHelpBtn" data-help="concentration" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="concentrationVal">—</span></label>
+<input data-unset="1" id="concentration" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="orthostatic"><span class="field__labelLeft"><span class="field__labelText">Orthostatisme</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Orthostatisme ?" class="sliderHelpBtn" data-help="orthostatic" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="orthostaticVal">—</span></label>
+<input data-unset="1" id="orthostatic" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="mood"><span class="field__labelLeft"><span class="field__labelText">Humeur</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Humeur ?" class="sliderHelpBtn" data-help="mood" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="moodVal">—</span></label>
+<input data-unset="1" id="mood" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="field">
+<label class="field__label" for="serenity"><span class="field__labelLeft"><span class="field__labelText">Sérénité</span><button aria-controls="sliderHelpModal" aria-haspopup="dialog" aria-label="À quoi correspond le curseur Sérénité ?" class="sliderHelpBtn" data-help="serenity" title="À quoi correspond ce curseur ?" type="button">ⓘ</button></span><span class="pill" id="serenityVal">—</span></label>
+<input data-unset="1" id="serenity" max="10" min="0" step="1" type="range" value="0"/>
+</div>
+</div>
+<div class="row">
+<button class="btn btn--ghost" id="btnQuick">Reprendre les dernières valeurs</button>
+<button class="btn" id="btnSave">Enregistrer</button>
+<button class="btn btn--ghost" id="btnUndo" title="Annuler le dernier enregistrement">Annuler</button>
+</div>
+<div class="divider"></div>
+<div class="muted" id="lastSaved">Aucune entrée enregistrée.</div>
+</div>
+</section>
+<section class="panel" id="tab-evolution" role="tabpanel">
+<div class="card">
+<div class="card__title" id="evolutionTitle">Évolution (14 jours)</div>
+<div class="card__hint">Aperçu rapide, sans surcharge.</div>
+<div class="row" style="align-items:center; justify-content:space-between; margin-top:10px">
+<div class="small" style="min-width:70px">Période</div>
+<div aria-label="Période d’évolution" class="segmented segmented--compact" id="evoWindow" role="group" style="flex:1">
+<button aria-pressed="false" class="seg" data-days="7" type="button">7 j</button>
+<button aria-pressed="true" class="seg is-active" data-days="14" type="button">14 j</button>
+<button aria-pressed="false" class="seg" data-days="30" type="button">30 j</button>
+</div>
+</div>
+<div id="evolutionStandard">
+<div class="kpis" id="kpis"></div>
+<div class="divider"></div>
+<div class="tableWrap">
+<table class="table" id="table14">
+<thead><tr></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+<div id="evolutionTwice" style="display:none">
+<div class="subcard">
+<div class="subcard__title"><span>Matin</span><span aria-controls="nLegendAM" aria-expanded="false" class="subcard__n" id="nAM" role="button" tabindex="0" title="Nombre de jours avec une entrée Matin (sur 14)">n=—</span></div>
+<div class="kpis" id="kpisAM"></div>
+<div class="divider"></div>
+<div class="tableWrap">
+<table class="table" id="table14AM">
+<thead><tr></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<details aria-label="Légende n= (Matin)" class="nLegend" data-nlegend="AM" id="nLegendAM" role="group">
+<summary><span>ℹ️ Comprendre “n=”</span><span aria-hidden="true" class="nLegend__ctx"></span></summary>
+<div class="nLegend__text">n = nombre de jours avec une valeur renseignée (sur 14 jours).</div>
+<div class="nLegend__actions"><button aria-label="Fermer la légende" class="nLegend__close" type="button">Fermer</button></div>
+</details>
+</div>
+<div class="subcard">
+<div class="subcard__title"><span>Soir</span><span aria-controls="nLegendPM" aria-expanded="false" class="subcard__n" id="nPM" role="button" tabindex="0" title="Nombre de jours avec une entrée Soir (sur 14)">n=—</span></div>
+<div class="kpis" id="kpisPM"></div>
+<div class="divider"></div>
+<div class="tableWrap">
+<table class="table" id="table14PM">
+<thead><tr></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<details aria-label="Légende n= (Soir)" class="nLegend" data-nlegend="PM" id="nLegendPM" role="group">
+<summary><span>ℹ️ Comprendre “n=”</span><span aria-hidden="true" class="nLegend__ctx"></span></summary>
+<div class="nLegend__text">n = nombre de jours avec une valeur renseignée (sur 14 jours).</div>
+<div class="nLegend__actions"><button aria-label="Fermer la légende" class="nLegend__close" type="button">Fermer</button></div>
+</details>
+</div>
+</div>
+</div>
+</section>
+<section class="panel" id="tab-pdf" role="tabpanel">
+<div class="card">
+<div class="card__title">Exporter un PDF (jusqu’à 2 pages)</div>
+<div class="card__hint">Génération 100% locale. Aucun envoi.</div>
+<div style="margin-top:8px">
+<span class="pill" id="pdfDebugBadge" style="display: none; height: 22px; padding: 0 10px; font-size: 11px; font-weight: 900; opacity: .85">Mode test PDF lent</span>
+<span class="pill" id="pdfFailDebugBadge" style="display: none; height: 22px; padding: 0 10px; font-size: 11px; font-weight: 900; opacity: .85; margin-left: 6px">Mode test erreur PDF</span>
+</div>
+<div class="card__hint" style="margin-top:10px">Le PDF s’adapte automatiquement : page 1 = résumé principal, page 2 = compléments si nécessaire.</div>
+<div class="row" style="align-items:center; justify-content:space-between; gap:12px; margin-top:12px; flex-wrap:wrap">
+<div style="display:flex; align-items:center; gap:12px; flex:1; min-width:240px">
+<div class="small" style="min-width:110px">Style du PDF</div>
+<div aria-label="Style du PDF" class="segmented segmented--compact" id="pdfTheme" role="group" style="flex:1">
+<button aria-pressed="true" class="seg is-active" data-theme="color" type="button">Coloré</button>
+<button aria-pressed="false" class="seg" data-theme="bw" type="button">Noir &amp; blanc</button>
+</div>
+</div>
+</div>
+<div class="divider" style="margin:14px 0"></div>
+<div class="row" style="align-items:flex-start; justify-content:space-between; gap:12px; margin-top:10px; flex-wrap:wrap">
+<div class="field" style="flex:1; min-width:280px; margin:0">
+<div class="field__label">
+<span>Objectif de la consultation (1 phrase)</span>
+<span class="small" id="consultGoalCount">0/140</span>
+</div>
+<input class="textline" id="consultGoal" maxlength="140" placeholder="Ex : clarifier mes symptômes principaux et préparer ma consultation" type="text"/>
+<div class="card__hint">Optionnel. Ajouté à la section “Pré‑consultation” du PDF.</div>
+</div>
+</div>
+<div class="row">
+<button class="btn" id="btnPdf" title="Télécharger le PDF">Télécharger</button>
+<div class="alert" id="pdfError" style="display:none; margin-left:12px; flex:1"></div>
+</div>
+<div aria-live="polite" class="pdfProgress" id="pdfProgressWrap" style="display:none">
+<div class="pdfProgress__top">
+<div class="pdfProgress__text" id="pdfProgressText">Étape 1/2 — Préparation…</div>
+<button class="btn btn--ghost btn--small" id="btnCancelPdf" type="button">Annuler</button>
+</div>
+<div aria-hidden="true" class="pdfProgress__bar"><div class="pdfProgress__fill" id="pdfProgressFill"></div></div>
+</div>
+<div aria-live="polite" class="muted" id="pdfGeneratingHint" style="display:none; margin-top:6px">Génération en cours…</div>
+<div aria-live="polite" class="muted" id="pdfSlowHint" style="display:none; margin-top:6px">Ça prend un peu plus de temps… tu peux laisser faire ou annuler.</div>
+<div aria-live="polite" class="muted" id="pdfEstimateHint" style="display:none; margin-top:4px; font-size:0.95em">En général : 3–6 secondes.</div>
+<div aria-live="polite" class="muted" id="pdfVerySlowHint" style="display:none; margin-top:6px">Toujours en cours — parfois Safari est lent, c’est normal. Tu peux annuler.<br/>Astuce : laisse l’app ouverte (pas de changement d’onglet).</div>
+<div aria-live="polite" class="muted" id="pdfResumeHint" style="display:none; margin-top:6px">Reprise…</div>
+<div aria-live="polite" class="muted" id="pdfCancelHint" style="display:none; margin-top:6px">Export annulé ✅</div>
+<div aria-live="polite" class="muted" id="pdfDoneHint" style="display:none; margin-top:6px">PDF téléchargé ✅</div>
+<div aria-live="polite" class="muted" id="pdfReadyHint" style="display:none; margin-top:6px">Prêt ✅</div>
+<div class="pdfSupport" id="pdfSupportBlock" style="display:none">
+<div class="pdfSupport__title">Aide PDF</div>
+<div class="pdfSupport__text">En 10 secondes : partage, copie ou télécharge le diagnostic (sans données de santé). Si c’est bloqué, utilise “Afficher le diagnostic”. Puis envoie l’email pré‑rempli si besoin.</div>
+<div aria-live="polite" class="pdfGuideHint" id="pdfGuideHint" style="display:none">Je te guide 👇</div>
+<div class="row" style="justify-content:flex-end; gap:10px; margin-top:10px; flex-wrap:wrap">
+<button class="btn btn--small" id="btnRetryPdfQuick" title="Réessayer le téléchargement du PDF" type="button">Télécharger</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPdfDiagQuick" title="Copier le diagnostic" type="button">Copier</button>
+<button class="btn btn--ghost btn--small" id="btnDownloadPdfDiagQuick" title="Télécharger le diagnostic (.txt)" type="button">Télécharger</button>
+<button class="btn btn--ghost btn--small" id="btnShowPdfDiagQuick" type="button">Afficher le diagnostic</button>
+<button class="btn btn--ghost btn--small" id="btnSharePdfDiagQuick" type="button">Partager…</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPdfTestUrlQuick" title="Copier l’URL de test" type="button">Copier</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPdfFailUrlQuick" title="Copier l’URL test erreur" type="button">Copier</button>
+<button class="btn btn--ghost btn--small" id="btnClearPdfTestModesQuick" style="display:none" type="button">Désactiver les modes test</button>
+<button class="btn btn--ghost btn--small" id="btnPdfProblemQuick" type="button">Signaler un problème PDF</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPdfSupportMsgQuick" title="Copier le message" type="button">Copier</button>
+</div>
+</div>
+<div class="row" style="justify-content:flex-end; gap:10px; margin-top:6px; flex-wrap:wrap">
+<button class="btn btn--ghost btn--small" id="btnCopyPdfDiag" type="button">Copier</button>
+<button class="btn btn--ghost btn--small" id="btnDownloadPdfDiag" type="button">Télécharger</button>
+<button class="btn btn--ghost btn--small" id="btnShowPdfDiag" type="button">Afficher le diagnostic</button>
+<button class="btn btn--ghost btn--small" id="btnSharePdfDiagInline" type="button">Partager…</button>
+<button class="btn btn--ghost btn--small" id="btnPdfProblem" type="button">Signaler un problème PDF</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPdfSupportMsg" type="button">Copier</button>
+</div>
+<div class="muted" id="pdfDiagCopiedHint" style="display:none; margin-top:6px">Diagnostic copié ✅</div>
+<div class="divider"></div>
+</div>
+</section>
+<section class="panel" id="tab-settings" role="tabpanel">
+<div class="card">
+<div class="card__title">Rythme du bilan</div>
+<div class="card__hint">Optionnel : permet d’enregistrer 2 bilans par jour (Matin/Soir). Désactivé par défaut.</div>
+<div class="toggle">
+<input id="set_twice_daily" type="checkbox"/>
+<label for="set_twice_daily">2×/jour (Matin/Soir)</label>
+</div>
+</div>
+<div class="card">
+<div class="card__title">Suivi multi-symptômes (optionnel)</div>
+<div class="card__hint">
+          Active des curseurs supplémentaires lors du bilan. Rien n’est envoyé, tout reste sur ton appareil.
+        </div>
+<div class="row">
+<button class="btn" id="btnPresetCovid">Pré‑réglage “Covid long”</button>
+<button class="btn btn--ghost" id="btnPresetOff">Désactiver</button>
+</div>
+<div class="toggle">
+<input id="set_memory" type="checkbox"/>
+<label for="set_memory">Mémoire</label>
+</div>
+<div class="toggle">
+<input id="set_concentration" type="checkbox"/>
+<label for="set_concentration">Concentration</label>
+</div>
+<div class="toggle">
+<input id="set_orthostatic" type="checkbox"/>
+<label for="set_orthostatic">Orthostatisme</label>
+</div>
+<div class="toggle">
+<input id="set_mood" type="checkbox"/>
+<label for="set_mood">Humeur</label>
+</div>
+<div class="toggle">
+<input id="set_serenity" type="checkbox"/>
+<label for="set_serenity">Sérénité</label>
+</div>
+<div class="divider"></div>
+<div class="card__title">Assistant de démarrage</div>
+<div class="card__hint">Réouvre le choix de pré‑réglage (sans toucher à tes données).</div>
+<div class="row">
+<button class="btn btn--ghost" id="btnRestartStarter">Relancer l’assistant de démarrage</button>
+</div>
+<div class="divider"></div>
+<div class="card__title">Réinitialiser les réglages</div>
+<div class="card__hint">
+          Remet à zéro les réglages (pré‑réglage, curseurs optionnels, diagnostic). Tes entrées restent intactes.
+        </div>
+<div class="row">
+<button class="btn btn--ghost" id="btnResetSettings">Réinitialiser uniquement les réglages</button>
+</div>
+<div class="divider"></div>
+<div class="card__title">Mes professionnels de santé</div>
+<div class="card__hint">Optionnel : garde sous la main ton médecin et ta pharmacie. Ces infos restent locales et sont ajoutées au PDF.</div>
+<div class="row">
+<div style="flex:1; min-width:240px">
+<div class="field">
+<div class="field__label">
+<span>Médecin</span>
+<div style="display:flex; gap:8px; align-items:center;">
+<button class="btn btn--ghost btn--small" id="btnLookupDoctor" title="Rechercher et importer" type="button">Importer</button>
+<button class="btn btn--ghost btn--small" id="btnCopyDoctor" title="Copier les coordonnées" type="button">Copier</button>
+</div>
+</div>
+<input autocomplete="section-doctor name" class="textline hc-autofill" id="doctorName" name="doctor_name" placeholder="Nom (ex : Dr Martin)" type="text"/>
+</div>
+<div class="field">
+<div class="field__label"><span>Téléphone</span></div>
+<input autocomplete="section-doctor tel" class="textline hc-autofill" id="doctorPhone" inputmode="tel" name="doctor_tel" placeholder="06 XX XX XX XX" type="tel"/>
+</div>
+<div class="field">
+<div class="field__label"><span>Adresse</span></div>
+<input autocomplete="section-doctor street-address" class="textline hc-autofill" id="doctorAddress" name="doctor_address" placeholder="Adresse (optionnel)" type="text"/>
+</div>
+</div>
+<div style="flex:1; min-width:240px">
+<div class="field">
+<div class="field__label">
+<span>Pharmacie</span>
+<div style="display:flex; gap:8px; align-items:center;">
+<button class="btn btn--ghost btn--small" id="btnLookupPharmacy" title="Rechercher et importer" type="button">Importer</button>
+<button class="btn btn--ghost btn--small" id="btnCopyPharmacy" title="Copier les coordonnées" type="button">Copier</button>
+</div>
+</div>
+<input autocomplete="section-pharmacy organization" class="textline hc-autofill" id="pharmacyName" name="pharmacy_name" placeholder="Nom (ex : Pharmacie du Centre)" type="text"/>
+</div>
+<div class="field">
+<div class="field__label"><span>Téléphone</span></div>
+<input autocomplete="section-pharmacy tel" class="textline hc-autofill" id="pharmacyPhone" inputmode="tel" name="pharmacy_tel" placeholder="06 XX XX XX XX" type="tel"/>
+</div>
+<div class="field">
+<div class="field__label"><span>Adresse</span></div>
+<input autocomplete="section-pharmacy street-address" class="textline hc-autofill" id="pharmacyAddress" name="pharmacy_address" placeholder="Adresse (optionnel)" type="text"/>
+</div>
+</div>
+</div>
+<div class="muted">Astuce : tu peux aussi remplir à la main. La recherche (si tu l'actives) utilise l'API officielle Annuaire Santé et demande une clé API.</div>
+<div class="row" style="margin-top:10px; align-items:center; justify-content:flex-end;">
+<span class="muted" id="contactsSaveState" style="display:none;"></span>
+</div>
+<div class="muted" id="contactsSaveExplain" style="margin-top:6px; display:none; font-size:12px; line-height:1.25;"></div>
+<div class="divider"></div>
+<div class="card__title">Fiches</div>
+<div class="card__hint">Importer / mettre à jour des fiches via un ZIP (fiches.json + images). Import local uniquement, compatible plein écran.</div>
+<div class="row" style="align-items:center; justify-content:space-between; gap:12px;">
+<div class="muted" id="customFichesCount">0 fiche(s) importée(s)</div>
+<div class="row" style="margin:0;">
+<button class="btn btn--ghost" id="btnOpenFichesImport" type="button">Ouvrir</button>
+</div>
+</div>
+<div class="divider"></div>
+<div class="card__title">Sauvegarde &amp; restauration</div>
+<div class="card__hint">
+          “Importer l’état (status.json)” remplace les données locales par ta sauvegarde. Une annulation est possible ensuite.
+        </div>
+<div class="row">
+<button class="btn" id="btnImportStatus">Importer l’état (status.json)</button>
+<button class="btn btn--ghost" disabled="" id="btnUndoImport">Annuler la restauration</button>
+</div>
+<input accept="application/json" id="fileImport" style="display:none" type="file"/>
+<div class="divider"></div>
+<div class="card__title">Mode diagnostic (100% local, sans suivi)</div>
+<div class="card__hint">
+          Sert à partager un état technique (version, navigateur, réglages…). Aucun identifiant, aucun envoi automatique.
+        </div>
+<div class="toggle">
+<input id="diagIncludeData" type="checkbox"/>
+<label for="diagIncludeData">
+            Inclure les données (20 dernières entrées) — <strong>par défaut désactivé</strong>
+</label>
+</div>
+<div class="row" style="justify-content:space-between;align-items:center">
+<div class="muted"><strong>Erreurs locales :</strong> <span id="errorsCount">0</span></div>
+<button class="btn btn--ghost" disabled="" id="btnViewErrors">Voir</button>
+</div>
+<div class="row">
+<button class="btn" id="btnExportStatus2">Exporter l’état (status.json)</button>
+<button class="btn" id="btnExportDiag2">Exporter diagnostic</button>
+<button class="btn btn--ghost" id="btnClearErrors">Effacer erreurs locales</button>
+</div>
+<div class="row">
+<button class="btn btn--ghost" id="btnCopyDiag2">Copier diagnostic (JSON)</button>
+</div>
+<div class="row">
+<button class="btn btn--ghost" id="btnResetDiag">Réinitialiser uniquement le diagnostic</button>
+</div>
+<div class="divider"></div>
+<div class="card__title">Aide</div>
+<div class="card__hint">
+          Le bouton “Signaler un problème” ouvre un email pré‑rempli (sans collecte).
+        </div>
+<div class="row">
+<button class="btn btn--ghost" id="btnBug2">Signaler un problème</button>
+<button class="btn btn--ghost" id="btnBugCopy2" title="Copier le message de signalement">Copier</button>
+</div>
+<div class="row" style="margin-top:8px; justify-content:flex-end;">
+<button aria-controls="aboutModal" aria-haspopup="dialog" class="linkBtn" id="btnAbout" type="button">À propos / Aide</button>
+</div>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="footer__text">Boussole • données locales • v0.7.15</div>
+</footer>
+<script src="app.js?v=0.7.15"></script>
+<!-- Assistant de démarrage (affiché au 1er lancement si aucun réglage) -->
+<div aria-describedby="starterDesc" aria-labelledby="starterTitle" aria-modal="true" class="modal" id="starterModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="starterTitle">Assistant de démarrage</div>
+<div class="modal__desc" id="starterDesc">
+        Choisis un pré‑réglage. Tu pourras toujours ajuster dans <b>Réglages</b>.
+      </div>
+<div class="modal__grid">
+<button class="btn" id="starterCovid">Pré‑réglage “Covid long”</button>
+<button class="btn btn--ghost" id="starterSimple">Garder simple</button>
+<button class="btn btn--ghost" id="starterCustom">Personnaliser</button>
+</div>
+<div class="muted" style="margin-top:10px">
+        Tout reste sur ton appareil. Aucun compte. Aucun envoi automatique.
+      </div>
+</div>
+</div>
+<!-- Micro-écran après bilan -->
+<div aria-describedby="savedDesc" aria-labelledby="savedTitle" aria-modal="true" class="modal" id="savedModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="savedTitle">C’est noté ✅</div>
+<div class="modal__desc" id="savedDesc">Enregistré.</div>
+<div class="divider"></div>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnSavedContinue">Continuer</button>
+</div>
+</div>
+</div>
+<!-- Rappel optionnel (données locales) -->
+<div aria-describedby="reminderDesc" aria-labelledby="reminderTitle" aria-modal="true" class="modal" id="reminderModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="reminderTitle">Rappel (optionnel) ⏰</div>
+<div class="modal__desc" id="reminderDesc">
+        Tu veux que Boussole te le rappelle demain ? (Tout reste sur ton appareil.)
+      </div>
+<div class="divider"></div>
+<div class="field" style="margin-top:10px">
+<div class="label">Heure</div>
+<select aria-label="Heure du rappel" class="select" id="reminderTime">
+<option value="07:00">07:00</option>
+<option value="08:00">08:00</option>
+<option selected="" value="09:00">09:00</option>
+<option value="10:00">10:00</option>
+<option value="11:00">11:00</option>
+</select>
+</div>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnReminderSet">Me rappeler demain</button>
+<button class="btn btn--ghost" id="btnReminderSkip">Passer</button>
+</div>
+<div class="muted" style="margin-top:10px">
+        Note : la notification système dépend du navigateur et n'est pas garantie si l'onglet est fermé. Le rappel reste visible dans l'app.
+      </div>
+</div>
+</div>
+<div aria-describedby="reminderDueDesc" aria-labelledby="reminderDueTitle" aria-modal="true" class="modal" id="reminderDueModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="reminderDueTitle">Petit rappel ⏰</div>
+<div class="modal__desc" id="reminderDueDesc">
+        Quand tu veux : fais ton bilan d'aujourd'hui.
+      </div>
+<div class="divider"></div>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnReminderDo">Faire mon bilan</button>
+<button class="btn btn--ghost" id="btnReminderLater">Plus tard</button>
+</div>
+</div>
+</div>
+<!-- Fiches pratiques -->
+<div aria-describedby="ficheDesc" aria-labelledby="ficheTitle" aria-modal="true" class="modal" id="ficheModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="ficheTitle">Fiche</div>
+<div class="modal__desc" id="ficheDesc"></div>
+<div aria-label="Mots-clés" class="fichesTags ficheTagsInline" id="ficheTags"></div>
+<div class="ficheNav">
+<button aria-label="Fiche précédente" class="linkBtn" id="btnFichePrev" type="button">← Précédente</button>
+<button aria-label="Voir toutes les fiches" class="linkBtn ficheNav__center" id="btnFicheBackAll" type="button">Voir toutes les fiches</button>
+<button aria-label="Fiche suivante" class="linkBtn" id="btnFicheNext" type="button">Suivante →</button>
+</div>
+<div class="divider"></div>
+<img alt="" class="ficheImg" id="ficheImg" src=""/>
+<div class="ficheDisclaimer" id="ficheDisclaimer">⚠️ Info générale uniquement. En cas de doute/symptôme : médecin traitant. Urgence : 15.</div>
+<div class="row ficheActions" style="margin-top:12px; justify-content:space-between">
+<div class="row" style="gap:8px">
+<button class="btn btn--ghost" id="btnFicheCopy" style="display:none" title="Copier le texte de la fiche">Copier</button>
+<button aria-label="Ajouter aux favoris" class="btn btn--ghost" id="btnFicheFav" type="button">⭐ Ajouter aux favoris</button>
+<button aria-label="Partager la fiche" class="btn btn--ghost" id="btnFicheShare" type="button">Partager</button>
+<button aria-label="Télécharger la fiche en image" class="btn btn--ghost" id="btnFicheDownload" title="Télécharger la fiche en image (PNG)" type="button">Télécharger</button>
+<button aria-label="Agrandir la lecture" class="btn btn--ghost" id="btnFicheRead" type="button">Agrandir</button>
+<button class="btn btn--ghost" id="btnFicheOpen">Ouvrir en plein écran</button>
+</div>
+<button class="btn" id="btnFicheClose">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Bibliothèque Fiches pratiques -->
+<div aria-describedby="fichesLibraryDesc" aria-labelledby="fichesLibraryTitle" aria-modal="true" class="modal" id="fichesLibraryModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="fichesLibraryTitle">Fiches pratiques</div>
+<div class="modal__desc" id="fichesLibraryDesc">Mini‑bibliothèque hors ligne. Rien n’est envoyé.</div>
+<div class="divider"></div>
+<div class="fichesToolbar">
+<div class="fichesToolbar__top">
+<button class="btn btn--ghost btn--small" id="btnFichesTopFav" type="button">⭐ Mes favoris</button>
+</div>
+<div aria-label="Filtrer les fiches" class="segmented segmented--compact" role="tablist">
+<button class="seg is-active" id="btnFichesFilterAll" type="button">Tout</button>
+<button class="seg" id="btnFichesFilterFav" type="button">⭐ Favoris</button>
+</div>
+<div aria-label="Filtrer par mot-clé" class="fichesTags" id="fichesTags"></div>
+<div aria-label="Rechercher une fiche" class="fichesSearch" role="search">
+<input autocomplete="off" class="fichesSearch__input" id="fichesSearchInput" placeholder="Rechercher une fiche…" type="search"/>
+<button aria-label="Effacer la recherche" class="btn btn--ghost btn--small fichesSearch__clear" id="btnFichesSearchClear" type="button">✕</button>
+</div>
+<div aria-live="polite" class="fichesResultsInfo" id="fichesResultsInfo"></div>
+</div>
+<div class="fichesGridWrap" id="fichesGridWrap">
+<div class="fichesGrid" id="fichesGrid"></div>
+</div>
+<div class="row" style="margin-top:12px; justify-content:flex-end">
+<button class="btn" id="btnFichesClose">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Import contacts santé (optionnel) -->
+<div aria-describedby="contactsDesc" aria-labelledby="contactsTitle" aria-modal="true" class="modal" id="contactsModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="contactsTitle">Importer (optionnel)</div>
+<div class="modal__desc" id="contactsDesc">
+        Optionnel : une requête est envoyée à l’API officielle Annuaire Santé uniquement quand tu l’utilises. Nécessite une clé API (ESANTE-API-KEY). Sans clé, tu peux remplir les champs à la main.
+      </div>
+<div class="divider"></div>
+<div class="field">
+<div class="field__label"><span>Clé API Annuaire Santé</span><span class="small">ESANTE-API-KEY</span></div>
+<input class="textline" id="asApiKey" placeholder="XXXX-XXXX-XXXX-XXXXX" type="password"/>
+<div class="muted">
+          Obtenir une clé : <button class="linkBtn" id="btnOpenAsKey" type="button">ouvrir la documentation</button>
+</div>
+</div>
+<div class="row">
+<button class="btn btn--ghost" id="contactsTabDoctor" type="button">Médecin</button>
+<button class="btn btn--ghost" id="contactsTabPharmacy" type="button">Pharmacie</button>
+</div>
+<div class="field" style="margin-top:10px">
+<div class="field__label"><span>Nom</span></div>
+<input class="textline" id="asQueryName" placeholder="Ex : Dupont / Pharmacie du Centre" type="text"/>
+</div>
+<div class="row">
+<div class="field" style="flex:1; min-width:160px">
+<div class="field__label"><span>Ville (optionnel)</span></div>
+<input class="textline" id="asQueryCity" placeholder="Ex : Lille" type="text"/>
+</div>
+<div class="field" style="flex:0.7; min-width:120px">
+<div class="field__label"><span>Code postal (optionnel)</span></div>
+<input class="textline" id="asQueryPostal" placeholder="Ex : 59000" type="text"/>
+</div>
+</div>
+<div class="row" style="align-items:center; justify-content:space-between; margin-top:6px">
+<div class="muted" id="asStatus">Prêt.</div>
+<button class="btn" id="btnAsSearch" type="button">Rechercher</button>
+</div>
+<div class="divider"></div>
+<div aria-label="Résultats" class="asResults" id="asResults"></div>
+<div class="row" style="margin-top:12px; justify-content:flex-end">
+<button class="btn btn--ghost" id="btnAsClose" type="button">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Réglages → Fiches : Importer des fiches (ZIP) -->
+<div aria-describedby="fichesImportDesc" aria-labelledby="fichesImportTitle" aria-modal="true" class="modal" id="fichesImportModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="fichesImportTitle">Importer des fiches</div>
+<div class="modal__desc" id="fichesImportDesc">
+        Ajoute ou mets à jour des fiches sans toucher au code. Le ZIP doit contenir <b>fiches.json</b> + les <b>images</b> (webp/png/jpg). Import 100% local.
+      </div>
+<div class="divider"></div>
+<div class="toggle" style="margin:0;">
+<input id="set_fiches_replace" type="checkbox"/>
+<label for="set_fiches_replace">Remplacer si même identifiant</label>
+</div>
+<div class="row" style="margin-top:10px; align-items:center; justify-content:space-between; gap:12px;">
+<button class="btn btn--ghost" id="btnImportFiches" type="button">Importer un ZIP</button>
+<button class="btn btn--ghost" id="btnCloseFichesImport" type="button">Fermer</button>
+</div>
+<input accept=".zip,application/zip" id="fileImportFiches" style="display:none" type="file"/>
+<div class="muted" id="importFichesHint" style="margin-top:10px; display:none;"></div>
+</div>
+</div>
+<!-- Erreurs locales (20 dernières) -->
+<div aria-describedby="errorsDesc" aria-labelledby="errorsTitle" aria-modal="true" class="modal" id="errorsModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="errorsTitle">Erreurs locales (20 dernières)</div>
+<div class="modal__desc" id="errorsDesc">
+        Copiable. Rien n’est envoyé automatiquement.
+      </div>
+<div class="divider"></div>
+<pre aria-label="Erreurs locales" class="preview" id="errorsText"></pre>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnCopyErrors">Copier</button>
+<button class="btn btn--ghost" id="btnCloseErrors">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Aide PDF : diagnostic (fallback manuel : sélection/copie) -->
+<div aria-describedby="pdfDiagDesc" aria-labelledby="pdfDiagTitle" aria-modal="true" class="modal" id="pdfDiagModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="pdfDiagTitle">Aide PDF : diagnostic</div>
+<div class="modal__desc" id="pdfDiagDesc">Sélectionnable. Aucune donnée de santé.</div>
+<div class="divider"></div>
+<textarea aria-label="Aide PDF : diagnostic" class="preview preview--ta" id="pdfDiagText" readonly=""></textarea>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnSelectPdfDiag">Tout sélectionner</button>
+<button class="btn btn--ghost" id="btnSharePdfDiag">Partager…</button>
+<button class="btn btn--ghost" id="btnClosePdfDiag">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Copie manuelle : message support PDF (objet + corps) -->
+<div aria-describedby="pdfSupportMsgDesc" aria-labelledby="pdfSupportMsgTitle" aria-modal="true" class="modal" id="pdfSupportMsgModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="pdfSupportMsgTitle">Aide PDF : copie manuelle</div>
+<div class="modal__desc" id="pdfSupportMsgDesc">Copie manuelle prête ✅. Sélectionne puis copie (objet + corps).</div>
+<div class="divider"></div>
+<label class="fieldLabel" for="pdfSupportMsgSubject">Objet</label>
+<input aria-label="Objet du message" class="preview preview--input" id="pdfSupportMsgSubject" readonly="" type="text"/>
+<div style="height:10px"></div>
+<label class="fieldLabel" for="pdfSupportMsgBody">Corps</label>
+<textarea aria-label="Corps du message" class="preview preview--ta" id="pdfSupportMsgBody" readonly=""></textarea>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnCopyPdfSupportAll">Copier tout</button>
+<button class="btn" id="btnCopyPdfSupportSubject">Copier l’objet</button>
+<button class="btn" id="btnCopyPdfSupportBody">Copier le corps</button>
+<button class="btn btn--ghost" id="btnDownloadPdfSupportMsg">Télécharger (.txt)</button>
+<button class="btn btn--ghost" id="btnClosePdfSupportMsg">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Copie manuelle : message "Signaler un problème" (objet + corps) -->
+<div aria-describedby="bugMsgDesc" aria-labelledby="bugMsgTitle" aria-modal="true" class="modal" id="bugMsgModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="bugMsgTitle">Aide : copie manuelle</div>
+<div class="modal__desc" id="bugMsgDesc">Copie manuelle prête ✅. Tu peux copier l’objet et le corps séparément.</div>
+<div class="divider"></div>
+<label class="fieldLabel" for="bugMsgSubject">Objet</label>
+<input aria-label="Objet du message" class="preview preview--input" id="bugMsgSubject" readonly="" type="text"/>
+<div style="height:10px"></div>
+<label class="fieldLabel" for="bugMsgBody">Corps</label>
+<textarea aria-label="Corps du message" class="preview preview--ta" id="bugMsgBody" readonly=""></textarea>
+<div class="row" style="margin-top:12px">
+<button class="btn" id="btnCopyBugAll">Copier tout</button>
+<button class="btn" id="btnSelectBugSubject">Copier l’objet</button>
+<button class="btn" id="btnSelectBugBody">Copier le corps</button>
+<button class="btn btn--ghost" id="btnDownloadBugMsg">Télécharger (.txt)</button>
+<button class="btn btn--ghost" id="btnCloseBugMsg">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Notes de version (changelog) -->
+<div aria-describedby="releaseNotesDesc" aria-labelledby="releaseNotesTitle" aria-modal="true" class="modal" id="releaseNotesModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="releaseNotesTitle">Notes de version</div>
+<div class="modal__desc" id="releaseNotesDesc">Changelog récent (10 versions max). Tout reste local.</div>
+<div class="divider"></div>
+<div class="rnList" id="releaseNotesList" role="list">
+<div class="rnItem" role="listitem">
+<div class="rnVer">Chargement…</div>
+</div>
+</div>
+<div class="row" style="margin-top:12px; justify-content:space-between; align-items:center; gap:10px">
+<button class="linkBtn" id="btnReleaseNotesAll" type="button">Voir tout</button>
+<div style="display:flex; gap:10px; align-items:center">
+<button class="btn btn--ghost" id="btnCopyReleaseNotes" title="Copier les notes de version" type="button">Copier</button>
+<button class="btn" id="btnCloseReleaseNotes" type="button">Fermer</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Notes de version : changelog complet -->
+<div aria-describedby="releaseNotesAllDesc" aria-labelledby="releaseNotesAllTitle" aria-modal="true" class="modal" id="releaseNotesAllModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="releaseNotesAllTitle">Changelog complet</div>
+<div class="modal__desc" id="releaseNotesAllDesc">Lecture seule. Tout reste local sur ton appareil.</div>
+<div class="divider"></div>
+<div class="rnList" id="releaseNotesAllList" role="list">
+<div class="rnItem" role="listitem">
+<div class="rnVer">Chargement…</div>
+</div>
+</div>
+<div class="row" style="margin-top:12px; justify-content:flex-end">
+<button class="btn btn--ghost" id="btnCopyReleaseNotesAll" title="Copier le changelog complet" type="button">Copier</button>
+<button class="btn" id="btnCloseReleaseNotesAll" type="button">Fermer</button>
+</div>
+</div>
+</div>
+<!-- Aide : comprendre un curseur (définition courte) -->
+<div aria-describedby="sliderHelpDesc" aria-labelledby="sliderHelpTitle" aria-modal="true" class="modal" id="sliderHelpModal" role="dialog" style="display:none">
+<div class="modal__card" role="document">
+<div class="modal__title" id="sliderHelpTitle">Comprendre ce curseur</div>
+<div class="modal__desc" id="sliderHelpDesc">Échelle 0 → 10 : plus le score est élevé, mieux c’est.</div>
+<div class="divider"></div>
+<div class="sliderHelpBody" id="sliderHelpBody"></div>
+<div class="row" style="margin-top:12px; justify-content:flex-end">
+<button class="btn" id="btnCloseSliderHelp" type="button">Fermer</button>
+</div>
+</div>
+</div>
+<!-- À propos / Aide -->
+<div aria-describedby="aboutDesc" aria-labelledby="aboutTitle" aria-modal="true" class="modal" id="aboutModal" role="dialog" style="display:none">
+<div class="modal__card modal__card--wide" role="document">
+<div class="modal__title" id="aboutTitle">À propos / Aide</div>
+<div class="modal__desc" id="aboutDesc">L’essentiel en 30 secondes. Tout reste sur ton appareil.</div>
+<div class="divider"></div>
+<div class="muted" style="line-height:1.35">
+<div><strong>Boussole</strong> t’aide à suivre rapidement fatigue/sommeil/douleur et (si activé) d’autres symptômes.</div>
+<div>Ce n’est <strong>pas</strong> une télésurveillance : rien n’est envoyé automatiquement, il n’y a pas de compte.</div>
+<div>Les données sont stockées <strong>localement</strong> sur ton appareil (navigation privée = parfois non sauvegardable).</div>
+<div>Exporter le PDF : onglet <strong>PDF</strong> → “Exporter PDF 1 page”.</div>
+<div>Sauvegarde : onglet <strong>Réglages</strong> → “Exporter l’état (status.json)”.</div>
+<div>Signaler un bug : bouton <strong>Signaler un problème</strong> (email pré-rempli, sans collecte).</div>
+</div>
+<div class="row" style="margin-top:12px; justify-content:flex-end">
+<button class="btn btn--ghost" id="btnCopyAbout" title="Copier les infos utiles au support" type="button">Copier</button>
+<button class="btn" id="btnCloseAbout" type="button">Fermer</button>
+</div>
+</div>
+</div>
+<div aria-atomic="true" aria-live="polite" class="appMessage" id="appMessage" role="status"></div>
+</body>
+</html>
