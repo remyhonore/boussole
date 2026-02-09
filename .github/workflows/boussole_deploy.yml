@@ -59,3 +59,4 @@ jobs:
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
           local-dir: _deploy/
           dangerous-clean-slate: false
+          
