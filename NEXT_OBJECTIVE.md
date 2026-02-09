@@ -1,7 +1,6 @@
 # NEXT_OBJECTIVE
-READY: yes
+READY: no
 TARGET_VERSION:
-DATE_CREATED: 2026-02-09
 
 ## Objectif (1 idée)
 - Décris ici l’unique amélioration en 1–3 phrases, concrètes.
