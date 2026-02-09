@@ -1,0 +1,76 @@
+name: Boussole — Live smoke (prod)
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read repo VERSION.txt
+        run: |
+          set -euo pipefail
+          V="$(tr -d '\r\n' < VERSION.txt)"
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+          echo "Repo version: $V"
+
+      - name: Check production endpoints
+        id: prod
+        run: |
+          set -euo pipefail
+          TS="$(date +%s)"
+
+          LIVE_VER="$(curl -fsS --retry 3 --retry-delay 2 --retry-all-errors \
+            "https://boussole.micronutriment.fr/VERSION.txt?nocache=$TS" | tr -d '\r\n')"
+
+          echo "live_version=$LIVE_VER" >> "$GITHUB_OUTPUT"
+          echo "Live version: $LIVE_VER"
+
+          # Basic availability
+          curl -fsS --retry 3 --retry-delay 2 --retry-all-errors \
+            "https://boussole.micronutriment.fr/app/?nocache=$TS" | grep -q "Boussole"
+
+          # Version must match repo
+          test "$LIVE_VER" = "$VERSION"
+
+      - name: Open incident issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repoVer = process.env.VERSION || "unknown";
+            const liveVer = "${{ steps.prod.outputs.live_version }}";
+            const prefix = "🚨 Prod smoke failed";
+            const title = `${prefix} — repo ${repoVer} vs live ${liveVer || "unknown"}`;
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100
+            });
+
+            const exists = issues.find(i => i.title.startsWith(prefix));
+            if (exists) {
+              core.info(`Incident already open: ${exists.html_url}`);
+              return;
+            }
+
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: `Run: ${url}\n\nExpected VERSION.txt: ${repoVer}\nGot: ${liveVer || "unknown"}\n\nCheck: https://boussole.micronutriment.fr/VERSION.txt`
+            });
