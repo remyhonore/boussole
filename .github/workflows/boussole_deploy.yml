@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag ou branche à déployer (ex: v0.7.20 ou main)"
+        required: false
+        default: "main"
 
 concurrency:
   group: boussole-deploy
@@ -14,49 +19,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (metadata only)
+      - name: Choose ref
+        id: ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "ref=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout (selected ref)
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Get latest release asset URL (*-full.zip)
-        id: asset
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          REPO="${{ github.repository }}"
-          API="https://api.github.com/repos/${REPO}/releases/latest"
-
-          JSON="$(curl -sSf \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "${API}")"
-
-          ASSET_URL="$(python3 -c 'import json,sys
-data=json.loads(sys.stdin.read())
-assets=data.get("assets",[])
-z=[a for a in assets if a.get("name","").endswith("-full.zip")]
-assert z, "No *-full.zip asset found on latest release"
-print(z[0]["browser_download_url"])' <<<"$JSON")"
-
-          echo "asset_url=${ASSET_URL}" >> "$GITHUB_OUTPUT"
-
-      - name: Download release ZIP
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p _pkg
-          curl -L "${{ steps.asset.outputs.asset_url }}" -o _pkg/boussole-full.zip
-
-      - name: Unzip
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p _site
-          unzip -q _pkg/boussole-full.zip -d _site
+          ref: ${{ steps.ref.outputs.ref }}
 
       - name: Prepare deploy payload
         shell: bash
@@ -70,7 +48,7 @@ print(z[0]["browser_download_url"])' <<<"$JSON")"
             --exclude "dist/" \
             --exclude "__MACOSX/" \
             --exclude "*.DS_Store" \
-            _site/ _deploy/
+            ./ _deploy/
 
       - name: FTP Deploy to Plesk
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -80,4 +58,4 @@ print(z[0]["browser_download_url"])' <<<"$JSON")"
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
           local-dir: _deploy/
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
