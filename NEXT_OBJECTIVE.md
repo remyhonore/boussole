@@ -1,5 +1,5 @@
 # NEXT_OBJECTIVE
-READY: no
+READY: yes
 TARGET_VERSION:
 - Décris ici l’unique amélioration en 1–3 phrases, concrètes.
 
