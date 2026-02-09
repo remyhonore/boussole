@@ -2,66 +2,83 @@ name: Boussole — Deploy to Plesk (FTPS)
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag à déployer (ex: v0.7.20). Mettre "latest" pour la dernière release.'
+        required: true
+        default: 'latest'
+      protocol:
+        description: 'Protocole FTP (ftp / ftps / ftps-legacy)'
+        required: true
+        default: 'ftps'
+      port:
+        description: 'Port FTP (21 en général, 990 souvent pour ftps-legacy)'
+        required: true
+        default: '21'
 
 permissions:
   contents: read
 
 concurrency:
   group: boussole-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Prepare deploy bundle (only production files)
+      - name: Resolve release tag
+        id: rel
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          rm -rf .deploy
-          mkdir -p .deploy
-
-          # Root files (keep only what is served publicly)
-          for f in index.html en.html boussole_suivi_projet.html README_DEPLOY.txt; do
-            if [ -f "$f" ]; then cp -f "$f" .deploy/; fi
-          done
-
-          # Main folders served publicly
-          if [ -d "app" ]; then
-            mkdir -p .deploy/app
-            rsync -a --delete app/ .deploy/app/
+          TAG="${{ inputs.tag }}"
+          if [ -z "$TAG" ] || [ "$TAG" = "latest" ]; then
+            TAG="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)"
           fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Will deploy tag: $TAG"
 
-          if [ -d "assets" ]; then
-            mkdir -p .deploy/assets
-            rsync -a --delete assets/ .deploy/assets/
-          fi
+      - name: Download release ZIP asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf _release _deploy
+          mkdir -p _release
+          gh release download "${{ steps.rel.outputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "boussole-*-full.zip" \
+            --dir _release
+          echo "Downloaded assets:"
+          ls -lah _release
 
-      - name: Deploy via FTPS
+      - name: Extract ZIP to _deploy/
+        run: |
+          set -euo pipefail
+          mkdir -p _deploy
+          ZIP="$(ls -1 _release/boussole-*-full.zip | head -n 1)"
+          echo "Using ZIP: $ZIP"
+          unzip -q "$ZIP" -d _deploy
+          echo "Top-level extracted:"
+          ls -lah _deploy
+
+      - name: Deploy to Plesk via FTP/FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-
-          # FTPS explicit (souvent requis en hébergement mutualisé/Plesk)
-          protocol: ftps
-          port: 21
-
-          # Certificat parfois auto-signé / hostname mismatch -> on tolère
-          security: loose
-
-          # Plus robuste sur connexions instables
-          timeout: 120000
-          log-level: standard
-
-          local-dir: ./.deploy/
+          protocol: ${{ inputs.protocol }}
+          port: ${{ inputs.port }}
+          local-dir: _deploy/
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          state-name: .ftp-deploy-sync-state.json
+          log-level: verbose
+          timeout: 300000
+          security: loose
+          exclude: |
+            **/.DS_Store
+            **/Thumbs.db
+            boussole_v0_*/**
