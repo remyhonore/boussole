@@ -1,150 +1,105 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Usage:
+#   ./scripts/release.sh 0.7.21
+#
+# What it does:
+#   - updates version strings in:
+#       - app/app.js (const APP_VERSION = 'x.y.z';)
+#       - app/dashboard.js (const DASH_VERSION = "x.y.z"; + header comment)
+#       - app/index.html and root index.html (vX.Y.Z mentions and cache-busting params if present)
+#       - VERSION.txt
+#       - CHANGELOG.md (if has "## [Unreleased]" -> keeps, no auto edits unless you do)
+#   - commits, tags, and (optionally) prepares a release artifact elsewhere
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <new_version> (e.g., 0.7.21)"
+  exit 1
+fi
+
+NEW_VERSION="$1"
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+APP_JS="${ROOT_DIR}/app/app.js"
+DASH_JS="${ROOT_DIR}/app/dashboard.js"
+APP_INDEX="${ROOT_DIR}/app/index.html"
+ROOT_INDEX="${ROOT_DIR}/index.html"
+VERSION_TXT="${ROOT_DIR}/VERSION.txt"
 
-VERSION_FILE="VERSION.txt"
-NEXT_FILE="NEXT_OBJECTIVE.md"
-CHANGELOG_FILE="CHANGELOG.md"
+echo "Releasing version: ${NEW_VERSION}"
+echo "Root: ${ROOT_DIR}"
 
-fail() { echo "::error::$1"; exit 1; }
-need_file() { [[ -f "$1" ]] || fail "Fichier manquant: $1"; }
-
-need_file "$VERSION_FILE"
-need_file "$NEXT_FILE"
-
-trim() { awk '{$1=$1;print}' <<< "${1:-}"; }
-
-# --- Read current version
-CURRENT_VERSION="$(tr -d ' \t\r\n' < "$VERSION_FILE")"
-[[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "VERSION.txt invalide: '$CURRENT_VERSION'"
-
-# --- Read READY gate (defensive: workflow peut aussi le gérer)
-READY_LINE="$(grep -E '^READY:' "$NEXT_FILE" || true)"
-READY_VAL="$(trim "${READY_LINE#READY:}")"
-READY_VAL="${READY_VAL,,}" # lowercase
-if [[ "$READY_VAL" != "yes" ]]; then
-  echo "READY != yes ($READY_VAL) : stop (exit 0)"
-  exit 0
-fi
-
-# --- Read optional TARGET_VERSION
-TARGET_LINE="$(grep -E '^TARGET_VERSION:' "$NEXT_FILE" || true)"
-TARGET_VERSION="$(trim "${TARGET_LINE#TARGET_VERSION:}")"
-if [[ -n "$TARGET_VERSION" ]]; then
-  [[ "$TARGET_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "TARGET_VERSION invalide: '$TARGET_VERSION'"
-  NEW_VERSION="$TARGET_VERSION"
-else
-  IFS='.' read -r MA MI PA <<< "$CURRENT_VERSION"
-  PA=$((PA + 1))
-  NEW_VERSION="${MA}.${MI}.${PA}"
-fi
-
-echo "Current: $CURRENT_VERSION"
-echo "Next:    $NEW_VERSION"
-
-# --- Helper: safe in-place replace (literal)
-replace_literal() {
-  local file="$1" from="$2" to="$3"
-  [[ -f "$file" ]] || return 0
-  perl -pi -e "s/\Q$from\E/$to/g" "$file"
+require_file() {
+  local f="$1"
+  if [[ ! -f "$f" ]]; then
+    echo "Missing file: $f"
+    exit 1
+  fi
 }
 
-# --- Helper: update APP_VERSION in app/app.js
+require_file "$APP_JS"
+require_file "$DASH_JS"
+require_file "$APP_INDEX"
+require_file "$ROOT_INDEX"
+require_file "$VERSION_TXT"
+
+# Update: const APP_VERSION = 'x.y.z';
 update_app_version_const() {
-  local file="app/app.js"
-  [[ -f "$file" ]] || return 0
-  # Remplace const APP_VERSION = 'x.y.z'; (ou "x.y.z")
-  perl -0777 -pi -e "s/(const\\s+APP_VERSION\\s*=\\s*['\"])\\d+\\.\\d+\\.\\d+(['\"];)/\$1${NEW_VERSION}\$2/g" "$file"
+  perl -pi -e "s/(const\\s+APP_VERSION\\s*=\\s*['\"])\\d+\\.\\d+\\.\\d+(['\"];)/\\\$1${NEW_VERSION}\\\$2/g" "$APP_JS"
 }
 
-# --- Capture objective (pour changelog) AVANT de remettre READY à no
-OBJECTIVE_BLOCK="$(
-  awk '
-    BEGIN{in_obj=0}
-    /^##[[:space:]]+Objectif/{in_obj=1; next}
-    /^##[[:space:]]+/{if(in_obj){exit}}
-    {if(in_obj) print}
-  ' "$NEXT_FILE" | sed '/^[[:space:]]*$/d'
-)"
-if [[ -z "$OBJECTIVE_BLOCK" ]]; then
-  OBJECTIVE_BLOCK="- (objectif non renseigné)"
-fi
+# Update dashboard: const DASH_VERSION = "x.y.z";
+update_dash_version_const() {
+  perl -pi -e "s/(const\\s+DASH_VERSION\\s*=\\s*[\"])(\\d+\\.\\d+\\.\\d+)([\"];)/\\\$1${NEW_VERSION}\\\$3/g" "$DASH_JS"
+}
 
-# --- Write VERSION.txt
-printf "%s\n" "$NEW_VERSION" > "$VERSION_FILE"
+# Update header comment like: /* Boussole — Tableau de bord (v0.7.21)
+update_dash_header_comment() {
+  perl -pi -e "s/(\\/\\*\\s*Boussole\\s+—\\s+Tableau\\s+de\\s+bord\\s*\\(v)\\d+\\.\\d+\\.\\d+(\\))/\\\$1${NEW_VERSION}\\\$2/g" "$DASH_JS"
+}
 
-# --- Update files: displayed version + cache-busting ?v=
-FILES_TO_UPDATE=(
-  "index.html"
-  "en.html"
-  "boussole_suivi_projet.html"
-  "app/index.html"
-  "app/dashboard.html"
-  "app/dashboard.js"
-  "app/app.js"
-)
+# Update HTML "v0.x.y.z" occurrences (display)
+update_html_vprefix() {
+  local f="$1"
+  perl -pi -e "s/v\\d+\\.\\d+\\.\\d+/v${NEW_VERSION}/g" "$f"
+}
 
-for f in "${FILES_TO_UPDATE[@]}"; do
-  # v0.7.15 -> v0.7.20
-  replace_literal "$f" "v$CURRENT_VERSION" "v$NEW_VERSION"
-  # ?v=0.7.15 -> ?v=0.7.20
-  replace_literal "$f" "?v=$CURRENT_VERSION" "?v=$NEW_VERSION"
-done
+# Update cache-busting params like ?v=0.x.y.z
+update_html_cache_param() {
+  local f="$1"
+  perl -pi -e "s/\\?v=\\d+\\.\\d+\\.\\d+/\\?v=${NEW_VERSION}/g" "$f"
+}
 
-# Ensure app/app.js constant is updated (the real source of your “revert”)
+# VERSION.txt contains "0.7.21" only
+update_version_txt() {
+  echo "${NEW_VERSION}" > "$VERSION_TXT"
+}
+
 update_app_version_const
+update_dash_version_const
+update_dash_header_comment
+update_html_vprefix "$APP_INDEX"
+update_html_vprefix "$ROOT_INDEX"
+update_html_cache_param "$APP_INDEX"
+update_html_cache_param "$ROOT_INDEX"
+update_version_txt
 
-# --- Update CHANGELOG (insert entry near top)
-if [[ ! -f "$CHANGELOG_FILE" ]]; then
-  cat > "$CHANGELOG_FILE" <<'MD'
-# Changelog
-
-MD
+# Quick sanity: ensure the expected tokens exist after replacement
+if ! grep -q "const APP_VERSION" "$APP_JS"; then
+  echo "Sanity check failed: const APP_VERSION missing in app/app.js"
+  exit 1
+fi
+if ! grep -q "const DASH_VERSION" "$DASH_JS"; then
+  echo "Sanity check failed: const DASH_VERSION missing in app/dashboard.js"
+  exit 1
 fi
 
-if ! grep -qE "^##[[:space:]]+v${NEW_VERSION}\b" "$CHANGELOG_FILE"; then
-  ENTRY=$(
-    cat <<EOF
-## v${NEW_VERSION}
+echo "OK: versions updated."
 
-${OBJECTIVE_BLOCK}
+git add "$APP_JS" "$DASH_JS" "$APP_INDEX" "$ROOT_INDEX" "$VERSION_TXT"
 
-EOF
-  )
-  tmp="$(mktemp)"
-  awk -v entry="$ENTRY" '
-    NR==1 {print; print ""; print entry; next}
-    {print}
-  ' "$CHANGELOG_FILE" > "$tmp"
-  mv "$tmp" "$CHANGELOG_FILE"
-fi
+git commit -m "chore(release): v${NEW_VERSION}" || true
+git tag "v${NEW_VERSION}" || true
 
-# --- Reset NEXT_OBJECTIVE gate: READY: no, clear TARGET_VERSION
-perl -pi -e "s/^READY:\\s*.*\$/READY: no/m" "$NEXT_FILE"
-perl -pi -e "s/^TARGET_VERSION:\\s*.*\$/TARGET_VERSION:/m" "$NEXT_FILE"
-
-# --- Build ZIP FULL into dist/ (not committed; just artifact)
-mkdir -p dist
-ZIP_NAME="boussole-v${NEW_VERSION}-full.zip"
-ZIP_PATH="dist/${ZIP_NAME}"
-
-rm -f "$ZIP_PATH"
-zip -r "$ZIP_PATH" . \
-  -x ".git/*" ".git/**" \
-  -x "dist/*" "dist/**"
-
-# sha256 for traceability
-if command -v sha256sum >/dev/null 2>&1; then
-  sha256sum "$ZIP_PATH" | awk "{print \$1}" > "dist/${ZIP_NAME}.sha256"
-fi
-
-# Optional: release notes file for GH release body
-cat > "dist/RELEASE_NOTES.md" <<EOF
-Boussole v${NEW_VERSION}
-
-${OBJECTIVE_BLOCK}
-EOF
-
-echo "OK: built $ZIP_PATH"
+echo "Done. Commit + tag created (if changes existed)."
