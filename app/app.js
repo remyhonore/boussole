@@ -3,7 +3,7 @@
 */
 
 const APP_NAME = "Boussole";
-.7.21';
+const APP_VERSION = '0.7.21';
 
 // v0.6.96 — horodatage stable (nom de fichier) pour tous les exports (JSON/PDF/PNG/TXT)
 function makeExportStamp(date = new Date()) {
