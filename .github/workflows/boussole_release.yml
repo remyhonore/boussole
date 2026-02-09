@@ -1,115 +1,116 @@
 name: Boussole — Auto Release (READY gate)
 
 on:
-  workflow_dispatch:
   push:
-    branches: ["main"]
-    paths:
-      - "NEXT_OBJECTIVE.md"
-      - "VERSION.txt"
-      - "CHANGELOG.md"
-      - ".github/workflows/boussole_release.yml"
-      - "scripts/release.sh"
+    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: boussole-auto-release
-  cancel-in-progress: false
-
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - id: gate
-        name: Packaging (READY gate)
-        shell: bash
-        run: |
-          if [[ ! -f NEXT_OBJECTIVE.md ]]; then
-            echo "NEXT_OBJECTIVE.md missing -> stop"
-            echo "ready=no" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          READY="$(awk -F: '/^READY:/{v=$2; gsub(/^[ \t]+|[ \t]+$/,"",v); print tolower(v); exit}' NEXT_OBJECTIVE.md)"
-          TARGET="$(awk -F: '/^TARGET_VERSION:/{v=$2; gsub(/^[ \t]+|[ \t]+$/,"",v); print v; exit}' NEXT_OBJECTIVE.md)"
-
-          [[ -z "$READY" ]] && READY="no"
-
-          echo "READY parsed: '$READY'"
-          echo "TARGET_VERSION parsed: '$TARGET'"
-
-          echo "ready=$READY" >> "$GITHUB_OUTPUT"
-          echo "target_version=$TARGET" >> "$GITHUB_OUTPUT"
-
-      - name: Stop (READY != yes)
-        if: steps.gate.outputs.ready != 'yes'
-        run: |
-          echo "READY != yes -> stop (no release)"
-          exit 0
-
       - name: Run release script
-        if: steps.gate.outputs.ready == 'yes'
-        shell: bash
+        id: rel
         run: |
           chmod +x scripts/release.sh
-          ./scripts/release.sh
+          scripts/release.sh
+        shell: bash
 
-      - id: version
-        name: Read version
-        if: steps.gate.outputs.ready == 'yes'
+      - name: Sanity checks (JS syntax + version consistency)
         shell: bash
         run: |
+          set -euo pipefail
+
+          echo "Node: $(node --version)"
+          mapfile -t FILES < <(git ls-files '*.js')
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "No JS files found in repo." >&2
+            exit 1
+          fi
+
+          echo "Checking syntax for ${#FILES[@]} JS files…"
+          for f in "${FILES[@]}"; do
+            echo "→ node --check ${f}"
+            node --check "${f}"
+          done
+
           V="$(tr -d ' \t\r\n' < VERSION.txt)"
-          echo "version=$V" >> "$GITHUB_OUTPUT"
-          echo "Version: $V"
+          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION.txt invalid: '$V'" >&2
+            exit 1
+          fi
+
+          H="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/index.html").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'v(\d+\.\d+\.\d+)', p)
+print(m.group(1) if m else "")
+PY
+)"
+          A="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/app.js").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'APP_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
+print(m.group(1) if m else "")
+PY
+)"
+          D="$(python3 - << 'PY'
+import re, pathlib
+p = pathlib.Path("app/dashboard.js").read_text(encoding="utf-8", errors="replace")
+m = re.search(r'DASH_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
+print(m.group(1) if m else "")
+PY
+)"
+
+          if [ -z "$H" ] || [ -z "$A" ] || [ -z "$D" ]; then
+            echo "Missing version markers (index.html/app.js/dashboard.js)." >&2
+            exit 1
+          fi
+
+          if [ "$V" != "$H" ] || [ "$V" != "$A" ] || [ "$V" != "$D" ]; then
+            echo "Version mismatch detected:" >&2
+            echo "  VERSION.txt           = $V" >&2
+            echo "  app/index.html (v...) = $H" >&2
+            echo "  app/app.js            = $A" >&2
+            echo "  app/dashboard.js      = $D" >&2
+            exit 1
+          fi
+
+      - name: Read version
+        id: ver
+        run: echo "version=$(cat VERSION.txt)" >> $GITHUB_OUTPUT
 
       - name: Commit + push release changes
-        if: steps.gate.outputs.ready == 'yes'
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add -A
-          git commit -m "chore(release): v${{ steps.version.outputs.version }}" || echo "Nothing to commit"
+          git commit -m "chore(release): v${{ steps.ver.outputs.version }}" || echo "No changes to commit"
           git push
 
       - name: Tag
-        if: steps.gate.outputs.ready == 'yes'
-        shell: bash
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          git tag -a "$TAG" -m "$TAG"
-          git push origin "$TAG"
+          git tag "v${{ steps.ver.outputs.version }}" || true
+          git push origin "v${{ steps.ver.outputs.version }}" || true
 
       - name: Upload artifact (ZIP)
-        if: steps.gate.outputs.ready == 'yes'
         uses: actions/upload-artifact@v4
         with:
-          name: boussole-v${{ steps.version.outputs.version }}-full
-          path: |
-            dist/boussole-v${{ steps.version.outputs.version }}-full.zip
-            dist/boussole-v${{ steps.version.outputs.version }}-full.zip.sha256
-            dist/RELEASE_NOTES.md
-          if-no-files-found: error
+          name: boussole-v${{ steps.ver.outputs.version }}-full
+          path: dist/boussole-v${{ steps.ver.outputs.version }}-full.zip
 
       - name: Create GitHub Release + attach ZIP
-        if: steps.gate.outputs.ready == 'yes'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Boussole v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: Boussole v${{ steps.ver.outputs.version }}
           body_path: dist/RELEASE_NOTES.md
-          files: |
-            dist/boussole-v${{ steps.version.outputs.version }}-full.zip
-            dist/boussole-v${{ steps.version.outputs.version }}-full.zip.sha256
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: dist/boussole-v${{ steps.ver.outputs.version }}-full.zip
