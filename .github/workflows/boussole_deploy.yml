@@ -1,62 +1,67 @@
-name: Boussole — Deploy to Plesk (FTP)
+name: Boussole — Deploy to Plesk (FTPS)
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "Tag ou branche à déployer (ex: v0.7.20 ou main)"
-        required: false
-        default: "main"
+
+permissions:
+  contents: read
 
 concurrency:
   group: boussole-deploy
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Choose ref
-        id: ref
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            echo "ref=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout (selected ref)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ steps.ref.outputs.ref }}
 
-      - name: Prepare deploy payload
-        shell: bash
+      - name: Prepare deploy bundle (only production files)
         run: |
           set -euo pipefail
-          mkdir -p _deploy
-          rsync -a --delete \
-            --exclude ".git/" \
-            --exclude ".github/" \
-            --exclude "scripts/" \
-            --exclude "dist/" \
-            --exclude "__MACOSX/" \
-            --exclude "*.DS_Store" \
-            ./ _deploy/
 
-      - name: FTP Deploy to Plesk
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+          rm -rf .deploy
+          mkdir -p .deploy
+
+          # Root files (keep only what is served publicly)
+          for f in index.html en.html boussole_suivi_projet.html README_DEPLOY.txt; do
+            if [ -f "$f" ]; then cp -f "$f" .deploy/; fi
+          done
+
+          # Main folders served publicly
+          if [ -d "app" ]; then
+            mkdir -p .deploy/app
+            rsync -a --delete app/ .deploy/app/
+          fi
+
+          if [ -d "assets" ]; then
+            mkdir -p .deploy/assets
+            rsync -a --delete assets/ .deploy/assets/
+          fi
+
+      - name: Deploy via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+
+          # FTPS explicit (souvent requis en hébergement mutualisé/Plesk)
+          protocol: ftps
+          port: 21
+
+          # Certificat parfois auto-signé / hostname mismatch -> on tolère
+          security: loose
+
+          # Plus robuste sur connexions instables
+          timeout: 120000
+          log-level: standard
+
+          local-dir: ./.deploy/
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
-          local-dir: _deploy/
-          dangerous-clean-slate: false
-          
