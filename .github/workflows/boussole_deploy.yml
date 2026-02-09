@@ -1,0 +1,83 @@
+name: Boussole — Deploy to Plesk (FTP)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: boussole-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (for metadata only)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Find latest release asset (ZIP full)
+        id: asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          # Get latest published release
+          URL="https://api.github.com/repos/${REPO}/releases/latest"
+          JSON="$(curl -sSf -H "Authorization: Bearer ${GH_TOKEN}" -H "X-GitHub-Api-Version: 2022-11-28" "${URL}")"
+          ASSET_URL="$(echo "$JSON" | python3 - <<'PY'
+import json,sys
+data=json.load(sys.stdin)
+assets=data.get("assets",[])
+zip_assets=[a for a in assets if a.get("name","").endswith("-full.zip")]
+if not zip_assets:
+  raise SystemExit("No *-full.zip asset found on latest release")
+# pick the first (there should be one)
+a=zip_assets[0]
+print(a["browser_download_url"])
+PY
+)"
+          echo "asset_url=$ASSET_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Download release ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _pkg
+          curl -L "${{ steps.asset.outputs.asset_url }}" -o _pkg/boussole-full.zip
+
+      - name: Unzip
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          unzip -q _pkg/boussole-full.zip -d _site
+
+      - name: Prepare deploy payload (exclude .git, workflows, scripts)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _deploy
+          rsync -a --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "scripts/" \
+            --exclude "dist/" \
+            --exclude "__MACOSX/" \
+            --exclude "*.DS_Store" \
+            _site/ _deploy/
+
+      - name: FTP Deploy to Plesk
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          local-dir: _deploy/
+          dangerous-clean-slate: true
