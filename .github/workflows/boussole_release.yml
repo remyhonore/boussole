@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   release:
-    # évite la boucle quand le bot commit VERSION/CHANGELOG/READY reset
+    # évite les boucles quand le bot push (commit automatique)
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
@@ -40,22 +40,25 @@ jobs:
         if: steps.pack.outputs.released != 'yes'
         run: echo "READY != yes → rien à faire."
 
-git config user.name "github-actions[bot]"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Commit + push release changes
+        if: steps.pack.outputs.released == 'yes'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-git add -A
+          git add -A
 
-# Ne jamais committer dist/ (ZIP + notes), uniquement artifact + Release
-git restore --staged dist || true
-git restore --staged dist/* || true
+          # Ne jamais committer dist/ (ZIP + notes) : uniquement artifact + GitHub Release
+          git restore --staged dist || true
+          git restore --staged dist/* || true
 
-if git diff --cached --quiet; then
-  echo "Aucun changement à committer."
-else
-  git commit -m "chore(release): v${{ steps.pack.outputs.version }}"
-  git push
-fi
-
+          if git diff --cached --quiet; then
+            echo "Aucun changement à committer."
+          else
+            git commit -m "chore(release): v${{ steps.pack.outputs.version }}"
+            git push
+          fi
 
       - name: Tag
         if: steps.pack.outputs.released == 'yes'
