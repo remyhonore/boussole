@@ -1,4 +1,5 @@
-name: Boussole — Live smoke (prod)
+# .github/workflows/boussole_live_smoke.yml
+name: Boussole — Live smoke (prod drift)
 
 on:
   schedule:
@@ -9,68 +10,104 @@ permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: boussole-live-smoke
+  cancel-in-progress: false
+
 jobs:
   live:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Read repo VERSION.txt
+      - name: Read repo version
+        id: v
+        shell: bash
         run: |
           set -euo pipefail
-          V="$(tr -d '\r\n' < VERSION.txt)"
-          echo "VERSION=$V" >> "$GITHUB_ENV"
+          V="$(tr -d ' \t\r\n' < VERSION.txt)"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          [[ "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::VERSION.txt invalide: '$V'"; exit 1; }
           echo "Repo version: $V"
 
-      - name: Check production endpoints
-        id: prod
+      - name: Fetch prod VERSION.txt
+        id: p
+        shell: bash
         run: |
           set -euo pipefail
-          TS="$(date +%s)"
+          URL="https://boussole.micronutriment.fr/VERSION.txt?ts=$(date +%s)"
+          echo "Fetching: $URL"
+          PROD="$(curl -fsS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL" | tr -d ' \t\r\n')"
+          echo "prod=$PROD" >> "$GITHUB_OUTPUT"
+          echo "Prod version: $PROD"
+          [[ "$PROD" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Prod VERSION.txt invalide: '$PROD'"; exit 1; }
 
-          LIVE_VER="$(curl -fsS --retry 3 --retry-delay 2 --retry-all-errors \
-            "https://boussole.micronutriment.fr/VERSION.txt?nocache=$TS" | tr -d '\r\n')"
+      - name: (Log) Prod asset versions seen in /app/
+        shell: bash
+        env:
+          TS: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          URL="https://boussole.micronutriment.fr/app/index.html?ts=${TS}"
+          echo "Fetching: $URL"
+          HTML="$(curl -fsS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL" || true)"
+          echo "$HTML" | grep -oE 'app\.js\?v=[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true
+          echo "$HTML" | grep -oE 'sw\.js\?v=[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true
 
-          echo "live_version=$LIVE_VER" >> "$GITHUB_OUTPUT"
-          echo "Live version: $LIVE_VER"
-
-          # Basic availability
-          curl -fsS --retry 3 --retry-delay 2 --retry-all-errors \
-            "https://boussole.micronutriment.fr/app/?nocache=$TS" | grep -q "Boussole"
-
-          # Version must match repo
-          test "$LIVE_VER" = "$VERSION"
-
-      - name: Open incident issue on failure
-        if: failure()
+      - name: Compare + open issue on mismatch
         uses: actions/github-script@v7
+        env:
+          REPO_VERSION: ${{ steps.v.outputs.version }}
+          PROD_VERSION: ${{ steps.p.outputs.prod }}
         with:
           script: |
-            const repoVer = process.env.VERSION || "unknown";
-            const liveVer = "${{ steps.prod.outputs.live_version }}";
-            const prefix = "🚨 Prod smoke failed";
-            const title = `${prefix} — repo ${repoVer} vs live ${liveVer || "unknown"}`;
+            const repoV = process.env.REPO_VERSION;
+            const prodV = process.env.PROD_VERSION;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            if (repoV === prodV) {
+              core.info(`OK ✅ prod VERSION.txt == repo (${repoV})`);
+              return;
+            }
+
+            const title = `🚨 PROD version mismatch: prod ${prodV} vs repo ${repoV}`;
+            const body = [
+              `Détection automatique d'un drift de version.`,
+              ``,
+              `- Repo (main) VERSION.txt : **${repoV}**`,
+              `- PROD https://boussole.micronutriment.fr/VERSION.txt : **${prodV}**`,
+              ``,
+              `Pistes fréquentes : pull Plesk incomplet, fichiers mixtes, cache serveur/CDN, cache navigateur/service worker.`,
+              ``,
+              `Actions :`,
+              `1) Forcer un "pull" propre depuis Plesk (repo main)`,
+              `2) Purger le cache éventuel côté serveur`,
+              `3) Vérifier que /app/ charge bien app.js/dashboard.js/sw.js avec ?v=${repoV}`,
+              `4) Si nécessaire : redéployer ou re-pull.`,
+              ``,
+              `⏱️ Workflow: ${context.workflow} • Run: ${context.runId}`,
+            ].join('\n');
 
             const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner, repo,
               state: "open",
               per_page: 100
             });
 
-            const exists = issues.find(i => i.title.startsWith(prefix));
-            if (exists) {
-              core.info(`Incident already open: ${exists.html_url}`);
-              return;
+            const existing = issues.find(i => i.title.startsWith("🚨 PROD version mismatch"));
+            if (!existing) {
+              const created = await github.rest.issues.create({ owner, repo, title, body });
+              core.warning(`Mismatch detected; issue created: #${created.data.number}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo,
+                issue_number: existing.number,
+                body: `Nouveau drift détecté : prod **${prodV}** vs repo **${repoV}** (run ${context.runId}).`
+              });
+              core.warning(`Mismatch detected; commented on existing issue #${existing.number}`);
             }
 
-            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title,
-              body: `Run: ${url}\n\nExpected VERSION.txt: ${repoVer}\nGot: ${liveVer || "unknown"}\n\nCheck: https://boussole.micronutriment.fr/VERSION.txt`
-            });
+            core.setFailed(`PROD mismatch: prod ${prodV} vs repo ${repoV}`);
