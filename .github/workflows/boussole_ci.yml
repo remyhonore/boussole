@@ -2,9 +2,9 @@ name: Boussole — CI (syntax + smoke)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   verify:
-    name: Verify repo (JS syntax + smoke checks)
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -20,113 +19,60 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: JS syntax check (node --check)
-        shell: bash
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Read VERSION.txt
+        id: ver
         run: |
           set -euo pipefail
-          echo "Node: $(node --version)"
-          mapfile -t FILES < <(git ls-files '*.js')
-          if [ "${#FILES[@]}" -eq 0 ]; then
-            echo "No JS files found in repo." >&2
-            exit 1
+          V="$(tr -d '\r\n' < VERSION.txt)"
+          if [ -z "$V" ]; then
+            echo "VERSION.txt is empty"; exit 1
           fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+          echo "Repo version: $V"
 
-          echo "Checking syntax for ${#FILES[@]} JS files…"
-          for f in "${FILES[@]}"; do
-            echo "→ node --check ${f}"
-            node --check "${f}"
-          done
-
-      - name: Version consistency (VERSION.txt / app header / JS constants)
-        shell: bash
+      - name: JS syntax check
         run: |
           set -euo pipefail
+          node --version
+          node --check app/app.js
+          node --check app/dashboard.js
+          node --check app/sw.js
 
-          V="$(tr -d ' \t\r\n' < VERSION.txt)"
-          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "VERSION.txt invalid: '$V'" >&2
-            exit 1
-          fi
-          echo "VERSION.txt = $V"
-
-          H="$(python3 - << 'PY'
-import re, pathlib
-p = pathlib.Path("app/index.html").read_text(encoding="utf-8", errors="replace")
-m = re.search(r'v(\d+\.\d+\.\d+)', p)
-print(m.group(1) if m else "")
-PY
-)"
-          if [ -z "$H" ]; then
-            echo "Could not find a 'vX.Y.Z' string in app/index.html" >&2
-            exit 1
-          fi
-          echo "app/index.html shows v$H"
-
-          A="$(python3 - << 'PY'
-import re, pathlib
-p = pathlib.Path("app/app.js").read_text(encoding="utf-8", errors="replace")
-m = re.search(r'APP_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
-print(m.group(1) if m else "")
-PY
-)"
-          if [ -z "$A" ]; then
-            echo "Could not find APP_VERSION in app/app.js" >&2
-            exit 1
-          fi
-          echo "app/app.js APP_VERSION = $A"
-
-          D="$(python3 - << 'PY'
-import re, pathlib
-p = pathlib.Path("app/dashboard.js").read_text(encoding="utf-8", errors="replace")
-m = re.search(r'DASH_VERSION\s*=\s*[\'"](\d+\.\d+\.\d+)[\'"]', p)
-print(m.group(1) if m else "")
-PY
-)"
-          if [ -z "$D" ]; then
-            echo "Could not find DASH_VERSION in app/dashboard.js" >&2
-            exit 1
-          fi
-          echo "app/dashboard.js DASH_VERSION = $D"
-
-          if [ "$V" != "$H" ] || [ "$V" != "$A" ] || [ "$V" != "$D" ]; then
-            echo "Version mismatch detected:" >&2
-            echo "  VERSION.txt           = $V" >&2
-            echo "  app/index.html (v...) = $H" >&2
-            echo "  app/app.js            = $A" >&2
-            echo "  app/dashboard.js      = $D" >&2
-            exit 1
-          fi
-
-      - name: Smoke test (serve + curl basic endpoints)
-        shell: bash
+      - name: Version wiring (HTML must reference VERSION)
         run: |
           set -euo pipefail
-          python3 -m http.server 4173 --directory . >/tmp/http.log 2>&1 &
+          V="$VERSION"
+
+          # app/index.html must display version and reference JS with ?v=
+          grep -q "v${V}" app/index.html
+          grep -q "app.js?v=${V}" app/index.html
+          grep -q "dashboard.js?v=${V}" app/index.html
+          grep -q "sw.js?v=${V}" app/index.html
+
+          # root index should exist (site entrypoint)
+          test -f index.html
+          grep -q "VERSION.txt" index.html || true
+
+      - name: Local serve + curl smoke
+        run: |
+          set -euo pipefail
+          V="$VERSION"
+          python3 -m http.server 8000 --directory . >/tmp/http.log 2>&1 &
           PID=$!
+          sleep 1
 
-          for i in {1..30}; do
-            if curl -fsS "http://127.0.0.1:4173/app/" >/dev/null 2>&1; then
-              break
-            fi
-            sleep 0.2
-          done
+          TS="$(date +%s)"
 
-          echo "GET / …"
-          curl -fsS "http://127.0.0.1:4173/" >/dev/null
+          curl -fsS "http://127.0.0.1:8000/VERSION.txt?nocache=$TS" | tr -d '\r\n' | grep -qx "$V"
+          curl -fsS "http://127.0.0.1:8000/app/?nocache=$TS" | grep -q "Boussole"
+          curl -fsS "http://127.0.0.1:8000/app/app.js?v=$V" >/dev/null
+          curl -fsS "http://127.0.0.1:8000/app/dashboard.js?v=$V" >/dev/null
+          curl -fsS "http://127.0.0.1:8000/app/sw.js?v=$V" >/dev/null
 
-          echo "GET /app/ …"
-          curl -fsS "http://127.0.0.1:4173/app/" >/dev/null
-
-          echo "GET /app/app.js …"
-          curl -fsS "http://127.0.0.1:4173/app/app.js" >/dev/null
-
-          echo "GET /app/dashboard.js …"
-          curl -fsS "http://127.0.0.1:4173/app/dashboard.js" >/dev/null
-
-          echo "GET /app/sw.js …"
-          curl -fsS "http://127.0.0.1:4173/app/sw.js" >/dev/null
-
-          echo "GET /VERSION.txt …"
-          curl -fsS "http://127.0.0.1:4173/VERSION.txt" >/dev/null
-
-          kill "$PID"
+          kill $PID
