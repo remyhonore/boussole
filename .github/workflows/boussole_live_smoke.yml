@@ -1,4 +1,3 @@
-# .github/workflows/boussole_live_smoke.yml
 name: Boussole — Live smoke (prod drift)
 
 on:
@@ -44,18 +43,6 @@ jobs:
           echo "Prod version: $PROD"
           [[ "$PROD" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Prod VERSION.txt invalide: '$PROD'"; exit 1; }
 
-      - name: (Log) Prod asset versions seen in /app/
-        shell: bash
-        env:
-          TS: ${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          URL="https://boussole.micronutriment.fr/app/index.html?ts=${TS}"
-          echo "Fetching: $URL"
-          HTML="$(curl -fsS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL" || true)"
-          echo "$HTML" | grep -oE 'app\.js\?v=[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true
-          echo "$HTML" | grep -oE 'sw\.js\?v=[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true
-
       - name: Compare + open issue on mismatch
         uses: actions/github-script@v7
         env:
@@ -75,20 +62,19 @@ jobs:
 
             const title = `🚨 PROD version mismatch: prod ${prodV} vs repo ${repoV}`;
             const body = [
-              `Détection automatique d'un drift de version.`,
+              `Drift de version détecté automatiquement.`,
               ``,
               `- Repo (main) VERSION.txt : **${repoV}**`,
-              `- PROD https://boussole.micronutriment.fr/VERSION.txt : **${prodV}**`,
+              `- PROD /VERSION.txt : **${prodV}**`,
               ``,
-              `Pistes fréquentes : pull Plesk incomplet, fichiers mixtes, cache serveur/CDN, cache navigateur/service worker.`,
+              `Pistes fréquentes : pull Plesk incomplet, fichiers mixtes, cache, service worker.`,
               ``,
-              `Actions :`,
-              `1) Forcer un "pull" propre depuis Plesk (repo main)`,
-              `2) Purger le cache éventuel côté serveur`,
-              `3) Vérifier que /app/ charge bien app.js/dashboard.js/sw.js avec ?v=${repoV}`,
-              `4) Si nécessaire : redéployer ou re-pull.`,
+              `À faire :`,
+              `1) Déclencher un "pull/deploy" propre côté Plesk (repo main)`,
+              `2) Vérifier que /app/ charge app.js/dashboard.js/sw.js avec ?v=${repoV}`,
+              `3) Re-tester en navigation privée.`,
               ``,
-              `⏱️ Workflow: ${context.workflow} • Run: ${context.runId}`,
+              `Workflow: ${context.workflow} • Run: ${context.runId}`,
             ].join('\n');
 
             const { data: issues } = await github.rest.issues.listForRepo({

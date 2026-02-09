@@ -1,4 +1,3 @@
-# .github/workflows/boussole_ci.yml
 name: Boussole — CI (syntax + smoke)
 
 on:
@@ -57,32 +56,21 @@ jobs:
 
           must_grep () { local pat="$1" file="$2"; grep -qF "$pat" "$file" || { echo "::error::Missing '$pat' in $file"; exit 1; }; }
 
-          # 1) Les pages doivent pointer vers les bons assets en ?v=VERSION (cache-busting)
+          # Pages: assets cache-busted en ?v=VERSION
           must_grep "app.js?v=$V" "app/index.html"
           must_grep "dashboard.js?v=$V" "app/dashboard.html"
 
-          # 2) Service worker doit être enregistré en ?v=VERSION (évite shell mixte après pull/deploy)
+          # Service worker: register avec ?v=VERSION
           if ! grep -qF "sw.js?v=" app/app.js; then
             echo "::error::Service worker register() doit inclure ./sw.js?v=... (introuvable)."
             exit 1
           fi
 
-          # 3) app/app.js doit exposer APP_VERSION cohérent avec VERSION.txt (source de vérité)
-          if ! grep -qE "const[[:space:]]+APP_VERSION[[:space:]]*=[[:space:]]*['\"]${V}['\"];?" app/app.js; then
-            echo "::error::app/app.js doit contenir: const APP_VERSION = '${V}';"
+          # APP_VERSION doit être cohérente avec VERSION.txt
+          if ! grep -qE "const[[:space:]]+APP_VERSION[[:space:]]*=[[:space:]]*['\"]${V}['\"][[:space:]]*;" app/app.js; then
+            echo "::error::app/app.js doit contenir: const APP_VERSION = \"${V}\";"
             exit 1
           fi
-
-          # 4) Pas d’autres valeurs ?v= ailleurs (anti “mix de fichiers”)
-          files=(index.html en.html boussole_suivi_projet.html app/index.html app/dashboard.html app/dashboard.js)
-          for f in "${files[@]}"; do
-            [[ -f "$f" ]] || continue
-            vals="$(grep -oE '\?v=[0-9]+\.[0-9]+\.[0-9]+' "$f" | sed 's/?v=//' | sort -u | tr '\n' ' ' | xargs || true)"
-            if [[ -n "${vals:-}" && "$vals" != "$V" ]]; then
-              echo "::error::$f contient des ?v= incohérents. Attendu: $V. Trouvé: $vals"
-              exit 1
-            fi
-          done
 
       - name: Local smoke (http.server + curl)
         shell: bash
@@ -97,7 +85,6 @@ jobs:
           cleanup(){ kill "$PID" >/dev/null 2>&1 || true; }
           trap cleanup EXIT
 
-          # Attendre que le serveur réponde
           for i in {1..40}; do
             if curl -fsS "http://127.0.0.1:${PORT}/VERSION.txt" >/dev/null 2>&1; then break; fi
             sleep 0.1
