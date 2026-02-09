@@ -3,7 +3,7 @@
 */
 
 const APP_NAME = "Boussole";
-const APP_VERSION = '0.7.21';
+const APP_VERSION = "0.7.21";
 
 // v0.6.96 — horodatage stable (nom de fichier) pour tous les exports (JSON/PDF/PNG/TXT)
 function makeExportStamp(date = new Date()) {
@@ -10460,7 +10460,7 @@ const btnLookupDoctor = $("btnLookupDoctor");
   } catch {}
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    navigator.serviceWorker.register(`./sw.js?v=${APP_VERSION}`).catch(()=>{});
   }
 }
 
