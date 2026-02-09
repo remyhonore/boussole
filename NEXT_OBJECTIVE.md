@@ -1,8 +1,6 @@
 # NEXT_OBJECTIVE
-READY: yes
+READY: no
 TARGET_VERSION:
-
-## Objectif (1 idée)
 - Décris ici l’unique amélioration en 1–3 phrases, concrètes.
 
 ## Contraintes (si spécifiques)
