@@ -20,8 +20,6 @@ concurrency:
 
 jobs:
   release:
-    # évite les boucles quand le bot push (commit automatique)
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
@@ -30,56 +28,88 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Packaging (READY gate)
-        id: pack
+      - id: gate
+        name: Packaging (READY gate)
         shell: bash
         run: |
-          bash scripts/release.sh
+          if [[ ! -f NEXT_OBJECTIVE.md ]]; then
+            echo "NEXT_OBJECTIVE.md missing -> stop"
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          READY="$(awk -F: '/^READY:/{v=$2; gsub(/^[ \t]+|[ \t]+$/,"",v); print tolower(v); exit}' NEXT_OBJECTIVE.md)"
+          TARGET="$(awk -F: '/^TARGET_VERSION:/{v=$2; gsub(/^[ \t]+|[ \t]+$/,"",v); print v; exit}' NEXT_OBJECTIVE.md)"
+
+          [[ -z "$READY" ]] && READY="no"
+
+          echo "READY parsed: '$READY'"
+          echo "TARGET_VERSION parsed: '$TARGET'"
+
+          echo "ready=$READY" >> "$GITHUB_OUTPUT"
+          echo "target_version=$TARGET" >> "$GITHUB_OUTPUT"
 
       - name: Stop (READY != yes)
-        if: steps.pack.outputs.released != 'yes'
-        run: echo "READY != yes → rien à faire."
+        if: steps.gate.outputs.ready != 'yes'
+        run: |
+          echo "READY != yes -> stop (no release)"
+          exit 0
+
+      - name: Run release script
+        if: steps.gate.outputs.ready == 'yes'
+        shell: bash
+        run: |
+          chmod +x scripts/release.sh
+          ./scripts/release.sh
+
+      - id: version
+        name: Read version
+        if: steps.gate.outputs.ready == 'yes'
+        shell: bash
+        run: |
+          V="$(tr -d ' \t\r\n' < VERSION.txt)"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Version: $V"
 
       - name: Commit + push release changes
-        if: steps.pack.outputs.released == 'yes'
+        if: steps.gate.outputs.ready == 'yes'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-
-          # Ne jamais committer dist/ (ZIP + notes) : uniquement artifact + GitHub Release
-          git restore --staged dist || true
-          git restore --staged dist/* || true
-
-          if git diff --cached --quiet; then
-            echo "Aucun changement à committer."
-          else
-            git commit -m "chore(release): v${{ steps.pack.outputs.version }}"
-            git push
-          fi
+          git commit -m "chore(release): v${{ steps.version.outputs.version }}" || echo "Nothing to commit"
+          git push
 
       - name: Tag
-        if: steps.pack.outputs.released == 'yes'
+        if: steps.gate.outputs.ready == 'yes'
         shell: bash
         run: |
-          git tag "v${{ steps.pack.outputs.version }}"
-          git push origin "v${{ steps.pack.outputs.version }}"
+          TAG="v${{ steps.version.outputs.version }}"
+          git tag -a "$TAG" -m "$TAG"
+          git push origin "$TAG"
 
       - name: Upload artifact (ZIP)
-        if: steps.pack.outputs.released == 'yes'
+        if: steps.gate.outputs.ready == 'yes'
         uses: actions/upload-artifact@v4
         with:
-          name: boussole-v${{ steps.pack.outputs.version }}-full
-          path: ${{ steps.pack.outputs.zip_path }}
+          name: boussole-v${{ steps.version.outputs.version }}-full
+          path: |
+            dist/boussole-v${{ steps.version.outputs.version }}-full.zip
+            dist/boussole-v${{ steps.version.outputs.version }}-full.zip.sha256
+            dist/RELEASE_NOTES.md
           if-no-files-found: error
 
       - name: Create GitHub Release + attach ZIP
-        if: steps.pack.outputs.released == 'yes'
+        if: steps.gate.outputs.ready == 'yes'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.pack.outputs.version }}
-          name: Boussole v${{ steps.pack.outputs.version }}
-          body_path: ${{ steps.pack.outputs.release_notes_path }}
-          files: ${{ steps.pack.outputs.zip_path }}
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Boussole v${{ steps.version.outputs.version }}
+          body_path: dist/RELEASE_NOTES.md
+          files: |
+            dist/boussole-v${{ steps.version.outputs.version }}-full.zip
+            dist/boussole-v${{ steps.version.outputs.version }}-full.zip.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
