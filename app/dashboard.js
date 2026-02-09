@@ -1,4 +1,4 @@
-/* Boussole — Tableau de bord (v0.7.19)
+/* Boussole — Tableau de bord (v0.7.20)
    Lit un status.json OU un diagnostic exporté (si includeData ON).
    Aucun tracking. Tout local.
 */

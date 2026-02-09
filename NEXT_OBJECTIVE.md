@@ -1,8 +1,6 @@
 # NEXT_OBJECTIVE
-READY: yes
+READY: no
 TARGET_VERSION:
-
-## Objectif (1 idée)
 - test release automatique
 
 ## Contraintes (si spécifiques)

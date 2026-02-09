@@ -1,5 +1,8 @@
 # Changelog — Boussole
 
+## v0.7.20 — 2026-02-09
+- test release automatique
+
 ## v0.7.19 — 2026-02-09
 - release
 
