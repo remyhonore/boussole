@@ -1,5 +1,5 @@
 # NEXT_OBJECTIVE
-READY: no
+READY: yes
 TARGET_VERSION:
 
 ## Objectif (1 idée)
