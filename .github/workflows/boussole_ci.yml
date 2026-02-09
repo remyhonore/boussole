@@ -1,0 +1,87 @@
+name: Boussole — CI (syntax + smoke)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify repo (JS syntax + smoke checks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Smoke checks (required files)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Checking required files..."
+          test -f "VERSION.txt"
+          test -f "index.html"
+          test -f "app/index.html"
+
+          echo "Checking app entry references..."
+          # Vérifie qu'on référence un JS existant depuis app/index.html (sans imposer un nom exact)
+          JS_REF="$(grep -Eo 'src="[^"]+\.js"' app/index.html | head -n 1 || true)"
+          if [ -z "$JS_REF" ]; then
+            echo "ERROR: app/index.html does not reference any .js script via src=\"...js\""
+            exit 1
+          fi
+
+          JS_PATH="$(echo "$JS_REF" | sed -E 's/^src="([^"]+)".*$/\1/')"
+          # Nettoie un éventuel ./ en début
+          JS_PATH="${JS_PATH#./}"
+          if [ ! -f "app/$JS_PATH" ] && [ ! -f "$JS_PATH" ]; then
+            echo "ERROR: Referenced JS not found: $JS_PATH"
+            echo "Looked for: app/$JS_PATH and $JS_PATH"
+            exit 1
+          fi
+
+          echo "Checking VERSION.txt format..."
+          V="$(cat VERSION.txt | tr -d ' \r\n')"
+          if [[ ! "$V" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ERROR: VERSION.txt must look like 0.7.21 or v0.7.21 (got: $V)"
+            exit 1
+          fi
+
+          echo "OK ✅"
+
+      - name: JS syntax check (node --check)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Scanning JS files..."
+          # Exclusions prudentes (si un jour tu ajoutes des dossiers volumineux)
+          mapfile -t FILES < <(find . -type f -name "*.js" \
+            -not -path "./.git/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./dist/*" \
+            -not -path "./.cache/*")
+
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "No JS files found. Nothing to check."
+            exit 0
+          fi
+
+          echo "Checking syntax for ${#FILES[@]} file(s)..."
+          for f in "${FILES[@]}"; do
+            echo " - $f"
+            node --check "$f"
+          done
+
+          echo "JS syntax OK ✅"
