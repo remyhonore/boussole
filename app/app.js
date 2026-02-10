@@ -6402,8 +6402,10 @@ async function loadAndRenderReleaseNotes(force = false) {
 
   try {
     renderReleaseNotes([{ version: "Chargement…", lines: [] }]);
-    const url = `CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
-    const res = await fetch(url);
+    const urlPrimary = `/CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
+    const urlFallback = `./CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
+    let res = await fetch(urlPrimary).catch(() => null);
+    if (!res || !res.ok) res = await fetch(urlFallback);
     if (!res || !res.ok) throw new Error("fetch_failed");
     const md = await res.text();
     const entries = parseChangelogMd(md, 10, 2);
@@ -6428,8 +6430,10 @@ async function loadAndRenderReleaseNotesAll(force = false) {
 
   try {
     renderReleaseNotesAll([{ version: "Chargement…", lines: [] }]);
-    const url = `CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
-    const res = await fetch(url);
+    const urlPrimary = `/CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
+    const urlFallback = `./CHANGELOG.md?v=${encodeURIComponent(APP_VERSION)}`;
+    let res = await fetch(urlPrimary).catch(() => null);
+    if (!res || !res.ok) res = await fetch(urlFallback);
     if (!res || !res.ok) throw new Error("fetch_failed");
     const md = await res.text();
     const entries = parseChangelogMd(md, 9999, 9999);
