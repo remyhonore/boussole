@@ -168,7 +168,7 @@ function generatePDFPreview(summary) {
   lines.push('');
 
   if (summary.notes && summary.notes.length > 0) {
-    lines.push('4. NOTES DU PATIENT');
+    lines.push('4. VOS NOTES');
     summary.notes.forEach(n => {
       lines.push(`${formatDate(n.date)} : "${sanitizePdfText(n.note)}"`);
     });
@@ -463,7 +463,7 @@ async function generatePDF(summary) {
       bold: false
     }));
 
-    y = drawSectionCard(doc, y, '4. NOTES DU PATIENT', section4Rows, {
+    y = drawSectionCard(doc, y, '4. VOS NOTES', section4Rows, {
       rowFontSize: 8.7,
       subFontSize: 8.1
     });

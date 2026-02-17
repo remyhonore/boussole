@@ -387,7 +387,7 @@ function refreshSummary() {
   // 4. Notes
   if (summary.notes && summary.notes.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">4️⃣ NOTES DU PATIENT</h2>`;
+    html += `<h2 class="summary-section">4️⃣ VOS NOTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.notes.forEach(n => {
