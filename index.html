@@ -1,1 +1,222 @@
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boussole+ | Journal de santé</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- jsPDF pour génération PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  
+  <div class="container">
+    
+    <!-- En-tête -->
+    <header class="header">
+      <h1>Boussole</h1>
+      <p>Données sur votre appareil · sans compte · sans cloud</p>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="nav" role="navigation">
+      <button class="nav-btn active" data-panel="today" aria-label="Aller à la page Aujourd'hui">
+        Aujourd'hui
+      </button>
+      <button class="nav-btn" data-panel="summary" aria-label="Aller à la page Résumé">
+        Résumé
+      </button>
+    </nav>
+    
+    <!-- Message de status global -->
+    <div id="status-message" class="status" style="display: none;"></div>
+    
+    <!-- Panel Aujourd'hui -->
+    <div class="panel active" id="panel-today">
+      
+      <div class="card">
+        <h2 class="card-title">Bilan du jour</h2>
+        <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
+        
+        <!-- Énergie -->
+        <div class="field">
+          <label class="field-label" for="energie">
+            <span>Énergie</span>
+            <span class="field-value" id="energie-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="energie" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau d'énergie de 0 à 10"
+          >
+          <div class="range-labels">
+            <span>0 = épuisé</span>
+            <span>10 = en forme</span>
+          </div>
+        </div>
+        
+        <!-- Qualité sommeil -->
+        <div class="field">
+          <label class="field-label" for="qualite-sommeil">
+            <span>Qualité du sommeil</span>
+            <span class="field-value" id="qualite-sommeil-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="qualite-sommeil" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Qualité du sommeil de 0 à 10"
+          >
+          <div class="range-labels">
+            <span>0 = très mauvais</span>
+            <span>10 = excellent</span>
+          </div>
+        </div>
+        
+        <!-- Douleurs -->
+        <div class="field">
+          <label class="field-label" for="douleurs">
+            <span>Inconfort physique</span>
+            <span class="field-value" id="douleurs-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="douleurs" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau d'inconfort physique de 0 à 10"
+          >
+          <div class="range-labels">
+            <span>0 = gêne maximale</span>
+            <span>10 = aucun inconfort</span>
+          </div>
+        </div>
+        
+        <!-- Note optionnelle -->
+        <div class="field">
+          <label class="field-label" for="note">
+            <span>Note (optionnel)</span>
+            <span class="textarea-count" id="note-count">0/200</span>
+          </label>
+          <textarea 
+            id="note" 
+            maxlength="200" 
+            placeholder="Ex: Mal de tête après 2h d'écran"
+            aria-label="Note optionnelle, 200 caractères maximum"
+          ></textarea>
+        </div>
+        
+        <!-- Boutons d'action -->
+        <div class="btn-row">
+          <button 
+            class="btn btn-secondary" 
+            id="btn-quick"
+            aria-label="Reprendre les dernières valeurs"
+          >
+            Reprendre dernières valeurs
+          </button>
+          <button 
+            class="btn" 
+            id="btn-save"
+            aria-label="Enregistrer la saisie du jour"
+          >
+            Enregistrer
+          </button>
+        </div>
+        
+        <button 
+          class="btn btn-secondary" 
+          id="btn-undo" 
+          style="display: none; margin-top: 12px; width: 100%;"
+          aria-label="Annuler le dernier enregistrement"
+        >
+          Annuler (30s)
+        </button>
+        
+        <!-- Dernière saisie -->
+        <div class="status-muted" id="last-saved">
+          Aucune entrée enregistrée.
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- Panel Résumé -->
+    <div class="panel" id="panel-summary">
+      
+      <div id="summary-content">
+        <!-- Contenu généré dynamiquement -->
+      </div>
+      
+      <div class="card">
+        <button 
+          class="btn" 
+          id="btn-generate-pdf"
+          style="width: 100%;"
+          aria-label="Générer et télécharger le PDF"
+        >
+          Générer PDF
+        </button>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Modal aperçu PDF -->
+  <div class="modal" id="pdf-modal" role="dialog" aria-labelledby="pdf-modal-title" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="pdf-modal-title">Aperçu PDF</h2>
+        <button 
+          class="modal-close" 
+          id="modal-close" 
+          aria-label="Fermer l'aperçu"
+        >
+          ×
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="card-hint" style="margin-bottom: 16px;">
+          Voici le contenu qui sera généré dans le PDF (1 page).
+        </p>
+        <div class="preview" id="pdf-preview"></div>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          class="btn btn-secondary" 
+          id="btn-cancel-pdf"
+          aria-label="Annuler et fermer"
+        >
+          Annuler
+        </button>
+        <button 
+          class="btn" 
+          id="btn-download-pdf"
+          aria-label="Télécharger le PDF"
+        >
+          Télécharger
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="storage.js"></script>
+  <script src="calc.js"></script>
+  <script src="pdf.js"></script>
+  <script src="app.js"></script>
+  
+</body>
+</html>
