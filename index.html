@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Boussole+ | Journal de santé</title>
-  
+  <title>Boussole | Suivi bien-être</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e09c8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Boussole">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
   
@@ -217,6 +225,17 @@
   <script src="calc.js"></script>
   <script src="pdf.js"></script>
   <script src="app.js"></script>
-  
+
+  <!-- Service Worker PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('Service Worker actif'))
+          .catch(err => console.warn('SW non enregistré :', err));
+      });
+    }
+  </script>
+
 </body>
 </html>
