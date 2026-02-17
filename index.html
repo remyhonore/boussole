@@ -246,6 +246,41 @@
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
   </footer>
 
+  <!-- Modal Changelog -->
+  <div class="modal-overlay" id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="changelog-title">Notes de version</h2>
+        <button class="modal-close" id="changelog-close" aria-label="Fermer">×</button>
+      </div>
+      <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+        <div style="padding:4px 0 12px;">
+          <strong style="color:var(--color-primary)">v1.1</strong> — 17 février 2026
+          <ul style="margin:8px 0 0 16px;font-size:14px;line-height:1.7;">
+            <li>4ème indicateur : <strong>Clarté mentale</strong></li>
+            <li>Labels positifs : Confort physique, Sommeil</li>
+            <li>Questions journalières sous chaque curseur</li>
+            <li>Footer version</li>
+            <li>Déploiement PWA (installable mobile)</li>
+          </ul>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--color-border);margin:8px 0;">
+        <div style="padding:4px 0 12px;">
+          <strong style="color:var(--color-primary)">v1.0</strong> — 10 février 2026
+          <ul style="margin:8px 0 0 16px;font-size:14px;line-height:1.7;">
+            <li>Lancement MVP : Énergie, Sommeil, Confort physique</li>
+            <li>Résumé 14 jours avec tendances</li>
+            <li>Export PDF 1 page</li>
+            <li>Local-first, sans compte, sans cloud</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="changelog-ok">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="storage.js"></script>
   <script src="calc.js"></script>

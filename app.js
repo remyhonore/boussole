@@ -267,7 +267,8 @@ function updateLastSavedDisplay() {
   const parts = [];
   if (lastEntry.energie !== null) parts.push(`Énergie ${lastEntry.energie}`);
   if (lastEntry.qualite_sommeil !== null) parts.push(`Sommeil ${lastEntry.qualite_sommeil}`);
-  if (lastEntry.douleurs !== null) parts.push(`Inconfort ${lastEntry.douleurs}`);
+  if (lastEntry.douleurs !== null) parts.push(`Confort ${lastEntry.douleurs}`);
+  if (lastEntry.clarte_mentale !== null) parts.push(`Clarté ${lastEntry.clarte_mentale}`);
   
   const dateStr = formatDateFr(lastEntry.date);
   display.textContent = `Dernière saisie : ${dateStr} · ${parts.join(' · ')}`;
@@ -526,3 +527,15 @@ function loadDebugDataset() {
 document.getElementById('modal-close')?.addEventListener('click', closePDFModal);
 document.getElementById('btn-download-pdf')?.addEventListener('click', downloadPDFFromModal);
 document.getElementById('btn-cancel-pdf')?.addEventListener('click', closePDFModal);
+
+// Changelog modal
+document.getElementById('changelog-link')?.addEventListener('click', () => {
+  const modal = document.getElementById('changelog-modal');
+  if (modal) modal.style.display = 'flex';
+});
+document.getElementById('changelog-close')?.addEventListener('click', () => {
+  document.getElementById('changelog-modal').style.display = 'none';
+});
+document.getElementById('changelog-ok')?.addEventListener('click', () => {
+  document.getElementById('changelog-modal').style.display = 'none';
+});
