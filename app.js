@@ -65,7 +65,7 @@ function switchPanel(panelId) {
  */
 function initTodayPanel() {
   // Curseurs
-  const sliders = ['energie', 'qualite-sommeil', 'douleurs'];
+  const sliders = ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'];
   sliders.forEach(id => {
     const slider = document.getElementById(id);
     const valueDisplay = document.getElementById(`${id}-value`);
@@ -111,6 +111,10 @@ function loadTodayData() {
       document.getElementById('douleurs').value = entry.douleurs;
       document.getElementById('douleurs-value').textContent = entry.douleurs;
     }
+    if (entry.clarte_mentale !== null) {
+      document.getElementById('clarte-mentale').value = entry.clarte_mentale;
+      document.getElementById('clarte-mentale-value').textContent = entry.clarte_mentale;
+    }
     if (entry.note) {
       document.getElementById('note').value = entry.note;
       document.getElementById('note-count').textContent = `${entry.note.length}/200`;
@@ -124,10 +128,11 @@ function saveCurrentEntry() {
   const energie = getSliderValue('energie');
   const qualiteSommeil = getSliderValue('qualite-sommeil');
   const douleurs = getSliderValue('douleurs');
+  const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
   
   // Vérifier qu'au moins 1 curseur est renseigné
-  const filledCount = [energie, qualiteSommeil, douleurs].filter(v => v !== null).length;
+  const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
   
   if (filledCount === 0) {
     showStatus('Renseigne au moins 1 repère pour enregistrer.', 'warning');
@@ -143,6 +148,7 @@ function saveCurrentEntry() {
     energie,
     qualite_sommeil: qualiteSommeil,
     douleurs,
+    clarte_mentale: clarteMentale,
     note: note || null
   };
   
@@ -322,11 +328,19 @@ function refreshSummary() {
   if (summary.douleurs.moyenne !== null) {
     hasAnyTendance = true;
     html += `<div class="summary-item">`;
-    html += `<strong>Inconfort physique : ${summary.douleurs.moyenne}/10</strong>`;
+    html += `<strong>Confort physique : ${summary.douleurs.moyenne}/10</strong>`;
     html += `<div class="summary-trend">→ ${summary.douleurs.tendance}</div>`;
     html += `</div>`;
   }
   
+  if (summary.clarte_mentale && summary.clarte_mentale.moyenne !== null) {
+    hasAnyTendance = true;
+    html += `<div class="summary-item">`;
+    html += `<strong>Clarté mentale : ${summary.clarte_mentale.moyenne}/10</strong>`;
+    html += `<div class="summary-trend">→ ${summary.clarte_mentale.tendance}</div>`;
+    html += `</div>`;
+  }
+
   if (!hasAnyTendance) {
     html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible. Commencez par saisir vos repères dans l'onglet "Aujourd'hui".</p>`;
   }

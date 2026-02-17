@@ -64,15 +64,15 @@
             aria-label="Niveau d'énergie de 0 à 10"
           >
           <div class="range-labels">
-            <span>0 = épuisé</span>
-            <span>10 = en forme</span>
+            <span class="range-question">Aujourd'hui, mon niveau d'énergie est...</span>
+            <span class="range-hint">0 = épuisé · 10 = au top</span>
           </div>
         </div>
         
         <!-- Qualité sommeil -->
         <div class="field">
           <label class="field-label" for="qualite-sommeil">
-            <span>Qualité du sommeil</span>
+            <span>Sommeil</span>
             <span class="field-value" id="qualite-sommeil-value">—</span>
           </label>
           <input 
@@ -84,15 +84,15 @@
             aria-label="Qualité du sommeil de 0 à 10"
           >
           <div class="range-labels">
-            <span>0 = très mauvais</span>
-            <span>10 = excellent</span>
+            <span class="range-question">Mon sommeil a été récupérateur...</span>
+            <span class="range-hint">0 = pas du tout · 10 = très bien</span>
           </div>
         </div>
         
         <!-- Douleurs -->
         <div class="field">
           <label class="field-label" for="douleurs">
-            <span>Inconfort physique</span>
+            <span>Confort physique</span>
             <span class="field-value" id="douleurs-value">—</span>
           </label>
           <input 
@@ -101,11 +101,31 @@
             min="0" 
             max="10" 
             value="0"
-            aria-label="Niveau d'inconfort physique de 0 à 10"
+            aria-label="Niveau de confort physique de 0 à 10"
           >
           <div class="range-labels">
-            <span>0 = gêne maximale</span>
-            <span>10 = aucun inconfort</span>
+            <span class="range-question">Mon confort physique aujourd'hui est...</span>
+            <span class="range-hint">0 = très inconfortable · 10 = très à l'aise</span>
+          </div>
+        </div>
+        
+        <!-- Clarté mentale -->
+        <div class="field">
+          <label class="field-label" for="clarte-mentale">
+            <span>Clarté mentale</span>
+            <span class="field-value" id="clarte-mentale-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="clarte-mentale" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau de clarté mentale de 0 à 10"
+          >
+          <div class="range-labels">
+            <span class="range-question">Ma clarté mentale aujourd'hui est...</span>
+            <span class="range-hint">0 = brouillard total · 10 = esprit vif</span>
           </div>
         </div>
         
@@ -220,6 +240,12 @@
     </div>
   </div>
   
+  <!-- Footer version -->
+  <footer class="app-footer">
+    <span>Boussole v1.1 — </span>
+    <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
+  </footer>
+
   <!-- Scripts -->
   <script src="storage.js"></script>
   <script src="calc.js"></script>

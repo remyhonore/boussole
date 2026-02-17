@@ -12,6 +12,7 @@ function calculateDayScore(entry) {
   if (entry.energie !== null && entry.energie !== undefined) values.push(entry.energie);
   if (entry.qualite_sommeil !== null && entry.qualite_sommeil !== undefined) values.push(entry.qualite_sommeil);
   if (entry.douleurs !== null && entry.douleurs !== undefined) values.push(entry.douleurs);
+  if (entry.clarte_mentale !== null && entry.clarte_mentale !== undefined) values.push(entry.clarte_mentale);
   
   if (values.length === 0) return null;
   return values.reduce((sum, v) => sum + v, 0) / values.length;
@@ -192,15 +193,18 @@ function calculateSummary(allEntries, windowDays = 14) {
   const energieValues = chronological.map(e => e.energie);
   const sommeilValues = chronological.map(e => e.qualite_sommeil);
   const douleursValues = chronological.map(e => e.douleurs);
+  const clarteMentaleValues = chronological.map(e => e.clarte_mentale);
   
   const energieMoyenne = average(energieValues);
   const sommeilMoyenne = average(sommeilValues);
   const douleursMoyenne = average(douleursValues);
+  const clarteMentaleMoyenne = average(clarteMentaleValues);
   
   // Calculer tendances
   const energieTendance = calculateTrend(energieValues);
   const sommeilTendance = calculateTrend(sommeilValues);
   const douleursTendance = calculateTrend(douleursValues);
+  const clarteMentaleTendance = calculateTrend(clarteMentaleValues);
   
   // Détecter variations
   const variations = detectVariations(chronological);
@@ -259,6 +263,11 @@ function calculateSummary(allEntries, windowDays = 14) {
       tendance: douleursTendance
     },
     
+    clarte_mentale: {
+      moyenne: clarteMentaleMoyenne !== null ? Math.round(clarteMentaleMoyenne) : null,
+      tendance: clarteMentaleTendance
+    },
+    
     variations,
     
     pointsMarquants: {
@@ -281,11 +290,11 @@ function calculateSummary(allEntries, windowDays = 14) {
  * Dataset de référence pour les tests
  */
 const DATASET_REF = [
-  {date:"2026-02-01", energie:4, qualite_sommeil:4, douleurs:6, note:"Insomnie 2 nuits"},
-  {date:"2026-02-02", energie:5, qualite_sommeil:5, douleurs:5, note:null},
-  {date:"2026-02-03", energie:7, qualite_sommeil:7, douleurs:2, note:"Mieux depuis marche quotidienne"},
-  {date:"2026-02-05", energie:6, qualite_sommeil:6, douleurs:3, note:null},
-  {date:"2026-02-07", energie:3, qualite_sommeil:4, douleurs:9, note:"Crise migraine"},
-  {date:"2026-02-08", energie:5, qualite_sommeil:6, douleurs:4, note:"Mal de tête après écrans"},
-  {date:"2026-02-10", energie:7, qualite_sommeil:7, douleurs:2, note:null}
+  {date:"2026-02-01", energie:4, qualite_sommeil:4, douleurs:6, clarte_mentale:4, note:"Insomnie 2 nuits"},
+  {date:"2026-02-02", energie:5, qualite_sommeil:5, douleurs:5, clarte_mentale:5, note:null},
+  {date:"2026-02-03", energie:7, qualite_sommeil:7, douleurs:7, clarte_mentale:7, note:"Mieux depuis marche quotidienne"},
+  {date:"2026-02-05", energie:6, qualite_sommeil:6, douleurs:6, clarte_mentale:6, note:null},
+  {date:"2026-02-07", energie:3, qualite_sommeil:4, douleurs:2, clarte_mentale:3, note:"Crise migraine"},
+  {date:"2026-02-08", energie:5, qualite_sommeil:6, douleurs:5, clarte_mentale:5, note:"Mal de tête après écrans"},
+  {date:"2026-02-10", energie:7, qualite_sommeil:7, douleurs:7, clarte_mentale:8, note:null}
 ];

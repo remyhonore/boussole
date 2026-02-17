@@ -137,7 +137,7 @@ function generatePDFPreview(summary) {
     lines.push(`- ${sanitizePdfText(summary.qualite_sommeil.tendance)}`);
   }
   if (summary.douleurs.moyenne !== null) {
-    lines.push(`Inconfort physique : ${summary.douleurs.moyenne}/10`);
+    lines.push(`Confort physique : ${summary.douleurs.moyenne}/10`);
     lines.push(`- ${sanitizePdfText(summary.douleurs.tendance)}`);
   }
   lines.push('');
@@ -397,8 +397,15 @@ async function generatePDF(summary) {
   }
   if (summary.douleurs.moyenne !== null) {
     section1Rows.push({
-      main: `Inconfort physique : ${summary.douleurs.moyenne}/10`,
+      main: `Confort physique : ${summary.douleurs.moyenne}/10`,
       sub: `- ${summary.douleurs.tendance}`,
+      bold: true
+    });
+  }
+  if (summary.clarte_mentale && summary.clarte_mentale.moyenne !== null) {
+    section1Rows.push({
+      main: `Clarté mentale : ${summary.clarte_mentale.moyenne}/10`,
+      sub: `- ${summary.clarte_mentale.tendance}`,
       bold: true
     });
   }
