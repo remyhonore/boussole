@@ -246,38 +246,31 @@
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
   </footer>
 
-  <!-- Modal Changelog -->
-  <div class="modal-overlay" id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="changelog-title">Notes de version</h2>
-        <button class="modal-close" id="changelog-close" aria-label="Fermer">×</button>
+  <!-- Popup Changelog -->
+  <div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#fff;border-radius:12px;max-width:400px;width:100%;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:17px;font-weight:700;margin:0;">Notes de version</h2>
+        <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;" aria-label="Fermer">×</button>
       </div>
-      <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
-        <div style="padding:4px 0 12px;">
-          <strong style="color:var(--color-primary)">v1.1</strong> — 17 février 2026
-          <ul style="margin:8px 0 0 16px;font-size:14px;line-height:1.7;">
-            <li>4ème indicateur : <strong>Clarté mentale</strong></li>
-            <li>Labels positifs : Confort physique, Sommeil</li>
-            <li>Questions journalières sous chaque curseur</li>
-            <li>Footer version</li>
-            <li>Déploiement PWA (installable mobile)</li>
-          </ul>
-        </div>
-        <hr style="border:none;border-top:1px solid var(--color-border);margin:8px 0;">
-        <div style="padding:4px 0 12px;">
-          <strong style="color:var(--color-primary)">v1.0</strong> — 10 février 2026
-          <ul style="margin:8px 0 0 16px;font-size:14px;line-height:1.7;">
-            <li>Lancement MVP : Énergie, Sommeil, Confort physique</li>
-            <li>Résumé 14 jours avec tendances</li>
-            <li>Export PDF 1 page</li>
-            <li>Local-first, sans compte, sans cloud</li>
-          </ul>
-        </div>
+      <div>
+        <p style="margin:0 0 6px;"><strong style="color:#e09c8a;">v1.1</strong> <span style="color:#888;font-size:13px;">— 17 février 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>4ème indicateur : <strong>Clarté mentale</strong></li>
+          <li>Labels positifs : Confort physique, Sommeil</li>
+          <li>Questions journalières sous chaque curseur</li>
+          <li>Application installable sur mobile (PWA)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+        <p style="margin:0 0 6px;"><strong style="color:#e09c8a;">v1.0</strong> <span style="color:#888;font-size:13px;">— 10 février 2026</span></p>
+        <ul style="margin:0 0 20px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Lancement MVP : Énergie, Sommeil, Confort physique</li>
+          <li>Résumé 14 jours avec tendances</li>
+          <li>Export PDF 1 page</li>
+          <li>Local-first — données sur votre appareil uniquement</li>
+        </ul>
       </div>
-      <div class="modal-footer">
-        <button class="btn" id="changelog-ok">Fermer</button>
-      </div>
+      <button id="changelog-ok" style="width:100%;padding:10px;background:#e09c8a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Fermer</button>
     </div>
   </div>
 

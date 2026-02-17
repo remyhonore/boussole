@@ -268,7 +268,7 @@ function updateLastSavedDisplay() {
   if (lastEntry.energie !== null) parts.push(`Énergie ${lastEntry.energie}`);
   if (lastEntry.qualite_sommeil !== null) parts.push(`Sommeil ${lastEntry.qualite_sommeil}`);
   if (lastEntry.douleurs !== null) parts.push(`Confort ${lastEntry.douleurs}`);
-  if (lastEntry.clarte_mentale !== null) parts.push(`Clarté ${lastEntry.clarte_mentale}`);
+  if (lastEntry.clarte_mentale !== null && lastEntry.clarte_mentale !== undefined) parts.push(`Clarté ${lastEntry.clarte_mentale}`);
   
   const dateStr = formatDateFr(lastEntry.date);
   display.textContent = `Dernière saisie : ${dateStr} · ${parts.join(' · ')}`;
