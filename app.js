@@ -278,7 +278,13 @@ function updateLastSavedDisplay() {
  * === ÉCRAN RÉSUMÉ ===
  */
 function initSummaryPanel() {
-  document.getElementById('btn-generate-pdf')?.addEventListener('click', showPDFPreview);
+  document.getElementById('btn-generate-pdf')?.addEventListener('click', () => {
+    if (typeof genererPDFEnrichi === 'function') {
+      genererPDFEnrichi();
+    } else {
+      showPDFPreview();
+    }
+  });
 }
 
 function refreshSummary() {
