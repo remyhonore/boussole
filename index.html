@@ -16,6 +16,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
   
+  <!-- Chart.js pour graphiques PDF enrichi -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
   <!-- jsPDF pour génération PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -189,10 +192,11 @@
         <button 
           class="btn" 
           id="btn-generate-pdf"
+          onclick="genererPDFEnrichi()"
           style="width: 100%;"
-          aria-label="Générer et télécharger le PDF"
+          aria-label="Générer et télécharger le PDF enrichi"
         >
-          Générer PDF
+          Générer PDF enrichi
         </button>
       </div>
       
@@ -278,6 +282,7 @@
   <script src="storage.js"></script>
   <script src="calc.js"></script>
   <script src="pdf.js"></script>
+  <script src="pdf_enrichi_v2.js"></script>
   <script src="app.js"></script>
 
   <!-- Service Worker PWA -->
