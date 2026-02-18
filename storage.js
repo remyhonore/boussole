@@ -98,6 +98,7 @@ function saveEntry(date, entry) {
     energie: entry.energie,
     qualite_sommeil: entry.qualite_sommeil,
     douleurs: entry.douleurs,
+    clarte_mentale: entry.clarte_mentale,
     note: entry.note || null
   };
   

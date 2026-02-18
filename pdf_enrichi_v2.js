@@ -171,16 +171,21 @@ async function genererPDFEnrichi() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   
-  // Récupérer les données
-  const entrees = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('entree-')) {
-      entrees.push(JSON.parse(localStorage.getItem(key)));
-    }
-  }
+  // Récupérer les données via loadEntries()
+  const data = loadEntries();
+  const rawEntries = data.entries || [];
   
-  // Trier par date
+  // Mapper les champs au format attendu
+  const entrees = rawEntries.map(e => ({
+    date: e.date,
+    energie: e.energie,
+    sommeil: e.qualite_sommeil,
+    confort_physique: e.douleurs,
+    clarte_mentale: e.clarte_mentale,
+    note: e.note
+  }));
+  
+  // Trier par date croissante
   entrees.sort((a, b) => new Date(a.date) - new Date(b.date));
   
   if (entrees.length === 0) {
