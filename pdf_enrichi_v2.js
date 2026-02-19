@@ -82,7 +82,7 @@ function detecterCorrelations(entrees) {
     if (e1.sommeil !== null && e2.energie !== null) {
       if (e1.sommeil < 5 && e2.energie < e1.energie - 1) {
         correlations.push({
-          pattern: 'Sommeil bas → Énergie baisse le lendemain',
+          pattern: 'Sommeil bas => Énergie baisse le lendemain',
           occurrences: 1
         });
       }
@@ -104,7 +104,7 @@ function detecterCorrelations(entrees) {
   
   if (countTotal > 5 && countLowBoth / countTotal > 0.6) {
     correlations.push({
-      pattern: 'Confort physique bas → Clarté mentale souvent basse aussi',
+      pattern: 'Confort physique bas => Clarté mentale souvent basse aussi',
       pourcentage: Math.round(100 * countLowBoth / countTotal)
     });
   }
@@ -208,7 +208,7 @@ async function genererPDFEnrichi() {
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Période : ${dateDebut.toLocaleDateString('fr-FR')} → ${dateFin.toLocaleDateString('fr-FR')} (${nbJours} jours)`, 105, 28, { align: 'center' });
+  doc.text(`Période : ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')} (${nbJours} jours)`, 105, 28, { align: 'center' });
   doc.text(`Jours renseignés : ${entrees.length}/${nbJours}`, 105, 34, { align: 'center' });
   
   // Préparer données pour graphiques
@@ -248,8 +248,8 @@ async function genererPDFEnrichi() {
   // Footer page 1
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  doc.text('Document généré par Boussole (boussole.micronutriment.fr) • Outil de suivi descriptif', 105, 285, { align: 'center' });
-  doc.text('Ne remplace pas un avis médical • Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
+  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+  doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
   
   // ====================================
   // PAGE 2 : SYNTHÈSE STATISTIQUE
@@ -322,7 +322,7 @@ async function genererPDFEnrichi() {
   
   doc.setFontSize(9);
   doc.setFont('helvetica', 'italic');
-  doc.text('⚠️ Ces observations sont descriptives, pas des conclusions médicales.', 15, 30);
+  doc.text('Note : Ces observations sont descriptives, pas des conclusions médicales.', 15, 30);
   
   yPos = 45;
   
@@ -333,7 +333,7 @@ async function genererPDFEnrichi() {
     doc.setFont('helvetica', 'normal');
     
     correlations.forEach(corr => {
-      doc.text(`• ${corr.pattern}`, 20, yPos);
+      doc.text(`- ${corr.pattern}`, 20, yPos);
       if (corr.pourcentage) {
         doc.text(`  (observé dans ${corr.pourcentage}% des cas)`, 25, yPos + 5);
         yPos += 10;
@@ -437,13 +437,13 @@ async function genererPDFEnrichi() {
   }
   
   points.forEach(point => {
-    doc.text(`☐ ${point}`, 20, yPos);
+    doc.text(`[ ] ${point}`, 20, yPos);
     yPos += 8;
   });
   
   // Espace libre pour notes
   yPos += 10;
-  doc.text('☐ Autre : _______________________________________________________', 20, yPos);
+  doc.text('[ ] Autre : _______________________________________________________', 20, yPos);
   yPos += 8;
   doc.text('_________________________________________________________________', 20, yPos);
   
