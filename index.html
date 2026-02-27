@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boussole | Suivi bien-être</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e09c8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Boussole">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Chart.js pour graphiques PDF enrichi -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- jsPDF pour génération PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  
+  <div class="container">
+    
+    <!-- En-tête -->
+    <header class="header">
+      <h1>Boussole</h1>
+      <p>Données sur votre appareil · sans compte · sans cloud</p>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="nav" role="navigation">
+      <button class="nav-btn active" data-panel="today" aria-label="Aller à la page Aujourd'hui">
+        Aujourd'hui
+      </button>
+      <button class="nav-btn" data-panel="summary" aria-label="Aller à la page Résumé">
+        Résumé
+      </button>
+    </nav>
+    
+    <!-- Message de status global -->
+    <div id="status-message" class="status" style="display: none;"></div>
+    
+    <!-- Panel Aujourd'hui -->
+    <div class="panel active" id="panel-today">
+      
+      <div class="card">
+        <h2 class="card-title">Bilan du jour</h2>
+        <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
+        
+        <!-- Énergie -->
+        <div class="field">
+          <label class="field-label" for="energie">
+            <span>Énergie</span>
+            <span class="field-value" id="energie-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="energie" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau d'énergie de 0 à 10"
+          >
+          <div class="range-labels">
+            <span class="range-question">Aujourd'hui, mon niveau d'énergie est...</span>
+            <span class="range-hint">0 = épuisé · 10 = au top</span>
+          </div>
+        </div>
+        
+        <!-- Qualité sommeil -->
+        <div class="field">
+          <label class="field-label" for="qualite-sommeil">
+            <span>Sommeil</span>
+            <span class="field-value" id="qualite-sommeil-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="qualite-sommeil" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Qualité du sommeil de 0 à 10"
+          >
+          <div class="range-labels">
+            <span class="range-question">Mon sommeil a été récupérateur...</span>
+            <span class="range-hint">0 = pas du tout · 10 = très bien</span>
+          </div>
+        </div>
+        
+        <!-- Douleurs -->
+        <div class="field">
+          <label class="field-label" for="douleurs">
+            <span>Confort physique</span>
+            <span class="field-value" id="douleurs-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="douleurs" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau de confort physique de 0 à 10"
+          >
+          <div class="range-labels">
+            <span class="range-question">Mon confort physique aujourd'hui est...</span>
+            <span class="range-hint">0 = très inconfortable · 10 = très à l'aise</span>
+          </div>
+        </div>
+        
+        <!-- Clarté mentale -->
+        <div class="field">
+          <label class="field-label" for="clarte-mentale">
+            <span>Clarté mentale</span>
+            <span class="field-value" id="clarte-mentale-value">—</span>
+          </label>
+          <input 
+            type="range" 
+            id="clarte-mentale" 
+            min="0" 
+            max="10" 
+            value="0"
+            aria-label="Niveau de clarté mentale de 0 à 10"
+          >
+          <div class="range-labels">
+            <span class="range-question">Ma clarté mentale aujourd'hui est...</span>
+            <span class="range-hint">0 = brouillard total · 10 = esprit vif</span>
+          </div>
+        </div>
+        
+        <!-- Note optionnelle -->
+        <div class="field">
+          <label class="field-label" for="note">
+            <span>Note (optionnel)</span>
+            <span class="textarea-count" id="note-count">0/200</span>
+          </label>
+          <textarea 
+            id="note" 
+            maxlength="200" 
+            placeholder="Ex: Mal de tête après 2h d'écran"
+            aria-label="Note optionnelle, 200 caractères maximum"
+          ></textarea>
+        </div>
+        
+        <!-- Boutons d'action -->
+        <div class="btn-row">
+          <button 
+            class="btn btn-secondary" 
+            id="btn-quick"
+            aria-label="Reprendre les dernières valeurs"
+          >
+            Reprendre dernières valeurs
+          </button>
+          <button 
+            class="btn" 
+            id="btn-save"
+            aria-label="Enregistrer la saisie du jour"
+          >
+            Enregistrer
+          </button>
+        </div>
+        
+        <button 
+          class="btn btn-secondary" 
+          id="btn-undo" 
+          style="display: none; margin-top: 12px; width: 100%;"
+          aria-label="Annuler le dernier enregistrement"
+        >
+          Annuler (30s)
+        </button>
+        
+        <!-- Dernière saisie -->
+        <div class="status-muted" id="last-saved">
+          Aucune entrée enregistrée.
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- Panel Résumé -->
+    <div class="panel" id="panel-summary">
+      
+      <div class="card" style="margin-bottom: 16px;">
+        <button 
+          class="btn" 
+          id="btn-generate-pdf"
+          onclick="genererPDFEnrichi()"
+          style="width: 100%;"
+          aria-label="Générer et télécharger le PDF enrichi"
+        >
+          Générer PDF enrichi
+        </button>
+      </div>
+      
+      <div id="summary-content">
+        <!-- Contenu généré dynamiquement -->
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Modal aperçu PDF -->
+  <div class="modal" id="pdf-modal" role="dialog" aria-labelledby="pdf-modal-title" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="pdf-modal-title">Aperçu PDF</h2>
+        <button 
+          class="modal-close" 
+          id="modal-close" 
+          aria-label="Fermer l'aperçu"
+        >
+          ×
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="card-hint" style="margin-bottom: 16px;">
+          Voici le contenu qui sera généré dans le PDF (1 page).
+        </p>
+        <div class="preview" id="pdf-preview"></div>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          class="btn btn-secondary" 
+          id="btn-cancel-pdf"
+          aria-label="Annuler et fermer"
+        >
+          Annuler
+        </button>
+        <button 
+          class="btn" 
+          id="btn-download-pdf"
+          aria-label="Télécharger le PDF"
+        >
+          Télécharger
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer version -->
+  <footer class="app-footer">
+    <span>Boussole v1.2 — </span>
+    <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
+  </footer>
+
+  <!-- Popup Changelog -->
+  <div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#fff;border-radius:12px;max-width:400px;width:100%;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:17px;font-weight:700;margin:0;">Notes de version</h2>
+        <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;" aria-label="Fermer">×</button>
+      </div>
+      <div>
+        <p style="margin:0 0 6px;"><strong style="color:#e09c8a;">v1.2</strong> <span style="color:#888;font-size:13px;">— 27 février 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Système <strong>Vert / Orange / Rouge</strong> : type de journée calculé automatiquement</li>
+          <li>Conseils contextuels après chaque saisie</li>
+          <li>Calendrier des 14 derniers jours dans le Résumé</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+        <p style="margin:0 0 6px;"><strong style="color:#e09c8a;">v1.1</strong> <span style="color:#888;font-size:13px;">— 17 février 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>4ème indicateur : <strong>Clarté mentale</strong></li>
+          <li>Labels positifs : Confort physique, Sommeil</li>
+          <li>Questions journalières sous chaque curseur</li>
+          <li>Application installable sur mobile (PWA)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+        <p style="margin:0 0 6px;"><strong style="color:#e09c8a;">v1.0</strong> <span style="color:#888;font-size:13px;">— 10 février 2026</span></p>
+        <ul style="margin:0 0 20px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Lancement MVP : Énergie, Sommeil, Confort physique</li>
+          <li>Résumé 14 jours avec tendances</li>
+          <li>Export PDF 1 page</li>
+          <li>Local-first — données sur votre appareil uniquement</li>
+        </ul>
+      </div>
+      <button id="changelog-ok" style="width:100%;padding:10px;background:#e09c8a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="storage.js"></script>
+  <script src="calc.js"></script>
+  <script src="daytype.js"></script>
+  <script src="pdf.js"></script>
+  <script src="pdf_enrichi_v2.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Service Worker PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('Service Worker actif'))
+          .catch(err => console.warn('SW non enregistré :', err));
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "name": "boussole-plus",
+  "version": "1.0.0-phase1",
+  "description": "Journal de santé quotidien avec génération PDF pour consultation médicale",
+  "main": "index.html",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "serve": "npx serve .",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "health",
+    "journal",
+    "tracking",
+    "medical",
+    "symptoms",
+    "pdf"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "*.js",
+      "!app.js",
+      "!pdf.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  }
+}
