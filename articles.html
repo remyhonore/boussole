@@ -285,7 +285,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: #ffffff;
+            background: var(--color-bg);
             z-index: 100;
             overflow-y: auto;
             transform: translateY(100%);
@@ -351,10 +351,13 @@
             background: linear-gradient(135deg, var(--color-primary-light), #ffe8d6);
         }
         .article-body {
-            padding: 24px 20px 48px;
-            max-width: 680px;
-            margin: 0 auto;
             background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 680px;
+            width: calc(100% - 32px);
+            margin: 16px auto 40px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
         .article-meta {
             display: flex;
