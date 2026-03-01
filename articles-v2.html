@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles — Boussole</title>
+    <meta name="theme-color" content="#e09c8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Boussole Articles">
+    <style>
+        :root {
+            --color-primary: #e09c8a;
+            --color-primary-dark: #c47a68;
+            --color-primary-light: #f0bdb0;
+            --color-bg: #fafafa;
+            --color-card: #ffffff;
+            --color-border: #e5e7eb;
+            --color-text: #1f2937;
+            --color-text-muted: #6b7280;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg);
+            color: var(--color-text);
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══ HEADER ═══ */
+        .header {
+            text-align: center;
+            padding: 24px 0 16px;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 16px;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+        .header .sub {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+        .header .sub a {
+            color: var(--color-primary-dark);
+            text-decoration: none;
+        }
+
+        /* ═══ BARRE INSCRIT ═══ */
+        .subscriber-bar {
+            display: none;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #166534;
+            text-align: center;
+        }
+        .subscriber-bar.show { display: block; }
+        .subscriber-bar .unsub {
+            color: var(--color-text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-left: 8px;
+        }
+
+        /* ═══ FILTRES ═══ */
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .filters::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--color-border);
+            background: var(--color-card);
+            font-size: 13px;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family);
+        }
+        .filter-btn:hover { border-color: var(--color-primary); color: var(--color-primary-dark); }
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* ═══ LOADING / ERROR ═══ */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+        .loading .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--color-border);
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-box {
+            background: #fff7ed;
+            border-left: 3px solid #ea580c;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            font-size: 14px;
+            color: #ea580c;
+        }
+        .error-box code {
+            display: block;
+            margin-top: 8px;
+            padding: 8px;
+            background: #fffbf7;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #333;
+            word-break: break-all;
+        }
+
+        /* ═══ CARTE ARTICLE ═══ */
+        .article-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .article-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .article-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .article-card .card-body { padding: 16px; }
+        .article-card .tags-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .article-card .cat-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+            background: #fdf2ef;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .article-card h2 {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+        .article-card .excerpt {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .article-card .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .article-card .read-more {
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* ═══ BADGES ACCÈS ═══ */
+        .access-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .access-badge.public  { background: #f0fdf4; color: #166534; }
+        .access-badge.inscrit { background: #eff6ff; color: #1d4ed8; }
+        .access-badge.premium { background: #fdf2ef; color: var(--color-primary-dark); }
+
+        /* ═══ LOCK OVERLAY ═══ */
+        .lock-overlay {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1d4ed8;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .lock-overlay.premium-lock { color: var(--color-primary-dark); }
+
+        /* ═══ ARTICLE COMPLET (modale plein écran) ═══ */
+        .article-full {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: white;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .article-full.open { display: block; }
+        .article-full .back-bar {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+        }
+        .article-full .back-btn {
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            padding: 4px 0;
+            font-family: var(--font-family);
+        }
+        .article-full .back-title {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .article-full .hero-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        .article-full .content {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px 16px 60px;
+        }
+        .article-full .content h1 {
+            font-size: 24px;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        .article-full .content .article-meta {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+        .article-full .content .article-body {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #374151;
+        }
+        .article-full .content .article-body p { margin-bottom: 16px; }
+        .article-full .content .article-body h2,
+        .article-full .content .article-body h3 {
+            margin: 24px 0 12px;
+            color: var(--color-text);
+        }
+        .article-full .content .article-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+        }
+        .article-full .content .article-body a { color: var(--color-primary-dark); }
+
+        /* ═══ CONTENU TRONQUÉ ═══ */
+        .article-body.truncated {
+            max-height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ═══ EMAIL GATE ═══ */
+        .email-gate {
+            position: relative;
+            margin-top: -80px;
+            padding-top: 80px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 40%);
+        }
+        .email-gate .gate-card {
+            background: #fafafa;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            max-width: 440px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .email-gate .gate-icon { font-size: 32px; margin-bottom: 12px; }
+        .email-gate .gate-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+        .email-gate .gate-card p {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .email-gate .gate-card .benefits {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .email-gate .gate-card .benefits div {
+            font-size: 13px;
+            color: #374151;
+            padding: 4px 0;
+        }
+        .email-gate .gate-card .benefits div::before {
+            content: '✓ ';
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .email-gate .gate-form { display: flex; gap: 8px; }
+        .email-gate .gate-form input[type="email"] {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: var(--font-family);
+        }
+        .email-gate .gate-form input[type="email"]:focus {
+            border-color: var(--color-primary);
+        }
+        .email-gate .gate-form button {
+            padding: 12px 20px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            font-family: var(--font-family);
+        }
+        .email-gate .gate-form button:hover { background: var(--color-primary-dark); }
+        .email-gate .gate-form button:disabled { background: #d1d5db; cursor: wait; }
+        .email-gate .gate-privacy {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 12px;
+        }
+        .email-gate .gate-error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        .email-gate .gate-success {
+            color: #16a34a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ═══ PREMIUM GATE ═══ */
+        .premium-gate .gate-card {
+            border-color: var(--color-primary-light);
+            background: #fff8f6;
+        }
+
+        /* ═══ NAV RETOUR ═══ */
+        .nav-back {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            color: var(--color-primary-dark);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            .email-gate .gate-form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Articles</h1>
+        <div class="sub">par <a href="https://micronutriment.fr">micronutriment.fr</a> · La science médicale</div>
+    </div>
+
+    <!-- BARRE INSCRIT -->
+    <div class="subscriber-bar" id="subscriber-bar">
+        ✓ Accès complet aux articles réservés
+        <span class="unsub" onclick="resetSubscription()" title="Réinitialiser">( se déconnecter )</span>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filters" id="filters">
+        <button class="filter-btn active" data-cat="all">Tous</button>
+    </div>
+
+    <!-- LISTE ARTICLES -->
+    <div id="articles-list">
+        <div class="loading">
+            <div class="spinner"></div>
+            <div>Chargement des articles...</div>
+        </div>
+    </div>
+
+    <!-- LIEN RETOUR -->
+    <a href="index.html" class="nav-back">← Retour à Boussole</a>
+
+    <!-- ARTICLE COMPLET (modale) -->
+    <div class="article-full" id="article-full" role="dialog" aria-modal="true">
+        <div class="back-bar">
+            <button class="back-btn" onclick="closeArticle()" aria-label="Retour à la liste">← Retour</button>
+            <span class="back-title" id="back-title"></span>
+        </div>
+        <div id="article-full-content"></div>
+    </div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
+const CONFIG = {
+    wpBase: 'https://micronutriment.fr',
+    perPage: 20,
+    cacheTTL: 60, // minutes
+    cacheKey: 'wp_articles_cache_v2',
+    catCacheKey: 'wp_categories_cache_v2',
+    tagCacheKey: 'wp_tags_cache_v2',
+    brevoFormURL: 'https://ffd96913.sibforms.com/serve/MUIFAJUmjQTMcr8EIjmLErqYjjECrQ73i0aPhf_n6tBk2T-Z5AzjIeTGaQAcaPFU0Gg_yPaV46hxNb6EtRVWlzHZOM4fH08S6nOFuz5CNcfhisSD5UFAsEOsTMl8w405AGiQRhn3MyOfmYSaCUtoAMGqVRzRXKkdXN2kjT-18CVH688z0YTCeL_NKQzYUcFCGw44EksGyMRhKlBtUw==',
+    subKey: 'boussole_email_verified',
+    subEmailKey: 'boussole_subscriber_email',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// GESTION INSCRIPTION
+// ═══════════════════════════════════════════════════════════════
+const Subscriber = {
+    isRegistered() {
+        return localStorage.getItem(CONFIG.subKey) === 'true';
+    },
+    getEmail() {
+        return localStorage.getItem(CONFIG.subEmailKey) || '';
+    },
+    register(email) {
+        localStorage.setItem(CONFIG.subKey, 'true');
+        localStorage.setItem(CONFIG.subEmailKey, email);
+        updateSubscriberUI();
+    },
+    reset() {
+        localStorage.removeItem(CONFIG.subKey);
+        localStorage.removeItem(CONFIG.subEmailKey);
+        updateSubscriberUI();
+        renderArticles();
+    }
+};
+
+function updateSubscriberUI() {
+    const bar = document.getElementById('subscriber-bar');
+    if (Subscriber.isRegistered()) {
+        bar.classList.add('show');
+    } else {
+        bar.classList.remove('show');
+    }
+}
+
+function resetSubscription() {
+    if (confirm('Se désinscrire ? Tu devras re-entrer ton email pour accéder aux articles réservés.')) {
+        Subscriber.reset();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENVOI EMAIL → BREVO
+// ═══════════════════════════════════════════════════════════════
+async function submitEmail(email, articleId) {
+    const errorEl  = document.getElementById('gate-error-'   + articleId);
+    const successEl = document.getElementById('gate-success-' + articleId);
+    const btnEl    = document.getElementById('gate-btn-'     + articleId);
+
+    if (!email || !email.includes('@') || !email.includes('.')) {
+        if (errorEl) { errorEl.textContent = 'Adresse email invalide.'; errorEl.style.display = 'block'; }
+        return;
+    }
+
+    if (btnEl)    { btnEl.disabled = true; btnEl.textContent = 'Inscription...'; }
+    if (errorEl)  errorEl.style.display = 'none';
+
+    // Envoi Brevo (mode no-cors — la réponse n'est pas lisible mais l'email est transmis)
+    try {
+        const formData = new FormData();
+        formData.append('EMAIL', email);
+        formData.append('locale', 'fr');
+        await fetch(CONFIG.brevoFormURL, { method: 'POST', body: formData, mode: 'no-cors' });
+    } catch (err) {
+        console.warn('Brevo unreachable — inscription locale uniquement:', err);
+    }
+
+    // Inscription locale (clé boussole_email_verified)
+    Subscriber.register(email);
+
+    if (successEl) successEl.style.display = 'block';
+    if (btnEl)     btnEl.textContent = '✓ Inscrit !';
+
+    setTimeout(() => openArticle(articleId), 1500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CACHE
+// ═══════════════════════════════════════════════════════════════
+const Cache = {
+    get(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return null;
+            const { data, timestamp } = JSON.parse(raw);
+            if ((Date.now() - timestamp) / 60000 > CONFIG.cacheTTL) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return data;
+        } catch { return null; }
+    },
+    set(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+        } catch { /* localStorage plein */ }
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH WORDPRESS
+// ═══════════════════════════════════════════════════════════════
+let allArticles   = [];
+let allCategories = {};
+let allTags       = {};
+let activeFilter  = 'all';
+
+async function fetchCategories() {
+    const cached = Cache.get(CONFIG.catCacheKey);
+    if (cached) return cached;
+    const res  = await fetch(`${CONFIG.wpBase}/wp-json/wp/v2/categories?per_page=50`);
+    if (!res.ok) throw new Error(`Categories HTTP ${res.status}`);
+    const cats = await res.json();
+    const map  = {};
+    cats.forEach(c => { map[c.id] = c.name; });
+    Cache.set(CONFIG.catCacheKey, map);
+    return map;
+}
+
+async function fetchTags() {
+    const cached = Cache.get(CONFIG.tagCacheKey);
+    if (cached) return cached;
+    const res  = await fetch(`${CONFIG.wpBase}/wp-json/wp/v2/tags?per_page=100`);
+    if (!res.ok) throw new Error(`Tags HTTP ${res.status}`);
+    const tags = await res.json();
+    const map  = {};
+    tags.forEach(t => { map[t.id] = t.slug; });
+    Cache.set(CONFIG.tagCacheKey, map);
+    return map;
+}
+
+async function fetchArticles() {
+    const cached = Cache.get(CONFIG.cacheKey);
+    if (cached) return cached;
+    const fields = 'id,title,excerpt,content,date,categories,tags,slug,_links';
+    const url    = `${CONFIG.wpBase}/wp-json/wp/v2/posts?per_page=${CONFIG.perPage}&_fields=${fields}&_embed=wp:featuredmedia`;
+    const res    = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    const articles  = await res.json();
+    const enriched  = articles.map(a => ({
+        id:         a.id,
+        title:      a.title.rendered,
+        excerpt:    a.excerpt.rendered,
+        content:    a.content ? a.content.rendered : '',
+        date:       a.date,
+        categories: a.categories || [],
+        tags:       a.tags || [],
+        slug:       a.slug,
+        image:      extractImage(a),
+    }));
+    Cache.set(CONFIG.cacheKey, enriched);
+    return enriched;
+}
+
+function extractImage(article) {
+    if (article._embedded && article._embedded['wp:featuredmedia']) {
+        const media = article._embedded['wp:featuredmedia'][0];
+        if (media && media.source_url) return media.source_url;
+        if (media && media.media_details && media.media_details.sizes) {
+            const s = media.media_details.sizes;
+            return (s.medium_large || s.medium || s.full || {}).source_url || '';
+        }
+    }
+    const match = (article.content || '').match(/<img[^>]+src="([^"]+)"/);
+    return match ? match[1] : '';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONTRÔLE D'ACCÈS (tags WordPress : public / inscrit / premium)
+// ═══════════════════════════════════════════════════════════════
+function getAccessLevel(article) {
+    const tagSlugs = article.tags.map(tid => allTags[tid]).filter(Boolean);
+    if (tagSlugs.includes('premium')) return 'premium';
+    if (tagSlugs.includes('inscrit')) return 'inscrit';
+    return 'public';
+}
+
+function canAccess(article) {
+    const level = getAccessLevel(article);
+    if (level === 'public')  return true;
+    if (level === 'inscrit') return Subscriber.isRegistered();
+    return false; // premium
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDU — Liste
+// ═══════════════════════════════════════════════════════════════
+function renderFilters(categories) {
+    const container = document.getElementById('filters');
+    const usedCats  = new Set();
+    allArticles.forEach(a => a.categories.forEach(c => usedCats.add(c)));
+    usedCats.forEach(catId => {
+        const name = categories[catId];
+        if (!name) return;
+        const btn = document.createElement('button');
+        btn.className    = 'filter-btn';
+        btn.dataset.cat  = catId;
+        btn.textContent  = name;
+        btn.onclick = () => {
+            activeFilter = catId;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderArticles();
+        };
+        container.appendChild(btn);
+    });
+}
+
+document.querySelector('.filter-btn[data-cat="all"]').onclick = function () {
+    activeFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    renderArticles();
+};
+
+function renderArticles() {
+    const container = document.getElementById('articles-list');
+    const filtered  = activeFilter === 'all'
+        ? allArticles
+        : allArticles.filter(a => a.categories.includes(parseInt(activeFilter)));
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="loading">Aucun article dans cette catégorie.</div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(article => {
+        const date      = new Date(article.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        const catNames  = article.categories.map(c => allCategories[c]).filter(Boolean).join(', ');
+        const excerpt   = article.excerpt.replace(/<[^>]+>/g, '').replace(/\[&hellip;\]/g, '…').trim();
+        const imgHtml   = article.image ? `<img src="${article.image}" alt="" loading="lazy">` : '';
+        const level     = getAccessLevel(article);
+        const isLocked  = !canAccess(article);
+
+        const badgeLabel = { public: 'Public', inscrit: 'Réservé', premium: 'Premium' }[level];
+        const accessBadge = `<span class="access-badge ${level}">${badgeLabel}</span>`;
+
+        let lockHtml = '';
+        if (isLocked && level === 'inscrit') lockHtml = `<div class="lock-overlay">🔒 Inscription gratuite</div>`;
+        if (isLocked && level === 'premium') lockHtml = `<div class="lock-overlay premium-lock">⭐ Premium</div>`;
+
+        return `
+            <div class="article-card" onclick="openArticle(${article.id})" role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')openArticle(${article.id})"
+                 aria-label="${article.title}">
+                ${imgHtml}
+                ${lockHtml}
+                <div class="card-body">
+                    <div class="tags-row">
+                        ${catNames ? `<span class="cat-tag">${catNames}</span>` : ''}
+                        ${accessBadge}
+                    </div>
+                    <h2>${article.title}</h2>
+                    <p class="excerpt">${excerpt}</p>
+                    <div class="meta">
+                        <span>${date}</span>
+                        <span class="read-more">${isLocked ? 'Débloquer →' : 'Lire →'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ARTICLE COMPLET + GATE
+// ═══════════════════════════════════════════════════════════════
+function openArticle(id) {
+    const article = allArticles.find(a => a.id === id);
+    if (!article) return;
+
+    const date       = new Date(article.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const imgHtml    = article.image ? `<img src="${article.image}" alt="" class="hero-img">` : '';
+    const level      = getAccessLevel(article);
+    const hasAccess  = canAccess(article);
+
+    let bodyHtml = '';
+
+    if (hasAccess) {
+        bodyHtml = `
+            ${imgHtml}
+            <div class="content">
+                <h1>${article.title}</h1>
+                <div class="article-meta">Rémy Honoré · Pharmacien (PharmD) · ${date}</div>
+                <div class="article-body">${article.content}</div>
+            </div>
+        `;
+    } else if (level === 'inscrit') {
+        const preview = truncateHTML(article.content, 800);
+        bodyHtml = `
+            ${imgHtml}
+            <div class="content">
+                <h1>${article.title}</h1>
+                <div class="article-meta">Rémy Honoré · Pharmacien (PharmD) · ${date}</div>
+                <div class="article-body truncated">${preview}</div>
+                <div class="email-gate">
+                    <div class="gate-card">
+                        <div class="gate-icon">📬</div>
+                        <h3>Cet article est réservé</h3>
+                        <p>Entre ton email pour accéder gratuitement à tous les articles réservés et recevoir les nouvelles publications.</p>
+                        <div class="benefits">
+                            <div>Accès immédiat à tous les articles complets</div>
+                            <div>Sources scientifiques et dosages détaillés</div>
+                            <div>1 à 2 emails par semaine, sans spam</div>
+                            <div>Désinscription en 1 clic</div>
+                        </div>
+                        <div class="gate-form">
+                            <input type="email" id="gate-email-${id}" placeholder="ton@email.fr"
+                                   aria-label="Adresse email"
+                                   onkeydown="if(event.key==='Enter')document.getElementById('gate-btn-${id}').click()">
+                            <button id="gate-btn-${id}"
+                                    onclick="submitEmail(document.getElementById('gate-email-${id}').value, ${id})">
+                                S'inscrire
+                            </button>
+                        </div>
+                        <div class="gate-error"   id="gate-error-${id}"></div>
+                        <div class="gate-success"  id="gate-success-${id}">✓ Inscription réussie ! Chargement...</div>
+                        <div class="gate-privacy">Tes données restent confidentielles. Zéro pub, zéro revente.</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (level === 'premium') {
+        const preview = truncateHTML(article.content, 500);
+        bodyHtml = `
+            ${imgHtml}
+            <div class="content">
+                <h1>${article.title}</h1>
+                <div class="article-meta">Rémy Honoré · Pharmacien (PharmD) · ${date}</div>
+                <div class="article-body truncated">${preview}</div>
+                <div class="email-gate premium-gate">
+                    <div class="gate-card">
+                        <div class="gate-icon">⭐</div>
+                        <h3>Contenu premium</h3>
+                        <p>Cet article fait partie des contenus approfondis réservés aux abonnés premium.</p>
+                        <p style="font-size:13px;color:#9ca3af;">Disponible prochainement.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById('back-title').textContent       = article.title;
+    document.getElementById('article-full-content').innerHTML = bodyHtml;
+    document.getElementById('article-full').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('article-full').scrollTop = 0;
+    document.getElementById('article-full').focus();
+}
+
+function truncateHTML(html, maxChars) {
+    const div  = document.createElement('div');
+    div.innerHTML = html;
+    const text = div.textContent || div.innerText;
+    if (text.length <= maxChars) return html;
+
+    let charCount = 0;
+    let result    = '';
+    for (const node of div.childNodes) {
+        if (charCount >= maxChars) break;
+        if (node.nodeType === 3) {
+            const remaining = maxChars - charCount;
+            if (node.textContent.length > remaining) {
+                result    += node.textContent.substring(0, remaining) + '…';
+                charCount  = maxChars;
+            } else {
+                result    += node.textContent;
+                charCount += node.textContent.length;
+            }
+        } else if (node.nodeType === 1) {
+            result    += node.outerHTML;
+            charCount += (node.textContent || '').length;
+        }
+    }
+    return result;
+}
+
+function closeArticle() {
+    document.getElementById('article-full').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeArticle(); });
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+    try {
+        updateSubscriberUI();
+        const [categories, tags, articles] = await Promise.all([
+            fetchCategories(),
+            fetchTags(),
+            fetchArticles()
+        ]);
+        allCategories = categories;
+        allTags       = tags;
+        allArticles   = articles;
+        renderFilters(categories);
+        renderArticles();
+    } catch (err) {
+        console.error('Erreur chargement articles:', err);
+        document.getElementById('articles-list').innerHTML = `
+            <div class="error-box">
+                <strong>Impossible de charger les articles.</strong><br>
+                L'API REST WordPress doit être accessible.
+                <code>
+                    Test : ${CONFIG.wpBase}/wp-json/wp/v2/posts?per_page=3<br><br>
+                    JSON visible → API OK<br>
+                    Erreur 403/404 → plugin sécurité bloque l'API<br><br>
+                    Erreur : ${err.message}
+                </code>
+            </div>
+        `;
+    }
+}
+
+init();
+</script>
+
+</body>
+</html>
