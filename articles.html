@@ -34,14 +34,15 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ═══ BACK NAV ═══ */
-        .back-nav {
+        /* ═══ NAV ═══ */
+        .nav {
             display: flex;
             gap: 8px;
+            margin-bottom: 24px;
             border-bottom: 1px solid var(--color-border);
-            margin-bottom: 0;
         }
-        .back-nav .nav-btn {
+        .nav-btn {
+            flex: 1;
             padding: 16px;
             background: none;
             border: none;
@@ -50,12 +51,18 @@
             font-size: 16px;
             font-family: var(--font-family);
             text-decoration: none;
+            text-align: center;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .back-nav .nav-btn:hover {
+        .nav-btn:hover {
             color: var(--color-text);
             background: rgba(224, 156, 138, 0.05);
+        }
+        .nav-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            font-weight: 600;
         }
 
         /* ═══ HEADER ═══ */
@@ -461,9 +468,11 @@
 </head>
 <body>
 
-    <!-- BACK NAV -->
-    <nav class="back-nav" role="navigation" aria-label="Retour à l'application">
-        <a class="nav-btn" href="/">← Boussole</a>
+    <!-- NAVIGATION -->
+    <nav class="nav" role="navigation">
+        <a class="nav-btn" href="/" aria-label="Aller à la page Aujourd'hui">Aujourd'hui</a>
+        <a class="nav-btn" href="/?panel=summary" aria-label="Aller à la page Résumé">Résumé</a>
+        <a class="nav-btn active" href="/articles.html" aria-label="Articles" aria-current="page">Articles</a>
     </nav>
 
     <!-- HEADER -->
