@@ -752,7 +752,7 @@ function renderArticles() {
         const level     = getAccessLevel(article);
         const isLocked  = !canAccess(article);
 
-        const badgeLabel = { public: 'Public', inscrit: 'Réservé', premium: 'Premium' }[level];
+        const badgeLabel = { public: 'Public', inscrit: 'Inscrit', premium: 'Premium' }[level];
         const accessBadge = `<span class="access-badge ${level}">${badgeLabel}</span>`;
 
         let lockHtml = '';
