@@ -55,6 +55,10 @@ Chaque entrée : `{ date, energie, qualite_sommeil, douleurs, clarte_mentale, no
 - **CSS** : variables CSS centralisées à la racine, approche mobile-first, breakpoint unique à 640 px
 - **Service Worker** : versionner `CACHE_NAME` dans `sw.js` à chaque release pour invalider le cache
 
+## Conventions UX
+
+Toute nouvelle page HTML doit inclure la navigation principale complète (Aujourd'hui / Résumé / Articles) avec les mêmes styles que `index.html`. La page active est indiquée visuellement (classe `.nav-btn.active` : couleur primaire + soulignement + gras, attribut `aria-current="page"`).
+
 ### PDF
 
 `pdf.js` requiert jsPDF (CDN). Toujours vérifier la disponibilité avant appel. Les emojis sont strippés pour compatibilité PDF.
