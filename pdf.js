@@ -141,7 +141,7 @@ function generatePDFPreview(summary) {
     lines.push(`- ${sanitizePdfText(summary.douleurs.tendance)}`);
   }
   if (summary.rmssd) {
-    lines.push(`VFC (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`);
+    lines.push(`Variabilité cardiaque (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`);
   }
   lines.push('');
 
@@ -414,7 +414,7 @@ async function generatePDF(summary) {
   }
   if (summary.rmssd) {
     section1Rows.push({
-      main: `VFC (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`,
+      main: `Variabilité cardiaque (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`,
       bold: false
     });
   }
