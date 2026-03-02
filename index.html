@@ -141,14 +141,24 @@
             <span>Note (optionnel)</span>
             <span class="textarea-count" id="note-count">0/200</span>
           </label>
-          <textarea 
-            id="note" 
-            maxlength="200" 
+          <textarea
+            id="note"
+            maxlength="200"
             placeholder="Ex: Mal de tête après 2h d'écran"
             aria-label="Note optionnelle, 200 caractères maximum"
           ></textarea>
         </div>
-        
+
+        <!-- RMSSD optionnel -->
+        <div class="rmssd-block">
+          <label class="rmssd-label" for="rmssd-input">
+            <span>💓 VFC (RMSSD)</span>
+            <span class="rmssd-optional">optionnel</span>
+          </label>
+          <p class="rmssd-hint">Si tu utilises Oura, WHOOP, Garmin ou Withings — note ta valeur RMSSD du matin (en ms).</p>
+          <input type="number" id="rmssd-input" min="10" max="120" step="1" placeholder="ex : 38">
+        </div>
+
         <!-- Boutons d'action -->
         <div class="btn-row">
           <button 

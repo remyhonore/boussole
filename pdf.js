@@ -140,6 +140,9 @@ function generatePDFPreview(summary) {
     lines.push(`Confort physique : ${summary.douleurs.moyenne}/10`);
     lines.push(`- ${sanitizePdfText(summary.douleurs.tendance)}`);
   }
+  if (summary.rmssd) {
+    lines.push(`VFC (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`);
+  }
   lines.push('');
 
   if (summary.variations && summary.variations.length > 0) {
@@ -407,6 +410,12 @@ async function generatePDF(summary) {
       main: `Clarté mentale : ${summary.clarte_mentale.moyenne}/10`,
       sub: `- ${summary.clarte_mentale.tendance}`,
       bold: true
+    });
+  }
+  if (summary.rmssd) {
+    section1Rows.push({
+      main: `VFC (RMSSD) — Moyenne : ${summary.rmssd.moyenne}ms | Min : ${summary.rmssd.min}ms | Max : ${summary.rmssd.max}ms`,
+      bold: false
     });
   }
   if (section1Rows.length === 0) {

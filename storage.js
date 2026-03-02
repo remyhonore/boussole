@@ -99,7 +99,8 @@ function saveEntry(date, entry) {
     qualite_sommeil: entry.qualite_sommeil,
     douleurs: entry.douleurs,
     clarte_mentale: entry.clarte_mentale,
-    note: entry.note || null
+    note: entry.note || null,
+    rmssd: entry.rmssd ?? null
   };
   
   if (existingIndex >= 0) {

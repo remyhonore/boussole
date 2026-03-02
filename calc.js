@@ -188,12 +188,13 @@ function calculateSummary(allEntries, windowDays = 14) {
   
   // Trier par date croissante pour les calculs de tendances
   const chronological = [...entries].sort((a, b) => a.date.localeCompare(b.date));
-  
+
   // Calculer moyennes
   const energieValues = chronological.map(e => e.energie);
   const sommeilValues = chronological.map(e => e.qualite_sommeil);
   const douleursValues = chronological.map(e => e.douleurs);
   const clarteMentaleValues = chronological.map(e => e.clarte_mentale);
+  const rmssdValues = chronological.map(e => e.rmssd).filter(v => v !== null && v !== undefined);
   
   const energieMoyenne = average(energieValues);
   const sommeilMoyenne = average(sommeilValues);
@@ -282,7 +283,13 @@ function calculateSummary(allEntries, windowDays = 14) {
       gap
     },
     
-    notes
+    notes,
+
+    rmssd: rmssdValues.length > 0 ? {
+      moyenne: Math.round(average(rmssdValues)),
+      min: Math.min(...rmssdValues),
+      max: Math.max(...rmssdValues)
+    } : null
   };
 }
 

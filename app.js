@@ -119,6 +119,10 @@ function loadTodayData() {
       document.getElementById('note').value = entry.note;
       document.getElementById('note-count').textContent = `${entry.note.length}/200`;
     }
+    if (entry.rmssd != null) {
+      const rmssdInput = document.getElementById('rmssd-input');
+      if (rmssdInput) rmssdInput.value = entry.rmssd;
+    }
 
     // Afficher le type de journée si entrée existante
     showDayTypeCard(entry);
@@ -133,26 +137,29 @@ function saveCurrentEntry() {
   const douleurs = getSliderValue('douleurs');
   const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
-  
+  const rmssdRaw = document.getElementById('rmssd-input')?.value;
+  const rmssd = rmssdRaw ? (parseInt(rmssdRaw) || null) : null;
+
   // Vérifier qu'au moins 1 curseur est renseigné
   const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
-  
+
   if (filledCount === 0) {
     showStatus('Renseigne au moins 1 repère pour enregistrer.', 'warning');
     return;
   }
-  
+
   // Sauvegarder l'état actuel pour undo
   const today = getTodayDate();
   app.lastSavedEntry = getEntry(today);
-  
+
   // Sauvegarder
   const entry = {
     energie,
     qualite_sommeil: qualiteSommeil,
     douleurs,
     clarte_mentale: clarteMentale,
-    note: note || null
+    note: note || null,
+    rmssd
   };
   
   const success = saveEntry(today, entry);
@@ -253,7 +260,11 @@ function fillLastValues() {
     document.getElementById('douleurs').dataset.touched = 'true';
     document.getElementById('douleurs-value').textContent = lastEntry.douleurs;
   }
-  
+  if (lastEntry.rmssd != null) {
+    const rmssdInput = document.getElementById('rmssd-input');
+    if (rmssdInput) rmssdInput.value = lastEntry.rmssd;
+  }
+
   showStatus('Dernières valeurs chargées', 'success');
 }
 
