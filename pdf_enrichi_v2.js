@@ -196,6 +196,19 @@ async function genererPDFEnrichi() {
     return;
   }
 
+  // Comptage types de journées (seuils identiques à daytype.js : ≥7 vert, ≥4 orange, <4 rouge)
+  let nbVert = 0, nbOrange = 0, nbRouge = 0, nbTotal = 0;
+  entreesFiltrees.forEach(e => {
+    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    if (vals.length === 0) return;
+    nbTotal++;
+    const score = vals.reduce((a, b) => a + b, 0) / vals.length;
+    if (score >= 7) nbVert++;
+    else if (score >= 4) nbOrange++;
+    else nbRouge++;
+  });
+
   // Période
   const dateDebut = new Date(entreesFiltrees[0].date);
   const dateFin = new Date(entreesFiltrees[entreesFiltrees.length - 1].date);
@@ -222,7 +235,39 @@ async function genererPDFEnrichi() {
   const dataClarte = entreesFiltrees.map(e => e.clarte_mentale ?? undefined);
   
   let yPos = 45;
-  
+
+  // Bloc TYPE DE JOURNÉES — 30 JOURS
+  if (nbTotal > 0) {
+    const pct = n => Math.round(100 * n / nbTotal);
+
+    doc.setDrawColor(200, 200, 200);
+    doc.setFillColor(248, 248, 250);
+    doc.rect(15, yPos, 180, 34, 'FD');
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor('#2a568c');
+    doc.text('TYPE DE JOURNEES — 30 JOURS', 20, yPos + 8);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+
+    doc.setFillColor(34, 197, 94);
+    doc.rect(20, yPos + 13, 4, 4, 'F');
+    doc.text(`Jours hauts : ${nbVert} (${pct(nbVert)}%)`, 27, yPos + 16.5);
+
+    doc.setFillColor(249, 115, 22);
+    doc.rect(20, yPos + 19, 4, 4, 'F');
+    doc.text(`Jours moyens : ${nbOrange} (${pct(nbOrange)}%)`, 27, yPos + 22.5);
+
+    doc.setFillColor(239, 68, 68);
+    doc.rect(20, yPos + 25, 4, 4, 'F');
+    doc.text(`Jours bas : ${nbRouge} (${pct(nbRouge)}%)`, 27, yPos + 28.5);
+
+    yPos += 40;
+  }
+
   // Graphique Énergie
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
