@@ -127,11 +127,19 @@ async function genererGraphique(labels, data, titre, couleur) {
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   new Chart(ctx, {
     type: 'line',
+    plugins: [{
+      id: 'whiteBackground',
+      beforeDraw: (chart) => {
+        const ctx = chart.canvas.getContext('2d');
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, chart.canvas.width, chart.canvas.height);
+        ctx.restore();
+      }
+    }],
     data: {
       labels: labels,
       datasets: [{
