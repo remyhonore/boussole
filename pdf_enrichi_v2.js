@@ -119,8 +119,8 @@ function detecterCorrelations(entrees) {
 async function genererGraphique(labels, data, titre, couleur) {
   // Créer un canvas temporaire
   const canvas = document.createElement('canvas');
-  canvas.width = 800;
-  canvas.height = 300;
+  canvas.width = 600;
+  canvas.height = 220;
   canvas.style.position = 'fixed';
   canvas.style.top = '-9999px';
   canvas.style.left = '-9999px';
@@ -164,7 +164,7 @@ async function genererGraphique(labels, data, titre, couleur) {
   await new Promise(resolve => setTimeout(resolve, 300));
 
   // Convertir en image base64
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/jpeg', 0.82);
   document.body.removeChild(canvas);
   return imgData;
 }
@@ -207,116 +207,106 @@ async function genererPDFEnrichi() {
   // ====================================
   // PAGE 1 : VUE D'ENSEMBLE + GRAPHIQUES
   // ====================================
-  
+
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
   doc.text('BOUSSOLE — Suivi du bien-être quotidien', 105, 20, { align: 'center' });
-  
+
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text(`Période : ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')} (${nbJours} jours)`, 105, 28, { align: 'center' });
   doc.text(`Jours renseignés : ${entrees.length}/${nbJours}`, 105, 34, { align: 'center' });
-  
+
   // Préparer données pour graphiques
   const labels = entrees.map(e => new Date(e.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
   const dataEnergie = entrees.map(e => e.energie);
   const dataSommeil = entrees.map(e => e.sommeil);
   const dataConfort = entrees.map(e => e.confort_physique);
   const dataClarte = entrees.map(e => e.clarte_mentale);
-  
-  let yPos = 45;
-  
-  // Graphique Énergie
+
+  // TYPE DE JOURNEES
+  let joursHauts = 0, joursMoyens = 0, joursBas = 0;
+  entrees.forEach(e => {
+    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+    if (vals.length === 0) return;
+    const score = vals.reduce((sum, v) => sum + v, 0) / vals.length;
+    if (score >= 7) joursHauts++;
+    else if (score >= 4) joursMoyens++;
+    else joursBas++;
+  });
+
+  let yPos = 42;
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text('Énergie', 15, yPos);
-  const graphEnergie = await genererGraphique(labels, dataEnergie, 'Énergie', '#e09c8a');
-  doc.addImage(graphEnergie, 'PNG', 15, yPos + 2, 180, 40);
-  yPos += 48;
-  
-  // Graphique Sommeil
-  doc.text('Sommeil', 15, yPos);
-  const graphSommeil = await genererGraphique(labels, dataSommeil, 'Sommeil', '#6b9bd1');
-  doc.addImage(graphSommeil, 'PNG', 15, yPos + 2, 180, 40);
-  yPos += 48;
-  
-  // Graphique Confort physique
-  doc.text('Confort physique', 15, yPos);
-  const graphConfort = await genererGraphique(labels, dataConfort, 'Confort', '#8bc34a');
-  doc.addImage(graphConfort, 'PNG', 15, yPos + 2, 180, 40);
-  yPos += 48;
-  
-  // Graphique Clarté mentale
-  doc.text('Clarté mentale', 15, yPos);
-  const graphClarte = await genererGraphique(labels, dataClarte, 'Clarté', '#ffa726');
-  doc.addImage(graphClarte, 'PNG', 15, yPos + 2, 180, 40);
-  
-  // Footer page 1
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
-  doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
-  
-  // ====================================
-  // PAGE 2 : SYNTHÈSE STATISTIQUE
-  // ====================================
-  
-  doc.addPage();
-  
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Synthèse statistique', 15, 20);
-  
-  yPos = 35;
-  
+  doc.setTextColor(0, 0, 0);
+  doc.text('TYPE DE JOURNEES', 15, yPos);
+  yPos += 6;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(34, 139, 34);
+  doc.text(`Jours hauts (vert) : ${joursHauts}`, 20, yPos);
+  yPos += 5;
+  doc.setTextColor(255, 140, 0);
+  doc.text(`Jours moyens (orange) : ${joursMoyens}`, 20, yPos);
+  yPos += 5;
+  doc.setTextColor(220, 50, 50);
+  doc.text(`Jours bas (rouge) : ${joursBas}`, 20, yPos);
+  yPos += 8;
+
+  // Synthèse stats compacte
   const statsEnergie = calculerStats(dataEnergie);
   const statsSommeil = calculerStats(dataSommeil);
   const statsConfort = calculerStats(dataConfort);
   const statsClarte = calculerStats(dataClarte);
-  
-  const indicateurs = [
-    { nom: 'ÉNERGIE', stats: statsEnergie, couleur: '#e09c8a' },
-    { nom: 'SOMMEIL', stats: statsSommeil, couleur: '#6b9bd1' },
-    { nom: 'CONFORT PHYSIQUE', stats: statsConfort, couleur: '#8bc34a' },
-    { nom: 'CLARTÉ MENTALE', stats: statsClarte, couleur: '#ffa726' }
-  ];
-  
-  indicateurs.forEach(ind => {
-    // Encadré
-    doc.setDrawColor(200, 200, 200);
-    doc.setFillColor(248, 248, 248);
-    doc.rect(15, yPos, 180, 35, 'FD');
-    
-    // Titre
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(ind.couleur);
-    doc.text(ind.nom, 20, yPos + 8);
-    
-    // Stats
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0);
-    
-    if (ind.stats.moyenne !== null) {
-      doc.text(`Moyenne : ${ind.stats.moyenne}/10`, 20, yPos + 16);
-      doc.text(`Tendance : ${ind.stats.tendance}`, 20, yPos + 22);
-      doc.text(`Variabilité : ${ind.stats.variabilite} (écart-type ${ind.stats.ecartType})`, 20, yPos + 28);
-    } else {
-      doc.text('Données insuffisantes', 20, yPos + 16);
-    }
-    
-    yPos += 40;
-  });
-  
-  // Footer page 2
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('SYNTHESE', 15, yPos);
+  yPos += 6;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  if (statsEnergie.moyenne !== null) { doc.text(`Energie : ${statsEnergie.moyenne}/10`, 20, yPos); yPos += 5; }
+  if (statsSommeil.moyenne !== null) { doc.text(`Sommeil : ${statsSommeil.moyenne}/10`, 20, yPos); yPos += 5; }
+  if (statsConfort.moyenne !== null) { doc.text(`Confort physique : ${statsConfort.moyenne}/10`, 20, yPos); yPos += 5; }
+  if (statsClarte.moyenne !== null) { doc.text(`Clarte mentale : ${statsClarte.moyenne}/10`, 20, yPos); yPos += 5; }
+  yPos += 5;
+
+  // Graphique Énergie
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('Énergie', 15, yPos);
+  const graphEnergie = await genererGraphique(labels, dataEnergie, 'Énergie', '#e09c8a');
+  doc.addImage(graphEnergie, 'JPEG', 15, yPos + 2, 180, 38);
+  yPos += 46;
+
+  // Graphique Sommeil
+  doc.text('Sommeil', 15, yPos);
+  const graphSommeil = await genererGraphique(labels, dataSommeil, 'Sommeil', '#6b9bd1');
+  doc.addImage(graphSommeil, 'JPEG', 15, yPos + 2, 180, 38);
+  yPos += 46;
+
+  // Graphique Confort physique
+  doc.text('Confort physique', 15, yPos);
+  const graphConfort = await genererGraphique(labels, dataConfort, 'Confort', '#8bc34a');
+  doc.addImage(graphConfort, 'JPEG', 15, yPos + 2, 180, 38);
+  yPos += 46;
+
+  // Graphique Clarté mentale
+  doc.text('Clarté mentale', 15, yPos);
+  const graphClarte = await genererGraphique(labels, dataClarte, 'Clarté', '#ffa726');
+  doc.addImage(graphClarte, 'JPEG', 15, yPos + 2, 180, 38);
+
+  // Footer page 1
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 2/5', 105, 290, { align: 'center' });
+  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+  doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
   
   // ====================================
-  // PAGE 3 : CORRÉLATIONS
+  // PAGE 2 : CORRÉLATIONS
   // ====================================
   
   doc.addPage();
@@ -353,14 +343,14 @@ async function genererPDFEnrichi() {
     doc.text('Continuez le suivi pour permettre une analyse plus approfondie.', 20, yPos + 7);
   }
   
-  // Footer page 3
+  // Footer page 2
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 3/5', 105, 290, { align: 'center' });
-  
+  doc.text('Page 2/4', 105, 290, { align: 'center' });
+
   // ====================================
-  // PAGE 4 : NOTES PERSONNELLES
+  // PAGE 3 : NOTES PERSONNELLES
   // ====================================
   
   doc.addPage();
@@ -407,14 +397,14 @@ async function genererPDFEnrichi() {
     doc.text('Aucune note enregistrée sur cette période.', 20, yPos);
   }
   
-  // Footer page 4
+  // Footer page 3
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 4/5', 105, 290, { align: 'center' });
-  
+  doc.text('Page 3/4', 105, 290, { align: 'center' });
+
   // ====================================
-  // PAGE 5 : POINTS À DISCUTER
+  // PAGE 4 : POINTS À DISCUTER
   // ====================================
   
   doc.addPage();
@@ -468,7 +458,7 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 5/5', 105, 290, { align: 'center' });
+  doc.text('Page 4/4', 105, 290, { align: 'center' });
   
   // ====================================
   // TÉLÉCHARGEMENT

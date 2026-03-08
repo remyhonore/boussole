@@ -119,13 +119,6 @@ function loadTodayData() {
       document.getElementById('note').value = entry.note;
       document.getElementById('note-count').textContent = `${entry.note.length}/200`;
     }
-    if (entry.rmssd != null) {
-      const rmssdInput = document.getElementById('rmssd-input');
-      if (rmssdInput) rmssdInput.value = entry.rmssd;
-    }
-
-    // Afficher le type de journée si entrée existante
-    showDayTypeCard(entry);
   }
   
   updateLastSavedDisplay();
@@ -137,29 +130,26 @@ function saveCurrentEntry() {
   const douleurs = getSliderValue('douleurs');
   const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
-  const rmssdRaw = document.getElementById('rmssd-input')?.value;
-  const rmssd = rmssdRaw ? (parseInt(rmssdRaw) || null) : null;
-
+  
   // Vérifier qu'au moins 1 curseur est renseigné
   const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
-
+  
   if (filledCount === 0) {
     showStatus('Renseigne au moins 1 repère pour enregistrer.', 'warning');
     return;
   }
-
+  
   // Sauvegarder l'état actuel pour undo
   const today = getTodayDate();
   app.lastSavedEntry = getEntry(today);
-
+  
   // Sauvegarder
   const entry = {
     energie,
     qualite_sommeil: qualiteSommeil,
     douleurs,
     clarte_mentale: clarteMentale,
-    note: note || null,
-    rmssd
+    note: note || null
   };
   
   const success = saveEntry(today, entry);
@@ -168,7 +158,6 @@ function saveCurrentEntry() {
     showStatus('Enregistré ✓', 'success');
     showUndoButton();
     updateLastSavedDisplay();
-    showDayTypeCard(entry);
     
     // Message si < 2 curseurs
     if (filledCount === 1) {
@@ -260,11 +249,7 @@ function fillLastValues() {
     document.getElementById('douleurs').dataset.touched = 'true';
     document.getElementById('douleurs-value').textContent = lastEntry.douleurs;
   }
-  if (lastEntry.rmssd != null) {
-    const rmssdInput = document.getElementById('rmssd-input');
-    if (rmssdInput) rmssdInput.value = lastEntry.rmssd;
-  }
-
+  
   showStatus('Dernières valeurs chargées', 'success');
 }
 
@@ -304,7 +289,7 @@ function initSummaryPanel() {
 
 function refreshSummary() {
   const data = loadEntries();
-  const summary = calculateSummary(data.entries, 14);
+  const summary = calculateSummary(data.entries, 30);
   
   const container = document.getElementById('summary-content');
   if (!container) return;
@@ -325,11 +310,6 @@ function refreshSummary() {
   }
   html += `</div>`;
   
-  // Distribution Vert/Orange/Rouge
-  if (typeof renderDayTypeDistribution === 'function') {
-    html += renderDayTypeDistribution(data.entries, 14);
-  }
-
   // 1. Tendances
   html += `<div class="card">`;
   html += `<h2 class="summary-section">1️⃣ TENDANCES</h2>`;
@@ -457,7 +437,7 @@ function refreshSummary() {
  */
 function showPDFPreview() {
   const data = loadEntries();
-  const summary = calculateSummary(data.entries, 14);
+  const summary = calculateSummary(data.entries, 30);
   
   const preview = generatePDFPreview(summary);
   
@@ -488,7 +468,7 @@ async function downloadPDFFromModal() {
   
   try {
     const data = loadEntries();
-    const summary = calculateSummary(data.entries, 14);
+    const summary = calculateSummary(data.entries, 30);
     
     const filename = await downloadPDF(summary);
     
@@ -503,29 +483,6 @@ async function downloadPDFFromModal() {
       btn.disabled = false;
       btn.textContent = 'Télécharger';
     }
-  }
-}
-
-/**
- * === TYPE DE JOURNÉE VERT/ORANGE/ROUGE ===
- */
-function showDayTypeCard(entry) {
-  if (typeof getDayType !== 'function') return;
-
-  // Supprimer l'ancienne card si elle existe
-  const existing = document.getElementById('daytype-result');
-  if (existing) existing.remove();
-
-  const dayType = getDayType(entry);
-  if (!dayType) return;
-
-  const html = renderDayTypeCard(dayType);
-  const card = document.querySelector('#panel-today .card');
-  if (card) {
-    const div = document.createElement('div');
-    div.id = 'daytype-result';
-    div.innerHTML = html;
-    card.appendChild(div);
   }
 }
 
