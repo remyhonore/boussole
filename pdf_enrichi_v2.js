@@ -308,7 +308,45 @@ async function genererPDFEnrichi() {
     else joursBas++;
   });
 
-  let yPos = 52;
+  // — Séparateur fin avant score global
+  doc.setDrawColor(210, 210, 210);
+  doc.setLineWidth(0.3);
+  doc.line(15, 47, 195, 47);
+
+  // — SCORE GLOBAL
+  const moyEnergie = pdfMoyenne(dataEnergie);
+  const moySommeil = pdfMoyenne(dataSommeil);
+  const moyConfort = pdfMoyenne(dataConfort);
+  const moyClarte = pdfMoyenne(dataClarte);
+  const moyennesValides = [moyEnergie, moySommeil, moyConfort, moyClarte].filter(v => v !== null);
+  const scoreGlobal = moyennesValides.length > 0
+    ? moyennesValides.reduce((a, b) => a + b, 0) / moyennesValides.length
+    : null;
+  const scoreGlobalStr = scoreGlobal !== null
+    ? `${(Math.round(scoreGlobal * 10) / 10).toFixed(1)}/10`
+    : 'n/a';
+
+  let scoreColor = [244, 67, 54]; // rouge <4
+  if (scoreGlobal !== null) {
+    if (scoreGlobal >= 7) scoreColor = [76, 175, 80];       // vert ≥7
+    else if (scoreGlobal >= 4) scoreColor = [255, 152, 0];  // orange 4–6.9
+  }
+
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+  doc.text(scoreGlobalStr, 105, 60, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(130, 130, 130);
+  doc.text('Score composite \u2014 moyenne des 4 indicateurs', 105, 68, { align: 'center' });
+
+  doc.setDrawColor(210, 210, 210);
+  doc.setLineWidth(0.3);
+  doc.line(15, 73, 195, 73);
+
+  let yPos = 80;
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
@@ -323,21 +361,21 @@ async function genererPDFEnrichi() {
 
   // Jours hauts
   doc.setFillColor(76, 175, 80);
-  doc.rect(20, yPos - 2, 5, 3, 'F');
+  doc.rect(20, yPos - 3, 4, 4, 'F');
   doc.setTextColor(34, 139, 34);
   doc.text(`Jours hauts (vert) : ${joursHauts} (${pctHauts}%)`, 27, yPos);
   yPos += 5;
 
   // Jours moyens
   doc.setFillColor(255, 152, 0);
-  doc.rect(20, yPos - 2, 5, 3, 'F');
+  doc.rect(20, yPos - 3, 4, 4, 'F');
   doc.setTextColor(255, 140, 0);
   doc.text(`Jours moyens (orange) : ${joursMoyens} (${pctMoyens}%)`, 27, yPos);
   yPos += 5;
 
   // Jours bas
   doc.setFillColor(244, 67, 54);
-  doc.rect(20, yPos - 2, 5, 3, 'F');
+  doc.rect(20, yPos - 3, 4, 4, 'F');
   doc.setTextColor(220, 50, 50);
   doc.text(`Jours bas (rouge) : ${joursBas} (${pctBas}%)`, 27, yPos);
   yPos += 10;
@@ -347,6 +385,10 @@ async function genererPDFEnrichi() {
   const statsSommeil = calculerStats(dataSommeil);
   const statsConfort = calculerStats(dataConfort);
   const statsClarte = calculerStats(dataClarte);
+
+  const correlations = detecterCorrelations(entrees);
+  const totalPages = correlations.length > 0 ? 5 : 4;
+  let pageNum = 1;
 
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
@@ -437,21 +479,50 @@ async function genererPDFEnrichi() {
   metriques.forEach((m, idx) => {
     const moyenne = m.stats.moyenne !== null ? `${m.stats.moyenne}/10` : 'n/a';
     const variab = `${pdfVariabilite(m.sd)} (σ ${m.sd !== null ? m.sd.toFixed(1) : 'n/a'})`;
-    drawTableRow(yPos, [m.label, moyenne, m.tendance, variab], false, idx % 2 === 1, [m.color, null, null, null]);
+    const varColor = pdfVariabilite(m.sd) === 'élevée' ? [211, 47, 47] : null;
+    drawTableRow(yPos, [m.label, moyenne, m.tendance, variab], false, idx % 2 === 1, [m.color, null, null, varColor]);
     yPos += rowH;
   });
 
   yPos += 5;
 
+  // — Phrase résumé automatique
+  const tendances = [tendanceEnergie, tendanceSommeil, tendanceConfort, tendanceClarte];
+  const nomsMetriques = ['Énergie', 'Sommeil', 'Confort physique', 'Clarté mentale'];
+  const varLabels = [pdfVariabilite(sdEnergie), pdfVariabilite(sdSommeil), pdfVariabilite(sdConfort), pdfVariabilite(sdClarte)];
+  const idxEnBaisse = tendances.findIndex(t => t === 'plutôt en baisse');
+  const idxElevee = varLabels.findIndex(v => v === 'élevée');
+
+  let phraseResume = 'Période globalement stable.';
+  if (idxEnBaisse >= 0 && idxElevee >= 0) {
+    phraseResume = `Attention : ${nomsMetriques[idxEnBaisse]} en baisse. Vigilance sur la variabilité de ${nomsMetriques[idxElevee]}.`;
+  } else if (idxEnBaisse >= 0) {
+    phraseResume = `Attention : ${nomsMetriques[idxEnBaisse]} en baisse sur la période.`;
+  } else if (idxElevee >= 0) {
+    phraseResume = `Période en amélioration. Vigilance sur la variabilité du ${nomsMetriques[idxElevee]}.`;
+  } else if (tendances.every(t => t === 'plutôt en amélioration' || t === 'plutôt stable' || t === 'données insuffisantes')) {
+    phraseResume = "Période globalement stable avec tendance à l'amélioration.";
+  }
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(85, 85, 85);
+  const lignesResume = doc.splitTextToSize(phraseResume, 170);
+  lignesResume.forEach(ligne => {
+    doc.text(ligne, 15, yPos);
+    yPos += 5;
+  });
+
   // Footer page 1
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 1/5', 105, 280, { align: 'center' });
+  doc.text(`Page ${pageNum}/${totalPages}`, 105, 280, { align: 'center' });
   doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
   doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
 
   doc.addPage();
+  pageNum++;
 
   // ====================================
   // PAGE 2 : ÉVOLUTION SUR 30 JOURS (graphiques)
@@ -501,30 +572,29 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 2/5', 105, 280, { align: 'center' });
+  doc.text(`Page ${pageNum}/${totalPages}`, 105, 280, { align: 'center' });
   doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
   doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
 
   // ====================================
-  // PAGE 3 : CORRÉLATIONS
+  // PAGE 3 : CORRÉLATIONS (conditionnelle)
   // ====================================
 
-  doc.addPage();
-
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 0, 0);
-  doc.text('Patterns observés', 15, 20);
-
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'italic');
-  doc.text('Note : Ces observations sont descriptives, pas des conclusions médicales.', 15, 30);
-
-  yPos = 45;
-
-  const correlations = detecterCorrelations(entrees);
-
   if (correlations.length > 0) {
+    doc.addPage();
+    pageNum++;
+
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Patterns observés', 15, 20);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Note : Ces observations sont descriptives, pas des conclusions médicales.', 15, 30);
+
+    yPos = 45;
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
 
@@ -537,23 +607,20 @@ async function genererPDFEnrichi() {
         yPos += 7;
       }
     });
-  } else {
-    doc.setFontSize(10);
-    doc.text('Aucun pattern clair détecté sur cette période.', 20, yPos);
-    doc.text('Continuez le suivi pour permettre une analyse plus approfondie.', 20, yPos + 7);
+
+    // Footer page patterns
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Page ${pageNum}/${totalPages}`, 105, 290, { align: 'center' });
   }
 
-  // Footer page 3
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(100, 100, 100);
-  doc.text('Page 3/5', 105, 290, { align: 'center' });
-
   // ====================================
-  // PAGE 4 : NOTES PERSONNELLES
+  // PAGE NOTES PERSONNELLES
   // ====================================
 
   doc.addPage();
+  pageNum++;
 
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -609,13 +676,14 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 4/5', 105, 290, { align: 'center' });
+  doc.text(`Page ${pageNum}/${totalPages}`, 105, 290, { align: 'center' });
 
   // ====================================
-  // PAGE 5 : POINTS À DISCUTER
+  // PAGE POINTS À DISCUTER
   // ====================================
 
   doc.addPage();
+  pageNum++;
 
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -666,7 +734,7 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 5/5', 105, 290, { align: 'center' });
+  doc.text(`Page ${pageNum}/${totalPages}`, 105, 290, { align: 'center' });
 
   // ====================================
   // TÉLÉCHARGEMENT
