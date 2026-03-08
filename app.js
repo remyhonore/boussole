@@ -535,13 +535,25 @@ document.getElementById('btn-download-pdf')?.addEventListener('click', downloadP
 document.getElementById('btn-cancel-pdf')?.addEventListener('click', closePDFModal);
 
 // Changelog modal
-document.getElementById('changelog-link')?.addEventListener('click', () => {
+const CURRENT_VERSION = '1.8';
+const VERSION_KEY = 'boussole_last_version_seen';
+
+function openChangelog() {
   const modal = document.getElementById('changelog-modal');
   if (modal) modal.style.display = 'flex';
-});
-document.getElementById('changelog-close')?.addEventListener('click', () => {
-  document.getElementById('changelog-modal').style.display = 'none';
-});
-document.getElementById('changelog-ok')?.addEventListener('click', () => {
-  document.getElementById('changelog-modal').style.display = 'none';
-});
+}
+
+function closeChangelog() {
+  const modal = document.getElementById('changelog-modal');
+  if (modal) modal.style.display = 'none';
+  localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+}
+
+// Affichage automatique une seule fois après mise à jour
+if (localStorage.getItem(VERSION_KEY) !== CURRENT_VERSION) {
+  window.addEventListener('load', openChangelog);
+}
+
+document.getElementById('changelog-link')?.addEventListener('click', openChangelog);
+document.getElementById('changelog-close')?.addEventListener('click', closeChangelog);
+document.getElementById('changelog-ok')?.addEventListener('click', closeChangelog);
