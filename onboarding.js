@@ -133,8 +133,8 @@ const onboarding = (() => {
         background: #ffffff;
         display: flex;
         flex-direction: column;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        color: #1f2937;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #06172D;
         -webkit-font-smoothing: antialiased;
       }
 
@@ -156,7 +156,7 @@ const onboarding = (() => {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: #e5e7eb;
+        background: rgba(6,23,45,.12);
         transition: background 0.2s, width 0.2s, border-radius 0.2s;
         flex-shrink: 0;
       }
@@ -170,7 +170,7 @@ const onboarding = (() => {
       #ob-skip {
         background: none;
         border: none;
-        color: #6b7280;
+        color: rgba(6,23,45,.58);
         font-size: 14px;
         cursor: pointer;
         padding: 6px 10px;
@@ -181,8 +181,8 @@ const onboarding = (() => {
       }
 
       #ob-skip:hover {
-        color: #1f2937;
-        background: #f3f4f6;
+        color: #06172D;
+        background: rgba(6,23,45,.06);
       }
 
       #ob-body {
@@ -210,13 +210,13 @@ const onboarding = (() => {
         font-size: 26px;
         font-weight: 700;
         margin-bottom: 10px;
-        color: #1f2937;
+        color: #06172D;
         line-height: 1.2;
       }
 
       .ob-subtitle {
         font-size: 16px;
-        color: #e09c8a;
+        color: #6E877D;
         font-weight: 600;
         margin-bottom: 16px;
       }
@@ -224,7 +224,7 @@ const onboarding = (() => {
       .ob-text {
         font-size: 15px;
         line-height: 1.7;
-        color: #374151;
+        color: rgba(6,23,45,.72);
         margin-bottom: 20px;
         max-width: 360px;
       }
@@ -251,9 +251,9 @@ const onboarding = (() => {
         gap: 14px;
         padding: 14px 16px;
         margin-bottom: 10px;
-        background: #fafafa;
+        background: rgba(6,23,45,.03);
         border-radius: 12px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid rgba(6,23,45,.08);
       }
 
       .ob-list li:last-child {
@@ -271,13 +271,13 @@ const onboarding = (() => {
         display: block;
         font-size: 15px;
         font-weight: 600;
-        color: #1f2937;
+        color: #06172D;
         margin-bottom: 2px;
       }
 
       .ob-list li > div p {
         font-size: 13px;
-        color: #6b7280;
+        color: rgba(6,23,45,.58);
         margin: 0;
         line-height: 1.4;
       }
@@ -307,23 +307,23 @@ const onboarding = (() => {
       #ob-next {
         width: 100%;
         padding: 14px 24px;
-        background: #e09c8a;
+        background: #6E877D;
         color: #ffffff;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s, transform 0.1s;
         min-height: 44px;
         font-family: inherit;
-        box-shadow: 0 2px 6px rgba(224, 156, 138, 0.3);
+        box-shadow: 0 4px 12px rgba(6,23,45,.12);
       }
 
       #ob-next:hover {
-        background: #c47a68;
+        background: #5a7268;
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 6px 16px rgba(6,23,45,.16);
       }
 
       #ob-next:active {

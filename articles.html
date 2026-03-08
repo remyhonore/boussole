@@ -4,35 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Articles — Boussole</title>
-    <meta name="theme-color" content="#e09c8a">
+    <meta name="theme-color" content="#6E877D">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/styles.css">
     <style>
         :root {
-            --color-primary: #e09c8a;
-            --color-primary-dark: #c97d6a;
-            --color-primary-light: #f5e6e1;
-            --color-bg: #fafaf8;
+            --color-primary: #6E877D;
+            --color-primary-dark: #5a7268;
+            --color-primary-light: #d4e0da;
+            --color-bg: #F8F6F0;
             --color-surface: #ffffff;
-            --color-text: #1a1a1a;
-            --color-text-muted: #6b6b6b;
-            --color-border: #ebebeb;
+            --color-text: #06172D;
+            --color-text-muted: rgba(6,23,45,.58);
+            --color-border: rgba(6,23,45,.12);
             --color-green: #4caf7d;
             --color-orange: #f0a055;
-            --font-body: 'DM Sans', system-ui, sans-serif;
-            --font-serif: 'Lora', Georgia, serif;
-            --radius-card: 14px;
-            --radius-btn: 10px;
-            --shadow-card: 0 2px 12px rgba(0,0,0,0.07);
-            --shadow-hover: 0 6px 24px rgba(0,0,0,0.12);
+            --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+            --radius-card: 18px;
+            --radius-btn: 12px;
+            --shadow-card: 0 14px 34px rgba(6,23,45,.11);
+            --shadow-hover: 0 22px 60px rgba(6,23,45,.16);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-body);
-            background: var(--color-bg);
+            background:
+              radial-gradient(950px 620px at 14% 0%, rgba(201,185,217,.45), transparent 60%),
+              radial-gradient(920px 620px at 86% 8%, rgba(232,183,200,.40), transparent 62%),
+              radial-gradient(1200px 700px at 55% 115%, rgba(110,135,125,.26), transparent 60%),
+              linear-gradient(180deg, #F8F6F0, #F3F0E8);
             color: var(--color-text);
             max-width: 680px;
             margin: 0 auto;
@@ -76,7 +80,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .nav-btn:hover { color: var(--color-text); background: rgba(224,156,138,0.05); }
+        .nav-btn:hover { color: var(--color-text); background: rgba(110,135,125,.06); }
         .nav-btn.active {
             color: var(--color-primary);
             border-bottom-color: var(--color-primary);
@@ -190,7 +194,7 @@
             align-items: center;
             justify-content: center;
             font-size: 52px;
-            background: linear-gradient(135deg, var(--color-primary-light), #ffe8d6);
+            background: linear-gradient(135deg, var(--color-primary-light), #e8ede9);
         }
         .card-body { padding: 16px; }
         .card-meta {
@@ -346,7 +350,7 @@
             align-items: center;
             justify-content: center;
             font-size: 64px;
-            background: linear-gradient(135deg, var(--color-primary-light), #ffe8d6);
+            background: linear-gradient(135deg, var(--color-primary-light), #e8ede9);
         }
         .article-body {
             background: #ffffff;
@@ -355,7 +359,7 @@
             max-width: 680px;
             width: calc(100% - 32px);
             margin: 16px auto 40px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 24px rgba(6,23,45,.08);
         }
         .article-meta {
             display: flex;
@@ -438,7 +442,7 @@
             padding: 10px 12px;
             border-bottom: 1px solid var(--color-border);
         }
-        .article-content tr:hover td { background: #faf5f3; }
+        .article-content tr:hover td { background: rgba(110,135,125,.04); }
         .article-content hr {
             border: none;
             border-top: 1px solid var(--color-border);

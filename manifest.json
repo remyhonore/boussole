@@ -4,8 +4,8 @@
   "description": "Suivi quotidien de votre bien-être. Données sur votre appareil, sans compte, sans cloud.",
   "start_url": "https://app.myboussole.fr/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#e09c8a",
+  "background_color": "#F8F6F0",
+  "theme_color": "#6E877D",
   "orientation": "portrait-primary",
   "lang": "fr",
   "icons": [
