@@ -289,36 +289,46 @@ async function genererPDFEnrichi() {
   if (statsClarte.moyenne !== null) { doc.text(`Clarte mentale : ${statsClarte.moyenne}/10`, 20, yPos); yPos += 5; }
   yPos += 5;
 
-  // Graphique Énergie
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 0, 0);
-  doc.text('Énergie', 15, yPos);
-  const graphEnergie = await genererGraphique(labels, dataEnergie, 'Énergie', '#e09c8a');
-  doc.addImage(graphEnergie, 'JPEG', 15, yPos + 2, 180, 38);
-  yPos += 46;
-
-  // Graphique Sommeil
-  doc.text('Sommeil', 15, yPos);
-  const graphSommeil = await genererGraphique(labels, dataSommeil, 'Sommeil', '#6b9bd1');
-  doc.addImage(graphSommeil, 'JPEG', 15, yPos + 2, 180, 38);
-  yPos += 46;
-
-  // Graphique Confort physique
-  doc.text('Confort physique', 15, yPos);
-  const graphConfort = await genererGraphique(labels, dataConfort, 'Confort', '#8bc34a');
-  doc.addImage(graphConfort, 'JPEG', 15, yPos + 2, 180, 38);
-  yPos += 46;
-
-  // Graphique Clarté mentale
-  doc.text('Clarté mentale', 15, yPos);
-  const graphClarte = await genererGraphique(labels, dataClarte, 'Clarté', '#ffa726');
-  doc.addImage(graphClarte, 'JPEG', 15, yPos + 2, 180, 38);
-
   // Footer page 1
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
+  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+  doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
+
+  doc.addPage();
+  let yPos2 = 20;
+
+  // Graphique Énergie
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('Énergie', 15, yPos2);
+  const graphEnergie = await genererGraphique(labels, dataEnergie, 'Énergie', '#e09c8a');
+  doc.addImage(graphEnergie, 'JPEG', 15, yPos2 + 2, 180, 38);
+  yPos2 += 46;
+
+  // Graphique Sommeil
+  doc.text('Sommeil', 15, yPos2);
+  const graphSommeil = await genererGraphique(labels, dataSommeil, 'Sommeil', '#6b9bd1');
+  doc.addImage(graphSommeil, 'JPEG', 15, yPos2 + 2, 180, 38);
+  yPos2 += 46;
+
+  // Graphique Confort physique
+  doc.text('Confort physique', 15, yPos2);
+  const graphConfort = await genererGraphique(labels, dataConfort, 'Confort', '#8bc34a');
+  doc.addImage(graphConfort, 'JPEG', 15, yPos2 + 2, 180, 38);
+  yPos2 += 46;
+
+  // Graphique Clarté mentale
+  doc.text('Clarté mentale', 15, yPos2);
+  const graphClarte = await genererGraphique(labels, dataClarte, 'Clarté', '#ffa726');
+  doc.addImage(graphClarte, 'JPEG', 15, yPos2 + 2, 180, 38);
+
+  // Footer page 2
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(128, 128, 128);
   doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
   doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
   
