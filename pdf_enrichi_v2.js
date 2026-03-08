@@ -127,7 +127,9 @@ async function genererGraphique(labels, data, titre, couleur) {
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext('2d');
-  
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -155,6 +157,13 @@ async function genererGraphique(labels, data, titre, couleur) {
           min: 0,
           max: 10,
           ticks: { stepSize: 2 }
+        },
+        x: {
+          ticks: {
+            maxTicksLimit: 10,
+            maxRotation: 45,
+            minRotation: 45
+          }
         }
       }
     }
