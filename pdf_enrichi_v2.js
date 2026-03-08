@@ -199,7 +199,7 @@ async function genererPDFEnrichi() {
   const rawEntries = data.entries || [];
 
   // Mapper les champs au format attendu
-  const entrees = rawEntries.map(e => ({
+  let entrees = rawEntries.map(e => ({
     date: e.date,
     energie: e.energie,
     sommeil: e.qualite_sommeil,
@@ -210,6 +210,14 @@ async function genererPDFEnrichi() {
 
   // Trier par date croissante
   entrees.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Filtrer les 30 derniers jours calendaires
+  const aujourd_hui = new Date();
+  aujourd_hui.setHours(0, 0, 0, 0);
+  const cutoff = new Date(aujourd_hui);
+  cutoff.setDate(cutoff.getDate() - 29);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  entrees = entrees.filter(e => e.date >= cutoffStr);
 
   if (entrees.length === 0) {
     alert('Aucune donnée à exporter');
