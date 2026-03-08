@@ -316,14 +316,30 @@ async function genererPDFEnrichi() {
   yPos += 6;
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+
+  const pctHauts  = Math.round((joursHauts  / entrees.length) * 100);
+  const pctMoyens = Math.round((joursMoyens / entrees.length) * 100);
+  const pctBas    = Math.round((joursBas    / entrees.length) * 100);
+
+  // Jours hauts
+  doc.setFillColor(76, 175, 80);
+  doc.rect(20, yPos - 2, 5, 3, 'F');
   doc.setTextColor(34, 139, 34);
-  doc.text(`Jours hauts (vert) : ${joursHauts}`, 20, yPos);
+  doc.text(`Jours hauts (vert) : ${joursHauts} (${pctHauts}%)`, 27, yPos);
   yPos += 5;
+
+  // Jours moyens
+  doc.setFillColor(255, 152, 0);
+  doc.rect(20, yPos - 2, 5, 3, 'F');
   doc.setTextColor(255, 140, 0);
-  doc.text(`Jours moyens (orange) : ${joursMoyens}`, 20, yPos);
+  doc.text(`Jours moyens (orange) : ${joursMoyens} (${pctMoyens}%)`, 27, yPos);
   yPos += 5;
+
+  // Jours bas
+  doc.setFillColor(244, 67, 54);
+  doc.rect(20, yPos - 2, 5, 3, 'F');
   doc.setTextColor(220, 50, 50);
-  doc.text(`Jours bas (rouge) : ${joursBas}`, 20, yPos);
+  doc.text(`Jours bas (rouge) : ${joursBas} (${pctBas}%)`, 27, yPos);
   yPos += 10;
 
   // Synthèse stats — tableau structuré à 4 colonnes
@@ -339,13 +355,14 @@ async function genererPDFEnrichi() {
   yPos += 5;
 
   // Définition des colonnes du tableau
-  const colX  = [15, 68, 100, 162]; // x de départ de chaque colonne
-  const colW  = [53, 32,  62,  33]; // largeur de chaque colonne
+  const colX  = [15, 68, 100, 155]; // x de départ de chaque colonne
+  const colW  = [53, 32,  55,  40]; // largeur de chaque colonne
   const rowH  = 8;
   const tableW = 180; // largeur totale = somme colW
 
   // Fonction utilitaire : dessine une ligne du tableau
-  function drawTableRow(y, cells, isHeader, isEven) {
+  // cellColors : tableau optionnel de [r,g,b] par cellule (null = noir par défaut)
+  function drawTableRow(y, cells, isHeader, isEven, cellColors) {
     // Fond
     if (isHeader) {
       doc.setFillColor(240, 240, 240);
@@ -369,48 +386,58 @@ async function genererPDFEnrichi() {
     // Texte
     doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
     cells.forEach((text, i) => {
+      const col = cellColors && cellColors[i];
+      if (col) {
+        doc.setTextColor(col[0], col[1], col[2]);
+      } else {
+        doc.setTextColor(0, 0, 0);
+      }
       doc.text(String(text), colX[i] + 2, y + 5.5);
     });
+    doc.setTextColor(0, 0, 0); // reset
   }
 
   // En-tête du tableau
   drawTableRow(yPos, ['Métrique', 'Moyenne', 'Tendance', 'Variabilité'], true, false);
   yPos += rowH;
 
-  // Lignes de données
+  // Lignes de données — couleurs Chart.js réutilisées (même ordre que les graphiques page 2)
   const metriques = [
     {
       label: 'Énergie',
       stats: statsEnergie,
       tendance: tendanceEnergie,
-      sd: sdEnergie
+      sd: sdEnergie,
+      color: [224, 156, 138]  // #e09c8a
     },
     {
       label: 'Sommeil',
       stats: statsSommeil,
       tendance: tendanceSommeil,
-      sd: sdSommeil
+      sd: sdSommeil,
+      color: [107, 155, 209]  // #6b9bd1
     },
     {
       label: 'Confort physique',
       stats: statsConfort,
       tendance: tendanceConfort,
-      sd: sdConfort
+      sd: sdConfort,
+      color: [139, 195, 74]   // #8bc34a
     },
     {
       label: 'Clarté mentale',
       stats: statsClarte,
       tendance: tendanceClarte,
-      sd: sdClarte
+      sd: sdClarte,
+      color: [255, 167, 38]   // #ffa726
     }
   ];
 
   metriques.forEach((m, idx) => {
     const moyenne = m.stats.moyenne !== null ? `${m.stats.moyenne}/10` : 'n/a';
-    const variab = `${pdfVariabilite(m.sd)} (σ${m.sd !== null ? m.sd.toFixed(1) : 'n/a'})`;
-    drawTableRow(yPos, [m.label, moyenne, m.tendance, pdfVariabilite(m.sd)], false, idx % 2 === 1);
+    const variab = `${pdfVariabilite(m.sd)} (σ ${m.sd !== null ? m.sd.toFixed(1) : 'n/a'})`;
+    drawTableRow(yPos, [m.label, moyenne, m.tendance, variab], false, idx % 2 === 1, [m.color, null, null, null]);
     yPos += rowH;
   });
 
