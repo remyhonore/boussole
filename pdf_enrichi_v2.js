@@ -241,6 +241,46 @@ async function genererPDFEnrichi() {
   const dataConfort = entrees.map(e => e.confort_physique);
   const dataClarte = entrees.map(e => e.clarte_mentale);
 
+  // Fonctions locales pour PDF
+  function pdfMoyenne(arr) {
+    const v = arr.filter(x => x !== null && x !== undefined);
+    return v.length ? v.reduce((a,b) => a+b, 0) / v.length : null;
+  }
+  function pdfEcartType(arr) {
+    const v = arr.filter(x => x !== null && x !== undefined);
+    if (v.length < 2) return null;
+    const m = pdfMoyenne(v);
+    return Math.sqrt(v.reduce((a,b) => a + (b-m)**2, 0) / v.length);
+  }
+  function pdfTendance(arr) {
+    const v = arr.filter(x => x !== null && x !== undefined);
+    if (v.length < 5) return 'donnees insuffisantes';
+    const g1 = v.slice(0, 5);
+    const g2 = v.slice(-5);
+    const m1 = pdfMoyenne(g1), m2 = pdfMoyenne(g2);
+    const delta = m2 - m1;
+    const sd = pdfEcartType(v);
+    if (delta >= 1.0) return 'plutot en amelioration';
+    if (delta <= -1.0) return 'plutot en baisse';
+    if (sd > 2.0) return 'plutot fluctuant';
+    return 'plutot stable';
+  }
+  function pdfVariabilite(ecartType) {
+    if (ecartType === null) return 'non calculee';
+    if (ecartType > 2.5) return 'elevee';
+    if (ecartType > 1.5) return 'moderee';
+    return 'faible';
+  }
+
+  const tendanceEnergie = pdfTendance(dataEnergie);
+  const tendanceSommeil = pdfTendance(dataSommeil);
+  const tendanceConfort = pdfTendance(dataConfort);
+  const tendanceClarte = pdfTendance(dataClarte);
+  const sdEnergie = pdfEcartType(dataEnergie);
+  const sdSommeil = pdfEcartType(dataSommeil);
+  const sdConfort = pdfEcartType(dataConfort);
+  const sdClarte = pdfEcartType(dataClarte);
+
   // TYPE DE JOURNEES
   let joursHauts = 0, joursMoyens = 0, joursBas = 0;
   entrees.forEach(e => {
@@ -282,12 +322,47 @@ async function genererPDFEnrichi() {
   doc.text('SYNTHESE', 15, yPos);
   yPos += 6;
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  if (statsEnergie.moyenne !== null) { doc.text(`Energie : ${statsEnergie.moyenne}/10`, 20, yPos); yPos += 5; }
-  if (statsSommeil.moyenne !== null) { doc.text(`Sommeil : ${statsSommeil.moyenne}/10`, 20, yPos); yPos += 5; }
-  if (statsConfort.moyenne !== null) { doc.text(`Confort physique : ${statsConfort.moyenne}/10`, 20, yPos); yPos += 5; }
-  if (statsClarte.moyenne !== null) { doc.text(`Clarte mentale : ${statsClarte.moyenne}/10`, 20, yPos); yPos += 5; }
-  yPos += 5;
+  // Énergie
+  if (statsEnergie.moyenne !== null) {
+    doc.setTextColor(0,0,0); doc.setFont('helvetica','bold');
+    doc.text(`Energie : ${statsEnergie.moyenne}/10`, 20, yPos); yPos += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(80,80,80);
+    doc.text(`Tendance : ${tendanceEnergie}`, 25, yPos); yPos += 4;
+    doc.text(`Variabilite : ${pdfVariabilite(sdEnergie)} (ecart-type ${sdEnergie !== null ? sdEnergie.toFixed(1) : 'n/a'})`, 25, yPos); yPos += 6;
+    doc.setFontSize(10); doc.setTextColor(0,0,0);
+  }
+  // Sommeil
+  if (statsSommeil.moyenne !== null) {
+    doc.setFont('helvetica','bold');
+    doc.text(`Sommeil : ${statsSommeil.moyenne}/10`, 20, yPos); yPos += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(80,80,80);
+    doc.text(`Tendance : ${tendanceSommeil}`, 25, yPos); yPos += 4;
+    doc.text(`Variabilite : ${pdfVariabilite(sdSommeil)} (ecart-type ${sdSommeil !== null ? sdSommeil.toFixed(1) : 'n/a'})`, 25, yPos); yPos += 6;
+    doc.setFontSize(10); doc.setTextColor(0,0,0);
+  }
+  // Confort physique
+  if (statsConfort.moyenne !== null) {
+    doc.setFont('helvetica','bold');
+    doc.text(`Confort physique : ${statsConfort.moyenne}/10`, 20, yPos); yPos += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(80,80,80);
+    doc.text(`Tendance : ${tendanceConfort}`, 25, yPos); yPos += 4;
+    doc.text(`Variabilite : ${pdfVariabilite(sdConfort)} (ecart-type ${sdConfort !== null ? sdConfort.toFixed(1) : 'n/a'})`, 25, yPos); yPos += 6;
+    doc.setFontSize(10); doc.setTextColor(0,0,0);
+  }
+  // Clarté mentale
+  if (statsClarte.moyenne !== null) {
+    doc.setFont('helvetica','bold');
+    doc.text(`Clarte mentale : ${statsClarte.moyenne}/10`, 20, yPos); yPos += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(80,80,80);
+    doc.text(`Tendance : ${tendanceClarte}`, 25, yPos); yPos += 4;
+    doc.text(`Variabilite : ${pdfVariabilite(sdClarte)} (ecart-type ${sdClarte !== null ? sdClarte.toFixed(1) : 'n/a'})`, 25, yPos); yPos += 6;
+    doc.setFontSize(10); doc.setTextColor(0,0,0);
+  }
+  yPos += 3;
 
   // Footer page 1
   doc.setFontSize(8);
