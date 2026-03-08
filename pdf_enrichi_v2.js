@@ -121,7 +121,11 @@ async function genererGraphique(labels, data, titre, couleur) {
   const canvas = document.createElement('canvas');
   canvas.width = 800;
   canvas.height = 300;
-  
+  canvas.style.position = 'fixed';
+  canvas.style.top = '-9999px';
+  canvas.style.left = '-9999px';
+  document.body.appendChild(canvas);
+
   const ctx = canvas.getContext('2d');
   
   new Chart(ctx, {
@@ -157,10 +161,12 @@ async function genererGraphique(labels, data, titre, couleur) {
   });
   
   // Attendre le rendu
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
+  await new Promise(resolve => setTimeout(resolve, 300));
+
   // Convertir en image base64
-  return canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/png');
+  document.body.removeChild(canvas);
+  return imgData;
 }
 
 // ============================================
@@ -182,36 +188,20 @@ async function genererPDFEnrichi() {
     sommeil: e.qualite_sommeil,
     confort_physique: e.douleurs,
     clarte_mentale: e.clarte_mentale,
-    note: e.note,
-    rmssd: e.rmssd ?? null
+    note: e.note
   }));
   
-  // Trier par date décroissante pour garder les 30 plus récentes, puis remettre croissant
-  entrees.sort((a, b) => new Date(b.date) - new Date(a.date));
-  const entreesFiltrees = entrees.slice(0, 30);
-  entreesFiltrees.sort((a, b) => new Date(a.date) - new Date(b.date));
+  // Trier par date croissante
+  entrees.sort((a, b) => new Date(a.date) - new Date(b.date));
   
-  if (entreesFiltrees.length === 0) {
+  if (entrees.length === 0) {
     alert('Aucune donnée à exporter');
     return;
   }
-
-  // Comptage types de journées (seuils identiques à daytype.js : ≥7 vert, ≥4 orange, <4 rouge)
-  let nbVert = 0, nbOrange = 0, nbRouge = 0, nbTotal = 0;
-  entreesFiltrees.forEach(e => {
-    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-      .filter(v => v !== null && v !== undefined);
-    if (vals.length === 0) return;
-    nbTotal++;
-    const score = vals.reduce((a, b) => a + b, 0) / vals.length;
-    if (score >= 7) nbVert++;
-    else if (score >= 4) nbOrange++;
-    else nbRouge++;
-  });
-
+  
   // Période
-  const dateDebut = new Date(entreesFiltrees[0].date);
-  const dateFin = new Date(entreesFiltrees[entreesFiltrees.length - 1].date);
+  const dateDebut = new Date(entrees[0].date);
+  const dateFin = new Date(entrees[entrees.length - 1].date);
   const nbJours = Math.ceil((dateFin - dateDebut) / (1000 * 60 * 60 * 24)) + 1;
   
   // ====================================
@@ -225,49 +215,17 @@ async function genererPDFEnrichi() {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text(`Période : ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')} (${nbJours} jours)`, 105, 28, { align: 'center' });
-  doc.text(`Jours renseignés : ${entreesFiltrees.length}/${nbJours}`, 105, 34, { align: 'center' });
+  doc.text(`Jours renseignés : ${entrees.length}/${nbJours}`, 105, 34, { align: 'center' });
   
-  // Préparer données pour graphiques (30 derniers jours, null → undefined pour Chart.js)
-  const labels = entreesFiltrees.map(e => new Date(e.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
-  const dataEnergie = entreesFiltrees.map(e => e.energie ?? undefined);
-  const dataSommeil = entreesFiltrees.map(e => e.sommeil ?? undefined);
-  const dataConfort = entreesFiltrees.map(e => e.confort_physique ?? undefined);
-  const dataClarte = entreesFiltrees.map(e => e.clarte_mentale ?? undefined);
+  // Préparer données pour graphiques
+  const labels = entrees.map(e => new Date(e.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
+  const dataEnergie = entrees.map(e => e.energie);
+  const dataSommeil = entrees.map(e => e.sommeil);
+  const dataConfort = entrees.map(e => e.confort_physique);
+  const dataClarte = entrees.map(e => e.clarte_mentale);
   
   let yPos = 45;
-
-  // Bloc TYPE DE JOURNÉES — 30 JOURS
-  if (nbTotal > 0) {
-    const pct = n => Math.round(100 * n / nbTotal);
-
-    doc.setDrawColor(200, 200, 200);
-    doc.setFillColor(248, 248, 250);
-    doc.rect(15, yPos, 180, 34, 'FD');
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor('#2a568c');
-    doc.text('TYPE DE JOURNEES — 30 JOURS', 20, yPos + 8);
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0);
-
-    doc.setFillColor(34, 197, 94);
-    doc.rect(20, yPos + 13, 4, 4, 'F');
-    doc.text(`Jours hauts : ${nbVert} (${pct(nbVert)}%)`, 27, yPos + 16.5);
-
-    doc.setFillColor(249, 115, 22);
-    doc.rect(20, yPos + 19, 4, 4, 'F');
-    doc.text(`Jours moyens : ${nbOrange} (${pct(nbOrange)}%)`, 27, yPos + 22.5);
-
-    doc.setFillColor(239, 68, 68);
-    doc.rect(20, yPos + 25, 4, 4, 'F');
-    doc.text(`Jours bas : ${nbRouge} (${pct(nbRouge)}%)`, 27, yPos + 28.5);
-
-    yPos += 40;
-  }
-
+  
   // Graphique Énergie
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
@@ -350,32 +308,7 @@ async function genererPDFEnrichi() {
     
     yPos += 40;
   });
-
-  // VFC (RMSSD) — optionnel
-  const vfcEntrees = entreesFiltrees.filter(e => e.rmssd !== null && e.rmssd !== undefined);
-  if (vfcEntrees.length > 0) {
-    const vfcVals = vfcEntrees.map(e => e.rmssd);
-    const vfcMoy = Math.round(vfcVals.reduce((a, b) => a + b, 0) / vfcVals.length);
-    const vfcMin = Math.min(...vfcVals);
-    const vfcMax = Math.max(...vfcVals);
-
-    doc.setDrawColor(200, 200, 200);
-    doc.setFillColor(248, 248, 248);
-    doc.rect(15, yPos, 180, 25, 'FD');
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor('#9c27b0');
-    doc.text('VARIABILITÉ CARDIAQUE (VFC)', 20, yPos + 8);
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0);
-    doc.text(`RMSSD Moy : ${vfcMoy}ms | Min : ${vfcMin}ms | Max : ${vfcMax}ms`, 20, yPos + 18);
-
-    yPos += 30;
-  }
-
+  
   // Footer page 2
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
@@ -399,7 +332,7 @@ async function genererPDFEnrichi() {
   
   yPos = 45;
   
-  const correlations = detecterCorrelations(entreesFiltrees);
+  const correlations = detecterCorrelations(entrees);
   
   if (correlations.length > 0) {
     doc.setFontSize(10);
@@ -439,7 +372,7 @@ async function genererPDFEnrichi() {
   
   yPos = 35;
   
-  const entreesAvecNotes = entreesFiltrees.filter(e => e.note && e.note.trim() !== '');
+  const entreesAvecNotes = entrees.filter(e => e.note && e.note.trim() !== '');
   
   if (entreesAvecNotes.length > 0) {
     doc.setFontSize(10);
