@@ -2,7 +2,7 @@
   "name": "Boussole — Suivi bien-être",
   "short_name": "Boussole",
   "description": "Suivi quotidien de votre bien-être. Données sur votre appareil, sans compte, sans cloud.",
-  "start_url": "/",
+  "start_url": "https://app.myboussole.fr/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#e09c8a",
