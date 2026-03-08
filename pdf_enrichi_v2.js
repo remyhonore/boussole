@@ -478,7 +478,7 @@ async function genererPDFEnrichi() {
 
   metriques.forEach((m, idx) => {
     const moyenne = m.stats.moyenne !== null ? `${m.stats.moyenne}/10` : 'n/a';
-    const variab = `${pdfVariabilite(m.sd)} (σ ${m.sd !== null ? m.sd.toFixed(1) : 'n/a'})`;
+    const variab = `${pdfVariabilite(m.sd)} (ET ${m.sd !== null ? m.sd.toFixed(1) : 'n/a'})`;
     const varColor = pdfVariabilite(m.sd) === 'élevée' ? [211, 47, 47] : null;
     drawTableRow(yPos, [m.label, moyenne, m.tendance, variab], false, idx % 2 === 1, [m.color, null, null, varColor]);
     yPos += rowH;
@@ -518,7 +518,7 @@ async function genererPDFEnrichi() {
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
   doc.text(`Page ${pageNum}/${totalPages}`, 105, 280, { align: 'center' });
-  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+  doc.text('Document généré par Boussole (myboussole.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
   doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
 
   doc.addPage();
@@ -573,7 +573,7 @@ async function genererPDFEnrichi() {
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
   doc.text(`Page ${pageNum}/${totalPages}`, 105, 280, { align: 'center' });
-  doc.text('Document généré par Boussole (boussole.micronutriment.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+  doc.text('Document généré par Boussole (myboussole.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
   doc.text('Ne remplace pas un avis médical - Données stockées uniquement sur votre appareil', 105, 290, { align: 'center' });
 
   // ====================================
