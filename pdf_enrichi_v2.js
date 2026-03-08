@@ -374,7 +374,7 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 2/4', 105, 290, { align: 'center' });
+  doc.text('Page 3/5', 105, 290, { align: 'center' });
 
   // ====================================
   // PAGE 3 : NOTES PERSONNELLES
@@ -428,7 +428,7 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 3/4', 105, 290, { align: 'center' });
+  doc.text('Page 4/5', 105, 290, { align: 'center' });
 
   // ====================================
   // PAGE 4 : POINTS À DISCUTER
@@ -485,7 +485,7 @@ async function genererPDFEnrichi() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 100, 100);
-  doc.text('Page 4/4', 105, 290, { align: 'center' });
+  doc.text('Page 5/5', 105, 290, { align: 'center' });
   
   // ====================================
   // TÉLÉCHARGEMENT
