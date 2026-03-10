@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de confidentialit&eacute; - Boussole</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.svg">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6E877D">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Boussole">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .privacy-section {
+      margin-bottom: 28px;
+    }
+    .privacy-section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #06172D;
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .privacy-section h2 .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(110,135,125,.12);
+      border-radius: 50%;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .privacy-section p,
+    .privacy-section li {
+      font-size: 14px;
+      line-height: 1.75;
+      color: rgba(6,23,45,.72);
+      margin: 0 0 6px;
+    }
+    .privacy-section ul {
+      margin: 6px 0 0 20px;
+      padding: 0;
+    }
+    .privacy-section li {
+      margin-bottom: 4px;
+    }
+    .privacy-divider {
+      border: none;
+      border-top: 1px solid rgba(6,23,45,.08);
+      margin: 0 0 28px;
+    }
+    .privacy-hero {
+      text-align: center;
+      padding: 12px 0 20px;
+    }
+    .privacy-hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #06172D;
+      margin: 0 0 8px;
+    }
+    .privacy-hero p {
+      font-size: 13px;
+      color: rgba(6,23,45,.5);
+      margin: 0;
+    }
+    .badge-local {
+      display: inline-block;
+      background: rgba(110,135,125,.15);
+      color: #4a6b5e;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- En-tête -->
+    <header class="header">
+      <h1><a href="https://myboussole.fr" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Boussole</a></h1>
+      <p>Donn&eacute;es sur ton appareil &middot; sans compte &middot; sans cloud</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav" role="navigation">
+      <a class="nav-btn" href="/index.html" aria-label="Aller &agrave; l&rsquo;Accueil">
+        Accueil
+      </a>
+      <a class="nav-btn" href="https://myboussole.fr/articles/" aria-label="Lire les articles">
+        Articles
+      </a>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="panel active" id="panel-privacy" style="padding-top:0;">
+
+      <div class="card">
+
+        <div class="privacy-hero">
+          <h1>Confidentialit&eacute;</h1>
+          <p>Derni&egrave;re mise &agrave; jour&nbsp;: mars 2026</p>
+          <span class="badge-local">&#128274; 100&nbsp;% local-first</span>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 1 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#128274;</span> Vos donn&eacute;es restent sur votre appareil</h2>
+          <p>Boussole ne collecte, ne transmet et ne stocke <strong>aucune donn&eacute;e personnelle</strong> sur un serveur.</p>
+          <ul>
+            <li>Toutes vos saisies (scores quotidiens, mesures objectives, notes libres) sont enregistr&eacute;es uniquement dans le stockage local de votre navigateur (<code>localStorage</code>).</li>
+            <li>Aucun compte utilisateur n&rsquo;est n&eacute;cessaire.</li>
+          </ul>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 2 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#128683;</span> Aucun tracking, aucun cookie tiers</h2>
+          <ul>
+            <li>Boussole n&rsquo;utilise aucun cookie de suivi.</li>
+            <li>Aucun outil d&rsquo;analyse (Google Analytics, Facebook Pixel, etc.) n&rsquo;est int&eacute;gr&eacute;.</li>
+            <li>Aucune donn&eacute;e n&rsquo;est partag&eacute;e avec des tiers.</li>
+          </ul>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 3 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#128196;</span> Les PDF g&eacute;n&eacute;r&eacute;s restent les v&ocirc;tres</h2>
+          <ul>
+            <li>Les rapports PDF (enrichi et consultation) sont g&eacute;n&eacute;r&eacute;s <strong>localement</strong> dans votre navigateur.</li>
+            <li>Aucun PDF n&rsquo;est transmis &agrave; un serveur. Vous &ecirc;tes le seul &agrave; y avoir acc&egrave;s.</li>
+          </ul>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 4 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#128140;</span> Newsletter (optionnel)</h2>
+          <ul>
+            <li>Si vous vous inscrivez &agrave; la newsletter via le site <a href="https://myboussole.fr" target="_blank" rel="noopener">myboussole.fr</a>, votre adresse email est g&eacute;r&eacute;e par Brevo (ex-Sendinblue), h&eacute;berg&eacute; en France/UE.</li>
+            <li>Vous pouvez vous d&eacute;sinscrire &agrave; tout moment via le lien en bas de chaque email.</li>
+            <li>Votre email n&rsquo;est jamais partag&eacute; avec des tiers.</li>
+          </ul>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 5 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#9878;</span> Vos droits</h2>
+          <p>Conform&eacute;ment au RGPD, vous pouvez &agrave; tout moment supprimer vos donn&eacute;es en vidant le <code>localStorage</code> de votre navigateur&nbsp;:</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.5);font-style:italic;">Param&egrave;tres &rsaquo; Donn&eacute;es de navigation &rsaquo; Stockage local</p>
+          <p>Pour toute question&nbsp;: <a href="mailto:contact@myboussole.fr">contact@myboussole.fr</a></p>
+        </div>
+
+        <hr class="privacy-divider">
+
+        <!-- Section 6 -->
+        <div class="privacy-section">
+          <h2><span class="icon">&#127968;</span> &Eacute;diteur</h2>
+          <p>Dr R&eacute;my Honor&eacute;, Docteur en pharmacie</p>
+          <p><a href="https://myboussole.fr" target="_blank" rel="noopener">myboussole.fr</a></p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer version -->
+  <footer class="app-footer">
+    <span>Boussole v3.1 &mdash; </span>
+    <a href="https://myboussole.fr/confidentialite" target="_blank" rel="noopener" aria-label="Politique de confidentialit&eacute;">Confidentialit&eacute;</a>
+  </footer>
+
+  <!-- Service Worker PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('Service Worker actif'))
+          .catch(err => console.warn('SW non enregistr&eacute; :', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
