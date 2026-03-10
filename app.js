@@ -143,6 +143,48 @@ function loadTodayData() {
   if (typeof window.loadMesures === 'function') window.loadMesures(today);
 
   updateLastSavedDisplay();
+  refreshPacingAlert();
+}
+
+function refreshPacingAlert() {
+  var alertEl = document.getElementById('pacing-alert-today');
+  if (!alertEl) return;
+
+  if (typeof window.shouldShowPacingAlert !== 'function') {
+    alertEl.style.display = 'none';
+    return;
+  }
+
+  // Construire le tableau des jours recents depuis les entrees
+  var recentData = loadEntries();
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 6);
+  var cutoffStr = cutoff.toISOString().split('T')[0];
+
+  var recentDays = [];
+  recentData.entries.forEach(function(entry) {
+    if (entry.date >= cutoffStr) {
+      var sc = calculateDayScore(entry);
+      if (sc !== null) recentDays.push({ date: entry.date, score: sc });
+    }
+  });
+
+  if (window.shouldShowPacingAlert(recentDays)) {
+    alertEl.innerHTML =
+      '<span class="pacing-icon">(i)</span>' +
+      ' Vous accumulez de l\'energie depuis 3 jours. Restez attentif a ne pas depasser votre enveloppe energetique.' +
+      '<button class="pacing-dismiss" onclick="dismissPacingAlert()" aria-label="Fermer l\'alerte">&times;</button>';
+    alertEl.style.display = 'block';
+  } else {
+    alertEl.style.display = 'none';
+  }
+}
+
+function dismissPacingAlert() {
+  var today = getTodayDate();
+  try { localStorage.setItem('boussole_pacing_alert_dismissed_' + today, '1'); } catch(e) {}
+  var alertEl = document.getElementById('pacing-alert-today');
+  if (alertEl) alertEl.style.display = 'none';
 }
 
 function saveCurrentEntry() {
@@ -452,7 +494,57 @@ function refreshSummary() {
     html += `</div>`;
   }
   
-  // 5. Prudence
+  // 5b. Episodes PEM detectes (30 jours)
+  if (typeof window.detectPEMEvents === 'function') {
+    var pemDays = [];
+    var pemMesures = {};
+    var cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 29);
+    var cutoffStr = cutoffDate.toISOString().split('T')[0];
+
+    data.entries.forEach(function(entry) {
+      if (entry.date >= cutoffStr) {
+        var sc = calculateDayScore(entry);
+        if (sc !== null) pemDays.push({ date: entry.date, score: sc });
+      }
+    });
+    pemDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+
+    pemDays.forEach(function(d) {
+      var raw = localStorage.getItem('boussole_mesures_' + d.date);
+      if (raw) {
+        try { pemMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
+      }
+    });
+
+    var pemEvents = window.detectPEMEvents(pemDays, pemMesures);
+
+    if (pemEvents.length > 0) {
+      var levelLabel = { probable: 'Probable', confirmed: 'Confirme (FC)', reinforced: 'Renforce (FC + VFC)' };
+      var displayed = pemEvents.slice(0, 5);
+      html += '<div class="card pem-section">';
+      html += '<h3 class="pem-header">Episodes de crash detectes (30 derniers jours)</h3>';
+      html += '<p class="pem-count">' + pemEvents.length + ' episode(s) identifie(s)</p>';
+      displayed.forEach(function(ev) {
+        var deltaStr = '-' + ev.delta.toFixed(1) + ' pts';
+        html += '<div class="pem-card">';
+        html += '<div class="pem-dates">' + ev.dateJFr + ' puis ' + ev.dateCrashFr + '</div>';
+        html += '<div class="pem-scores">Score : ' + ev.scoreJ.toFixed(1) + ' puis ' +
+                '<span class="pem-crash-score">' + ev.scoreCrash.toFixed(1) + '</span>' +
+                ' (<span class="pem-delta">' + deltaStr + '</span>)</div>';
+        html += '<div class="pem-level">Niveau : ' + (levelLabel[ev.level] || ev.level) + '</div>';
+        if (ev.fcJ !== null && ev.fcCrash !== null) {
+          var fcSign = ev.fcDelta >= 0 ? '+' : '';
+          html += '<div class="pem-fc">FC repos : ' + ev.fcJ + ' bpm puis ' + ev.fcCrash + ' bpm (' + fcSign + ev.fcDelta + ' bpm)</div>';
+        }
+        html += '</div>';
+      });
+      html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montrez ces episodes a votre professionnel de sante pour en discuter.</p>';
+      html += '</div>';
+    }
+  }
+
+  // 6. Prudence
   html += `<div class="card">`;
   html += `<h2 class="summary-section">6️⃣ PRUDENCE</h2>`;
   html += `<p style="color: var(--color-text-muted); font-size: 14px;">`;
