@@ -234,23 +234,23 @@ async function genererPDFEnrichi() {
   // PAGE 1 : VUE D'ENSEMBLE + STATISTIQUES
   // ====================================
 
-  // — Filet décoratif en haut de page
-  doc.setDrawColor(74, 144, 217);
-  doc.setLineWidth(3);
-  doc.line(15, 8, 195, 8);
-  doc.setLineWidth(0.5);
-
-  // — Titre principal premium
-  doc.setFontSize(22);
+  // — Titre principal
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(74, 144, 217);
+  doc.setTextColor(6, 23, 45);
   doc.text('BOUSSOLE', 105, 20, { align: 'center' });
 
   // — Sous-titre
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(102, 102, 102);
   doc.text('Suivi du bien-être quotidien', 105, 28, { align: 'center' });
+
+  // — Ligne de séparation sage
+  doc.setDrawColor(110, 135, 125);
+  doc.setLineWidth(0.4);
+  doc.line(15, 31, 195, 31);
+  doc.setLineWidth(0.5);
 
   // — Période et taux de remplissage
   doc.setFontSize(10);
@@ -539,12 +539,12 @@ async function genererPDFEnrichi() {
   // Titre de section
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(74, 144, 217);
+  doc.setTextColor(6, 23, 45);
   doc.text('ÉVOLUTION SUR 30 JOURS', 105, 14, { align: 'center' });
 
   // Filet décoratif sous le titre
-  doc.setDrawColor(74, 144, 217);
-  doc.setLineWidth(0.8);
+  doc.setDrawColor(110, 135, 125);
+  doc.setLineWidth(0.4);
   doc.line(15, 17, 195, 17);
   doc.setLineWidth(0.5);
 
