@@ -339,6 +339,66 @@ function genererPDFConsultation(noteLibre) {
 
   y += 7;
 
+  // ---- FC REPOS (données objectives 7 jours) ----
+  const fcParJour = []; // { fc, score }
+  entrees.forEach(e => {
+    const raw = localStorage.getItem('boussole_mesures_' + e.date);
+    if (!raw) return;
+    let m;
+    try { m = JSON.parse(raw); } catch (ex) { return; }
+    if (m.fc === undefined) return;
+    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    fcParJour.push({ fc: m.fc, score });
+  });
+
+  if (fcParJour.length >= 3) {
+    const fcVals = fcParJour.map(d => d.fc);
+    const fcMoy  = Math.round(_moyenne(fcVals));
+    const fcMin  = Math.min(...fcVals);
+    const fcMax  = Math.max(...fcVals);
+
+    doc.setFontSize(8);
+    setNavy(false);
+    doc.text(
+      `FC repos moyenne : ${fcMoy} bpm (min ${fcMin} - max ${fcMax})`,
+      marginL, y + 3.5
+    );
+    y += 7;
+
+    // Corrélation FC x score (condition : au moins 1 jour score < 5 ET 1 jour score >= 7)
+    const aJourFaible = fcParJour.some(d => d.score !== null && d.score < 5);
+    const aJourHaut   = fcParJour.some(d => d.score !== null && d.score >= 7);
+
+    if (aJourFaible && aJourHaut) {
+      const fcFaibles    = fcParJour.filter(d => d.score !== null && d.score < 5).map(d => d.fc);
+      const fcFavorables = fcParJour.filter(d => d.score !== null && d.score >= 5).map(d => d.fc);
+
+      if (fcFaibles.length > 0 && fcFavorables.length > 0) {
+        const moyFaibles    = Math.round(_moyenne(fcFaibles));
+        const moyFavorables = Math.round(_moyenne(fcFavorables));
+        const diff = Math.abs(moyFaibles - moyFavorables);
+
+        if (diff >= 5) {
+          const corrPhrase =
+            `Les jours de score faible coincident avec une frequence cardiaque plus elevee` +
+            ` (${moyFaibles} bpm vs ${moyFavorables} bpm les jours favorables).`;
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(85, 85, 85);
+          const corrLines = doc.splitTextToSize(corrPhrase, contentW);
+          corrLines.forEach((l, li) => {
+            doc.text(l, marginL, y + 3.5 + li * 5);
+          });
+          y += 3.5 + corrLines.length * 5 + 1;
+        }
+      }
+    }
+  }
+
+  y += 3;
+
   // ---- SECTION 2 : MES 3 POINTS À ABORDER ----
   setSage(true);
   doc.setFontSize(10);
