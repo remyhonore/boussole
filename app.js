@@ -295,21 +295,7 @@ function refreshSummary() {
   if (!container) return;
   
   let html = '';
-  
-  // En-tête
-  html += `<div class="card">`;
-  html += `<h2 class="card-title">📊 Résumé ${summary.windowDays} jours</h2>`;
-  html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong></p>`;
-  if (summary.lastDate) {
-    html += `<p>Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong></p>`;
-  }
-  
-  // Message qualité
-  if (summary.statusMessage) {
-    html += `<div class="status status-warning" style="margin-top: 16px;">${summary.statusMessage}</div>`;
-  }
-  html += `</div>`;
-  
+
   // 1. Tendances
   html += `<div class="card">`;
   html += `<h2 class="summary-section">1️⃣ TENDANCES</h2>`;
@@ -353,11 +339,33 @@ function refreshSummary() {
   }
   
   html += `</div>`;
-  
-  // 2. Variations
+
+  // 2. Résumé 30 jours
+  html += `<div class="card">`;
+  html += `<h2 class="summary-section">2️⃣ RÉSUMÉ 30 JOURS</h2>`;
+  html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
+  if (summary.lastDate) {
+    html += ` · Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong>`;
+  }
+  html += `</p>`;
+  if (summary.joursRenseignes < 5) {
+    html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
+  }
+  const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
+  if (dist && dist.total > 0) {
+    const pct = (n) => Math.round((n / dist.total) * 100);
+    html += `<p style="margin-top: 10px;">`;
+    html += `Jours hauts (vert) : <strong>${dist.vert}j (${pct(dist.vert)}%)</strong> · `;
+    html += `Jours moyens (orange) : <strong>${dist.orange}j (${pct(dist.orange)}%)</strong> · `;
+    html += `Jours bas (rouge) : <strong>${dist.rouge}j (${pct(dist.rouge)}%)</strong>`;
+    html += `</p>`;
+  }
+  html += `</div>`;
+
+  // 3. Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">2️⃣ VARIATIONS IMPORTANTES</h2>`;
+    html += `<h2 class="summary-section">3️⃣ VARIATIONS IMPORTANTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.variations.forEach(v => {
@@ -372,9 +380,9 @@ function refreshSummary() {
     html += `</div>`;
   }
   
-  // 3. Points marquants
+  // 4. Points marquants
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">3️⃣ POINTS MARQUANTS</h2>`;
+  html += `<h2 class="summary-section">4️⃣ POINTS MARQUANTS</h2>`;
   
   let hasAnyPoint = false;
   html += `<ul class="summary-list">`;
@@ -408,7 +416,7 @@ function refreshSummary() {
   // 4. Notes
   if (summary.notes && summary.notes.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">4️⃣ VOS NOTES</h2>`;
+    html += `<h2 class="summary-section">5️⃣ VOS NOTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.notes.forEach(n => {
@@ -421,7 +429,7 @@ function refreshSummary() {
   
   // 5. Prudence
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">5️⃣ PRUDENCE</h2>`;
+  html += `<h2 class="summary-section">6️⃣ PRUDENCE</h2>`;
   html += `<p style="color: var(--color-text-muted); font-size: 14px;">`;
   html += `⚠️ Infos générales uniquement.<br>`;
   html += `Pas d'avis médical personnalisé.<br>`;
