@@ -215,6 +215,41 @@
         </div>
       </div>
 
+      <!-- Section Mes mesures (ADR-2026-021) -->
+      <div id="section-mesures" class="mesures-section">
+        <div class="mesures-header" id="toggle-mesures">
+          <span class="mesures-chevron">&#9654;</span>
+          <span class="mesures-title">Mes mesures (optionnel)</span>
+        </div>
+        <p class="mesures-subtitle" style="display:none;">Fréquence cardiaque, tension, poids… vos données restent sur votre appareil.</p>
+        <div class="mesures-body" style="display:none;">
+          <div class="mesures-grid">
+            <div class="mesures-field">
+              <label for="input-fc">FC repos (bpm)</label>
+              <input type="number" id="input-fc" placeholder="ex : 68" min="30" max="200" inputmode="numeric">
+            </div>
+            <div class="mesures-field">
+              <label for="input-rmssd">VFC / RMSSD (ms)</label>
+              <input type="number" id="input-rmssd" placeholder="ex : 42" min="1" max="300" inputmode="numeric">
+            </div>
+            <div class="mesures-field mesures-field-ta">
+              <label>Tension (mmHg)</label>
+              <div class="ta-inputs">
+                <input type="number" id="input-ta-sys" placeholder="120" min="60" max="250" inputmode="numeric">
+                <span class="ta-separator">/</span>
+                <input type="number" id="input-ta-dia" placeholder="80" min="30" max="150" inputmode="numeric">
+              </div>
+            </div>
+            <div class="mesures-field">
+              <label for="input-poids">Poids (kg)</label>
+              <input type="number" id="input-poids" placeholder="ex : 65.0" min="20" max="300" step="0.1" inputmode="decimal">
+            </div>
+          </div>
+          <button id="btn-save-mesures" class="btn-save-mesures">Enregistrer mes mesures</button>
+          <p id="mesures-status" class="mesures-status" style="display:none;"></p>
+        </div>
+      </div>
+
     </div>
 
     <!-- Panel Résumé -->
