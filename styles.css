@@ -596,8 +596,8 @@ textarea:focus {
 /* === INDICATOR CARDS === */
 .indicator-card {
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: var(--spacing-md);
+  padding: 14px 16px;
+  margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(6,23,45,.07);
 }
 
@@ -619,7 +619,7 @@ textarea:focus {
 }
 
 .indicator-score {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--indicator-color);
   line-height: 1;
