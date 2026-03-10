@@ -197,6 +197,21 @@
         >
           Générer PDF enrichi
         </button>
+
+        <div style="margin-top: 12px; border-top: 1px solid rgba(6,23,45,.08); padding-top: 14px;">
+          <button
+            class="btn btn-secondary"
+            id="btn-consultation"
+            onclick="ouvrirModaleConsultation()"
+            style="width: 100%;"
+            aria-label="Préparer un document PDF pour ma consultation"
+          >
+            &#x1F4CB; Préparer ma consultation
+          </button>
+          <p style="margin: 6px 0 0; font-size: 12px; color: rgba(6,23,45,.45); text-align: center;">
+            Document 1 page &middot; Pour votre prochain rendez-vous
+          </p>
+        </div>
       </div>
 
       <div id="summary-content">
@@ -297,12 +312,73 @@
     </div>
   </div>
 
+  <!-- Modale Consultation -->
+  <div id="consultation-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:17px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
+        <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
+      </div>
+      <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 14px;">
+        Souhaitez-vous ajouter une note pour votre rendez-vous&nbsp;? (optionnel)
+      </p>
+      <textarea
+        id="consultation-note"
+        maxlength="300"
+        placeholder="Ex&#x202F;: Fatigue importante en fin de semaine, questions sur mon sommeil&hellip;"
+        style="width:100%;min-height:90px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"
+        aria-label="Note pour le médecin, 300 caractères maximum"
+      ></textarea>
+      <p id="consultation-note-count" style="font-size:11px;color:rgba(6,23,45,.4);text-align:right;margin:4px 0 16px;">0/300</p>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fermerModaleConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#6E877D;cursor:pointer;">Annuler</button>
+        <button onclick="lancerPDFConsultation()" style="flex:2;padding:10px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Générer le PDF</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="storage.js"></script>
   <script src="calc.js"></script>
   <script src="pdf.js"></script>
   <script src="pdf_enrichi_v2.js"></script>
+  <script src="pdf_consultation.js"></script>
   <script src="app.js"></script>
+
+  <script>
+    // ---- Modale consultation ----
+    function ouvrirModaleConsultation() {
+      const modal = document.getElementById('consultation-modal');
+      modal.style.display = 'flex';
+      document.getElementById('consultation-note').value = '';
+      document.getElementById('consultation-note-count').textContent = '0/300';
+      document.getElementById('consultation-note').focus();
+    }
+    function fermerModaleConsultation() {
+      document.getElementById('consultation-modal').style.display = 'none';
+    }
+    function lancerPDFConsultation() {
+      const note = document.getElementById('consultation-note').value;
+      fermerModaleConsultation();
+      genererPDFConsultation(note);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      const textarea = document.getElementById('consultation-note');
+      const counter  = document.getElementById('consultation-note-count');
+      if (textarea) {
+        textarea.addEventListener('input', function () {
+          counter.textContent = textarea.value.length + '/300';
+        });
+      }
+      // Fermer en cliquant en dehors de la modale
+      const modal = document.getElementById('consultation-modal');
+      if (modal) {
+        modal.addEventListener('click', function (e) {
+          if (e.target === modal) fermerModaleConsultation();
+        });
+      }
+    });
+  </script>
 
   <!-- Service Worker PWA -->
   <script>

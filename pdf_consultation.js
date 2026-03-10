@@ -1,0 +1,414 @@
+/**
+ * Boussole — PDF Consultation 1 page
+ *
+ * Génère un document A4 (1 page) structuré pour préparer une consultation.
+ * Vocabulaire contrôlé : métriques / points à aborder / utilisateur
+ * Jamais : diagnostic / symptômes / patient
+ *
+ * Dépendances : jsPDF (déjà chargé dans index.html)
+ */
+
+// ============================================
+// COULEURS CHARTE
+// ============================================
+const NAVY  = [6, 23, 45];
+const SAGE  = [110, 135, 125];
+const VERT  = [76, 175, 80];
+const ORANGE = [255, 152, 0];
+const ROUGE  = [244, 67, 54];
+const GREY   = [130, 130, 130];
+const LIGHT  = [245, 247, 246];
+
+// ============================================
+// UTILITAIRES CALCUL
+// ============================================
+
+function _moyenne(vals) {
+  const v = vals.filter(x => x !== null && x !== undefined);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+
+/**
+ * Tendance J1-J3 vs J5-J7 sur un tableau chronologique de valeurs.
+ * Retourne '↗', '↘' ou '→'
+ */
+function _tendance7j(vals) {
+  const v = vals.filter(x => x !== null && x !== undefined);
+  if (v.length < 5) return '→';
+  const debut = v.slice(0, 3);
+  const fin   = v.slice(-3);
+  const delta = _moyenne(fin) - _moyenne(debut);
+  if (delta > 0.5)  return '↗';
+  if (delta < -0.5) return '↘';
+  return '→';
+}
+
+/**
+ * Compte le nombre de jours où une valeur est < 5
+ */
+function _joursBasPct(vals) {
+  const v = vals.filter(x => x !== null && x !== undefined);
+  if (v.length === 0) return 0;
+  return v.filter(x => x < 5).length;
+}
+
+function _colorVOR(score) {
+  if (score === null) return GREY;
+  if (score >= 7)  return VERT;
+  if (score >= 4)  return ORANGE;
+  return ROUGE;
+}
+
+function _stripEmoji(str) {
+  return (str || '').replace(/[\u{1F300}-\u{1FFFF}]/gu, '').replace(/[^\x00-\x7F\u00C0-\u024F]/g, '').trim();
+}
+
+function _dateLocale(dateStr) {
+  // dateStr = 'YYYY-MM-DD'
+  const [y, m, d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ============================================
+// GÉNÉRATION PDF
+// ============================================
+
+function genererPDFConsultation(noteLibre) {
+  if (typeof window.jspdf === 'undefined') {
+    alert('jsPDF non disponible — vérifiez votre connexion internet.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  // ---- DONNÉES ----
+  const data = loadEntries();
+  let rawEntries = (data.entries || []).map(e => ({
+    date:            e.date,
+    energie:         e.energie,
+    sommeil:         e.qualite_sommeil,
+    confort_physique: e.douleurs,
+    clarte_mentale:  e.clarte_mentale,
+    note:            e.note
+  }));
+
+  // Trier par date croissante
+  rawEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Filtrer les 7 derniers jours calendaires
+  const aujourd_hui = new Date();
+  aujourd_hui.setHours(0, 0, 0, 0);
+  const cutoff = new Date(aujourd_hui);
+  cutoff.setDate(cutoff.getDate() - 6);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const entrees = rawEntries.filter(e => e.date >= cutoffStr);
+
+  if (entrees.length === 0) {
+    alert('Aucune donnée sur les 7 derniers jours.');
+    return;
+  }
+
+  // ---- CALCULS ----
+  const dataEnergie = entrees.map(e => e.energie);
+  const dataSommeil = entrees.map(e => e.sommeil);
+  const dataConfort = entrees.map(e => e.confort_physique);
+  const dataClarte  = entrees.map(e => e.clarte_mentale);
+
+  const moyEnergie = _moyenne(dataEnergie);
+  const moySommeil = _moyenne(dataSommeil);
+  const moyConfort = _moyenne(dataConfort);
+  const moyClarte  = _moyenne(dataClarte);
+
+  const moyennesValides = [moyEnergie, moySommeil, moyConfort, moyClarte].filter(v => v !== null);
+  const scoreGlobal = moyennesValides.length
+    ? moyennesValides.reduce((a, b) => a + b, 0) / moyennesValides.length
+    : null;
+
+  const metriques = [
+    { label: 'Énergie',          moy: moyEnergie, vals: dataEnergie },
+    { label: 'Sommeil',          moy: moySommeil, vals: dataSommeil },
+    { label: 'Confort physique', moy: moyConfort, vals: dataConfort },
+    { label: 'Clarté mentale',   moy: moyClarte,  vals: dataClarte  }
+  ].map(m => ({
+    ...m,
+    tendance:  _tendance7j(m.vals),
+    joursBas:  _joursBasPct(m.vals),
+    nbJours:   m.vals.filter(x => x !== null && x !== undefined).length
+  }));
+
+  // 3 métriques avec la moyenne la plus basse
+  const metriquesSorted = [...metriques]
+    .filter(m => m.moy !== null)
+    .sort((a, b) => a.moy - b.moy);
+  const pointsAAborder = metriquesSorted.slice(0, 3);
+
+  // Meilleur et pire jour (score composite)
+  let meilleurJour = null, pireJour = null;
+  entrees.forEach(e => {
+    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    if (vals.length === 0) return;
+    const score = vals.reduce((a, b) => a + b, 0) / vals.length;
+    if (meilleurJour === null || score > meilleurJour.score) {
+      meilleurJour = { date: e.date, score };
+    }
+    if (pireJour === null || score < pireJour.score) {
+      pireJour = { date: e.date, score };
+    }
+  });
+
+  // Date du jour
+  const dateAujourdhui = aujourd_hui.toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'long', year: 'numeric'
+  });
+
+  // ============================================
+  // RENDU PDF
+  // ============================================
+
+  const pageW = 210;
+  const marginL = 15;
+  const marginR = 15;
+  const contentW = pageW - marginL - marginR;
+  let y = 0;
+
+  // --- helpers locaux ---
+  function setNavy(bold) {
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+  }
+  function setSage(bold) {
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setTextColor(SAGE[0], SAGE[1], SAGE[2]);
+  }
+  function setGrey(bold) {
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+  }
+
+  // ---- BANDE HEADER ----
+  doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.rect(0, 0, pageW, 22, 'F');
+
+  doc.setFontSize(15);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('PRÉPARER MA CONSULTATION', pageW / 2, 10, { align: 'center' });
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(200, 215, 210);
+  doc.text(`Généré le ${dateAujourdhui}  ·  myboussole.fr`, pageW / 2, 17, { align: 'center' });
+
+  y = 28;
+
+  // ---- SECTION 1 : MON ÉTAT — 7 DERNIERS JOURS ----
+  // Titre de section
+  setSage(true);
+  doc.setFontSize(10);
+  doc.text('MON ÉTAT — 7 DERNIERS JOURS', marginL, y);
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.4);
+  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+  y += 6;
+
+  // Score global
+  const scoreStr = scoreGlobal !== null
+    ? (Math.round(scoreGlobal * 10) / 10).toFixed(1) + '/10'
+    : 'n/a';
+  const scoreColor = _colorVOR(scoreGlobal);
+
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+  doc.text(scoreStr, marginL + 22, y + 8, { align: 'center' });
+
+  doc.setFontSize(8);
+  setGrey(false);
+  doc.text('Score global moyen', marginL + 22, y + 13, { align: 'center' });
+
+  // Tableau des 4 métriques
+  const tabX = marginL + 50;
+  const tabW = contentW - 50;
+  const colLabW = tabW * 0.42;
+  const colMoyW = tabW * 0.23;
+  const colTendW = tabW * 0.18;
+  const colBasW = tabW * 0.17;
+  const rowH = 7;
+
+  // En-tête tableau
+  doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.rect(tabX, y, tabW, rowH - 1, 'F');
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Métrique',        tabX + 2,                       y + 4.5);
+  doc.text('Moyenne',         tabX + colLabW + colMoyW / 2,   y + 4.5, { align: 'center' });
+  doc.text('Tendance',        tabX + colLabW + colMoyW + colTendW / 2, y + 4.5, { align: 'center' });
+  doc.text('Jours < 5',       tabX + colLabW + colMoyW + colTendW + colBasW / 2, y + 4.5, { align: 'center' });
+  y += rowH - 1;
+
+  metriques.forEach((m, idx) => {
+    const bg = idx % 2 === 0 ? LIGHT : [255, 255, 255];
+    doc.setFillColor(bg[0], bg[1], bg[2]);
+    doc.rect(tabX, y, tabW, rowH, 'F');
+
+    // Bordure légère
+    doc.setDrawColor(220, 225, 222);
+    doc.setLineWidth(0.2);
+    doc.rect(tabX, y, tabW, rowH, 'S');
+
+    const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) + '/10' : 'n/a';
+    const moyColor = _colorVOR(m.moy);
+
+    doc.setFontSize(8);
+    setNavy(false);
+    doc.text(m.label, tabX + 2, y + 4.5);
+
+    doc.setTextColor(moyColor[0], moyColor[1], moyColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(moyStr, tabX + colLabW + colMoyW / 2, y + 4.5, { align: 'center' });
+
+    setNavy(false);
+    doc.text(m.tendance, tabX + colLabW + colMoyW + colTendW / 2, y + 4.5, { align: 'center' });
+
+    const joursBasStr = `${m.joursBas}/${m.nbJours}`;
+    doc.text(joursBasStr, tabX + colLabW + colMoyW + colTendW + colBasW / 2, y + 4.5, { align: 'center' });
+
+    y += rowH;
+  });
+
+  y += 7;
+
+  // ---- SECTION 2 : MES 3 POINTS À ABORDER ----
+  setSage(true);
+  doc.setFontSize(10);
+  doc.text('MES 3 POINTS À ABORDER', marginL, y);
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.4);
+  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+  y += 7;
+
+  pointsAAborder.forEach((m, idx) => {
+    const numStr = `${idx + 1}.`;
+    const couleurLabel = _colorVOR(m.moy);
+    const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : '—';
+    // Ex: "Énergie faible — 5 jours sur 7 en orange/rouge"
+    const niveau = m.moy !== null
+      ? (m.moy < 4 ? 'bas' : (m.moy < 7 ? 'modéré' : 'correct'))
+      : '—';
+    const nbreJoursTotal = m.nbJours;
+    const joursBasStr = m.joursBas > 0
+      ? ` — ${m.joursBas} jour${m.joursBas > 1 ? 's' : ''} sur ${nbreJoursTotal} en orange/rouge`
+      : ' — aucun jour bas';
+    const ligne = `${m.label} ${niveau} (moy. ${moyStr}/10)${joursBasStr}`;
+
+    // Pastille colorée
+    doc.setFillColor(couleurLabel[0], couleurLabel[1], couleurLabel[2]);
+    doc.circle(marginL + 3, y + 1.5, 2, 'F');
+
+    doc.setFontSize(8.5);
+    setNavy(true);
+    doc.text(numStr, marginL + 7, y + 2.5);
+    setNavy(false);
+    const lignes = doc.splitTextToSize(ligne, contentW - 14);
+    lignes.forEach((l, li) => {
+      doc.text(l, marginL + 12, y + 2.5 + li * 5);
+    });
+    y += 5 + (lignes.length - 1) * 5 + 3;
+  });
+
+  y += 3;
+
+  // ---- SECTION 3 : JOURS REMARQUABLES ----
+  setSage(true);
+  doc.setFontSize(10);
+  doc.text('JOURS REMARQUABLES', marginL, y);
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.4);
+  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+  y += 7;
+
+  const halfW = (contentW - 6) / 2;
+
+  // Meilleur jour
+  doc.setFillColor(VERT[0], VERT[1], VERT[2]);
+  doc.roundedRect(marginL, y, halfW, 16, 3, 3, 'F');
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Meilleur jour', marginL + halfW / 2, y + 5, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  if (meilleurJour) {
+    doc.text(_dateLocale(meilleurJour.date), marginL + halfW / 2, y + 10, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Score ${(Math.round(meilleurJour.score * 10) / 10).toFixed(1)}/10`, marginL + halfW / 2, y + 14.5, { align: 'center' });
+  }
+
+  // Pire jour
+  const pireX = marginL + halfW + 6;
+  doc.setFillColor(ROUGE[0], ROUGE[1], ROUGE[2]);
+  doc.roundedRect(pireX, y, halfW, 16, 3, 3, 'F');
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Jour le plus difficile', pireX + halfW / 2, y + 5, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  if (pireJour) {
+    doc.text(_dateLocale(pireJour.date), pireX + halfW / 2, y + 10, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Score ${(Math.round(pireJour.score * 10) / 10).toFixed(1)}/10`, pireX + halfW / 2, y + 14.5, { align: 'center' });
+  }
+
+  y += 22;
+
+  // ---- SECTION 4 : NOTE LIBRE (si saisie) ----
+  const noteTrimmed = (noteLibre || '').trim();
+  if (noteTrimmed.length > 0) {
+    setSage(true);
+    doc.setFontSize(10);
+    doc.text('NOTE LIBRE', marginL, y);
+    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setLineWidth(0.4);
+    doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+    y += 7;
+
+    // Fond léger
+    const noteStripped = _stripEmoji(noteTrimmed);
+    doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+    const lignesNote = doc.splitTextToSize(noteStripped, contentW - 6);
+    const noteH = lignesNote.length * 5 + 6;
+    doc.rect(marginL, y, contentW, noteH, 'F');
+
+    doc.setFontSize(8.5);
+    setNavy(false);
+    lignesNote.forEach((l, li) => {
+      doc.text(l, marginL + 3, y + 5 + li * 5);
+    });
+
+    y += noteH + 6;
+  }
+
+  // ---- FOOTER DISCLAIMER ----
+  const footerY = 282;
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.3);
+  doc.line(marginL, footerY - 3, marginL + contentW, footerY - 3);
+
+  doc.setFontSize(7.5);
+  setGrey(false);
+  doc.text(
+    'Document d\'information personnelle · Pas un avis médical · myboussole.fr',
+    pageW / 2,
+    footerY + 2,
+    { align: 'center' }
+  );
+
+  // ---- TÉLÉCHARGEMENT ----
+  const today = aujourd_hui.toISOString().split('T')[0];
+  doc.save(`boussole-consultation-${today}.pdf`);
+}
+
+// Export global
+window.genererPDFConsultation = genererPDFConsultation;
