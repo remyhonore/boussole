@@ -36,7 +36,10 @@
 
     <!-- Navigation -->
     <nav class="nav" role="navigation">
-      <button class="nav-btn active" data-panel="today" aria-label="Aller à la page Aujourd'hui">
+      <button class="nav-btn active" data-panel="home" aria-label="Aller à la page Accueil" aria-current="page">
+        Accueil
+      </button>
+      <button class="nav-btn" data-panel="today" aria-label="Aller à la page Aujourd'hui">
         Aujourd'hui
       </button>
       <button class="nav-btn" data-panel="summary" aria-label="Aller à la page Résumé">
@@ -50,8 +53,28 @@
     <!-- Message de status global -->
     <div id="status-message" class="status" style="display: none;"></div>
 
+    <!-- Panel Accueil -->
+    <div class="panel active" id="panel-home">
+
+      <div class="card">
+        <h2 class="card-title">Boussole</h2>
+        <p style="margin-bottom:8px;">Ton journal de bien-être — sans compte, sans cloud. Tes données restent sur ton appareil.</p>
+        <p style="margin-bottom:20px;color:rgba(6,23,45,.58);font-size:14px;">Suis chaque jour ton énergie, ton sommeil, ton confort physique et ta clarté mentale.</p>
+        <button class="btn" id="btn-start-entry" style="width:100%;" aria-label="Faire ma saisie du jour">
+          Faire ma saisie du jour
+        </button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0;">
+          🔒 Données stockées uniquement sur ton appareil · Zéro serveur · Zéro compte
+        </p>
+      </div>
+
+    </div>
+
     <!-- Panel Aujourd'hui -->
-    <div class="panel active" id="panel-today">
+    <div class="panel" id="panel-today">
 
       <div class="card">
         <h2 class="card-title">Bilan du jour</h2>

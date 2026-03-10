@@ -4,7 +4,7 @@
 
 // État de l'application
 const app = {
-  currentPanel: 'today',
+  currentPanel: 'home',
   lastSavedEntry: null,
   undoTimer: null,
   isGeneratingPDF: false
@@ -15,6 +15,7 @@ const app = {
  */
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
+  initHomePanel();
   initTodayPanel();
   initSummaryPanel();
   loadTodayData();
@@ -42,14 +43,20 @@ function initNavigation() {
 
 function switchPanel(panelId) {
   // Désactiver tous les boutons et panels
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.removeAttribute('aria-current');
+  });
   document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
-  
+
   // Activer le panel sélectionné
   const navBtn = document.querySelector(`[data-panel="${panelId}"]`);
   const panel = document.getElementById(`panel-${panelId}`);
-  
-  if (navBtn) navBtn.classList.add('active');
+
+  if (navBtn) {
+    navBtn.classList.add('active');
+    navBtn.setAttribute('aria-current', 'page');
+  }
   if (panel) panel.classList.add('active');
   
   app.currentPanel = panelId;
@@ -58,6 +65,15 @@ function switchPanel(panelId) {
   if (panelId === 'summary') {
     refreshSummary();
   }
+}
+
+/**
+ * === ÉCRAN ACCUEIL ===
+ */
+function initHomePanel() {
+  document.getElementById('btn-start-entry')?.addEventListener('click', () => {
+    switchPanel('today');
+  });
 }
 
 /**
@@ -119,8 +135,10 @@ function loadTodayData() {
       document.getElementById('note').value = entry.note;
       document.getElementById('note-count').textContent = `${entry.note.length}/200`;
     }
+    const rmssdInputEl = document.getElementById('rmssd-input');
+    if (rmssdInputEl && entry.rmssd != null) rmssdInputEl.value = entry.rmssd;
   }
-  
+
   updateLastSavedDisplay();
 }
 
@@ -130,6 +148,8 @@ function saveCurrentEntry() {
   const douleurs = getSliderValue('douleurs');
   const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
+  const rmssdInput = document.getElementById('rmssd-input');
+  const rmssd = rmssdInput && rmssdInput.value !== '' ? parseFloat(rmssdInput.value) : null;
   
   // Vérifier qu'au moins 1 curseur est renseigné
   const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
@@ -149,7 +169,8 @@ function saveCurrentEntry() {
     qualite_sommeil: qualiteSommeil,
     douleurs,
     clarte_mentale: clarteMentale,
-    note: note || null
+    note: note || null,
+    rmssd: rmssd
   };
   
   const success = saveEntry(today, entry);
@@ -158,6 +179,7 @@ function saveCurrentEntry() {
     showStatus('Enregistré ✓', 'success');
     showUndoButton();
     updateLastSavedDisplay();
+    if (rmssdInput) rmssdInput.value = '';
     
     // Message si < 2 curseurs
     if (filledCount === 1) {
