@@ -158,6 +158,25 @@ function genererPDFConsultation(noteLibre) {
     }
   });
 
+  // Données de la période
+  const joursRenseignes = entrees.length;
+  const derniereSaisie = entrees[entrees.length - 1].date;
+
+  let nbVert = 0, nbOrange = 0, nbRouge = 0;
+  entrees.forEach(e => {
+    const scoreJour = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    if (scoreJour.length === 0) return;
+    const s = scoreJour.reduce((a, b) => a + b, 0) / scoreJour.length;
+    if (s >= 7) nbVert++;
+    else if (s >= 4) nbOrange++;
+    else nbRouge++;
+  });
+  const totalJoursVOR = nbVert + nbOrange + nbRouge;
+  const pctVert   = totalJoursVOR ? Math.round(nbVert   / totalJoursVOR * 100) : 0;
+  const pctOrange = totalJoursVOR ? Math.round(nbOrange / totalJoursVOR * 100) : 0;
+  const pctRouge  = totalJoursVOR ? Math.round(nbRouge  / totalJoursVOR * 100) : 0;
+
   // Date du jour
   const dateAujourdhui = aujourd_hui.toLocaleDateString('fr-FR', {
     day: '2-digit', month: 'long', year: 'numeric'
@@ -228,9 +247,47 @@ function genererPDFConsultation(noteLibre) {
   setGrey(false);
   doc.text('Score global moyen', marginL + 22, y + 13, { align: 'center' });
 
+  y += 20;
+
+  // ---- DONNÉES DE LA PÉRIODE ----
+  doc.setFontSize(7.5);
+  setSage(true);
+  doc.text('DONNÉES DE LA PÉRIODE', marginL, y);
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.2);
+  doc.line(marginL, y + 1, marginL + contentW, y + 1);
+  y += 5;
+
+  // Ligne 1 : Jours renseignés + dernière saisie
+  doc.setFontSize(8);
+  setNavy(false);
+  doc.text(
+    `Jours renseignés : ${joursRenseignes}/7  ·  Dernière saisie : ${_dateLocale(derniereSaisie)}`,
+    marginL, y + 3.5
+  );
+  y += 7;
+
+  // Ligne 2 : Répartition VOR avec pastilles colorées
+  const vorItems = [
+    { label: `Hauts : ${nbVert}j (${pctVert}%)`,     color: VERT   },
+    { label: `Moyens : ${nbOrange}j (${pctOrange}%)`, color: ORANGE },
+    { label: `Bas : ${nbRouge}j (${pctRouge}%)`,      color: ROUGE  }
+  ];
+  let vorX = marginL;
+  vorItems.forEach(item => {
+    doc.setFillColor(item.color[0], item.color[1], item.color[2]);
+    doc.circle(vorX + 2, y + 1.5, 2, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+    doc.text(item.label, vorX + 6, y + 3.5);
+    vorX += doc.getTextWidth(item.label) + 12;
+  });
+  y += 8;
+
   // Tableau des 4 métriques
-  const tabX = marginL + 50;
-  const tabW = contentW - 50;
+  const tabX = marginL;
+  const tabW = contentW;
   const colLabW = tabW * 0.42;
   const colMoyW = tabW * 0.23;
   const colTendW = tabW * 0.18;
