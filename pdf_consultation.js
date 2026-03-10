@@ -463,9 +463,10 @@ function genererPDFConsultation(noteLibre) {
     { align: 'center' }
   );
 
-  // ---- TÉLÉCHARGEMENT ----
-  const today = new Date().toISOString().split('T')[0];
-  doc.save(`boussole-consultation-${today}.pdf`);
+  // ---- OUVERTURE ----
+  doc.autoPrint();
+  const pdfUrl = doc.output('bloburl');
+  window.open(pdfUrl, '_blank');
 }
 
 // Export global
