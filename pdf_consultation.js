@@ -553,6 +553,57 @@ function genererPDFConsultation(noteLibre) {
 
   y += 22;
 
+  // ---- SECTION PEM : EPISODES DE CRASH (7 jours, conditionnelle) ----
+  if (typeof window.detectPEMEvents === 'function') {
+    const days7jPEM = entrees.map(e => {
+      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+        .filter(v => v !== null && v !== undefined);
+      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      return { date: e.date, score };
+    }).filter(d => d.score !== null);
+
+    const mesures7jMapPEM = {};
+    entrees.forEach(e => {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jMapPEM['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+
+    const pemEvents7j = window.detectPEMEvents(days7jPEM, mesures7jMapPEM);
+    if (pemEvents7j.length > 0 && y <= 200) {
+      y += 3;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text('EPISODES DE CRASH', marginL, y);
+      doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+      doc.setLineWidth(0.4);
+      doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+      y += 7;
+
+      const pemSum7j = (typeof window.getPEMSummary === 'function')
+        ? window.getPEMSummary(pemEvents7j)
+        : { count: pemEvents7j.length, avgDelta: null };
+      const avgDeltaStr = pemSum7j.avgDelta !== null ? pemSum7j.avgDelta.toFixed(1) : '-';
+      const pemLine1 = pemSum7j.count + ' episode(s) detecte(s) sur 7 jours. Chute moyenne : ' + avgDeltaStr + ' points.';
+      doc.setFontSize(8.5);
+      setNavy(false);
+      doc.text(pemLine1, marginL, y + 3.5);
+      y += 6;
+
+      const fcEvents7j = pemEvents7j.filter(ev => ev.fcJ !== null && ev.fcCrash !== null);
+      if (fcEvents7j.length > 0) {
+        const avgFcDelta = fcEvents7j.reduce((a, ev) => a + ev.fcDelta, 0) / fcEvents7j.length;
+        const sign = avgFcDelta >= 0 ? '+' : '';
+        const pemLine2 = 'FC repos associee : ' + sign + Math.round(avgFcDelta) + ' bpm en moyenne lors des episodes.';
+        doc.text(pemLine2, marginL, y + 3.5);
+        y += 6;
+      }
+
+      y += 2;
+    }
+  }
+
   // ---- SECTION 4 : NOTE LIBRE (si saisie) ----
   const noteTrimmed = (noteLibre || '').trim();
   if (noteTrimmed.length > 0) {

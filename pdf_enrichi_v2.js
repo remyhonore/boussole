@@ -457,9 +457,37 @@ async function genererPDFEnrichi() {
   // Mesures objectives
   const mesures30j = collectMesures30j();
   const hasMesuresSection = mesures30j.daysWithMesures >= 3;
+
+  // Detection PEM (30 jours)
+  const days30jPEM = entrees.map(e => {
+    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    return { date: e.date, score };
+  }).filter(d => d.score !== null);
+
+  const mesures30jMapPEM = {};
+  (() => {
+    const todayPEM = new Date();
+    todayPEM.setHours(0, 0, 0, 0);
+    for (let i = 29; i >= 0; i--) {
+      const dPEM = new Date(todayPEM);
+      dPEM.setDate(dPEM.getDate() - i);
+      const dateStrPEM = dPEM.toISOString().split('T')[0];
+      const rawPEM = localStorage.getItem('boussole_mesures_' + dateStrPEM);
+      if (!rawPEM) continue;
+      try { mesures30jMapPEM['boussole_mesures_' + dateStrPEM] = JSON.parse(rawPEM); } catch(ePEM) {}
+    }
+  })();
+
+  const pemEvents30j = (typeof window.detectPEMEvents === 'function')
+    ? window.detectPEMEvents(days30jPEM, mesures30jMapPEM)
+    : [];
+  const hasPEMSection = pemEvents30j.length > 0;
+
   const totalPages = correlations.length > 0
-    ? (hasMesuresSection ? 6 : 5)
-    : (hasMesuresSection ? 5 : 4);
+    ? (hasMesuresSection ? (hasPEMSection ? 7 : 6) : (hasPEMSection ? 6 : 5))
+    : (hasMesuresSection ? (hasPEMSection ? 6 : 5) : (hasPEMSection ? 5 : 4));
   let pageNum = 1;
 
   doc.setFontSize(11);
@@ -848,6 +876,116 @@ async function genererPDFEnrichi() {
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(100, 100, 100);
     doc.text(`Page ${pageNum}/${totalPages}`, 105, 290, { align: 'center' });
+  }
+
+  // ====================================
+  // PAGE EPISODES DE CRASH POST-EFFORT (conditionnelle)
+  // ====================================
+
+  if (hasPEMSection) {
+    doc.addPage();
+    pageNum++;
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(6, 23, 45);
+    doc.text('EPISODES DE CRASH POST-EFFORT', 105, 14, { align: 'center' });
+
+    doc.setDrawColor(110, 135, 125);
+    doc.setLineWidth(0.4);
+    doc.line(15, 17, 195, 17);
+    doc.setLineWidth(0.5);
+
+    let yPEM = 26;
+
+    // Colonnes : Date crash | Avant | Crash | Delta | FC | Niveau
+    const pemColX   = [15, 37, 62, 87, 107, 157];
+    const pemTableW = 180;
+    const pemRowH   = 8;
+
+    function drawPEMRow(y, cells, isHeader, isEven) {
+      if (isHeader)      { doc.setFillColor(240, 240, 240); }
+      else if (isEven)   { doc.setFillColor(250, 250, 250); }
+      else               { doc.setFillColor(255, 255, 255); }
+      doc.rect(15, y, pemTableW, pemRowH, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.rect(15, y, pemTableW, pemRowH, 'S');
+      pemColX.forEach((x, i) => { if (i > 0) doc.line(x, y, x, y + pemRowH); });
+      doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+      doc.setFontSize(8);
+      cells.forEach((cell, i) => {
+        const text  = (cell && typeof cell === 'object') ? cell.text  : cell;
+        const color = (cell && typeof cell === 'object') ? cell.color : null;
+        if (color) { doc.setTextColor(color[0], color[1], color[2]); }
+        else        { doc.setTextColor(0, 0, 0); }
+        doc.text(String(text), pemColX[i] + 2, y + 5.5);
+      });
+      doc.setTextColor(0, 0, 0);
+    }
+
+    drawPEMRow(yPEM, ['Date crash', 'Avant', 'Crash', 'Delta', 'FC', 'Niveau'], true, false);
+    yPEM += pemRowH;
+
+    const pemSlice = pemEvents30j.slice(0, 10);
+    pemSlice.forEach((ev, idx) => {
+      const parts = ev.dateCrash.split('-');
+      const dateCrashJJMM = parts[2] + '/' + parts[1];
+      const deltaCell = { text: '-' + ev.delta.toFixed(1), color: [211, 47, 47] };
+
+      let fcText = '-';
+      if (ev.fcJ !== null && ev.fcCrash !== null) {
+        const sign = ev.fcDelta >= 0 ? '+' : '';
+        fcText = ev.fcJ + ' puis ' + ev.fcCrash + ' (' + sign + ev.fcDelta + ')';
+      }
+
+      let levelText = 'Probable';
+      if (ev.level === 'confirmed')  levelText = 'Confirme (FC)';
+      if (ev.level === 'reinforced') levelText = 'Renforce (FC+VFC)';
+
+      drawPEMRow(yPEM, [
+        dateCrashJJMM,
+        ev.scoreJ.toFixed(1),
+        ev.scoreCrash.toFixed(1),
+        deltaCell,
+        fcText,
+        levelText
+      ], false, idx % 2 === 1);
+      yPEM += pemRowH;
+    });
+
+    yPEM += 5;
+
+    // Synthese automatique
+    const pemSum = (typeof window.getPEMSummary === 'function')
+      ? window.getPEMSummary(pemSlice)
+      : { count: pemSlice.length, avgDelta: null, avgDelay: null };
+    const synthText = pemSum.count + ' episode(s) de crash post-effort identifie(s) sur la periode.'
+      + ' Chute moyenne de score : ' + (pemSum.avgDelta !== null ? pemSum.avgDelta.toFixed(1) : '-') + ' points.'
+      + ' Delai moyen : ' + (pemSum.avgDelay !== null ? pemSum.avgDelay.toFixed(1) : '-') + ' jour(s).';
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    const synthLines = doc.splitTextToSize(synthText, 170);
+    synthLines.forEach(l => { doc.text(l, 15, yPEM); yPEM += 5; });
+
+    yPEM += 3;
+
+    // Disclaimer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(120, 120, 120);
+    const discText = 'Detection algorithmique basee sur les variations de score. Information personnelle, pas une evaluation medicale.';
+    const discLines = doc.splitTextToSize(discText, 170);
+    discLines.forEach(l => { doc.text(l, 15, yPEM); yPEM += 4; });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Page ' + pageNum + '/' + totalPages, 105, 280, { align: 'center' });
+    doc.text('Document genere par Boussole (myboussole.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+    doc.text('Ne remplace pas un avis medical - Donnees stockees uniquement sur votre appareil', 105, 290, { align: 'center' });
   }
 
   // ====================================
