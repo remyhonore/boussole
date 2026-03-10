@@ -624,12 +624,23 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
       if (poids && poids.value) mesures.poids = parseFloat(poids.value);
 
       if (Object.keys(mesures).length === 0) {
-        showStatus('Renseigne au moins une mesure avant d\'enregistrer.', 'warning');
+        var status = document.getElementById('mesures-status');
+        if (status) {
+          status.textContent = 'Renseigne au moins une mesure';
+          status.style.color = '#c0714a';
+          status.style.display = 'block';
+          setTimeout(function() { status.style.display = 'none'; status.style.color = '#6E877D'; }, 2500);
+        }
         return;
       }
 
       localStorage.setItem('boussole_mesures_' + dateKey, JSON.stringify(mesures));
-      showStatus('Mesures enregistrées ✓', 'success');
+      var status = document.getElementById('mesures-status');
+      if (status) {
+        status.textContent = 'Mesures enregistrées ✓';
+        status.style.display = 'block';
+        setTimeout(function() { status.style.display = 'none'; }, 2500);
+      }
     });
   }
 
