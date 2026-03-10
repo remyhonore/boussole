@@ -579,11 +579,6 @@ function closeChangelog() {
   localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
 }
 
-// Affichage automatique une seule fois après mise à jour
-if (localStorage.getItem(VERSION_KEY) !== CURRENT_VERSION) {
-  window.addEventListener('load', openChangelog);
-}
-
 document.getElementById('changelog-link')?.addEventListener('click', openChangelog);
 document.getElementById('changelog-close')?.addEventListener('click', closeChangelog);
 document.getElementById('changelog-ok')?.addEventListener('click', closeChangelog);
