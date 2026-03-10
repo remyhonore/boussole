@@ -58,82 +58,90 @@
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
         <!-- Énergie -->
-        <div class="field">
-          <label class="field-label" for="energie">
-            <span>Énergie</span>
-            <span class="field-value" id="energie-value">—</span>
-          </label>
-          <input
-            type="range"
-            id="energie"
-            min="0"
-            max="10"
-            value="0"
-            aria-label="Niveau d'énergie de 0 à 10"
-          >
-          <div class="range-labels">
-            <span class="range-question">Aujourd'hui, mon niveau d'énergie est...</span>
-            <span class="range-hint">0 = épuisé · 10 = au top</span>
+        <div class="indicator-card indicator-card--energie">
+          <div class="field">
+            <label class="field-label" for="energie">
+              <span class="indicator-label"><span aria-hidden="true">💪</span> Énergie</span>
+              <span class="field-value indicator-score" id="energie-value">—</span>
+            </label>
+            <input
+              type="range"
+              id="energie"
+              min="0"
+              max="10"
+              value="0"
+              aria-label="Niveau d'énergie de 0 à 10"
+            >
+            <div class="range-labels">
+              <span class="range-question">Aujourd'hui, mon niveau d'énergie est...</span>
+              <span class="range-hint">0 = épuisé · 10 = au top</span>
+            </div>
           </div>
         </div>
 
         <!-- Qualité sommeil -->
-        <div class="field">
-          <label class="field-label" for="qualite-sommeil">
-            <span>Sommeil</span>
-            <span class="field-value" id="qualite-sommeil-value">—</span>
-          </label>
-          <input
-            type="range"
-            id="qualite-sommeil"
-            min="0"
-            max="10"
-            value="0"
-            aria-label="Qualité du sommeil de 0 à 10"
-          >
-          <div class="range-labels">
-            <span class="range-question">Mon sommeil a été récupérateur...</span>
-            <span class="range-hint">0 = pas du tout · 10 = très bien</span>
+        <div class="indicator-card indicator-card--sommeil">
+          <div class="field">
+            <label class="field-label" for="qualite-sommeil">
+              <span class="indicator-label"><span aria-hidden="true">🌙</span> Sommeil</span>
+              <span class="field-value indicator-score" id="qualite-sommeil-value">—</span>
+            </label>
+            <input
+              type="range"
+              id="qualite-sommeil"
+              min="0"
+              max="10"
+              value="0"
+              aria-label="Qualité du sommeil de 0 à 10"
+            >
+            <div class="range-labels">
+              <span class="range-question">Mon sommeil a été récupérateur...</span>
+              <span class="range-hint">0 = pas du tout · 10 = très bien</span>
+            </div>
           </div>
         </div>
 
-        <!-- Douleurs -->
-        <div class="field">
-          <label class="field-label" for="douleurs">
-            <span>Confort physique</span>
-            <span class="field-value" id="douleurs-value">—</span>
-          </label>
-          <input
-            type="range"
-            id="douleurs"
-            min="0"
-            max="10"
-            value="0"
-            aria-label="Niveau de confort physique de 0 à 10"
-          >
-          <div class="range-labels">
-            <span class="range-question">Mon confort physique aujourd'hui est...</span>
-            <span class="range-hint">0 = très inconfortable · 10 = très à l'aise</span>
+        <!-- Confort physique -->
+        <div class="indicator-card indicator-card--confort">
+          <div class="field">
+            <label class="field-label" for="douleurs">
+              <span class="indicator-label"><span aria-hidden="true">❤️</span> Confort physique</span>
+              <span class="field-value indicator-score" id="douleurs-value">—</span>
+            </label>
+            <input
+              type="range"
+              id="douleurs"
+              min="0"
+              max="10"
+              value="0"
+              aria-label="Niveau de confort physique de 0 à 10"
+            >
+            <div class="range-labels">
+              <span class="range-question">Mon confort physique aujourd'hui est...</span>
+              <span class="range-hint">0 = très inconfortable · 10 = très à l'aise</span>
+            </div>
           </div>
         </div>
 
         <!-- Clarté mentale -->
-        <div class="field">
-          <label class="field-label" for="clarte-mentale">
-            <span>Clarté mentale</span>
-            <span class="field-value" id="clarte-mentale-value">—</span>
-          </label>
-          <input
-            type="range"
-            id="clarte-mentale"
-            min="0"
-            max="10"
-            value="0"
-            aria-label="Niveau de clarté mentale de 0 à 10"
-          >
-          <div class="range-labels">
-            <span class="range-question">Ma clarté mentale aujourd'hui est...</span>
-            <span class="range-hint">0 = brouillard total · 10 = esprit vif</span>
+        <div class="indicator-card indicator-card--mental">
+          <div class="field">
+            <label class="field-label" for="clarte-mentale">
+              <span class="indicator-label"><span aria-hidden="true">🧠</span> Clarté mentale</span>
+              <span class="field-value indicator-score" id="clarte-mentale-value">—</span>
+            </label>
+            <input
+              type="range"
+              id="clarte-mentale"
+              min="0"
+              max="10"
+              value="0"
+              aria-label="Niveau de clarté mentale de 0 à 10"
+            >
+            <div class="range-labels">
+              <span class="range-question">Ma clarté mentale aujourd'hui est...</span>
+              <span class="range-hint">0 = brouillard total · 10 = esprit vif</span>
+            </div>
           </div>
         </div>
 

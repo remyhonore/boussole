@@ -592,3 +592,36 @@ textarea:focus {
 .app-footer a:hover {
   text-decoration: underline;
 }
+
+/* === INDICATOR CARDS === */
+.indicator-card {
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 2px 8px rgba(6,23,45,.07);
+}
+
+.indicator-card .field {
+  margin-bottom: 0;
+}
+
+.indicator-card--energie  { background: #e8f5f0; --indicator-color: #2e9e6e; }
+.indicator-card--sommeil  { background: #fdf0eb; --indicator-color: #c0714a; }
+.indicator-card--confort  { background: #f3eef8; --indicator-color: #8b5cb5; }
+.indicator-card--mental   { background: #eaf2f8; --indicator-color: #3b82b6; }
+
+.indicator-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.indicator-score {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--indicator-color);
+  line-height: 1;
+  min-width: auto;
+}
