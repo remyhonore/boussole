@@ -135,9 +135,12 @@ function loadTodayData() {
       document.getElementById('note').value = entry.note;
       document.getElementById('note-count').textContent = `${entry.note.length}/200`;
     }
-    const rmssdInputEl = document.getElementById('rmssd-input');
-    if (rmssdInputEl && entry.rmssd != null) rmssdInputEl.value = entry.rmssd;
+    // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssdInputEl = document.getElementById('rmssd-input');
+    // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInputEl && entry.rmssd != null) rmssdInputEl.value = entry.rmssd;
   }
+
+  // Charger les mesures objectives (ADR-2026-021)
+  if (typeof window.loadMesures === 'function') window.loadMesures(today);
 
   updateLastSavedDisplay();
 }
@@ -148,8 +151,8 @@ function saveCurrentEntry() {
   const douleurs = getSliderValue('douleurs');
   const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
-  const rmssdInput = document.getElementById('rmssd-input');
-  const rmssd = rmssdInput && rmssdInput.value !== '' ? parseFloat(rmssdInput.value) : null;
+  // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssdInput = document.getElementById('rmssd-input');
+  // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssd = rmssdInput && rmssdInput.value !== '' ? parseFloat(rmssdInput.value) : null;
   
   // Vérifier qu'au moins 1 curseur est renseigné
   const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
@@ -170,7 +173,7 @@ function saveCurrentEntry() {
     douleurs,
     clarte_mentale: clarteMentale,
     note: note || null,
-    rmssd: rmssd
+    // DEPRECATED: ancien RMSSD — ADR-2026-021 // rmssd: rmssd
   };
   
   const success = saveEntry(today, entry);
@@ -179,7 +182,7 @@ function saveCurrentEntry() {
     showStatus('Enregistré ✓', 'success');
     showUndoButton();
     updateLastSavedDisplay();
-    if (rmssdInput) rmssdInput.value = '';
+    // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInput) rmssdInput.value = '';
     
     // Message si < 2 curseurs
     if (filledCount === 1) {
@@ -582,3 +585,92 @@ function closeChangelog() {
 document.getElementById('changelog-link')?.addEventListener('click', openChangelog);
 document.getElementById('changelog-close')?.addEventListener('click', closeChangelog);
 document.getElementById('changelog-ok')?.addEventListener('click', closeChangelog);
+
+// === Section Mes mesures (ADR-2026-021) ===
+
+// Toggle collapsible
+(function() {
+  const toggleMesures = document.getElementById('toggle-mesures');
+  const mesuresBody = document.querySelector('.mesures-body');
+  const mesuresSubtitle = document.querySelector('.mesures-subtitle');
+  const mesuresChevron = document.querySelector('.mesures-chevron');
+
+  if (toggleMesures) {
+    toggleMesures.addEventListener('click', function() {
+      const isOpen = mesuresBody.style.display !== 'none';
+      mesuresBody.style.display = isOpen ? 'none' : 'block';
+      mesuresSubtitle.style.display = isOpen ? 'none' : 'block';
+      mesuresChevron.classList.toggle('open', !isOpen);
+    });
+  }
+
+  // Sauvegarde mesures
+  var btnSaveMesures = document.getElementById('btn-save-mesures');
+  if (btnSaveMesures) {
+    btnSaveMesures.addEventListener('click', function() {
+      var dateKey = getTodayDate();
+      var mesures = {};
+
+      var fc = document.getElementById('input-fc');
+      var rmssd = document.getElementById('input-rmssd');
+      var taSys = document.getElementById('input-ta-sys');
+      var taDia = document.getElementById('input-ta-dia');
+      var poids = document.getElementById('input-poids');
+
+      if (fc && fc.value) mesures.fc = parseInt(fc.value);
+      if (rmssd && rmssd.value) mesures.rmssd = parseInt(rmssd.value);
+      if (taSys && taSys.value) mesures.ta_sys = parseInt(taSys.value);
+      if (taDia && taDia.value) mesures.ta_dia = parseInt(taDia.value);
+      if (poids && poids.value) mesures.poids = parseFloat(poids.value);
+
+      if (Object.keys(mesures).length === 0) {
+        showStatus('Renseigne au moins une mesure avant d\'enregistrer.', 'warning');
+        return;
+      }
+
+      localStorage.setItem('boussole_mesures_' + dateKey, JSON.stringify(mesures));
+      showStatus('Mesures enregistrées ✓', 'success');
+    });
+  }
+
+  // Chargement mesures pour la date courante
+  window.loadMesures = function(dateKey) {
+    var data = localStorage.getItem('boussole_mesures_' + dateKey);
+    if (!data) return;
+    try {
+      var mesures = JSON.parse(data);
+      if (mesures.fc) document.getElementById('input-fc').value = mesures.fc;
+      if (mesures.rmssd) document.getElementById('input-rmssd').value = mesures.rmssd;
+      if (mesures.ta_sys) document.getElementById('input-ta-sys').value = mesures.ta_sys;
+      if (mesures.ta_dia) document.getElementById('input-ta-dia').value = mesures.ta_dia;
+      if (mesures.poids) document.getElementById('input-poids').value = mesures.poids;
+    } catch(e) { /* silent */ }
+  };
+
+  // Migration RMSSD existantes (une seule fois)
+  function migrateLegacyRMSSD() {
+    if (localStorage.getItem('boussole_mesures_migrated')) return;
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (!key) continue;
+      try {
+        var entry = JSON.parse(localStorage.getItem(key));
+        if (entry && entry.rmssd && !isNaN(entry.rmssd)) {
+          var dateMatch = key.match(/(\d{4}-\d{2}-\d{2})/);
+          if (dateMatch) {
+            var mesuresKey = 'boussole_mesures_' + dateMatch[1];
+            if (!localStorage.getItem(mesuresKey)) {
+              localStorage.setItem(mesuresKey, JSON.stringify({
+                rmssd: parseInt(entry.rmssd),
+                timestamp: new Date().toISOString()
+              }));
+            }
+          }
+        }
+      } catch(e) { /* skip non-JSON */ }
+    }
+    localStorage.setItem('boussole_mesures_migrated', 'true');
+  }
+
+  migrateLegacyRMSSD();
+})();
