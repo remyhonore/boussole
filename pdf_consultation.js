@@ -339,62 +339,134 @@ function genererPDFConsultation(noteLibre) {
 
   y += 7;
 
-  // ---- FC REPOS (données objectives 7 jours) ----
-  const fcParJour = []; // { fc, score }
+  // ---- MESURES OBJECTIVES (7 derniers jours) ----
+  // Collecter toutes les mesures par jour
+  const mesuresParJour = []; // { fc, taS, taD, rmssd, poids, score }
   entrees.forEach(e => {
     const raw = localStorage.getItem('boussole_mesures_' + e.date);
     if (!raw) return;
     let m;
     try { m = JSON.parse(raw); } catch (ex) { return; }
-    if (m.fc === undefined) return;
     const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
       .filter(v => v !== null && v !== undefined);
     const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-    fcParJour.push({ fc: m.fc, score });
+    mesuresParJour.push({
+      fc:    (m.fc    !== undefined && m.fc    !== null) ? m.fc    : null,
+      taS:   (m.taS   !== undefined && m.taS   !== null) ? m.taS   : null,
+      taD:   (m.taD   !== undefined && m.taD   !== null) ? m.taD   : null,
+      rmssd: (m.rmssd !== undefined && m.rmssd !== null) ? m.rmssd : null,
+      poids: (m.poids !== undefined && m.poids !== null) ? m.poids : null,
+      score
+    });
   });
 
-  if (fcParJour.length >= 3) {
-    const fcVals = fcParJour.map(d => d.fc);
-    const fcMoy  = Math.round(_moyenne(fcVals));
-    const fcMin  = Math.min(...fcVals);
-    const fcMax  = Math.max(...fcVals);
+  // Extraire les séries valides (>= 3 points)
+  const fcValsAll    = mesuresParJour.map(d => d.fc).filter(v => v !== null);
+  const taValsAll    = mesuresParJour.filter(d => d.taS !== null && d.taD !== null);
+  const rmssdValsAll = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
+  const poidsValsAll = mesuresParJour.map(d => d.poids).filter(v => v !== null);
+
+  const hasFc    = fcValsAll.length >= 3;
+  const hasTa    = taValsAll.length >= 3;
+  const hasRmssd = rmssdValsAll.length >= 3;
+  const hasPoids = poidsValsAll.length >= 3;
+
+  const hasAnyMesure = hasFc || hasTa || hasRmssd || hasPoids;
+
+  if (hasAnyMesure && y <= 200) {
+    // Titre section
+    setSage(true);
+    doc.setFontSize(9);
+    doc.text('MESURES OBJECTIVES (7 derniers jours)', marginL, y);
+    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setLineWidth(0.2);
+    doc.line(marginL, y + 1, marginL + contentW, y + 1);
+    y += 5;
 
     doc.setFontSize(8);
-    setNavy(false);
-    doc.text(
-      `FC repos moyenne : ${fcMoy} bpm (min ${fcMin} - max ${fcMax})`,
-      marginL, y + 3.5
-    );
-    y += 7;
 
-    // Corrélation FC x score (condition : au moins 1 jour score < 5 ET 1 jour score >= 7)
-    const aJourFaible = fcParJour.some(d => d.score !== null && d.score < 5);
-    const aJourHaut   = fcParJour.some(d => d.score !== null && d.score >= 7);
+    if (hasFc) {
+      const fcMoy = Math.round(_moyenne(fcValsAll));
+      const fcMin = Math.min(...fcValsAll);
+      const fcMax = Math.max(...fcValsAll);
+      setNavy(false);
+      doc.text(`FC repos : ${fcMoy} bpm en moyenne (min ${fcMin} - max ${fcMax})`, marginL, y + 3.5);
+      y += 6;
+    }
 
-    if (aJourFaible && aJourHaut) {
-      const fcFaibles    = fcParJour.filter(d => d.score !== null && d.score < 5).map(d => d.fc);
-      const fcFavorables = fcParJour.filter(d => d.score !== null && d.score >= 5).map(d => d.fc);
+    if (hasTa) {
+      const taSVals = taValsAll.map(d => d.taS);
+      const taDVals = taValsAll.map(d => d.taD);
+      const taSMoy  = Math.round(_moyenne(taSVals));
+      const taDMoy  = Math.round(_moyenne(taDVals));
+      const taSMin  = Math.min(...taSVals);
+      const taDMin  = Math.min(...taDVals);
+      const taSMax  = Math.max(...taSVals);
+      const taDMax  = Math.max(...taDVals);
+      setNavy(false);
+      doc.text(
+        `Tension : ${taSMoy}/${taDMoy} mmHg en moyenne (min ${taSMin}/${taDMin} - max ${taSMax}/${taDMax})`,
+        marginL, y + 3.5
+      );
+      y += 6;
+    }
 
-      if (fcFaibles.length > 0 && fcFavorables.length > 0) {
-        const moyFaibles    = Math.round(_moyenne(fcFaibles));
-        const moyFavorables = Math.round(_moyenne(fcFavorables));
-        const diff = Math.abs(moyFaibles - moyFavorables);
+    if (hasRmssd) {
+      const rMoy = Math.round(_moyenne(rmssdValsAll));
+      const rMin = Math.min(...rmssdValsAll);
+      const rMax = Math.max(...rmssdValsAll);
+      setNavy(false);
+      doc.text(`VFC/RMSSD : ${rMoy} ms en moyenne (min ${rMin} - max ${rMax})`, marginL, y + 3.5);
+      y += 6;
+    }
 
-        if (diff >= 5) {
-          const corrPhrase =
-            `Les jours de score faible coincident avec une frequence cardiaque plus elevee` +
-            ` (${moyFaibles} bpm vs ${moyFavorables} bpm les jours favorables).`;
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(85, 85, 85);
-          const corrLines = doc.splitTextToSize(corrPhrase, contentW);
-          corrLines.forEach((l, li) => {
-            doc.text(l, marginL, y + 3.5 + li * 5);
-          });
-          y += 3.5 + corrLines.length * 5 + 1;
+    if (hasPoids) {
+      const pMoy = (_moyenne(poidsValsAll)).toFixed(1);
+      const pMin = Math.min(...poidsValsAll).toFixed(1);
+      const pMax = Math.max(...poidsValsAll).toFixed(1);
+      setNavy(false);
+      doc.text(`Poids : ${pMoy} kg en moyenne (min ${pMin} - max ${pMax})`, marginL, y + 3.5);
+      y += 6;
+    }
+
+    // Corrélation FC x score (conserver logique existante)
+    if (hasFc) {
+      const fcParJour = mesuresParJour.filter(d => d.fc !== null);
+      const aJourFaible = fcParJour.some(d => d.score !== null && d.score < 5);
+      const aJourHaut   = fcParJour.some(d => d.score !== null && d.score >= 7);
+
+      if (aJourFaible && aJourHaut) {
+        const fcFaibles    = fcParJour.filter(d => d.score !== null && d.score < 5).map(d => d.fc);
+        const fcFavorables = fcParJour.filter(d => d.score !== null && d.score >= 5).map(d => d.fc);
+
+        if (fcFaibles.length > 0 && fcFavorables.length > 0) {
+          const moyFaibles    = Math.round(_moyenne(fcFaibles));
+          const moyFavorables = Math.round(_moyenne(fcFavorables));
+          const diff = Math.abs(moyFaibles - moyFavorables);
+
+          if (diff >= 5) {
+            const corrPhrase =
+              `Les jours de score faible coincident avec une frequence cardiaque plus elevee` +
+              ` (${moyFaibles} bpm vs ${moyFavorables} bpm les jours favorables).`;
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(85, 85, 85);
+            const corrLines = doc.splitTextToSize(corrPhrase, contentW);
+            corrLines.forEach((l, li) => {
+              doc.text(l, marginL, y + 3.5 + li * 5);
+            });
+            y += 3.5 + corrLines.length * 5 + 1;
+          }
         }
       }
     }
+
+    // Disclaimer compact
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Mesures declaratives - pas de valeur diagnostique', marginL, y + 3.5);
+    y += 6;
   }
 
   y += 3;
