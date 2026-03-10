@@ -205,7 +205,8 @@ async function genererPDFEnrichi() {
     sommeil: e.qualite_sommeil,
     confort_physique: e.douleurs,
     clarte_mentale: e.clarte_mentale,
-    note: e.note
+    note: e.note,
+    rmssd: e.rmssd ?? null
   }));
 
   // Trier par date croissante
@@ -264,6 +265,7 @@ async function genererPDFEnrichi() {
   const dataSommeil = entrees.map(e => e.sommeil);
   const dataConfort = entrees.map(e => e.confort_physique);
   const dataClarte = entrees.map(e => e.clarte_mentale);
+  const dataRmssd = entrees.map(e => e.rmssd).filter(v => v !== null && v !== undefined);
 
   // Fonctions locales pour PDF
   function pdfMoyenne(arr) {
@@ -493,6 +495,49 @@ async function genererPDFEnrichi() {
   });
 
   yPos += 5;
+
+  // — Bloc VFC (RMSSD) — affiché uniquement si au moins 3 mesures
+  if (dataRmssd.length >= 3) {
+    const moyRmssd = pdfMoyenne(dataRmssd);
+    const sdRmssd = pdfEcartType(dataRmssd);
+    const tendRmssd = pdfTendance(dataRmssd);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('VARIABILITÉ CARDIAQUE (RMSSD)', 15, yPos);
+    yPos += 5;
+
+    // En-tête tableau VFC (3 colonnes)
+    const vfcColX = [15, 85, 140];
+    const vfcColW = [70, 55, 55];
+    const vfcTableW = 180;
+    function drawVfcRow(y, cells, isHeader) {
+      doc.setFillColor(isHeader ? 240 : 255, isHeader ? 240 : 255, isHeader ? 240 : 255);
+      doc.rect(15, y, vfcTableW, rowH, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.rect(15, y, vfcTableW, rowH, 'S');
+      vfcColX.forEach((x, i) => { if (i > 0) doc.line(x, y, x, y + rowH); });
+      doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      cells.forEach((text, i) => doc.text(String(text), vfcColX[i] + 2, y + 5.5));
+    }
+
+    drawVfcRow(yPos, ['Moyenne RMSSD (ms)', 'Tendance', 'Écart-type (ms)'], true);
+    yPos += rowH;
+    const rmssdMoyStr = moyRmssd !== null ? `${Math.round(moyRmssd)} ms (${dataRmssd.length} mesures)` : 'n/a';
+    const rmssdSdStr = sdRmssd !== null ? `${Math.round(sdRmssd)} ms` : 'n/a';
+    drawVfcRow(yPos, [rmssdMoyStr, tendRmssd, rmssdSdStr], false);
+    yPos += rowH + 3;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(120, 120, 120);
+    doc.text('Ref. : RMSSD 20-50 ms typique au repos. Valeur élevée = bonne récupération.', 15, yPos);
+    yPos += 7;
+  }
 
   // — Phrase résumé automatique
   const tendances = [tendanceEnergie, tendanceSommeil, tendanceConfort, tendanceClarte];
@@ -748,9 +793,25 @@ async function genererPDFEnrichi() {
   // TÉLÉCHARGEMENT
   // ====================================
 
-  doc.autoPrint();
-  const pdfUrl = doc.output('bloburl');
-  window.open(pdfUrl, '_blank');
+  // Génère le blob
+  const pdfBlob = doc.output('blob');
+  const blobUrl = URL.createObjectURL(pdfBlob);
+
+  // Ouvre dans un onglet pour impression
+  window.open(blobUrl, '_blank');
+
+  // Téléchargement direct via lien <a>
+  const dateStr = new Date().toISOString().split('T')[0];
+  const filename = `boussole-rapport-${dateStr}.pdf`;
+  const dlLink = document.createElement('a');
+  dlLink.href = blobUrl;
+  dlLink.download = filename;
+  document.body.appendChild(dlLink);
+  dlLink.click();
+  document.body.removeChild(dlLink);
+
+  // Libère la mémoire après 60s
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
 }
 
 // Export pour utilisation dans app.js
