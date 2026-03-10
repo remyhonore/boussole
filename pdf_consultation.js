@@ -341,7 +341,7 @@ function genererPDFConsultation(noteLibre) {
 
   // ---- MESURES OBJECTIVES (7 derniers jours) ----
   // Collecter toutes les mesures par jour
-  const mesuresParJour = []; // { fc, taS, taD, rmssd, poids, score }
+  const mesuresParJour = []; // { fc, ta_sys, ta_dia, rmssd, poids, score }
   entrees.forEach(e => {
     const raw = localStorage.getItem('boussole_mesures_' + e.date);
     if (!raw) return;
@@ -352,8 +352,8 @@ function genererPDFConsultation(noteLibre) {
     const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
     mesuresParJour.push({
       fc:    (m.fc    !== undefined && m.fc    !== null) ? m.fc    : null,
-      taS:   (m.taS   !== undefined && m.taS   !== null) ? m.taS   : null,
-      taD:   (m.taD   !== undefined && m.taD   !== null) ? m.taD   : null,
+      ta_sys: (m.ta_sys !== undefined && m.ta_sys !== null) ? m.ta_sys : null,
+      ta_dia: (m.ta_dia !== undefined && m.ta_dia !== null) ? m.ta_dia : null,
       rmssd: (m.rmssd !== undefined && m.rmssd !== null) ? m.rmssd : null,
       poids: (m.poids !== undefined && m.poids !== null) ? m.poids : null,
       score
@@ -362,7 +362,7 @@ function genererPDFConsultation(noteLibre) {
 
   // Extraire les séries valides (>= 3 points)
   const fcValsAll    = mesuresParJour.map(d => d.fc).filter(v => v !== null);
-  const taValsAll    = mesuresParJour.filter(d => d.taS !== null && d.taD !== null);
+  const taValsAll    = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
   const rmssdValsAll = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
   const poidsValsAll = mesuresParJour.map(d => d.poids).filter(v => v !== null);
 
@@ -395,8 +395,8 @@ function genererPDFConsultation(noteLibre) {
     }
 
     if (hasTa) {
-      const taSVals = taValsAll.map(d => d.taS);
-      const taDVals = taValsAll.map(d => d.taD);
+      const taSVals = taValsAll.map(d => d.ta_sys);
+      const taDVals = taValsAll.map(d => d.ta_dia);
       const taSMoy  = Math.round(_moyenne(taSVals));
       const taDMoy  = Math.round(_moyenne(taDVals));
       const taSMin  = Math.min(...taSVals);
