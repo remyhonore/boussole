@@ -187,6 +187,62 @@ async function genererGraphique(labels, data, titre, couleur) {
 }
 
 // ============================================
+// 3.5. COLLECTE MESURES OBJECTIVES 30 JOURS
+// ============================================
+
+function collectMesures30j() {
+  const fcVals = [], taSysVals = [], taDiaVals = [], rmssdVals = [], poidsVals = [];
+  let daysWithMesures = 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const raw = localStorage.getItem('boussole_mesures_' + dateStr);
+    if (!raw) continue;
+
+    let m;
+    try { m = JSON.parse(raw); } catch (e) { continue; }
+
+    let hasAny = false;
+    if (m.fc !== undefined)     { fcVals.push(m.fc);        hasAny = true; }
+    if (m.ta_sys !== undefined) { taSysVals.push(m.ta_sys); hasAny = true; }
+    if (m.ta_dia !== undefined) { taDiaVals.push(m.ta_dia); hasAny = true; }
+    if (m.rmssd !== undefined)  { rmssdVals.push(m.rmssd);  hasAny = true; }
+    if (m.poids !== undefined)  { poidsVals.push(m.poids);  hasAny = true; }
+    if (hasAny) daysWithMesures++;
+  }
+
+  function _stats(vals) {
+    if (vals.length < 3) return null;
+    const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    let trend = 'Stable';
+    if (vals.length >= 5) {
+      const m1 = vals.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
+      const m2 = vals.slice(-5).reduce((a, b) => a + b, 0) / 5;
+      const pct = (m2 - m1) / m1 * 100;
+      if (pct > 5) trend = 'Hausse';
+      else if (pct < -5) trend = 'Baisse';
+    }
+    return { count: vals.length, avg, min, max, trend };
+  }
+
+  return {
+    daysWithMesures,
+    fc:     _stats(fcVals),
+    ta_sys: _stats(taSysVals),
+    ta_dia: _stats(taDiaVals),
+    rmssd:  _stats(rmssdVals),
+    poids:  _stats(poidsVals)
+  };
+}
+
+// ============================================
 // 4. GÉNÉRATION PDF ENRICHI
 // ============================================
 
@@ -397,7 +453,13 @@ async function genererPDFEnrichi() {
   const statsClarte = calculerStats(dataClarte);
 
   const correlations = detecterCorrelations(entrees);
-  const totalPages = correlations.length > 0 ? 5 : 4;
+
+  // Mesures objectives
+  const mesures30j = collectMesures30j();
+  const hasMesuresSection = mesures30j.daysWithMesures >= 3;
+  const totalPages = correlations.length > 0
+    ? (hasMesuresSection ? 6 : 5)
+    : (hasMesuresSection ? 5 : 4);
   let pageNum = 1;
 
   doc.setFontSize(11);
@@ -576,6 +638,126 @@ async function genererPDFEnrichi() {
 
   doc.addPage();
   pageNum++;
+
+  // ====================================
+  // PAGE (CONDITIONNELLE) : DONNEES OBJECTIVES
+  // ====================================
+
+  if (hasMesuresSection) {
+    // Titre de section
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(6, 23, 45);
+    doc.text('DONNEES OBJECTIVES', 105, 14, { align: 'center' });
+
+    doc.setDrawColor(110, 135, 125);
+    doc.setLineWidth(0.4);
+    doc.line(15, 17, 195, 17);
+    doc.setLineWidth(0.5);
+
+    let yMes = 26;
+
+    // Colonnes : Mesure | Moyenne | Min | Max | Tendance
+    const mesColX  = [15, 75, 105, 130, 155];
+    const mesRowH  = 8;
+    const mesTableW = 180;
+
+    function drawMesRow(y, cells, isHeader, isEven) {
+      if (isHeader) {
+        doc.setFillColor(240, 240, 240);
+      } else if (isEven) {
+        doc.setFillColor(250, 250, 250);
+      } else {
+        doc.setFillColor(255, 255, 255);
+      }
+      doc.rect(15, y, mesTableW, mesRowH, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.rect(15, y, mesTableW, mesRowH, 'S');
+      mesColX.forEach((x, i) => { if (i > 0) doc.line(x, y, x, y + mesRowH); });
+      doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(isHeader ? 110 : 6, isHeader ? 135 : 23, isHeader ? 125 : 45);
+      cells.forEach((text, i) => doc.text(String(text), mesColX[i] + 2, y + 5.5));
+      doc.setTextColor(0, 0, 0);
+    }
+
+    drawMesRow(yMes, ['Mesure', 'Moyenne', 'Min', 'Max', 'Tendance'], true, false);
+    yMes += mesRowH;
+
+    // Construire les lignes
+    const mesRows = [];
+
+    if (mesures30j.fc) {
+      const s = mesures30j.fc;
+      mesRows.push([
+        'FC repos (bpm)',
+        `${Math.round(s.avg)} bpm`,
+        `${Math.round(s.min)}`,
+        `${Math.round(s.max)}`,
+        s.trend
+      ]);
+    }
+
+    if (mesures30j.ta_sys && mesures30j.ta_dia) {
+      const ss = mesures30j.ta_sys;
+      const sd = mesures30j.ta_dia;
+      mesRows.push([
+        'Tension (mmHg)',
+        `${Math.round(ss.avg)}/${Math.round(sd.avg)}`,
+        `${Math.round(ss.min)}/${Math.round(sd.min)}`,
+        `${Math.round(ss.max)}/${Math.round(sd.max)}`,
+        ss.trend
+      ]);
+    }
+
+    if (mesures30j.rmssd) {
+      const s = mesures30j.rmssd;
+      mesRows.push([
+        'VFC/RMSSD (ms)',
+        `${Math.round(s.avg)} ms`,
+        `${Math.round(s.min)}`,
+        `${Math.round(s.max)}`,
+        s.trend
+      ]);
+    }
+
+    if (mesures30j.poids) {
+      const s = mesures30j.poids;
+      mesRows.push([
+        'Poids (kg)',
+        `${s.avg.toFixed(1)} kg`,
+        `${s.min.toFixed(1)}`,
+        `${s.max.toFixed(1)}`,
+        s.trend
+      ]);
+    }
+
+    mesRows.forEach((row, idx) => {
+      drawMesRow(yMes, row, false, idx % 2 === 1);
+      yMes += mesRowH;
+    });
+
+    yMes += 4;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(120, 120, 120);
+    doc.text(
+      'Mesures declaratives saisies par l\'utilisateur. Pas de valeur diagnostique.',
+      15, yMes
+    );
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Page ${pageNum}/${totalPages}`, 105, 280, { align: 'center' });
+    doc.text('Document genere par Boussole (myboussole.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+    doc.text('Ne remplace pas un avis medical - Donnees stockees uniquement sur votre appareil', 105, 290, { align: 'center' });
+
+    doc.addPage();
+    pageNum++;
+  }
 
   // ====================================
   // PAGE 2 : ÉVOLUTION SUR 30 JOURS (graphiques)
