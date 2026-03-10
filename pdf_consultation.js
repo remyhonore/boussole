@@ -206,21 +206,22 @@ function genererPDFConsultation(noteLibre) {
     doc.setTextColor(GREY[0], GREY[1], GREY[2]);
   }
 
-  // ---- BANDE HEADER ----
-  doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.rect(0, 0, pageW, 22, 'F');
-
-  doc.setFontSize(15);
+  // ---- HEADER ----
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('PRÉPARER MA CONSULTATION', pageW / 2, 10, { align: 'center' });
+  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.text('PRÉPARER MA CONSULTATION', pageW / 2, 12, { align: 'center' });
+
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.4);
+  doc.line(0, 15.5, pageW, 15.5);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(200, 215, 210);
-  doc.text(`Généré le ${dateAujourdhui}  ·  myboussole.fr`, pageW / 2, 17, { align: 'center' });
+  doc.setTextColor(102, 102, 102);
+  doc.text(`Généré le ${dateAujourdhui}  ·  myboussole.fr`, pageW / 2, 20.5, { align: 'center' });
 
-  y = 28;
+  y = 27;
 
   // ---- SECTION 1 : MON ÉTAT — 7 DERNIERS JOURS ----
   // Titre de section
@@ -463,7 +464,7 @@ function genererPDFConsultation(noteLibre) {
   );
 
   // ---- TÉLÉCHARGEMENT ----
-  const today = aujourd_hui.toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
   doc.save(`boussole-consultation-${today}.pdf`);
 }
 

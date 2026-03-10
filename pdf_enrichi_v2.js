@@ -748,8 +748,9 @@ async function genererPDFEnrichi() {
   // TÉLÉCHARGEMENT
   // ====================================
 
-  const filename = `boussole-export-${dateFin.toISOString().split('T')[0]}.pdf`;
-  doc.save(filename);
+  doc.autoPrint();
+  const pdfUrl = doc.output('bloburl');
+  window.open(pdfUrl, '_blank');
 }
 
 // Export pour utilisation dans app.js
