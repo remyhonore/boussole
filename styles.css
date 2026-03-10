@@ -829,6 +829,29 @@ textarea:focus {
   line-height: 1.5;
 }
 
+/* === Bouton outline sage (lien Articles accueil) === */
+.btn-outline-sage {
+  border: 2px solid #6E877D;
+  background: transparent;
+  color: #6E877D;
+  padding: 14px;
+  border-radius: 12px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  transition: background 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.btn-outline-sage:hover {
+  background: #6E877D;
+  color: white;
+}
+
 /* === Alerte pacing === */
 
 .pacing-alert {
