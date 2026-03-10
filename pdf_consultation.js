@@ -30,17 +30,17 @@ function _moyenne(vals) {
 
 /**
  * Tendance J1-J3 vs J5-J7 sur un tableau chronologique de valeurs.
- * Retourne '↗', '↘' ou '→'
+ * Retourne 'Hausse', 'Baisse' ou 'Stable' (ASCII, compatible Helvetica/Latin-1)
  */
 function _tendance7j(vals) {
   const v = vals.filter(x => x !== null && x !== undefined);
-  if (v.length < 5) return '→';
+  if (v.length < 5) return 'Stable';
   const debut = v.slice(0, 3);
   const fin   = v.slice(-3);
   const delta = _moyenne(fin) - _moyenne(debut);
-  if (delta > 0.5)  return '↗';
-  if (delta < -0.5) return '↘';
-  return '→';
+  if (delta > 0.5)  return 'Hausse';
+  if (delta < -0.5) return 'Baisse';
+  return 'Stable';
 }
 
 /**
@@ -351,15 +351,15 @@ function genererPDFConsultation(noteLibre) {
   pointsAAborder.forEach((m, idx) => {
     const numStr = `${idx + 1}.`;
     const couleurLabel = _colorVOR(m.moy);
-    const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : '—';
-    // Ex: "Énergie faible — 5 jours sur 7 en orange/rouge"
+    const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : 'n/a';
+    // Ex: "Énergie faible - 5 jours sur 7 en orange/rouge"
     const niveau = m.moy !== null
       ? (m.moy < 4 ? 'bas' : (m.moy < 7 ? 'modéré' : 'correct'))
-      : '—';
+      : 'n/a';
     const nbreJoursTotal = m.nbJours;
     const joursBasStr = m.joursBas > 0
-      ? ` — ${m.joursBas} jour${m.joursBas > 1 ? 's' : ''} sur ${nbreJoursTotal} en orange/rouge`
-      : ' — aucun jour bas';
+      ? ` - ${m.joursBas} jour${m.joursBas > 1 ? 's' : ''} sur ${nbreJoursTotal} en orange/rouge`
+      : ' - aucun jour bas';
     const ligne = `${m.label} ${niveau} (moy. ${moyStr}/10)${joursBasStr}`;
 
     // Pastille colorée
