@@ -49,6 +49,9 @@
       <button class="nav-btn" data-panel="summary" aria-label="Aller à la page Résumé">
         Résumé
       </button>
+      <button class="nav-btn" data-panel="settings" aria-label="Aller aux Paramètres">
+        Paramètres
+      </button>
     </nav>
 
     <!-- Message de status global -->
@@ -238,7 +241,10 @@
       <div id="section-mesures" class="mesures-section">
         <div class="mesures-header" id="toggle-mesures">
           <span class="mesures-chevron">&#9654;</span>
-          <span class="mesures-title">Mes mesures (optionnel)</span>
+          <div class="mesures-header-text">
+            <span class="mesures-title">Mes mesures (optionnel)</span>
+            <span class="mesures-header-sub">FC repos · Tension · Poids · RMSSD</span>
+          </div>
         </div>
         <p class="mesures-subtitle" style="display:none;">Fréquence cardiaque, tension, poids… vos données restent sur votre appareil.</p>
         <div class="mesures-body" style="display:none;">
@@ -316,6 +322,31 @@
         <!-- Contenu généré dynamiquement -->
       </div>
 
+    </div>
+
+    <!-- Panel Paramètres (ADR-2026-025) -->
+    <div class="panel" id="panel-settings">
+      <div class="card">
+        <h2 class="card-title">Paramètres</h2>
+        <div class="settings-group">
+          <p class="settings-label">Profil</p>
+          <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
+          <div class="settings-radios">
+            <label class="settings-radio-label">
+              <input type="radio" name="profil-genre" value="non_precise" checked>
+              <span>Ne pas préciser</span>
+            </label>
+            <label class="settings-radio-label">
+              <input type="radio" name="profil-genre" value="femme">
+              <span>Femme</span>
+            </label>
+            <label class="settings-radio-label">
+              <input type="radio" name="profil-genre" value="homme">
+              <span>Homme</span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>

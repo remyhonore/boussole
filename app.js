@@ -850,6 +850,28 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
     });
   }
 
+  // Paramètre profil genre (ADR-2026-025)
+  function applyProfilGenre(value) {
+    var cycleSection = document.querySelector('.mesures-cycle');
+    if (cycleSection) {
+      cycleSection.style.display = value === 'femme' ? '' : 'none';
+    }
+  }
+
+  var genreStored = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  applyProfilGenre(genreStored);
+  var genreRadioInit = document.querySelector('input[name="profil-genre"][value="' + genreStored + '"]');
+  if (genreRadioInit) genreRadioInit.checked = true;
+
+  document.querySelectorAll('input[name="profil-genre"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        localStorage.setItem('boussole_profil_genre', this.value);
+        applyProfilGenre(this.value);
+      }
+    });
+  });
+
   // Toggle chips cycle hormonal
   var cycleChips = document.querySelectorAll('#cycle-chips .chip');
   cycleChips.forEach(function(chip) {

@@ -685,19 +685,34 @@ textarea:focus {
 }
 
 .mesures-chevron {
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: 700;
   transition: transform 0.2s ease;
   color: #6E877D;
+  line-height: 1;
 }
 
 .mesures-chevron.open {
   transform: rotate(90deg);
 }
 
+.mesures-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .mesures-title {
   font-size: 15px;
   font-weight: 600;
   color: #06172D;
+}
+
+.mesures-header-sub {
+  font-size: 11px;
+  color: #6E877D;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .mesures-subtitle {
@@ -1024,3 +1039,48 @@ html.dark .status { background: #162230; }
 html.dark .nav { border-bottom-color: rgba(255,255,255,.1); }
 html.dark .nav-btn { color: rgba(232,228,222,.58); }
 html.dark .nav-btn.active { color: #8aab9e; }
+
+/* === Panel Paramètres (ADR-2026-025) === */
+.settings-group {
+  margin-top: 8px;
+}
+
+.settings-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #06172D;
+  margin: 0 0 4px;
+}
+
+.settings-desc {
+  font-size: 13px;
+  color: rgba(6,23,45,.55);
+  margin: 0 0 14px;
+}
+
+.settings-radios {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #06172D;
+}
+
+.settings-radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #6E877D;
+  cursor: pointer;
+}
+
+html.dark .settings-label { color: #e8e4de; }
+html.dark .settings-desc { color: rgba(232,228,222,.55); }
+html.dark .settings-radio-label { color: #e8e4de; }
+html.dark .mesures-header-sub { color: #8aab9e; }
