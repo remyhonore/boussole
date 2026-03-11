@@ -696,6 +696,16 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
     });
   }
 
+  // Toggle chips cycle hormonal
+  var cycleChips = document.querySelectorAll('#cycle-chips .chip');
+  cycleChips.forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      var isActive = chip.classList.contains('active');
+      cycleChips.forEach(function(c) { c.classList.remove('active'); });
+      if (!isActive) chip.classList.add('active');
+    });
+  });
+
   // Sauvegarde mesures
   var btnSaveMesures = document.getElementById('btn-save-mesures');
   if (btnSaveMesures) {
@@ -714,6 +724,9 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
       if (taSys && taSys.value) mesures.ta_sys = parseInt(taSys.value);
       if (taDia && taDia.value) mesures.ta_dia = parseInt(taDia.value);
       if (poids && poids.value) mesures.poids = parseFloat(poids.value);
+
+      var activeChip = document.querySelector('#cycle-chips .chip.active');
+      if (activeChip) mesures.cycle_phase = activeChip.getAttribute('data-phase');
 
       if (Object.keys(mesures).length === 0) {
         var status = document.getElementById('mesures-status');
@@ -747,6 +760,13 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
       if (mesures.ta_sys) document.getElementById('input-ta-sys').value = mesures.ta_sys;
       if (mesures.ta_dia) document.getElementById('input-ta-dia').value = mesures.ta_dia;
       if (mesures.poids) document.getElementById('input-poids').value = mesures.poids;
+      // Restaurer la phase cycle
+      var chips = document.querySelectorAll('#cycle-chips .chip');
+      chips.forEach(function(c) { c.classList.remove('active'); });
+      if (mesures.cycle_phase) {
+        var target = document.querySelector('#cycle-chips .chip[data-phase="' + mesures.cycle_phase + '"]');
+        if (target) target.classList.add('active');
+      }
     } catch(e) { /* silent */ }
   };
 

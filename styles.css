@@ -759,6 +759,19 @@ textarea:focus {
   margin-top: 8px;
 }
 
+.mesures-cycle { grid-column: 1 / -1; }
+.cycle-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.cycle-chips .chip {
+  padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd;
+  background: white; font-size: 13px; cursor: pointer; transition: all 0.2s;
+  font-family: inherit; color: #333;
+}
+.cycle-chips .chip:hover { border-color: #8b5cb5; }
+.cycle-chips .chip.active {
+  background: #f3eef8; border-color: #8b5cb5; color: #6b3fa0; font-weight: 600;
+}
+.mesures-help { font-size: 12px; color: #999; margin-top: 4px; }
+
 /* === PEM Detector — Episodes de crash === */
 
 .pem-section {

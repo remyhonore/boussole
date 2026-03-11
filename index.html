@@ -248,6 +248,18 @@
               <input type="number" id="input-poids" placeholder="ex : 65.0" min="20" max="300" step="0.1" inputmode="decimal">
             </div>
           </div>
+          <div class="mesures-field mesures-cycle">
+            <label>Phase du cycle</label>
+            <div class="cycle-chips" id="cycle-chips">
+              <button type="button" class="chip" data-phase="menstruation">Règles</button>
+              <button type="button" class="chip" data-phase="folliculaire">Folliculaire</button>
+              <button type="button" class="chip" data-phase="ovulation">Ovulation</button>
+              <button type="button" class="chip" data-phase="luteale">Lutéale</button>
+              <button type="button" class="chip" data-phase="perimenopause">Irrégulier</button>
+              <button type="button" class="chip" data-phase="aucun">Non applicable</button>
+            </div>
+            <p class="mesures-help">Si tu suis ton cycle, indique la phase du jour.</p>
+          </div>
           <button id="btn-save-mesures" class="btn-save-mesures">Enregistrer mes mesures</button>
           <p id="mesures-status" class="mesures-status" style="display:none;"></p>
         </div>
