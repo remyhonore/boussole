@@ -627,17 +627,21 @@ textarea:focus {
   min-width: auto;
 }
 
-.score-with-smiley {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.range-wrapper {
+  position: relative;
+  padding-top: 2.2rem;
 }
 
-.indicator-smiley {
-  font-size: 1.8rem;
+.smiley-thumb {
+  position: absolute;
+  bottom: 100%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
   line-height: 1;
+  pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: left 0.05s ease, opacity 0.3s ease;
+  white-space: nowrap;
 }
 
 /* === Section Mes mesures (ADR-2026-021) === */

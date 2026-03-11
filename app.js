@@ -105,12 +105,13 @@ function getSmiley(value) {
 }
 
 /**
- * Met à jour le smiley affiché pour un indicateur donné.
+ * Met à jour le smiley sur le thumb du curseur.
  * @param {string} id — identifiant du curseur (ex: 'energie')
  * @param {number|null} value
  */
 function updateSmiley(id, value) {
   const smileyEl = document.getElementById(`${id}-smiley`);
+  const slider = document.getElementById(id);
   if (!smileyEl) return;
   const result = getSmiley(value);
   if (!result) {
@@ -118,10 +119,27 @@ function updateSmiley(id, value) {
     smileyEl.style.opacity = '0';
   } else {
     smileyEl.textContent = result.emoji;
-    smileyEl.style.color = result.color;
     smileyEl.style.opacity = '1';
+    if (slider) {
+      const percent = (slider.value - slider.min) / (slider.max - slider.min);
+      const thumbWidth = 28;
+      const left = percent * (slider.offsetWidth - thumbWidth) + thumbWidth / 2;
+      smileyEl.style.left = left + 'px';
+    }
   }
 }
+
+window.addEventListener('resize', () => {
+  ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+    const slider = document.getElementById(id);
+    const smileyEl = document.getElementById(`${id}-smiley`);
+    if (!slider || !smileyEl || !smileyEl.textContent) return;
+    const percent = (slider.value - slider.min) / (slider.max - slider.min);
+    const thumbWidth = 28;
+    const left = percent * (slider.offsetWidth - thumbWidth) + thumbWidth / 2;
+    smileyEl.style.left = left + 'px';
+  });
+});
 
 /**
  * === ÉCRAN AUJOURD'HUI ===
