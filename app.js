@@ -217,6 +217,14 @@ function loadTodayData() {
 
   updateLastSavedDisplay();
   refreshPacingAlert();
+
+  // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
+  requestAnimationFrame(() => {
+    ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+      const slider = document.getElementById(id);
+      if (slider) updateSmiley(id, parseInt(slider.value));
+    });
+  });
 }
 
 function refreshPacingAlert() {
