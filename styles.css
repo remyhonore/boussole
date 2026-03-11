@@ -723,9 +723,12 @@ textarea:focus {
 }
 
 .mesures-body {
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
   padding: 16px;
+  box-shadow: var(--shadow-card);
+  margin-top: 8px;
+  border: 1px solid rgba(6,23,45,.06);
 }
 
 .mesures-grid {
@@ -796,13 +799,17 @@ textarea:focus {
   margin-top: 14px;
   width: 100%;
   padding: 10px;
-  background: #6E877D;
+  background: #2d6a4f;
   color: #fff;
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.btn-save-mesures:hover {
+  background: #235840;
 }
 
 .btn-save-mesures:active {
