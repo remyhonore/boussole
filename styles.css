@@ -629,19 +629,43 @@ textarea:focus {
 
 .range-wrapper {
   position: relative;
-  padding-top: 2.2rem;
 }
 
 .smiley-thumb {
   position: absolute;
-  bottom: 100%;
-  transform: translateX(-50%);
-  font-size: 1.6rem;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
   line-height: 1;
   pointer-events: none;
+  cursor: pointer;
   opacity: 0;
   transition: left 0.05s ease, opacity 0.3s ease;
   white-space: nowrap;
+  z-index: 2;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+}
+
+/* Masquer le thumb natif uniquement quand le smiley est actif */
+.range-wrapper.has-smiley input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+  margin-top: -12px;
+}
+
+.range-wrapper.has-smiley input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
 }
 
 /* === Section Mes mesures (ADR-2026-021) === */

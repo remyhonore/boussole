@@ -114,12 +114,15 @@ function updateSmiley(id, value) {
   const slider = document.getElementById(id);
   if (!smileyEl) return;
   const result = getSmiley(value);
+  const wrapper = smileyEl.parentElement;
   if (!result) {
     smileyEl.textContent = '';
     smileyEl.style.opacity = '0';
+    if (wrapper) wrapper.classList.remove('has-smiley');
   } else {
     smileyEl.textContent = result.emoji;
     smileyEl.style.opacity = '1';
+    if (wrapper) wrapper.classList.add('has-smiley');
     if (slider) {
       const percent = (slider.value - slider.min) / (slider.max - slider.min);
       const thumbWidth = 28;
