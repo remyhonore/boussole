@@ -673,6 +673,8 @@ textarea:focus {
   margin-top: 24px;
   border-top: 1px solid #e0e0e0;
   padding-top: 16px;
+  border-left: 3px solid rgba(110, 135, 125, 0.4);
+  padding-left: 12px;
 }
 
 .mesures-header {
@@ -704,8 +706,8 @@ textarea:focus {
 
 .mesures-title {
   font-size: 15px;
-  font-weight: 600;
-  color: #06172D;
+  font-weight: 700;
+  color: var(--color-navy, #06172D);
 }
 
 .mesures-header-sub {
@@ -799,7 +801,7 @@ textarea:focus {
   margin-top: 14px;
   width: 100%;
   padding: 10px;
-  background: var(--color-sage, #6E877D);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -809,7 +811,7 @@ textarea:focus {
 }
 
 .btn-save-mesures:hover {
-  background: #5a7068;
+  background: var(--color-primary-dark);
 }
 
 .btn-save-mesures:active {
