@@ -1024,17 +1024,18 @@ window._ouvrirModePresentation = function() {
         metricRow('🧠 Clarté mentale', avgClarte) +
       '</tbody>' +
     '</table>' +
-    (avgHumeur !== null
-      ? '<div style="text-align:center; margin-top:20px; padding:16px;' +
-        'background:#F2F5F4; border-radius:12px;">' +
-          '<p style="font-size:12px; color:#6E877D; font-weight:600;' +
-          'margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em;">' +
-          'Ressenti général 7j</p>' +
-          '<div style="font-size:40px;">' + getHumeurSmiley(Math.round(avgHumeur)) + '</div>' +
-          '<p style="font-size:12px; color:rgba(6,23,45,.5); margin:4px 0 0;">' +
-          'Humeur · bien-être émotionnel</p>' +
-        '</div>'
-      : '') +
+    '<div style="text-align:center; margin-top:20px; padding:16px;' +
+    'background:#F2F5F4; border-radius:12px;">' +
+      '<p style="font-size:12px; color:#6E877D; font-weight:600;' +
+      'margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em;">' +
+      'Ressenti général 7j</p>' +
+      '<div style="font-size:40px;">' +
+        (avgHumeur !== null ? getHumeurSmiley(Math.round(avgHumeur)) : '😐') +
+      '</div>' +
+      (avgHumeur !== null
+        ? '<p style="font-size:12px; color:rgba(6,23,45,.5); margin:4px 0 0;">Humeur · bien-être émotionnel</p>'
+        : '<p style="font-size:11px; color:#aaa; margin:4px 0 0; font-style:italic;">Données insuffisantes</p>') +
+    '</div>' +
     joursHtml +
     partagerBtn +
     '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
