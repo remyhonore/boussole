@@ -221,7 +221,30 @@ function genererPDFConsultation(noteLibre) {
   doc.setTextColor(102, 102, 102);
   doc.text(`Généré le ${dateAujourdhui}  ·  myboussole.fr`, pageW / 2, 20.5, { align: 'center' });
 
-  y = 27;
+  // Ligne identité patient (si au moins nom ou prénom renseigné)
+  const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
+  const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
+  const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
+  const idTel    = (localStorage.getItem('boussole_tel')    || '').trim();
+
+  if (idPrenom || idNom) {
+    const parts = [];
+    const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
+    if (nomPrenom) parts.push(nomPrenom);
+    if (idDdn) {
+      const [ddnY, ddnM, ddnD] = idDdn.split('-');
+      if (ddnY && ddnM && ddnD) parts.push(`${ddnD}/${ddnM}/${ddnY}`);
+    }
+    if (idTel) parts.push(idTel);
+    const idLine = parts.join('  \xB7  ');
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+    doc.text(idLine, pageW / 2, 26, { align: 'center' });
+    y = 32;
+  } else {
+    y = 27;
+  }
 
   // ---- MOTIF DE CONSULTATION (en premier, juste après le header) ----
   const noteTrimmed = _stripEmoji((noteLibre || '').trim());

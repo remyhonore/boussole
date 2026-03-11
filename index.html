@@ -328,6 +328,24 @@
     <div class="panel" id="panel-settings">
       <div class="card">
         <h2 class="card-title">Paramètres</h2>
+
+        <div class="settings-group">
+          <p class="settings-label">Mes informations (pour le PDF consultation)</p>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <input type="text" id="param-prenom" placeholder="Prénom" autocomplete="given-name"
+              style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            <input type="text" id="param-nom" placeholder="Nom" autocomplete="family-name"
+              style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            <div>
+              <label for="param-ddn" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Date de naissance</label>
+              <input type="date" id="param-ddn" autocomplete="bday"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            </div>
+            <input type="tel" id="param-tel" placeholder="Ex : 06 12 34 56 78" autocomplete="tel"
+              style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+          </div>
+        </div>
+
         <div class="settings-group">
           <p class="settings-label">Profil</p>
           <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
@@ -486,12 +504,12 @@
       </p>
       <textarea
         id="consultation-note"
-        maxlength="300"
+        maxlength="500"
         placeholder="Quel est le motif principal de votre consultation ? Ce texte apparaitra en tete du document."
         style="width:100%;min-height:90px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"
-        aria-label="Note pour le médecin, 300 caractères maximum"
+        aria-label="Note pour le médecin, 500 caractères maximum"
       ></textarea>
-      <p id="consultation-note-count" style="font-size:11px;color:rgba(6,23,45,.4);text-align:right;margin:4px 0 16px;">0/300</p>
+      <p id="consultation-note-count" style="font-size:11px;color:rgba(6,23,45,.4);text-align:right;margin:4px 0 16px;">0/500</p>
       <div style="display:flex;gap:10px;">
         <button onclick="fermerModaleConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#6E877D;cursor:pointer;">Annuler</button>
         <button onclick="lancerPDFConsultation()" style="flex:2;padding:10px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Générer le PDF</button>
@@ -515,7 +533,7 @@
       const modal = document.getElementById('consultation-modal');
       modal.style.display = 'flex';
       document.getElementById('consultation-note').value = '';
-      document.getElementById('consultation-note-count').textContent = '0/300';
+      document.getElementById('consultation-note-count').textContent = '0/500';
       document.getElementById('consultation-note').focus();
     }
     function fermerModaleConsultation() {
@@ -526,12 +544,41 @@
       fermerModaleConsultation();
       genererPDFConsultation(note);
     }
+    // ---- Champs identité Paramètres ----
+    (function () {
+      const fields = [
+        { id: 'param-prenom', key: 'boussole_prenom' },
+        { id: 'param-nom',    key: 'boussole_nom'    },
+        { id: 'param-ddn',    key: 'boussole_ddn'    },
+        { id: 'param-tel',    key: 'boussole_tel'    }
+      ];
+      function initParamFields() {
+        fields.forEach(function (f) {
+          const el = document.getElementById(f.id);
+          if (!el) return;
+          const saved = localStorage.getItem(f.key);
+          if (saved) el.value = saved;
+          el.addEventListener('input', function () {
+            localStorage.setItem(f.key, el.value);
+          });
+          el.addEventListener('change', function () {
+            localStorage.setItem(f.key, el.value);
+          });
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initParamFields);
+      } else {
+        initParamFields();
+      }
+    })();
+
     document.addEventListener('DOMContentLoaded', function () {
       const textarea = document.getElementById('consultation-note');
       const counter  = document.getElementById('consultation-note-count');
       if (textarea) {
         textarea.addEventListener('input', function () {
-          counter.textContent = textarea.value.length + '/300';
+          counter.textContent = textarea.value.length + '/500';
         });
       }
       // Fermer en cliquant en dehors de la modale
