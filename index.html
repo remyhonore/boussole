@@ -18,6 +18,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
+  <script>if(localStorage.getItem('boussole_theme')==='dark')document.documentElement.classList.add('dark');</script>
+
   <!-- Chart.js pour graphiques PDF enrichi -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -31,6 +34,7 @@
     <!-- En-tête -->
     <header class="header">
       <h1><a href="https://myboussole.fr" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Boussole</a></h1>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Basculer le thème sombre" title="Mode sombre">🌙</button>
       <p>Données sur ton appareil · sans compte · sans cloud</p>
     </header>
 

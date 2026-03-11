@@ -14,6 +14,20 @@ const app = {
  * Initialisation au chargement de la page
  */
 document.addEventListener('DOMContentLoaded', () => {
+  // Dark mode toggle
+  (function() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) {
+      btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+      btn.addEventListener('click', function() {
+        document.documentElement.classList.toggle('dark');
+        var isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('boussole_theme', isDark ? 'dark' : 'light');
+        btn.textContent = isDark ? '☀️' : '🌙';
+      });
+    }
+  })();
+
   initNavigation();
   initHomePanel();
   initTodayPanel();

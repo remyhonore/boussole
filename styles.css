@@ -77,6 +77,7 @@ body {
 .header {
   text-align: center;
   padding: var(--spacing-lg) 0;
+  position: relative;
 }
 
 .header h1 {
@@ -903,3 +904,82 @@ textarea:focus {
 .cycle-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
 .cycle-table .cycle-bar { height: 8px; border-radius: 4px; display: inline-block; }
 .cycle-message { font-size: 13px; color: #666; margin-top: 12px; font-style: italic; }
+
+/* === DARK MODE TOGGLE BUTTON === */
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.theme-toggle:hover { background: rgba(0,0,0,.06); }
+
+/* === DARK MODE — palette === */
+html.dark body {
+  --color-bg: #0d1b2a;
+  --color-card: #1b2838;
+  --color-border: rgba(255,255,255,.1);
+  --color-text: #e8e4de;
+  --color-text-muted: rgba(232,228,222,.58);
+  --color-primary: #8aab9e;
+  --color-primary-dark: #6E877D;
+  --color-primary-light: #2a3d35;
+  --shadow-card: 0 14px 34px rgba(0,0,0,.3);
+  --shadow-soft: 0 4px 12px rgba(0,0,0,.2);
+  background: #0d1b2a;
+}
+
+/* Indicator cards */
+html.dark .indicator-card--energie  { background: #1a2e24; }
+html.dark .indicator-card--sommeil  { background: #2a1f1a; }
+html.dark .indicator-card--confort  { background: #231e2e; }
+html.dark .indicator-card--mental   { background: #1a2230; }
+
+/* Generic cards */
+html.dark .card { border-color: rgba(255,255,255,.06); }
+
+/* Inputs */
+html.dark input[type="number"],
+html.dark textarea,
+html.dark select {
+  background: #162230;
+  color: #e8e4de;
+  border-color: rgba(255,255,255,.15);
+}
+
+/* Toggle hover in dark */
+html.dark .theme-toggle:hover { background: rgba(255,255,255,.1); }
+
+/* Mes mesures section */
+html.dark .mesures-section { background: #162230; }
+html.dark .mesures-field input { background: #1b2838; color: #e8e4de; border-color: rgba(255,255,255,.12); }
+html.dark .btn-save-mesures { background: #8aab9e; color: #0d1b2a; }
+
+/* Cycle chips */
+html.dark .cycle-chips .chip { background: #1b2838; color: #e8e4de; border-color: rgba(255,255,255,.15); }
+html.dark .cycle-chips .chip.active { background: #2d1f3d; border-color: #8b5cb5; color: #c9b0e0; }
+
+/* Cycle résumé section */
+html.dark .cycle-section { background: #1e1530; border-left-color: #8b5cb5; }
+
+/* PEM section */
+html.dark .pem-section { background: #2a1515; }
+html.dark .pem-card { border-left-color: #D32F2F; background: #1b2838; }
+
+/* Modal */
+html.dark .modal-overlay .modal-content,
+html.dark .modal-content { background: #1b2838; color: #e8e4de; }
+
+/* Status messages */
+html.dark .status { background: #162230; }
+
+/* Nav */
+html.dark .nav { border-bottom-color: rgba(255,255,255,.1); }
+html.dark .nav-btn { color: rgba(232,228,222,.58); }
+html.dark .nav-btn.active { color: #8aab9e; }
