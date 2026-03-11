@@ -223,6 +223,47 @@ function genererPDFConsultation(noteLibre) {
 
   y = 27;
 
+  // ---- MOTIF DE CONSULTATION (en premier, juste après le header) ----
+  const noteTrimmed = _stripEmoji((noteLibre || '').trim());
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.text('MOTIF DE CONSULTATION', marginL, y);
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(1);
+  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+  y += 6;
+
+  doc.setFontSize(8);
+  setGrey(false);
+  doc.text('Ce que je veux aborder avec vous :', marginL, y);
+  y += 5;
+
+  if (noteTrimmed.length > 0) {
+    const lignesMotif = doc.splitTextToSize(noteTrimmed, contentW - 8);
+    const motifH = lignesMotif.length * 5 + 6;
+    doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+    doc.rect(marginL, y, contentW, motifH, 'F');
+    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setLineWidth(3);
+    doc.line(marginL, y, marginL, y + motifH);
+    doc.setFontSize(9);
+    setNavy(false);
+    lignesMotif.forEach((l, li) => {
+      doc.text(l, marginL + 5, y + 4 + li * 5);
+    });
+    y += motifH + 6;
+  } else {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Aucune note saisie', marginL, y + 3.5);
+    y += 8;
+  }
+
+  y += 5;
+
   // ---- SECTION 1 : MON ÉTAT — 7 DERNIERS JOURS ----
   // Titre de section
   setSage(true);
@@ -706,33 +747,6 @@ function genererPDFConsultation(noteLibre) {
 
       y += 2;
     }
-  }
-
-  // ---- SECTION 4 : NOTE LIBRE (si saisie) ----
-  const noteTrimmed = (noteLibre || '').trim();
-  if (noteTrimmed.length > 0) {
-    setSage(true);
-    doc.setFontSize(10);
-    doc.text('NOTE LIBRE', marginL, y);
-    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-    doc.setLineWidth(0.4);
-    doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
-    y += 7;
-
-    // Fond léger
-    const noteStripped = _stripEmoji(noteTrimmed);
-    doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-    const lignesNote = doc.splitTextToSize(noteStripped, contentW - 6);
-    const noteH = lignesNote.length * 5 + 6;
-    doc.rect(marginL, y, contentW, noteH, 'F');
-
-    doc.setFontSize(8.5);
-    setNavy(false);
-    lignesNote.forEach((l, li) => {
-      doc.text(l, marginL + 3, y + 5 + li * 5);
-    });
-
-    y += noteH + 6;
   }
 
   // ---- FOOTER DISCLAIMER ----
