@@ -90,7 +90,8 @@ function genererPDFConsultation(noteLibre) {
     sommeil:         e.qualite_sommeil,
     confort_physique: e.douleurs,
     clarte_mentale:  e.clarte_mentale,
-    note:            e.note
+    note:            e.note,
+    humeur:          e.humeur
   }));
 
   // Trier par date croissante
@@ -400,6 +401,27 @@ function genererPDFConsultation(noteLibre) {
 
     y += rowH;
   });
+
+  // Humeur moyenne 7j (ADR-2026-026) — texte seul, sans emoji (Latin-1)
+  const humeurVals7j = entrees.map(e => e.humeur).filter(v => v !== null && v !== undefined);
+  const avgHumeurPDF = humeurVals7j.length ? _moyenne(humeurVals7j) : null;
+  if (avgHumeurPDF !== null) {
+    function _humeurTexte(val) {
+      if (val <= 2) return 'Tres difficile';
+      if (val <= 4) return 'Difficile';
+      if (val <= 6) return 'Moyen';
+      if (val <= 8) return 'Bien';
+      return 'Excellent';
+    }
+    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setLineWidth(0.5);
+    doc.line(marginL, y, marginL + contentW, y);
+    y += 4;
+    doc.setFontSize(9);
+    setNavy(false);
+    doc.text('Ressenti general : ' + _humeurTexte(Math.round(avgHumeurPDF)), pageW / 2, y, { align: 'center' });
+    y += 6;
+  }
 
   y += 7;
 

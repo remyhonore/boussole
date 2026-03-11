@@ -101,6 +101,19 @@ function initHomePanel() {
 }
 
 /**
+ * Retourne le smiley d'humeur selon la valeur (ADR-2026-026).
+ * @param {number} val — 0 à 10
+ * @returns {string}
+ */
+function getHumeurSmiley(val) {
+  if (val <= 2) return '😫';
+  if (val <= 4) return '😟';
+  if (val <= 6) return '😐';
+  if (val <= 8) return '🙂';
+  return '😊';
+}
+
+/**
  * Retourne le smiley et la couleur associée à une valeur de curseur.
  * @param {number|null} value — null = pas encore saisi
  * @returns {{ emoji: string, color: string }|null}
@@ -182,6 +195,16 @@ function initTodayPanel() {
     });
   }
   
+  // Curseur humeur (ADR-2026-026)
+  document.getElementById('humeur-range')?.addEventListener('input', function() {
+    const smiley = getHumeurSmiley(parseInt(this.value));
+    const el = document.getElementById('humeur-smiley-display');
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => { el.textContent = smiley; el.style.opacity = '1'; }, 80);
+    }
+  });
+
   // Boutons
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
   document.getElementById('btn-undo')?.addEventListener('click', undoLastSave);
@@ -220,6 +243,25 @@ function loadTodayData() {
     }
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssdInputEl = document.getElementById('rmssd-input');
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInputEl && entry.rmssd != null) rmssdInputEl.value = entry.rmssd;
+  }
+
+  // Humeur (ADR-2026-026)
+  const humeurVal = (entry && entry.humeur !== undefined && entry.humeur !== null) ? entry.humeur : 5;
+  const humeurRange = document.getElementById('humeur-range');
+  if (humeurRange) humeurRange.value = humeurVal;
+  const humeurDisplay = document.getElementById('humeur-smiley-display');
+  if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(humeurVal);
+  const homeHumeurEl = document.getElementById('home-humeur-smiley');
+  if (homeHumeurEl) {
+    if (entry && entry.humeur !== undefined && entry.humeur !== null) {
+      homeHumeurEl.textContent = getHumeurSmiley(entry.humeur);
+      homeHumeurEl.style.animation = 'none';
+      homeHumeurEl.style.cursor = 'default';
+    } else {
+      homeHumeurEl.textContent = '😐';
+      homeHumeurEl.style.animation = 'pulse-invite 2s ease-in-out infinite';
+      homeHumeurEl.style.cursor = 'pointer';
+    }
   }
 
   // Charger les mesures objectives (ADR-2026-021)
@@ -300,22 +342,32 @@ function saveCurrentEntry() {
   app.lastSavedEntry = getEntry(today);
   
   // Sauvegarder
+  const humeurRangeEl = document.getElementById('humeur-range');
   const entry = {
     energie,
     qualite_sommeil: qualiteSommeil,
     douleurs,
     clarte_mentale: clarteMentale,
     note: note || null,
+    humeur: parseInt(humeurRangeEl?.value ?? 5),
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // rmssd: rmssd
   };
-  
+
   const success = saveEntry(today, entry);
-  
+
   if (success) {
     showStatus('Enregistré ✓', 'success');
     showUndoButton();
     updateLastSavedDisplay();
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInput) rmssdInput.value = '';
+    // Mettre à jour le smiley accueil (ADR-2026-026)
+    const humeurVal = parseInt(humeurRangeEl?.value ?? 5);
+    const homeEl = document.getElementById('home-humeur-smiley');
+    if (homeEl) {
+      homeEl.style.animation = 'none';
+      homeEl.textContent = getHumeurSmiley(humeurVal);
+      homeEl.style.cursor = 'default';
+    }
     
     // Message si < 2 curseurs
     if (filledCount === 1) {
@@ -807,6 +859,206 @@ function loadDebugDataset() {
   
   showStatus('Dataset de référence chargé ✓ (7 entrées)', 'success');
 }
+
+/**
+ * === MODE PRÉSENTATION MÉDECIN ===
+ */
+window._ouvrirModePresentation = function() {
+  const data = loadEntries();
+
+  // 7 derniers jours
+  const today = getTodayDate();
+  const cutoff = new Date(today + 'T12:00:00');
+  cutoff.setDate(cutoff.getDate() - 6);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const recentEntries = data.entries.filter(e => e.date >= cutoffStr);
+
+  // Score global 7j
+  const scores7j = recentEntries.map(e => calculateDayScore(e)).filter(s => s !== null);
+  const scoreGlobal = scores7j.length > 0 ? scores7j.reduce((a, b) => a + b, 0) / scores7j.length : null;
+
+  function avg(arr) {
+    const vals = arr.filter(v => v !== null && v !== undefined);
+    return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  }
+  const avgEnergie = avg(recentEntries.map(e => e.energie));
+  const avgSommeil  = avg(recentEntries.map(e => e.qualite_sommeil));
+  const avgConfort  = avg(recentEntries.map(e => e.douleurs));
+  const avgClarte   = avg(recentEntries.map(e => e.clarte_mentale));
+  const avgHumeur   = avg(recentEntries.map(e => e.humeur).filter(v => v !== undefined));
+
+  // Meilleur / pire jour
+  let bestDay = null, worstDay = null;
+  recentEntries.forEach(function(e) {
+    const sc = calculateDayScore(e);
+    if (sc === null) return;
+    if (!bestDay || sc > bestDay.score) bestDay = { date: e.date, score: sc };
+    if (!worstDay || sc < worstDay.score) worstDay = { date: e.date, score: sc };
+  });
+
+  function scoreColor(s) {
+    if (s === null) return '#999';
+    if (s >= 7) return '#2d9e6e';
+    if (s >= 4) return '#e07b2a';
+    return '#c0392b';
+  }
+  function metricColor(s) {
+    if (s === null) return '#999';
+    if (s >= 7) return '#2d9e6e';
+    if (s < 3) return '#c0392b';
+    if (s < 5) return '#e07b2a';
+    return '#06172D';
+  }
+
+  // Identité
+  const prenom = localStorage.getItem('boussole_prenom') || '';
+  const nom    = localStorage.getItem('boussole_nom')    || '';
+  const ddn    = localStorage.getItem('boussole_ddn')    || '';
+  const tel    = localStorage.getItem('boussole_tel')    || '';
+  let identiteHtml = '';
+  if (prenom || nom) {
+    const parts = [(prenom + ' ' + nom).trim().toUpperCase()];
+    if (ddn) parts.push(formatDateFr(ddn));
+    if (tel) parts.push(tel);
+    identiteHtml = '<p style="margin:4px 0 0;font-size:13px;color:#fff;text-align:center;">' + parts.join(' · ') + '</p>';
+  }
+
+  // Note consultation
+  const noteConsultation = localStorage.getItem('boussole_note_consultation') || '';
+
+  // Date en français long
+  const monthsFr = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const now = new Date();
+  const dateJourLong = now.getDate() + ' ' + monthsFr[now.getMonth()] + ' ' + now.getFullYear();
+
+  function metricRow(label, val) {
+    const displayVal = val !== null ? val.toFixed(1) : '—';
+    const color = metricColor(val);
+    const trend = val === null ? '' : (val >= 7 ? '↑' : val < 5 ? '↓' : '→');
+    return '<tr>' +
+      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;">' + label + '</td>' +
+      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;font-weight:600;color:' + color + ';text-align:center;">' + displayVal + '</td>' +
+      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;color:' + color + ';text-align:center;">' + trend + '</td>' +
+      '</tr>';
+  }
+
+  const scoreDisplay = scoreGlobal !== null ? scoreGlobal.toFixed(1) : '—';
+  const scoreCol = scoreColor(scoreGlobal);
+
+  let motifHtml = '';
+  if (noteConsultation) {
+    motifHtml =
+      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Motif de consultation</p>' +
+      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
+      '<div style="border-left:3px solid #6E877D;background:#F2F5F4;padding:12px;font-size:14px;line-height:1.6;color:#06172D;border-radius:0 6px 6px 0;">' +
+        noteConsultation.replace(/\n/g, '<br>') +
+      '</div>';
+  }
+
+  let joursHtml = '';
+  if (bestDay || worstDay) {
+    joursHtml =
+      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Jours remarquables</p>' +
+      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
+      '<div style="display:flex;gap:12px;">';
+    if (bestDay) {
+      joursHtml +=
+        '<div style="flex:1;background:#F2F5F4;border-radius:12px;padding:14px;text-align:center;">' +
+        '<div style="font-size:12px;color:#6E877D;font-weight:600;margin-bottom:4px;">MEILLEUR JOUR</div>' +
+        '<div style="font-size:13px;color:#06172D;">' + formatDateFr(bestDay.date) + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:#2d9e6e;margin-top:4px;">' + bestDay.score.toFixed(1) + '</div>' +
+        '</div>';
+    }
+    if (worstDay) {
+      joursHtml +=
+        '<div style="flex:1;background:#F2F5F4;border-radius:12px;padding:14px;text-align:center;">' +
+        '<div style="font-size:12px;color:#6E877D;font-weight:600;margin-bottom:4px;">JOUR LE PLUS BAS</div>' +
+        '<div style="font-size:13px;color:#06172D;">' + formatDateFr(worstDay.date) + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:#c0392b;margin-top:4px;">' + worstDay.score.toFixed(1) + '</div>' +
+        '</div>';
+    }
+    joursHtml += '</div>';
+  }
+
+  // Texte brut pour partage
+  const shareLines = [
+    'Mon suivi Boussole — 7 derniers jours',
+    '',
+    'Score global : ' + scoreDisplay + '/10',
+    avgEnergie !== null ? 'Énergie : ' + avgEnergie.toFixed(1) + '/10' : '',
+    avgSommeil !== null ? 'Sommeil : ' + avgSommeil.toFixed(1) + '/10' : '',
+    avgConfort !== null ? 'Confort physique : ' + avgConfort.toFixed(1) + '/10' : '',
+    avgClarte  !== null ? 'Clarté mentale : '  + avgClarte.toFixed(1)  + '/10' : '',
+    noteConsultation ? '\nMotif : ' + noteConsultation : '',
+    '\nDocument d\'information personnelle · Pas un avis médical'
+  ].filter(Boolean);
+  window._boussoleShareText = shareLines.join('\n');
+
+  const partagerBtn = navigator.share
+    ? '<div style="margin-top:24px;text-align:center;"><button onclick="partagerResume()" style="padding:12px 28px;background:#6E877D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button></div>'
+    : '';
+
+  const html =
+    '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;">' +
+      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Préparer ma consultation</p>' +
+      '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
+      identiteHtml +
+    '</div>' +
+    motifHtml +
+    '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Mon état — 7 derniers jours</p>' +
+    '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
+    '<div style="text-align:center;margin-bottom:16px;">' +
+      '<div style="font-size:48px;font-weight:700;color:' + scoreCol + ';line-height:1;">' + scoreDisplay + '</div>' +
+      '<div style="font-size:12px;color:#999;margin-top:4px;">Score global moyen</div>' +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;">' +
+      '<thead><tr>' +
+        '<th style="font-size:12px;color:#999;font-weight:600;text-align:left;padding:0 0 8px;">Métrique</th>' +
+        '<th style="font-size:12px;color:#999;font-weight:600;text-align:center;padding:0 0 8px;">Moyenne</th>' +
+        '<th style="font-size:12px;color:#999;font-weight:600;text-align:center;padding:0 0 8px;">Tendance</th>' +
+      '</tr></thead>' +
+      '<tbody>' +
+        metricRow('💪 Énergie', avgEnergie) +
+        metricRow('🌙 Sommeil', avgSommeil) +
+        metricRow('❤️ Confort physique', avgConfort) +
+        metricRow('🧠 Clarté mentale', avgClarte) +
+      '</tbody>' +
+    '</table>' +
+    (avgHumeur !== null
+      ? '<div style="text-align:center; margin-top:20px; padding:16px;' +
+        'background:#F2F5F4; border-radius:12px;">' +
+          '<p style="font-size:12px; color:#6E877D; font-weight:600;' +
+          'margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em;">' +
+          'Ressenti général 7j</p>' +
+          '<div style="font-size:40px;">' + getHumeurSmiley(Math.round(avgHumeur)) + '</div>' +
+          '<p style="font-size:12px; color:rgba(6,23,45,.5); margin:4px 0 0;">' +
+          'Humeur · bien-être émotionnel</p>' +
+        '</div>'
+      : '') +
+    joursHtml +
+    partagerBtn +
+    '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
+
+  const overlay = document.getElementById('mode-presentation');
+  const content = document.getElementById('mode-presentation-content');
+  if (overlay && content) {
+    content.innerHTML = html;
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+window._fermerModePresentation = function() {
+  const overlay = document.getElementById('mode-presentation');
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window._partagerResume = function() {
+  if (navigator.share && window._boussoleShareText) {
+    navigator.share({ title: 'Mon suivi Boussole', text: window._boussoleShareText }).catch(function() {});
+  }
+};
 
 // Event listeners globaux
 document.getElementById('modal-close')?.addEventListener('click', closePDFModal);
