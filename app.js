@@ -79,6 +79,16 @@ function switchPanel(panelId) {
   if (panelId === 'summary') {
     refreshSummary();
   }
+
+  // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
+  if (panelId === 'today') {
+    requestAnimationFrame(() => {
+      ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+        const slider = document.getElementById(id);
+        if (slider) updateSmiley(id, parseInt(slider.value));
+      });
+    });
+  }
 }
 
 /**
