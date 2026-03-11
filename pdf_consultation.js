@@ -604,6 +604,110 @@ function genererPDFConsultation(noteLibre) {
     }
   }
 
+  // ---- SECTION CYCLE ET BIEN-ETRE (conditionnelle, compacte) ----
+  if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
+    const days7jCycle = entrees.map(e => {
+      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+        .filter(v => v !== null && v !== undefined);
+      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      return { date: e.date, score };
+    }).filter(d => d.score !== null);
+
+    const mesures7jCycle = {};
+    entrees.forEach(e => {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jCycle['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+
+    const cyclePhases7j = window.collectCycleData(days7jCycle, mesures7jCycle, 7);
+    const cycleAnalysis7j = window.analyzeCycleCorrelation(cyclePhases7j);
+
+    // Compter les jours avec cycle_phase renseignee sur 7j
+    const daysWithCycle7j = Object.values(cyclePhases7j).reduce((sum, arr) => sum + arr.length, 0);
+
+    if (cycleAnalysis7j !== null && daysWithCycle7j >= 3 && y <= 200) {
+      y += 3;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text('CYCLE ET BIEN-ETRE', marginL, y);
+      doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+      doc.setLineWidth(0.4);
+      doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
+      y += 7;
+
+      const cyclePhaseLabels = {
+        folliculaire: 'Folliculaire',
+        ovulation: 'Ovulation',
+        luteale: 'Luteale',
+        menstruation: 'Regles',
+        perimenopause: 'Irregulier'
+      };
+
+      // Phase dominante 7j = phase avec le plus de jours
+      let phaseDominante7j = null;
+      let maxCount7j = 0;
+      Object.keys(cyclePhases7j).forEach(phase => {
+        if (cyclePhases7j[phase].length > maxCount7j) {
+          maxCount7j = cyclePhases7j[phase].length;
+          phaseDominante7j = phase;
+        }
+      });
+
+      const phaseDomLabel = phaseDominante7j ? (cyclePhaseLabels[phaseDominante7j] || phaseDominante7j) : '-';
+      const avgScoreDom = phaseDominante7j && cyclePhases7j[phaseDominante7j].length
+        ? (cyclePhases7j[phaseDominante7j].reduce((a, b) => a + b, 0) / cyclePhases7j[phaseDominante7j].length)
+        : null;
+      const avgStr = avgScoreDom !== null ? (Math.round(avgScoreDom * 10) / 10).toFixed(1) : '-';
+      const line1 = 'Phase dominante cette semaine : ' + phaseDomLabel
+        + ' (' + maxCount7j + ' jour' + (maxCount7j > 1 ? 's' : '') + ').'
+        + ' Score moyen : ' + avgStr + '/10.';
+
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text(line1, marginL, y + 3.5);
+      y += 6;
+
+      // Ligne 2 : historique 30j si significatif
+      const mesures30jCycle = {};
+      const today30j = new Date();
+      today30j.setHours(0, 0, 0, 0);
+      const cutoff30j = new Date(today30j);
+      cutoff30j.setDate(cutoff30j.getDate() - 29);
+      const cutoff30jStr = cutoff30j.toISOString().split('T')[0];
+      for (let i = 29; i >= 0; i--) {
+        const d30 = new Date(today30j);
+        d30.setDate(d30.getDate() - i);
+        const ds30 = d30.toISOString().split('T')[0];
+        const raw30 = localStorage.getItem('boussole_mesures_' + ds30);
+        if (!raw30) continue;
+        try { mesures30jCycle['boussole_mesures_' + ds30] = JSON.parse(raw30); } catch(ex) {}
+      }
+      const days30jCycle = rawEntries.filter(e => e.date >= cutoff30jStr).map(e => {
+        const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+          .filter(v => v !== null && v !== undefined);
+        const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+        return { date: e.date, score };
+      }).filter(d => d.score !== null);
+      const cyclePhases30j = window.collectCycleData(days30jCycle, mesures30jCycle, 30);
+      const cycleAnalysis30j = window.analyzeCycleCorrelation(cyclePhases30j);
+      if (cycleAnalysis30j !== null && cycleAnalysis30j.significant && y <= 200) {
+        const phaseMinLabel = cyclePhaseLabels[cycleAnalysis30j.phaseMin] || cycleAnalysis30j.phaseMin;
+        const phaseMaxLabel = cyclePhaseLabels[cycleAnalysis30j.phaseMax] || cycleAnalysis30j.phaseMax;
+        const deltaStr = (Math.round(cycleAnalysis30j.delta * 10) / 10).toFixed(1);
+        const line2 = 'Historiquement, la phase ' + phaseMinLabel
+          + ' est associee a des scores plus bas (-' + deltaStr
+          + ' points vs phase ' + phaseMaxLabel + ').';
+        doc.text(line2, marginL, y + 3.5);
+        y += 6;
+      }
+
+      y += 2;
+    }
+  }
+
   // ---- SECTION 4 : NOTE LIBRE (si saisie) ----
   const noteTrimmed = (noteLibre || '').trim();
   if (noteTrimmed.length > 0) {

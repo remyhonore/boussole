@@ -485,9 +485,20 @@ async function genererPDFEnrichi() {
     : [];
   const hasPEMSection = pemEvents30j.length > 0;
 
-  const totalPages = correlations.length > 0
-    ? (hasMesuresSection ? (hasPEMSection ? 7 : 6) : (hasPEMSection ? 6 : 5))
-    : (hasMesuresSection ? (hasPEMSection ? 6 : 5) : (hasPEMSection ? 5 : 4));
+  // Collecte donnees cycle 30j pour le PDF
+  const cyclePhaseScores30j = (typeof window.collectCycleData === 'function')
+    ? window.collectCycleData(days30jPEM, mesures30jMapPEM, 30)
+    : {};
+  const cycleAnalysis30j = (typeof window.analyzeCycleCorrelation === 'function')
+    ? window.analyzeCycleCorrelation(cyclePhaseScores30j)
+    : null;
+  const hasCycleSection = cycleAnalysis30j !== null;
+
+  let totalPages = 4;
+  if (correlations.length > 0) totalPages++;
+  if (hasMesuresSection) totalPages++;
+  if (hasPEMSection) totalPages++;
+  if (hasCycleSection) totalPages++;
   let pageNum = 1;
 
   doc.setFontSize(11);
@@ -978,6 +989,116 @@ async function genererPDFEnrichi() {
     const discText = 'Detection algorithmique basee sur les variations de score. Information personnelle, pas une evaluation medicale.';
     const discLines = doc.splitTextToSize(discText, 170);
     discLines.forEach(l => { doc.text(l, 15, yPEM); yPEM += 4; });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Page ' + pageNum + '/' + totalPages, 105, 280, { align: 'center' });
+    doc.text('Document genere par Boussole (myboussole.fr) - Outil de suivi descriptif', 105, 285, { align: 'center' });
+    doc.text('Ne remplace pas un avis medical - Donnees stockees uniquement sur votre appareil', 105, 290, { align: 'center' });
+  }
+
+  // ====================================
+  // PAGE CYCLE HORMONAL ET BIEN-ETRE (conditionnelle)
+  // ====================================
+
+  if (hasCycleSection) {
+    doc.addPage();
+    pageNum++;
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(6, 23, 45);
+    doc.text('CYCLE HORMONAL ET BIEN-ETRE', 105, 14, { align: 'center' });
+
+    doc.setDrawColor(110, 135, 125);
+    doc.setLineWidth(0.4);
+    doc.line(15, 17, 195, 17);
+    doc.setLineWidth(0.5);
+
+    let yCycle = 26;
+
+    // Tableau 4 colonnes : Phase | Score moyen | Jours | Jours rouges
+    const cycleColX = [15, 75, 115, 150];
+    const cycleTableW = 180;
+    const cycleRowH = 8;
+
+    function drawCycleRow(y, cells, isHeader, isEven) {
+      if (isHeader)     { doc.setFillColor(240, 240, 240); }
+      else if (isEven)  { doc.setFillColor(250, 250, 250); }
+      else              { doc.setFillColor(255, 255, 255); }
+      doc.rect(15, y, cycleTableW, cycleRowH, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.rect(15, y, cycleTableW, cycleRowH, 'S');
+      cycleColX.forEach((x, i) => { if (i > 0) doc.line(x, y, x, y + cycleRowH); });
+      doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      cells.forEach((text, i) => {
+        doc.setTextColor(0, 0, 0);
+        doc.text(String(text), cycleColX[i] + 2, y + 5.5);
+      });
+    }
+
+    drawCycleRow(yCycle, ['Phase', 'Score moyen', 'Jours', 'Jours rouges'], true, false);
+    yCycle += cycleRowH;
+
+    const phaseLabels = {
+      folliculaire: 'Folliculaire',
+      ovulation: 'Ovulation',
+      luteale: 'Luteale',
+      menstruation: 'Regles',
+      perimenopause: 'Irregulier'
+    };
+
+    const cyclePhases = cycleAnalysis30j.phases;
+    let rowIdx = 0;
+    Object.keys(cyclePhases).forEach(phase => {
+      const p = cyclePhases[phase];
+      const label = phaseLabels[phase] || phase;
+      drawCycleRow(yCycle, [
+        label,
+        (Math.round(p.avg * 10) / 10).toFixed(1) + '/10',
+        String(p.count),
+        String(p.joursRouges)
+      ], false, rowIdx % 2 === 1);
+      yCycle += cycleRowH;
+      rowIdx++;
+    });
+
+    yCycle += 6;
+
+    // Synthese automatique
+    const phaseMinLabel = phaseLabels[cycleAnalysis30j.phaseMin] || cycleAnalysis30j.phaseMin;
+    const phaseMaxLabel = phaseLabels[cycleAnalysis30j.phaseMax] || cycleAnalysis30j.phaseMax;
+    const phaseMinData = cyclePhases[cycleAnalysis30j.phaseMin];
+    const phaseMaxData = cyclePhases[cycleAnalysis30j.phaseMax];
+    const synthCycleText = 'La phase ' + phaseMinLabel
+      + ' est associee aux scores les plus bas (moyenne '
+      + (Math.round(phaseMinData.avg * 10) / 10).toFixed(1)
+      + '/10) avec ' + phaseMinData.joursRouges + ' jour(s) en zone rouge.'
+      + ' La phase ' + phaseMaxLabel
+      + ' presente les scores les plus eleves (moyenne '
+      + (Math.round(phaseMaxData.avg * 10) / 10).toFixed(1)
+      + '/10). Ecart moyen : '
+      + (Math.round(cycleAnalysis30j.delta * 10) / 10).toFixed(1) + ' points.';
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    const synthCycleLines = doc.splitTextToSize(synthCycleText, 170);
+    synthCycleLines.forEach(l => { doc.text(l, 15, yCycle); yCycle += 5; });
+
+    yCycle += 4;
+
+    // Disclaimer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(120, 120, 120);
+    const discCycleText = 'Correlation observee sur les donnees declaratives. Information personnelle, pas une analyse medicale.';
+    const discCycleLines = doc.splitTextToSize(discCycleText, 170);
+    discCycleLines.forEach(l => { doc.text(l, 15, yCycle); yCycle += 4; });
 
     // Footer
     doc.setFontSize(8);
