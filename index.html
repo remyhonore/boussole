@@ -89,7 +89,10 @@
           <div class="field">
             <label class="field-label" for="energie">
               <span class="indicator-label"><span aria-hidden="true">💪</span> Énergie</span>
-              <span class="field-value indicator-score" id="energie-value">—</span>
+              <span class="score-with-smiley">
+                <span class="indicator-smiley" id="energie-smiley"></span>
+                <span class="field-value indicator-score" id="energie-value">—</span>
+              </span>
             </label>
             <input
               type="range"
@@ -111,7 +114,10 @@
           <div class="field">
             <label class="field-label" for="qualite-sommeil">
               <span class="indicator-label"><span aria-hidden="true">🌙</span> Sommeil</span>
-              <span class="field-value indicator-score" id="qualite-sommeil-value">—</span>
+              <span class="score-with-smiley">
+                <span class="indicator-smiley" id="qualite-sommeil-smiley"></span>
+                <span class="field-value indicator-score" id="qualite-sommeil-value">—</span>
+              </span>
             </label>
             <input
               type="range"
@@ -133,7 +139,10 @@
           <div class="field">
             <label class="field-label" for="douleurs">
               <span class="indicator-label"><span aria-hidden="true">❤️</span> Confort physique</span>
-              <span class="field-value indicator-score" id="douleurs-value">—</span>
+              <span class="score-with-smiley">
+                <span class="indicator-smiley" id="douleurs-smiley"></span>
+                <span class="field-value indicator-score" id="douleurs-value">—</span>
+              </span>
             </label>
             <input
               type="range"
@@ -155,7 +164,10 @@
           <div class="field">
             <label class="field-label" for="clarte-mentale">
               <span class="indicator-label"><span aria-hidden="true">🧠</span> Clarté mentale</span>
-              <span class="field-value indicator-score" id="clarte-mentale-value">—</span>
+              <span class="score-with-smiley">
+                <span class="indicator-smiley" id="clarte-mentale-smiley"></span>
+                <span class="field-value indicator-score" id="clarte-mentale-value">—</span>
+              </span>
             </label>
             <input
               type="range"
@@ -350,7 +362,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v3.4 — </span>
+    <span>Boussole v4.0 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -360,10 +372,18 @@
   <div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v3.4</h2>
+        <h2 style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v4.0</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v4.0</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 11 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Smiley dynamique sur chaque indicateur (Énergie, Sommeil, Confort, Clarté)</li>
+          <li>Le smiley change en temps réel selon la valeur du curseur</li>
+          <li>5 niveaux d'expression : de 😫 (0-2) à 😊 (9-10)</li>
+          <li>Mode sombre compatible — smiley lisible dans tous les thèmes</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v3.4</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Détection automatique des épisodes de crash post-effort (PEM)</li>

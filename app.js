@@ -91,6 +91,39 @@ function initHomePanel() {
 }
 
 /**
+ * Retourne le smiley et la couleur associée à une valeur de curseur.
+ * @param {number|null} value — null = pas encore saisi
+ * @returns {{ emoji: string, color: string }|null}
+ */
+function getSmiley(value) {
+  if (value === null) return null;
+  if (value <= 2)  return { emoji: '😫', color: '#e74c3c' };
+  if (value <= 4)  return { emoji: '😟', color: '#e67e22' };
+  if (value <= 6)  return { emoji: '😐', color: '#f1c40f' };
+  if (value <= 8)  return { emoji: '🙂', color: '#9acd32' };
+  return                 { emoji: '😊', color: '#2ecc71' };
+}
+
+/**
+ * Met à jour le smiley affiché pour un indicateur donné.
+ * @param {string} id — identifiant du curseur (ex: 'energie')
+ * @param {number|null} value
+ */
+function updateSmiley(id, value) {
+  const smileyEl = document.getElementById(`${id}-smiley`);
+  if (!smileyEl) return;
+  const result = getSmiley(value);
+  if (!result) {
+    smileyEl.textContent = '';
+    smileyEl.style.opacity = '0';
+  } else {
+    smileyEl.textContent = result.emoji;
+    smileyEl.style.color = result.color;
+    smileyEl.style.opacity = '1';
+  }
+}
+
+/**
  * === ÉCRAN AUJOURD'HUI ===
  */
 function initTodayPanel() {
@@ -99,10 +132,11 @@ function initTodayPanel() {
   sliders.forEach(id => {
     const slider = document.getElementById(id);
     const valueDisplay = document.getElementById(`${id}-value`);
-    
+
     if (slider && valueDisplay) {
       slider.addEventListener('input', () => {
         valueDisplay.textContent = slider.value;
+        updateSmiley(id, parseInt(slider.value));
       });
     }
   });
@@ -132,18 +166,22 @@ function loadTodayData() {
     if (entry.energie !== null) {
       document.getElementById('energie').value = entry.energie;
       document.getElementById('energie-value').textContent = entry.energie;
+      updateSmiley('energie', entry.energie);
     }
     if (entry.qualite_sommeil !== null) {
       document.getElementById('qualite-sommeil').value = entry.qualite_sommeil;
       document.getElementById('qualite-sommeil-value').textContent = entry.qualite_sommeil;
+      updateSmiley('qualite-sommeil', entry.qualite_sommeil);
     }
     if (entry.douleurs !== null) {
       document.getElementById('douleurs').value = entry.douleurs;
       document.getElementById('douleurs-value').textContent = entry.douleurs;
+      updateSmiley('douleurs', entry.douleurs);
     }
     if (entry.clarte_mentale !== null) {
       document.getElementById('clarte-mentale').value = entry.clarte_mentale;
       document.getElementById('clarte-mentale-value').textContent = entry.clarte_mentale;
+      updateSmiley('clarte-mentale', entry.clarte_mentale);
     }
     if (entry.note) {
       document.getElementById('note').value = entry.note;
@@ -319,16 +357,19 @@ function fillLastValues() {
     document.getElementById('energie').value = lastEntry.energie;
     document.getElementById('energie').dataset.touched = 'true';
     document.getElementById('energie-value').textContent = lastEntry.energie;
+    updateSmiley('energie', lastEntry.energie);
   }
   if (lastEntry.qualite_sommeil !== null) {
     document.getElementById('qualite-sommeil').value = lastEntry.qualite_sommeil;
     document.getElementById('qualite-sommeil').dataset.touched = 'true';
     document.getElementById('qualite-sommeil-value').textContent = lastEntry.qualite_sommeil;
+    updateSmiley('qualite-sommeil', lastEntry.qualite_sommeil);
   }
   if (lastEntry.douleurs !== null) {
     document.getElementById('douleurs').value = lastEntry.douleurs;
     document.getElementById('douleurs').dataset.touched = 'true';
     document.getElementById('douleurs-value').textContent = lastEntry.douleurs;
+    updateSmiley('douleurs', lastEntry.douleurs);
   }
   
   showStatus('Dernières valeurs chargées', 'success');

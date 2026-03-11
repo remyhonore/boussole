@@ -627,6 +627,19 @@ textarea:focus {
   min-width: auto;
 }
 
+.score-with-smiley {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.indicator-smiley {
+  font-size: 1.8rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 /* === Section Mes mesures (ADR-2026-021) === */
 .mesures-section {
   margin-top: 24px;
