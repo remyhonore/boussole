@@ -3,11 +3,9 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v4.5';
+const CACHE_NAME = 'boussole-v4.6';
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
   '/app.js',
   '/calc.js',
   '/pdf.js',
@@ -50,6 +48,13 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Ignorer les requêtes non-GET
   if (event.request.method !== 'GET') return;
+
+  // index.html toujours depuis le réseau
+  const { request } = event;
+  if (request.url.endsWith('/') || request.url.endsWith('/index.html')) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(cached => {
