@@ -894,3 +894,12 @@ textarea:focus {
   line-height: 1;
   padding: 0 4px;
 }
+
+/* === Section Cycle & bien-être === */
+
+.cycle-section { background: #f8f4ff; border-left: 4px solid #8b5cb5; border-radius: 12px; padding: 16px; margin-top: 12px; }
+.cycle-section h3 { margin: 0 0 12px 0; font-size: 16px; color: #06172D; }
+.cycle-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cycle-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+.cycle-table .cycle-bar { height: 8px; border-radius: 4px; display: inline-block; }
+.cycle-message { font-size: 13px; color: #666; margin-top: 12px; font-style: italic; }

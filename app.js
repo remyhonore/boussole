@@ -544,6 +544,66 @@ function refreshSummary() {
     }
   }
 
+  // 5c. Corrélation cycle hormonal (30 jours)
+  if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
+    var cycleDays = [];
+    var cycleMesures = {};
+    var cycleCutoff = new Date();
+    cycleCutoff.setDate(cycleCutoff.getDate() - 29);
+    var cycleCutoffStr = cycleCutoff.toISOString().split('T')[0];
+
+    data.entries.forEach(function(entry) {
+      if (entry.date >= cycleCutoffStr) {
+        var sc = calculateDayScore(entry);
+        if (sc !== null) cycleDays.push({ date: entry.date, score: sc });
+      }
+    });
+    cycleDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+
+    cycleDays.forEach(function(d) {
+      var raw = localStorage.getItem('boussole_mesures_' + d.date);
+      if (raw) {
+        try { cycleMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
+      }
+    });
+
+    var cyclePhaseScores = window.collectCycleData(cycleDays, cycleMesures, 30);
+    var cycleAnalysis = window.analyzeCycleCorrelation(cyclePhaseScores);
+
+    if (cycleAnalysis !== null) {
+      html += '<div class="cycle-section">';
+      html += '<h3>Cycle et bien-être (30 derniers jours)</h3>';
+      html += '<table class="cycle-table"><tbody>';
+
+      Object.keys(cycleAnalysis.phases).forEach(function(phase) {
+        var p = cycleAnalysis.phases[phase];
+        var label = window.getCyclePhaseLabel(phase);
+        var color = window.getCyclePhaseColor(phase);
+        var barWidth = Math.round((p.avg / 10) * 80);
+        html += '<tr>';
+        html += '<td style="white-space:nowrap">' + label + '</td>';
+        html += '<td style="white-space:nowrap">' + p.avg.toFixed(1) + '/10</td>';
+        html += '<td style="white-space:nowrap">' + p.count + 'j</td>';
+        html += '<td style="width:100%"><span class="cycle-bar" style="width:' + barWidth + 'px;background:' + color + '"></span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+
+      if (cycleAnalysis.significant) {
+        var minLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMin);
+        var maxLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMax);
+        var minAvg = cycleAnalysis.phases[cycleAnalysis.phaseMin].avg.toFixed(1);
+        var maxAvg = cycleAnalysis.phases[cycleAnalysis.phaseMax].avg.toFixed(1);
+        html += '<p class="cycle-message">Tes jours les plus difficiles coïncident avec la phase ' + minLabel + ' (score moyen ' + minAvg + '/10 vs ' + maxAvg + '/10 en phase ' + maxLabel + '). Cette information peut être utile à partager avec ton professionnel de santé.</p>';
+      } else {
+        html += '<p class="cycle-message">Tes scores ne montrent pas de variation marquée entre les phases de ton cycle sur cette période.</p>';
+      }
+
+      html += '</div>';
+    }
+  }
+
   // 6. Prudence
   html += `<div class="card">`;
   html += `<h2 class="summary-section">6️⃣ PRUDENCE</h2>`;
