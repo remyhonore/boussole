@@ -31,7 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
   initTodayPanel();
   initSummaryPanel();
   loadTodayData();
-  
+
+  // Onboarding : premier lancement
+  if (!localStorage.getItem('boussole_onboarded')) {
+    switchPanel('onboarding');
+  } else {
+    switchPanel('home');
+  }
+
+  document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
+    localStorage.setItem('boussole_onboarded', '1');
+    switchPanel('home');
+  });
+
   // Charger le dataset de référence si mode debug
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('debug') === 'dataset') {
@@ -369,13 +381,7 @@ function saveCurrentEntry() {
   const success = saveEntry(today, entry);
 
   if (success) {
-    const confirmEl = document.getElementById('save-confirmation');
-    if (confirmEl) {
-      confirmEl.style.display = 'block';
-      setTimeout(() => { confirmEl.style.display = 'none'; }, 3000);
-    }
     updateLastSavedDisplay();
-    // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInput) rmssdInput.value = '';
     // Mettre à jour le smiley accueil (ADR-2026-026)
     const humeurVal = (humeurRangeEl?.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null;
     const homeEl = document.getElementById('home-humeur-smiley');
@@ -384,16 +390,63 @@ function saveCurrentEntry() {
       homeEl.textContent = getHumeurSmiley(humeurVal);
       homeEl.style.cursor = 'default';
     }
-    
-    // Message si < 2 curseurs
-    if (filledCount === 1) {
-      setTimeout(() => {
-        showStatus('Pour plus de fiabilité, renseigne au moins 2 repères.', 'info');
-      }, 2000);
-    }
+
+    showFeedbackPanel(today);
   } else {
     showStatus('Erreur lors de l\'enregistrement', 'warning');
   }
+}
+
+function showFeedbackPanel(today) {
+  const data = loadEntries();
+  const entry = data.entries.find(e => e.date === today);
+  const score = entry ? calculateDayScore(entry) : null;
+  const totalDays = data.entries.length;
+
+  // Couleur du score
+  let scoreColor = '#e24b4a';
+  if (score !== null) {
+    if (score >= 7) scoreColor = '#2d6a4f';
+    else if (score >= 4) scoreColor = '#e88c30';
+  }
+
+  const scoreEl = document.getElementById('feedback-score');
+  if (scoreEl) {
+    scoreEl.textContent = score !== null ? score.toFixed(1) : '—';
+    scoreEl.style.color = scoreColor;
+  }
+
+  // Position du marqueur sur la barre (0–10 → 0–100%)
+  // Barre : rouge 0-4 (40%), orange 4-7 (30%), vert 7-10 (30%)
+  const markerEl = document.getElementById('feedback-marker');
+  if (markerEl && score !== null) {
+    const pct = Math.min(100, Math.max(0, (score / 10) * 100));
+    markerEl.style.left = pct + '%';
+    markerEl.style.background = scoreColor;
+  }
+
+  // Message contextuel
+  const msgEl = document.getElementById('feedback-message');
+  if (msgEl) {
+    let msg = '';
+    if (totalDays === 1) {
+      msg = 'Jour 1 — reviens demain pour commencer à voir tes tendances.';
+    } else if (totalDays < 7) {
+      msg = `${totalDays} jours consécutifs. Continue, les tendances se dessinent !`;
+    } else {
+      msg = `${totalDays} jours de suivi. Tu as maintenant un aperçu solide à partager avec ton médecin.`;
+    }
+    msgEl.textContent = msg;
+  }
+
+  switchPanel('feedback');
+
+  // Redirection automatique vers Résumé après 4 secondes
+  setTimeout(() => {
+    if (app.currentPanel === 'feedback') {
+      switchPanel('summary');
+    }
+  }, 4000);
 }
 
 function getSliderValue(id) {

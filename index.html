@@ -64,8 +64,47 @@
     <!-- Message de status global -->
     <div id="status-message" class="status" style="display: none;"></div>
 
+    <!-- Panel Onboarding (affiché uniquement au premier lancement) -->
+    <div class="panel" id="panel-onboarding">
+      <div class="card" style="text-align:center; padding:32px 24px;">
+        <h2 style="font-size:28px; font-weight:800; color:#2d6a4f; margin:0 0 4px;">Boussole</h2>
+        <p style="font-size:15px; color:rgba(6,23,45,.55); margin:0 0 24px;">Ton journal de bien-être</p>
+        <p style="font-size:16px; font-weight:600; color:#06172D; line-height:1.5; margin:0 0 28px;">
+          En 30 secondes par jour, tu vas avoir quelque chose de concret à montrer à ton médecin.
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 28px;">
+          <div style="background:rgba(45,106,79,.08); border-radius:14px; padding:16px;">
+            <div style="font-size:28px; margin-bottom:6px;">💪</div>
+            <div style="font-size:13px; font-weight:600; color:#06172D;">Énergie</div>
+          </div>
+          <div style="background:rgba(45,106,79,.08); border-radius:14px; padding:16px;">
+            <div style="font-size:28px; margin-bottom:6px;">🌙</div>
+            <div style="font-size:13px; font-weight:600; color:#06172D;">Sommeil</div>
+          </div>
+          <div style="background:rgba(45,106,79,.08); border-radius:14px; padding:16px;">
+            <div style="font-size:28px; margin-bottom:6px;">❤️</div>
+            <div style="font-size:13px; font-weight:600; color:#06172D;">Confort physique</div>
+          </div>
+          <div style="background:rgba(45,106,79,.08); border-radius:14px; padding:16px;">
+            <div style="font-size:28px; margin-bottom:6px;">🧠</div>
+            <div style="font-size:13px; font-weight:600; color:#06172D;">Clarté mentale</div>
+          </div>
+        </div>
+        <p style="font-size:13px; color:rgba(6,23,45,.5); margin:0 0 24px;">
+          🔒 Tes données restent sur ton téléphone. Jamais partagées.
+        </p>
+        <button
+          id="btn-onboarding-start"
+          style="width:100%; background:#2d6a4f; color:#fff; border:none; border-radius:14px; padding:16px; font-size:16px; font-weight:700; cursor:pointer;"
+          aria-label="Commencer ma première saisie"
+        >
+          Commencer ma première saisie
+        </button>
+      </div>
+    </div>
+
     <!-- Panel Accueil -->
-    <div class="panel active" id="panel-home">
+    <div class="panel" id="panel-home">
 
       <div class="card">
         <h2 class="card-title">Boussole</h2>
@@ -438,6 +477,23 @@
       </div>
     </div>
 
+    <!-- Panel Feedback post-saisie -->
+    <div class="panel" id="panel-feedback">
+      <div class="card" style="text-align:center; padding:32px 24px;">
+        <p style="font-size:13px; font-weight:600; color:rgba(6,23,45,.45); text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">Saisie enregistrée</p>
+        <div id="feedback-score" style="font-size:64px; font-weight:800; line-height:1; margin:0 0 16px;">—</div>
+        <!-- Barre 3 segments -->
+        <div style="position:relative; height:10px; border-radius:6px; overflow:visible; display:flex; margin:0 0 24px; gap:3px;">
+          <div style="flex:4; background:#e24b4a; border-radius:6px 0 0 6px;"></div>
+          <div style="flex:3; background:#e88c30;"></div>
+          <div style="flex:3; background:#2d6a4f; border-radius:0 6px 6px 0;"></div>
+          <div id="feedback-marker" style="position:absolute; top:50%; transform:translate(-50%,-50%); width:16px; height:16px; border-radius:50%; background:#06172D; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.25); left:50%;"></div>
+        </div>
+        <p id="feedback-message" style="font-size:15px; color:#06172D; line-height:1.5; margin:0 0 20px; min-height:44px;"></p>
+        <p style="font-size:12px; color:rgba(6,23,45,.35); margin:0;">Redirection dans quelques secondes…</p>
+      </div>
+    </div>
+
   </div>
 
   <!-- Modal aperçu PDF -->
@@ -679,7 +735,7 @@
         });
         const conf = document.getElementById('params-save-confirmation');
         if (conf) {
-          conf.textContent = '✓ Parametres enregistres';
+          conf.textContent = 'Enregistre ✓';
           setTimeout(() => { conf.textContent = ''; }, 2500);
         }
       });
