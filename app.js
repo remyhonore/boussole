@@ -981,6 +981,27 @@ window._ouvrirModePresentation = function() {
   const scoreDisplay = scoreGlobal !== null ? scoreGlobal.toFixed(1) : '—';
   const scoreCol = scoreColor(scoreGlobal);
 
+  // Point d'attention : métrique la plus basse sur 7j
+  const metriques7j = [
+    { label: '💪 Énergie',          val: avgEnergie },
+    { label: '🌙 Sommeil',          val: avgSommeil  },
+    { label: '❤️ Confort physique', val: avgConfort  },
+    { label: '🧠 Clarté mentale',   val: avgClarte   }
+  ].filter(m => m.val !== null);
+  let pointAttentionHtml = '';
+  if (metriques7j.length > 0) {
+    const lowestMetrique = metriques7j.reduce((min, m) => m.val < min.val ? m : min);
+    if (lowestMetrique.val < 7) {
+      const attValColor = lowestMetrique.val < 4 ? '#e24b4a' : '#e88c30';
+      pointAttentionHtml =
+        '<div style="background:#FEF2F2;border-left:3px solid #e24b4a;padding:10px 14px;border-radius:6px;margin:12px 0;">' +
+          '<div style="font-size:11px;font-weight:bold;color:#e24b4a;text-transform:uppercase;margin-bottom:4px;">Point d\'attention</div>' +
+          '<div style="font-size:18px;font-weight:bold;color:' + attValColor + ';margin-bottom:2px;">' + lowestMetrique.label + ' — ' + lowestMetrique.val.toFixed(1) + '/10</div>' +
+          '<div style="font-size:12px;color:#888;font-style:italic;">Métrique la plus faible sur les 7 derniers jours</div>' +
+        '</div>';
+    }
+  }
+
   let motifHtml = '';
   if (noteConsultation) {
     motifHtml =
@@ -1047,6 +1068,7 @@ window._ouvrirModePresentation = function() {
       '<div style="font-size:48px;font-weight:700;color:' + scoreCol + ';line-height:1;">' + scoreDisplay + '</div>' +
       '<div style="font-size:12px;color:#999;margin-top:4px;">Score global moyen</div>' +
     '</div>' +
+    pointAttentionHtml +
     '<table style="width:100%;border-collapse:collapse;">' +
       '<thead><tr>' +
         '<th style="font-size:12px;color:#999;font-weight:600;text-align:left;padding:0 0 8px;">Métrique</th>' +
