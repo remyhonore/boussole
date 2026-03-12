@@ -5,8 +5,6 @@
 // État de l'application
 const app = {
   currentPanel: 'home',
-  lastSavedEntry: null,
-  undoTimer: null,
   isGeneratingPDF: false
 };
 
@@ -208,7 +206,6 @@ function initTodayPanel() {
 
   // Boutons
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
-  document.getElementById('btn-undo')?.addEventListener('click', undoLastSave);
   document.getElementById('btn-quick')?.addEventListener('click', fillLastValues);
 }
 
@@ -338,10 +335,8 @@ function saveCurrentEntry() {
     return;
   }
   
-  // Sauvegarder l'état actuel pour undo
   const today = getTodayDate();
-  app.lastSavedEntry = getEntry(today);
-  
+
   // Sauvegarder
   const humeurRangeEl = document.getElementById('humeur-range');
   const entry = {
@@ -357,8 +352,11 @@ function saveCurrentEntry() {
   const success = saveEntry(today, entry);
 
   if (success) {
-    showStatus('Enregistré ✓', 'success');
-    showUndoButton();
+    const confirmEl = document.getElementById('save-confirmation');
+    if (confirmEl) {
+      confirmEl.style.display = 'block';
+      setTimeout(() => { confirmEl.style.display = 'none'; }, 3000);
+    }
     updateLastSavedDisplay();
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInput) rmssdInput.value = '';
     // Mettre à jour le smiley accueil (ADR-2026-026)
@@ -403,40 +401,6 @@ function getSliderValue(id) {
   }
 });
 
-function showUndoButton() {
-  const undoBtn = document.getElementById('btn-undo');
-  if (!undoBtn) return;
-  
-  undoBtn.style.display = 'inline-block';
-  
-  // Timer 30s
-  if (app.undoTimer) clearTimeout(app.undoTimer);
-  app.undoTimer = setTimeout(() => {
-    undoBtn.style.display = 'none';
-    app.lastSavedEntry = null;
-  }, 30000);
-}
-
-function undoLastSave() {
-  const today = getTodayDate();
-  
-  if (app.lastSavedEntry === null) {
-    // Supprimer l'entrée actuelle
-    deleteEntry(today);
-  } else {
-    // Restaurer l'état précédent
-    saveEntry(today, app.lastSavedEntry);
-  }
-  
-  loadTodayData();
-  showStatus('Annulation effectuée', 'info');
-  
-  const undoBtn = document.getElementById('btn-undo');
-  if (undoBtn) undoBtn.style.display = 'none';
-  
-  if (app.undoTimer) clearTimeout(app.undoTimer);
-  app.lastSavedEntry = null;
-}
 
 function fillLastValues() {
   const lastEntry = getLastEntry();

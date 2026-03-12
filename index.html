@@ -266,14 +266,9 @@
           </button>
         </div>
 
-        <button
-          class="btn btn-secondary"
-          id="btn-undo"
-          style="display: none; margin-top: 12px; width: 100%;"
-          aria-label="Annuler le dernier enregistrement"
-        >
-          Annuler (30s)
-        </button>
+        <div id="save-confirmation" style="display:none; text-align:center; color:#6E877D; font-weight:600; font-size:15px; padding:10px;">
+          Enregistré ✓
+        </div>
 
         <!-- Dernière saisie -->
         <div class="status-muted" id="last-saved">
@@ -404,6 +399,12 @@
             </div>
             <input type="tel" id="param-tel" placeholder="Ex : 06 12 34 56 78" autocomplete="tel"
               style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            <div>
+              <label for="param-email" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Email</label>
+              <input type="email" id="param-email" placeholder="votre@email.com" autocomplete="email"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+              <p style="font-size:11px;color:rgba(6,23,45,.45);margin:4px 0 0;">Utilisé uniquement sur votre appareil · Jamais transmis</p>
+            </div>
           </div>
         </div>
 
@@ -637,7 +638,8 @@
         { id: 'param-prenom', key: 'boussole_prenom' },
         { id: 'param-nom',    key: 'boussole_nom'    },
         { id: 'param-ddn',    key: 'boussole_ddn'    },
-        { id: 'param-tel',    key: 'boussole_tel'    }
+        { id: 'param-tel',    key: 'boussole_tel'    },
+        { id: 'param-email',  key: 'boussole_param_email' }
       ];
       function initParamFields() {
         fields.forEach(function (f) {

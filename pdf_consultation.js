@@ -226,7 +226,8 @@ function genererPDFConsultation(noteLibre) {
   const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
   const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
   const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
-  const idTel    = (localStorage.getItem('boussole_tel')    || '').trim();
+  const idTel    = (localStorage.getItem('boussole_tel')        || '').trim();
+  const idEmail  = (localStorage.getItem('boussole_param_email') || '').trim();
 
   if (idPrenom || idNom) {
     const parts = [];
@@ -237,6 +238,7 @@ function genererPDFConsultation(noteLibre) {
       if (ddnY && ddnM && ddnD) parts.push(`${ddnD}/${ddnM}/${ddnY}`);
     }
     if (idTel) parts.push(idTel);
+    if (idEmail) parts.push(idEmail);
     const idLine = parts.join('  \xB7  ');
     doc.setFontSize(8.5);
     doc.setFont('helvetica', 'normal');
