@@ -394,7 +394,8 @@
               style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
             <div>
               <label for="param-ddn" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Date de naissance</label>
-              <input type="date" id="param-ddn" autocomplete="bday"
+              <input type="text" id="param-ddn" autocomplete="bday"
+                inputmode="numeric" placeholder="jj/mm/aaaa" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
                 style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
             </div>
             <input type="tel" id="param-tel" placeholder="Ex : 06 12 34 56 78" autocomplete="tel"
