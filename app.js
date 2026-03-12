@@ -977,7 +977,7 @@ window._ouvrirModePresentation = function() {
   window._boussoleShareText = shareLines.join('\n');
 
   const partagerBtn = navigator.share
-    ? '<div style="margin-top:24px;text-align:center;"><button onclick="partagerResume()" style="padding:12px 28px;background:#6E877D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button></div>'
+    ? '<div style="margin-top:24px;text-align:center;"><button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button></div>'
     : '';
 
   const html =
