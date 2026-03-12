@@ -199,10 +199,14 @@ function initTodayPanel() {
   }
   
   // Curseur humeur (ADR-2026-026)
-  document.getElementById('humeur-range')?.addEventListener('input', function() {
-    const el = document.getElementById('humeur-smiley-display');
-    if (el) el.textContent = getHumeurSmiley(parseInt(this.value));
-  });
+  const humeurRangeInput = document.getElementById('humeur-range');
+  if (humeurRangeInput) {
+    humeurRangeInput.addEventListener('input', function() {
+      this.dataset.touched = 'true';
+      const el = document.getElementById('humeur-smiley-display');
+      if (el) el.textContent = getHumeurSmiley(parseInt(this.value));
+    });
+  }
 
   // Boutons
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
@@ -246,7 +250,10 @@ function loadTodayData() {
   // Humeur (ADR-2026-026)
   const humeurVal = (entry && entry.humeur !== undefined && entry.humeur !== null) ? entry.humeur : 5;
   const humeurRange = document.getElementById('humeur-range');
-  if (humeurRange) humeurRange.value = humeurVal;
+  if (humeurRange) {
+    humeurRange.value = humeurVal;
+    humeurRange.dataset.touched = (entry && entry.humeur !== null && entry.humeur !== undefined) ? 'true' : 'false';
+  }
   const humeurDisplay = document.getElementById('humeur-smiley-display');
   if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(humeurVal);
   const homeHumeurEl = document.getElementById('home-humeur-smiley');
@@ -345,7 +352,7 @@ function saveCurrentEntry() {
     douleurs,
     clarte_mentale: clarteMentale,
     note: note || null,
-    humeur: humeurRangeEl ? parseInt(humeurRangeEl.value) : null,
+    humeur: (humeurRangeEl && humeurRangeEl.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null,
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // rmssd: rmssd
   };
 
@@ -360,9 +367,9 @@ function saveCurrentEntry() {
     updateLastSavedDisplay();
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInput) rmssdInput.value = '';
     // Mettre à jour le smiley accueil (ADR-2026-026)
-    const humeurVal = parseInt(humeurRangeEl?.value ?? 5);
+    const humeurVal = (humeurRangeEl?.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null;
     const homeEl = document.getElementById('home-humeur-smiley');
-    if (homeEl) {
+    if (homeEl && humeurVal !== null) {
       homeEl.style.animation = 'none';
       homeEl.textContent = getHumeurSmiley(humeurVal);
       homeEl.style.cursor = 'default';
