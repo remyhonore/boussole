@@ -335,16 +335,18 @@
     <div class="panel" id="panel-summary">
 
       <div class="card" style="margin-bottom: 16px;">
+        <!-- 1. Action primaire : Montrer au médecin -->
         <button
-          class="btn"
-          id="btn-generate-pdf"
-          style="width: 100%;"
-          aria-label="Générer le PDF enrichi pour impression"
+          id="btn-show-doctor"
+          onclick="ouvrirModePresentation()"
+          style="width:100%;background:#6E877D;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
+          aria-label="Afficher le résumé en plein écran pour votre médecin"
         >
-          Générer PDF enrichi
+          &#x1F4F1; Montrer au médecin
         </button>
 
-        <div style="margin-top: 12px; border-top: 1px solid rgba(6,23,45,.08); padding-top: 14px;">
+        <!-- 2. Action secondaire : Préparer ma consultation -->
+        <div style="margin-top: 10px;">
           <button
             class="btn btn-secondary"
             id="btn-consultation"
@@ -354,23 +356,17 @@
           >
             &#x1F4CB; Préparer ma consultation
           </button>
-          <p style="margin: 6px 0 0; font-size: 12px; color: rgba(6,23,45,.45); text-align: center;">
-            Document 1 page &middot; Pour ton prochain rendez-vous
-          </p>
         </div>
 
-        <div style="margin-top: 12px; border-top: 1px solid rgba(6,23,45,.08); padding-top: 14px;">
+        <!-- 3. Action tertiaire : PDF enrichi (discret) -->
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(6,23,45,.08); text-align: center;">
           <button
-            id="btn-show-doctor"
-            onclick="ouvrirModePresentation()"
-            style="width:100%;background:#6E877D;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
-            aria-label="Afficher le résumé en plein écran pour votre médecin"
+            id="btn-generate-pdf"
+            style="background:none;border:none;cursor:pointer;font-size:13px;color:rgba(6,23,45,.45);padding:0;text-decoration:underline;text-decoration-color:rgba(6,23,45,.2);"
+            aria-label="Générer le PDF enrichi pour impression"
           >
-            &#x1F4F1; Montrer au médecin
+            Exporter mes 30 derniers jours en PDF
           </button>
-          <p style="margin: 6px 0 0; font-size: 10px; color: rgba(6,23,45,.45); text-align: center;">
-            Affichage plein écran pour votre rendez-vous
-          </p>
         </div>
       </div>
 
