@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
-    switchPanel('home');
+    switchPanel('today');
   });
 
   // Charger le dataset de référence si mode debug
