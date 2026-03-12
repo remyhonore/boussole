@@ -353,6 +353,47 @@ function genererPDFConsultation(noteLibre) {
   });
   y += 8;
 
+  // ---- POINT D'ATTENTION ----
+  const ROUGE_ALERTE = [226, 75, 74];
+  const BG_ALERTE    = [254, 242, 242];
+  const pointAttention = metriquesSorted.length > 0
+    && metriquesSorted[0].moy !== null
+    && metriquesSorted[0].moy < 7
+    ? metriquesSorted[0]
+    : null;
+
+  if (pointAttention !== null) {
+    const valStr   = (Math.round(pointAttention.moy * 10) / 10).toFixed(1);
+    const valColor = pointAttention.moy < 4 ? ROUGE_ALERTE
+                   : pointAttention.moy < 7 ? ORANGE
+                   : VERT;
+    const blocH = 22;
+
+    doc.setFillColor(BG_ALERTE[0], BG_ALERTE[1], BG_ALERTE[2]);
+    doc.rect(marginL, y, contentW, blocH, 'F');
+
+    doc.setDrawColor(ROUGE_ALERTE[0], ROUGE_ALERTE[1], ROUGE_ALERTE[2]);
+    doc.setLineWidth(3);
+    doc.line(marginL, y, marginL, y + blocH);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(ROUGE_ALERTE[0], ROUGE_ALERTE[1], ROUGE_ALERTE[2]);
+    doc.text("POINT D'ATTENTION", marginL + 5, y + 5.5);
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(valColor[0], valColor[1], valColor[2]);
+    doc.text(pointAttention.label + ' \u2014 ' + valStr + '/10', marginL + 5, y + 13);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Metrique la plus faible sur les 7 derniers jours', marginL + 5, y + 19);
+
+    y += blocH + 4;
+  }
+
   // Tableau des 4 métriques
   const tabX = marginL;
   const tabW = contentW;
