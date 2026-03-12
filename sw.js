@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v7.0';
+const CACHE_NAME = 'boussole-v8.0';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
@@ -42,6 +42,21 @@ self.addEventListener('activate', event => {
     })
   );
   self.clients.claim();
+});
+
+// Notification click : ouvrir ou focuser l'app
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return clients.openWindow('/');
+    })
+  );
 });
 
 // Fetch : cache-first pour les assets, network-first pour le reste
