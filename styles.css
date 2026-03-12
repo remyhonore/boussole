@@ -6,8 +6,8 @@
 /* === VARIABLES === */
 :root {
   /* Couleurs primaires — alignées sur vitrine */
-  --color-primary: #6E877D;        /* sage (accent vitrine) */
-  --color-primary-dark: #5a7268;   /* sage foncé (hover) */
+  --color-primary: #2d6a4f;        /* vert forêt (couleur primaire unique) */
+  --color-primary-dark: #1b4332;   /* vert forêt foncé (hover) */
   --color-primary-light: #d4e0da;  /* sage clair (backgrounds légers) */
 
   /* Curseurs (inchangés — sémantiques) */
@@ -690,7 +690,7 @@ textarea:focus {
   font-size: 18px;
   font-weight: 700;
   transition: transform 0.2s ease;
-  color: #6E877D;
+  color: #2d6a4f;
   line-height: 1;
 }
 
@@ -910,9 +910,9 @@ textarea:focus {
 
 /* === Bouton outline sage (lien Articles accueil) === */
 .btn-outline-sage {
-  border: 2px solid #6E877D;
+  border: 2px solid #2d6a4f;
   background: transparent;
-  color: #6E877D;
+  color: #2d6a4f;
   padding: 14px;
   border-radius: 12px;
   width: 100%;
@@ -927,7 +927,7 @@ textarea:focus {
 }
 
 .btn-outline-sage:hover {
-  background: #6E877D;
+  background: #2d6a4f;
   color: white;
 }
 
@@ -956,7 +956,7 @@ textarea:focus {
   border: none;
   font-size: 18px;
   cursor: pointer;
-  color: #6E877D;
+  color: #2d6a4f;
   line-height: 1;
   padding: 0 4px;
 }
@@ -993,7 +993,7 @@ html.dark body {
   --color-text: #e8e4de;
   --color-text-muted: rgba(232,228,222,.58);
   --color-primary: #8aab9e;
-  --color-primary-dark: #6E877D;
+  --color-primary-dark: #1b4332;
   --color-primary-light: #2a3d35;
   --shadow-card: 0 14px 34px rgba(0,0,0,.3);
   --shadow-soft: 0 4px 12px rgba(0,0,0,.2);
@@ -1085,7 +1085,7 @@ html.dark .nav-btn.active { color: #8aab9e; }
 .settings-radio-label input[type="radio"] {
   width: 18px;
   height: 18px;
-  accent-color: #6E877D;
+  accent-color: #2d6a4f;
   cursor: pointer;
 }
 
