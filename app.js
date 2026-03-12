@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTodayPanel();
   initSummaryPanel();
   loadTodayData();
+  initRappels();
 
   // Onboarding : premier lancement
   if (!localStorage.getItem('boussole_onboarded')) {
@@ -1183,7 +1184,10 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
       var taDia = document.getElementById('input-ta-dia');
       var poids = document.getElementById('input-poids');
 
+      var sommeilDureeEl = document.getElementById('mesures-sommeil');
+
       if (fc && fc.value) mesures.fc = parseInt(fc.value);
+      if (sommeilDureeEl && sommeilDureeEl.value) mesures.sommeil_duree = parseFloat(sommeilDureeEl.value);
       if (rmssd && rmssd.value) mesures.rmssd = parseInt(rmssd.value);
       if (taSys && taSys.value) mesures.ta_sys = parseInt(taSys.value);
       if (taDia && taDia.value) mesures.ta_dia = parseInt(taDia.value);
@@ -1220,6 +1224,7 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
     try {
       var mesures = JSON.parse(data);
       if (mesures.fc) document.getElementById('input-fc').value = mesures.fc;
+      if (mesures.sommeil_duree) document.getElementById('mesures-sommeil').value = mesures.sommeil_duree;
       if (mesures.rmssd) document.getElementById('input-rmssd').value = mesures.rmssd;
       if (mesures.ta_sys) document.getElementById('input-ta-sys').value = mesures.ta_sys;
       if (mesures.ta_dia) document.getElementById('input-ta-dia').value = mesures.ta_dia;
@@ -1261,3 +1266,50 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
 
   migrateLegacyRMSSD();
 })();
+
+/**
+ * === RAPPELS PWA ===
+ */
+function initRappels() {
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+  if (!isPWA) {
+    if (!localStorage.getItem('boussole_install_banner_dismissed')) {
+      const banner = document.getElementById('banner-install');
+      if (banner) banner.style.display = 'block';
+    }
+    return;
+  }
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    scheduleRappel();
+  } else if (Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') scheduleRappel();
+    });
+  }
+}
+
+function scheduleRappel() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(8, 0, 0, 0);
+  if (next <= now) next.setDate(next.getDate() + 1);
+  const delayMs = next.getTime() - now.getTime();
+  localStorage.setItem('boussole_rappel_next', next.getTime().toString());
+  setTimeout(() => {
+    triggerRappel();
+    scheduleRappel();
+  }, delayMs);
+}
+
+function triggerRappel() {
+  navigator.serviceWorker.ready.then(registration => {
+    registration.showNotification('Boussole \uD83E\uDDED', {
+      body: 'Comment tu te sens ce matin ?',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: 'rappel-quotidien',
+      renotify: false
+    });
+  });
+}

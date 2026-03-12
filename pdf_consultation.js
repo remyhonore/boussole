@@ -480,27 +480,30 @@ function genererPDFConsultation(noteLibre) {
       .filter(v => v !== null && v !== undefined);
     const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
     mesuresParJour.push({
-      fc:    (m.fc    !== undefined && m.fc    !== null) ? m.fc    : null,
-      ta_sys: (m.ta_sys !== undefined && m.ta_sys !== null) ? m.ta_sys : null,
-      ta_dia: (m.ta_dia !== undefined && m.ta_dia !== null) ? m.ta_dia : null,
-      rmssd: (m.rmssd !== undefined && m.rmssd !== null) ? m.rmssd : null,
-      poids: (m.poids !== undefined && m.poids !== null) ? m.poids : null,
+      fc:           (m.fc           !== undefined && m.fc           !== null) ? m.fc           : null,
+      sommeil_duree:(m.sommeil_duree !== undefined && m.sommeil_duree !== null) ? m.sommeil_duree : null,
+      ta_sys:       (m.ta_sys       !== undefined && m.ta_sys       !== null) ? m.ta_sys       : null,
+      ta_dia:       (m.ta_dia       !== undefined && m.ta_dia       !== null) ? m.ta_dia       : null,
+      rmssd:        (m.rmssd        !== undefined && m.rmssd        !== null) ? m.rmssd        : null,
+      poids:        (m.poids        !== undefined && m.poids        !== null) ? m.poids        : null,
       score
     });
   });
 
   // Extraire les séries valides (>= 3 points)
-  const fcValsAll    = mesuresParJour.map(d => d.fc).filter(v => v !== null);
-  const taValsAll    = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
-  const rmssdValsAll = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
-  const poidsValsAll = mesuresParJour.map(d => d.poids).filter(v => v !== null);
+  const fcValsAll           = mesuresParJour.map(d => d.fc).filter(v => v !== null);
+  const sommeilDureeValsAll = mesuresParJour.map(d => d.sommeil_duree).filter(v => v !== null);
+  const taValsAll           = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
+  const rmssdValsAll        = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
+  const poidsValsAll        = mesuresParJour.map(d => d.poids).filter(v => v !== null);
 
-  const hasFc    = fcValsAll.length >= 3;
-  const hasTa    = taValsAll.length >= 3;
-  const hasRmssd = rmssdValsAll.length >= 3;
-  const hasPoids = poidsValsAll.length >= 3;
+  const hasFc           = fcValsAll.length >= 3;
+  const hasSommeilDuree = sommeilDureeValsAll.length >= 3;
+  const hasTa           = taValsAll.length >= 3;
+  const hasRmssd        = rmssdValsAll.length >= 3;
+  const hasPoids        = poidsValsAll.length >= 3;
 
-  const hasAnyMesure = hasFc || hasTa || hasRmssd || hasPoids;
+  const hasAnyMesure = hasFc || hasSommeilDuree || hasTa || hasRmssd || hasPoids;
 
   if (hasAnyMesure && y <= 200) {
     // Titre section
@@ -520,6 +523,13 @@ function genererPDFConsultation(noteLibre) {
       const fcMax = Math.max(...fcValsAll);
       setNavy(false);
       doc.text(`FC repos : ${fcMoy} bpm en moyenne (min ${fcMin} - max ${fcMax})`, marginL, y + 3.5);
+      y += 6;
+    }
+
+    if (hasSommeilDuree) {
+      const sdMoy = (_moyenne(sommeilDureeValsAll)).toFixed(1);
+      setNavy(false);
+      doc.text(`Duree sommeil (h) - moy 7j : ${sdMoy}h`, marginL, y + 3.5);
       y += 6;
     }
 
