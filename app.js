@@ -546,7 +546,7 @@ function refreshSummary() {
 
   // 1. Tendances
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">1️⃣ TENDANCES</h2>`;
+  html += `<h2 class="summary-section">TENDANCES</h2>`;
   
   let hasAnyTendance = false;
   
@@ -590,7 +590,7 @@ function refreshSummary() {
 
   // 2. Résumé 30 jours
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">2️⃣ RÉSUMÉ 30 JOURS</h2>`;
+  html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
   html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
   if (summary.lastDate) {
     html += ` · Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong>`;
@@ -613,7 +613,7 @@ function refreshSummary() {
   // 3. Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">3️⃣ VARIATIONS IMPORTANTES</h2>`;
+    html += `<h2 class="summary-section">VARIATIONS IMPORTANTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.variations.forEach(v => {
@@ -630,7 +630,7 @@ function refreshSummary() {
   
   // 4. Points marquants
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">4️⃣ POINTS MARQUANTS</h2>`;
+  html += `<h2 class="summary-section">POINTS MARQUANTS</h2>`;
   
   let hasAnyPoint = false;
   html += `<ul class="summary-list">`;
@@ -664,7 +664,7 @@ function refreshSummary() {
   // 4. Notes
   if (summary.notes && summary.notes.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">5️⃣ VOS NOTES</h2>`;
+    html += `<h2 class="summary-section">VOS NOTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.notes.forEach(n => {
@@ -787,7 +787,7 @@ function refreshSummary() {
 
   // 6. Prudence
   html += `<div class="card">`;
-  html += `<h2 class="summary-section">6️⃣ PRUDENCE</h2>`;
+  html += `<h2 class="summary-section">PRUDENCE</h2>`;
   html += `<p style="color: var(--color-text-muted); font-size: 14px;">`;
   html += `⚠️ Infos générales uniquement.<br>`;
   html += `Pas d'avis médical personnalisé.<br>`;
