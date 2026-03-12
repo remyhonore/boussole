@@ -248,23 +248,33 @@ function loadTodayData() {
   }
 
   // Humeur (ADR-2026-026)
-  const humeurVal = (entry && entry.humeur !== undefined && entry.humeur !== null) ? entry.humeur : 5;
   const humeurRange = document.getElementById('humeur-range');
+  const humeurSaisi = entry && entry.humeur !== null && entry.humeur !== undefined;
+
   if (humeurRange) {
-    humeurRange.value = humeurVal;
-    humeurRange.dataset.touched = (entry && entry.humeur !== null && entry.humeur !== undefined) ? 'true' : 'false';
+    if (humeurSaisi) {
+      humeurRange.value = entry.humeur;
+      humeurRange.dataset.touched = 'true';
+    } else {
+      humeurRange.value = 5; // position visuelle neutre seulement
+      humeurRange.dataset.touched = 'false';
+    }
   }
+
+  // Smiley dans le formulaire de saisie : toujours afficher selon position curseur
   const humeurDisplay = document.getElementById('humeur-smiley-display');
-  if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(humeurVal);
+  if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(humeurSaisi ? entry.humeur : 5);
+
+  // Smiley accueil : pulse si non saisi, fixe si saisi
   const homeHumeurEl = document.getElementById('home-humeur-smiley');
   if (homeHumeurEl) {
-    if (entry && entry.humeur !== undefined && entry.humeur !== null) {
-      homeHumeurEl.textContent = getHumeurSmiley(entry.humeur);
+    if (humeurSaisi) {
       homeHumeurEl.style.animation = 'none';
+      homeHumeurEl.textContent = getHumeurSmiley(entry.humeur);
       homeHumeurEl.style.cursor = 'default';
     } else {
+      homeHumeurEl.style.animation = '';
       homeHumeurEl.textContent = '😐';
-      homeHumeurEl.style.animation = 'pulse-invite 2s ease-in-out infinite';
       homeHumeurEl.style.cursor = 'pointer';
     }
   }
