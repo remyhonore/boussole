@@ -100,7 +100,8 @@ function saveEntry(date, entry) {
     douleurs: entry.douleurs,
     clarte_mentale: entry.clarte_mentale,
     note: entry.note || null,
-    rmssd: entry.rmssd ?? null
+    rmssd: entry.rmssd ?? null,
+    humeur: entry.humeur !== undefined ? entry.humeur : null
   };
   
   if (existingIndex >= 0) {
