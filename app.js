@@ -273,7 +273,7 @@ function loadTodayData() {
       homeHumeurEl.textContent = getHumeurSmiley(entry.humeur);
       homeHumeurEl.style.cursor = 'default';
     } else {
-      homeHumeurEl.style.animation = '';
+      homeHumeurEl.style.animation = 'pulse-invite 2s ease-in-out infinite';
       homeHumeurEl.textContent = '😐';
       homeHumeurEl.style.cursor = 'pointer';
     }
