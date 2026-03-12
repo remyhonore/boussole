@@ -87,6 +87,11 @@ function switchPanel(panelId) {
         const slider = document.getElementById(id);
         if (slider) updateSmiley(id, parseInt(slider.value));
       });
+      const humeurRange = document.getElementById('humeur-range');
+      const humeurDisplay = document.getElementById('humeur-smiley-display');
+      if (humeurRange && humeurDisplay) {
+        humeurDisplay.textContent = getHumeurSmiley(parseInt(humeurRange.value));
+      }
     });
   }
 }
@@ -197,12 +202,8 @@ function initTodayPanel() {
   
   // Curseur humeur (ADR-2026-026)
   document.getElementById('humeur-range')?.addEventListener('input', function() {
-    const smiley = getHumeurSmiley(parseInt(this.value));
     const el = document.getElementById('humeur-smiley-display');
-    if (el) {
-      el.style.opacity = '0';
-      setTimeout(() => { el.textContent = smiley; el.style.opacity = '1'; }, 80);
-    }
+    if (el) el.textContent = getHumeurSmiley(parseInt(this.value));
   });
 
   // Boutons
@@ -349,7 +350,7 @@ function saveCurrentEntry() {
     douleurs,
     clarte_mentale: clarteMentale,
     note: note || null,
-    humeur: parseInt(humeurRangeEl?.value ?? 5),
+    humeur: humeurRangeEl ? parseInt(humeurRangeEl.value) : null,
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // rmssd: rmssd
   };
 
@@ -393,7 +394,7 @@ function getSliderValue(id) {
 }
 
 // Marquer les curseurs comme touchés
-['energie', 'qualite-sommeil', 'douleurs'].forEach(id => {
+['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
   const slider = document.getElementById(id);
   if (slider) {
     slider.addEventListener('input', () => {
