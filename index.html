@@ -34,7 +34,7 @@
   <!-- jsPDF pour génération PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body>
+<body><a href="#panel-home" class="skip-link">Aller au contenu principal</a>
 
   <!-- Banner installation PWA (affiché par JS si non installée et non dismissed) -->
   <div id="banner-install" style="display:none; position:relative; background:#2d6a4f; color:#fff; padding:12px 40px 12px 16px; font-size:14px; line-height:1.4;">
@@ -316,7 +316,7 @@
           </button>
         </div>
 
-        <div id="save-confirmation" style="display:none; text-align:center; color:#2d6a4f; font-weight:600; font-size:15px; padding:10px;">
+        <div id="save-confirmation" aria-live="polite" aria-atomic="true" style="display:none; text-align:center; color:#2d6a4f; font-weight:600; font-size:15px; padding:10px;">
           Enregistré ✓
         </div>
 
@@ -484,7 +484,7 @@
             padding:10px 28px;border-radius:8px;font-size:14px;cursor:pointer;">
             Enregistrer
           </button>
-          <div id="params-save-confirmation"
+          <div id="params-save-confirmation" aria-live="polite" aria-atomic="true"
             style="margin-top:8px;font-size:12px;color:#2d6a4f;min-height:18px;">
           </div>
         </div>
@@ -562,17 +562,17 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.3 — </span>
+    <span>Boussole v8.4 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
   </footer>
 
   <!-- Popup Changelog -->
-  <div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
+  <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v4.0</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v4.0</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
@@ -644,10 +644,10 @@
   </div>
 
   <!-- Modale Consultation -->
-  <div id="consultation-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
+  <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 style="font-size:17px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
+        <h2 id="consultation-modal-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
         <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
       <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 14px;">
@@ -669,14 +669,14 @@
   </div>
 
   <!-- Scripts -->
-  <script src="storage.js"></script>
-  <script src="calc.js"></script>
-  <script src="pdf.js"></script>
-  <script src="pdf_enrichi_v2.js"></script>
-  <script src="pdf_consultation.js"></script>
-  <script src="pem_detector.js"></script>
-  <script src="cycle_tracker.js"></script>
-  <script src="app.js"></script>
+  <script src="storage.js" defer></script>
+  <script src="calc.js" defer></script>
+  <script src="pdf.js" defer></script>
+  <script src="pdf_enrichi_v2.js" defer></script>
+  <script src="pdf_consultation.js" defer></script>
+  <script src="pem_detector.js" defer></script>
+  <script src="cycle_tracker.js" defer></script>
+  <script src="app.js" defer></script>
 
   <script>
     // ---- Modale consultation ----

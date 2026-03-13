@@ -1093,3 +1093,21 @@ html.dark .settings-label { color: #e8e4de; }
 html.dark .settings-desc { color: rgba(232,228,222,.55); }
 html.dark .settings-radio-label { color: #e8e4de; }
 html.dark .mesures-header-sub { color: #8aab9e; }
+
+/* Skip link accessibilite (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 9999;
+  background: #06172D;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 8px;
+}
