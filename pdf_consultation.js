@@ -285,62 +285,13 @@ function genererPDFConsultation(noteLibre) {
   doc.line(0, 37, pageW, 37);
   y = 42;
 
-  // ---- TRAITEMENT EN COURS ----
-  const DC2626 = [220, 38, 38];
-  const FEF2F2 = [254, 242, 242];
-  const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
-  const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
-  const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
-
-  const traitLines = [];
-  if (txMed)  traitLines.push({ text: 'Medicaments : ' + txMed,  color: NAVY,   bold: false });
-  if (txComp) traitLines.push({ text: 'Complements : ' + txComp, color: NAVY,   bold: false });
-  if (txAll)  traitLines.push({ text: 'Allergies/CI : ' + txAll, color: DC2626, bold: true  });
-  const aucunTraitement = traitLines.length === 0;
-
-  const contentLinesCount = aucunTraitement ? 1 : traitLines.length;
-  const blocH = 6 + contentLinesCount * 6 + 6 + 4;
-
-  doc.setFillColor(FEF2F2[0], FEF2F2[1], FEF2F2[2]);
-  doc.rect(marginL, y, contentW, blocH, 'F');
-
-  doc.setDrawColor(DC2626[0], DC2626[1], DC2626[2]);
-  doc.setLineWidth(3);
-  doc.line(marginL, y, marginL, y + blocH);
-
-  doc.setFontSize(8.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(DC2626[0], DC2626[1], DC2626[2]);
-  doc.text('TRAITEMENT EN COURS - A VERIFIER AVANT TOUTE PRESCRIPTION', marginL + 5, y + 6);
-
-  if (aucunTraitement) {
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Traitement non renseigne - completer dans Parametres', marginL + 5, y + 12);
-  } else {
-    traitLines.forEach((line, li) => {
-      doc.setFontSize(8);
-      doc.setFont('helvetica', line.bold ? 'bold' : 'normal');
-      doc.setTextColor(line.color[0], line.color[1], line.color[2]);
-      doc.text(line.text, marginL + 5, y + 12 + li * 6);
-    });
-  }
-
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-  doc.text('Source : saisie patient. A confirmer avec le dossier medical.', marginL + 5, y + blocH - 2);
-
-  y += blocH + 5;
-
-  // ---- CE QUE J'ATTENDS DE CETTE CONSULTATION ----
+  // ---- OBJECTIFS DE CETTE CONSULTATION ----
   const noteTrimmed = _stripEmoji((noteLibre || '').trim());
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.text("CE QUE J'ATTENDS DE CETTE CONSULTATION", marginL, y);
+  doc.text('OBJECTIFS DE CETTE CONSULTATION', marginL, y);
   doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
   doc.setLineWidth(1);
   doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
@@ -374,6 +325,54 @@ function genererPDFConsultation(noteLibre) {
   }
 
   y += 4;
+
+  // ---- TRAITEMENT EN COURS ----
+  const F2F5F4 = [242, 245, 244];
+  const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
+  const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
+  const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
+
+  const traitLines = [];
+  if (txMed)  traitLines.push({ text: 'Medicaments : ' + txMed,  bold: false });
+  if (txComp) traitLines.push({ text: 'Complements : ' + txComp, bold: false });
+  if (txAll)  traitLines.push({ text: 'Allergies/CI : ' + txAll, bold: true  });
+  const aucunTraitement = traitLines.length === 0;
+
+  const contentLinesCount = aucunTraitement ? 1 : traitLines.length;
+  const blocH = 6 + contentLinesCount * 6 + 6 + 4;
+
+  doc.setFillColor(F2F5F4[0], F2F5F4[1], F2F5F4[2]);
+  doc.rect(marginL, y, contentW, blocH, 'F');
+
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(3);
+  doc.line(marginL, y, marginL, y + blocH);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.text('TRAITEMENT EN COURS', marginL + 5, y + 6);
+
+  if (aucunTraitement) {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Non renseigne - voir onglet Parametres', marginL + 5, y + 12);
+  } else {
+    traitLines.forEach((line, li) => {
+      doc.setFontSize(8);
+      doc.setFont('helvetica', line.bold ? 'bold' : 'normal');
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text(line.text, marginL + 5, y + 12 + li * 6);
+    });
+  }
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+  doc.text('Source : saisie patient. A confirmer avec le dossier medical.', marginL + 5, y + blocH - 2);
+
+  y += blocH + 5;
 
   // ---- SECTION 1 : MON ETAT - 7 DERNIERS JOURS ----
   setSage(true);
