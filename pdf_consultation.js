@@ -1,30 +1,22 @@
 /**
  * Boussole — PDF Consultation
- * Structure "medecin remplacant 5 secondes"
- *
- * PAGE 1 : LECTURE RAPIDE (traitement + objectifs consultation)
- * PAGE 1/2 suite : Donnees Boussole (second plan)
+ * Charte clinique v4 — lecture medecin 5 secondes
  *
  * Dependances : jsPDF (deja charge dans index.html)
  */
 
 // ============================================
-// COULEURS CHARTE
+// PALETTE CHARTE CLINIQUE v4
 // ============================================
-const NAVY   = [6, 23, 45];
-const SAGE   = [110, 135, 125];
-const VERT   = [76, 175, 80];
-const ORANGE = [255, 152, 0];
-const ROUGE  = [244, 67, 54];
-const GREY   = [130, 130, 130];
-const LIGHT  = [245, 247, 246];
-
-// Blocs "lecture rapide"
-const VERT_DARK  = [45, 106, 79];    // #2d6a4f — titre + bordure traitement
-const BG_VERT    = [240, 247, 244];  // #F0F7F4 — fond traitement
-const JAUNE      = [212, 160, 23];   // #D4A017 — titre + bordure objectifs
-const BG_JAUNE   = [255, 251, 240];  // #FFFBF0 — fond objectifs
-const ROUGE_ALL  = [220, 38, 38];    // rouge allergies/CI
+const ANTHRACITE  = [26,  26,  26];
+const TAUPE       = [138, 126, 110];
+const TAUPE_LIGHT = [200, 196, 188];
+const WARM_BG     = [247, 244, 240];
+const LIGHT_BG    = [245, 245, 242];
+const MUTED       = [153, 153, 153];
+const DARK_WARM   = [122, 92,  58];
+const GREEN_SOFT  = [74,  122, 90];
+const SEP         = [232, 229, 224];
 
 // ============================================
 // UTILITAIRES CALCUL
@@ -36,7 +28,7 @@ function _moyenne(vals) {
 }
 
 /**
- * Tendance J1-J3 vs J5-J7 sur un tableau chronologique de valeurs.
+ * Tendance J1-J3 vs J5-J7 sur un tableau chronologique.
  * Retourne 'Hausse', 'Baisse' ou 'Stable' (ASCII, compatible Helvetica/Latin-1)
  */
 function _tendance7j(vals) {
@@ -50,20 +42,10 @@ function _tendance7j(vals) {
   return 'Stable';
 }
 
-/**
- * Compte le nombre de jours ou une valeur est < 5
- */
 function _joursBasPct(vals) {
   const v = vals.filter(x => x !== null && x !== undefined);
   if (v.length === 0) return 0;
   return v.filter(x => x < 5).length;
-}
-
-function _colorVOR(score) {
-  if (score === null) return GREY;
-  if (score >= 7)  return VERT;
-  if (score >= 4)  return ORANGE;
-  return ROUGE;
 }
 
 function _stripEmoji(str) {
@@ -72,7 +54,7 @@ function _stripEmoji(str) {
 
 function _dateLocale(dateStr) {
   const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
+  return d + '/' + m + '/' + y;
 }
 
 // ============================================
@@ -90,24 +72,26 @@ function genererPDFConsultation(noteLibre) {
 
   // ---- DONNEES ----
   const data = loadEntries();
-  let rawEntries = (data.entries || []).map(e => ({
-    date:             e.date,
-    energie:          e.energie,
-    sommeil:          e.qualite_sommeil,
-    confort_physique: e.douleurs,
-    clarte_mentale:   e.clarte_mentale,
-    note:             e.note,
-    humeur:           e.humeur
-  }));
+  let rawEntries = (data.entries || []).map(function(e) {
+    return {
+      date:             e.date,
+      energie:          e.energie,
+      sommeil:          e.qualite_sommeil,
+      confort_physique: e.douleurs,
+      clarte_mentale:   e.clarte_mentale,
+      note:             e.note,
+      humeur:           e.humeur
+    };
+  });
 
-  rawEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+  rawEntries.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
 
   const aujourd_hui = new Date();
   aujourd_hui.setHours(0, 0, 0, 0);
   const cutoff = new Date(aujourd_hui);
   cutoff.setDate(cutoff.getDate() - 6);
   const cutoffStr = cutoff.toISOString().split('T')[0];
-  const entrees = rawEntries.filter(e => e.date >= cutoffStr);
+  const entrees = rawEntries.filter(function(e) { return e.date >= cutoffStr; });
 
   if (entrees.length === 0) {
     alert('Aucune donnee sur les 7 derniers jours.');
@@ -115,69 +99,44 @@ function genererPDFConsultation(noteLibre) {
   }
 
   // ---- CALCULS ----
-  const dataEnergie = entrees.map(e => e.energie);
-  const dataSommeil = entrees.map(e => e.sommeil);
-  const dataConfort = entrees.map(e => e.confort_physique);
-  const dataClarte  = entrees.map(e => e.clarte_mentale);
+  const dataEnergie = entrees.map(function(e) { return e.energie; });
+  const dataSommeil = entrees.map(function(e) { return e.sommeil; });
+  const dataConfort = entrees.map(function(e) { return e.confort_physique; });
+  const dataClarte  = entrees.map(function(e) { return e.clarte_mentale; });
 
   const moyEnergie = _moyenne(dataEnergie);
   const moySommeil = _moyenne(dataSommeil);
   const moyConfort = _moyenne(dataConfort);
   const moyClarte  = _moyenne(dataClarte);
 
-  const moyennesValides = [moyEnergie, moySommeil, moyConfort, moyClarte].filter(v => v !== null);
-  const scoreGlobal = moyennesValides.length
-    ? moyennesValides.reduce((a, b) => a + b, 0) / moyennesValides.length
-    : null;
-
   const metriques = [
     { label: 'Energie',          moy: moyEnergie, vals: dataEnergie },
     { label: 'Sommeil',          moy: moySommeil, vals: dataSommeil },
     { label: 'Confort physique', moy: moyConfort, vals: dataConfort },
     { label: 'Clarte mentale',   moy: moyClarte,  vals: dataClarte  }
-  ].map(m => ({
-    ...m,
-    tendance: _tendance7j(m.vals),
-    joursBas: _joursBasPct(m.vals),
-    nbJours:  m.vals.filter(x => x !== null && x !== undefined).length
-  }));
-
-  const metriquesSorted = [...metriques]
-    .filter(m => m.moy !== null)
-    .sort((a, b) => a.moy - b.moy);
-  const pointsAAborder = metriquesSorted.slice(0, 3);
-
-  let meilleurJour = null, pireJour = null;
-  entrees.forEach(e => {
-    const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-      .filter(v => v !== null && v !== undefined);
-    if (vals.length === 0) return;
-    const score = vals.reduce((a, b) => a + b, 0) / vals.length;
-    if (meilleurJour === null || score > meilleurJour.score) meilleurJour = { date: e.date, score };
-    if (pireJour    === null || score < pireJour.score)    pireJour    = { date: e.date, score };
+  ].map(function(m) {
+    return {
+      label:    m.label,
+      moy:      m.moy,
+      vals:     m.vals,
+      tendance: _tendance7j(m.vals),
+      joursBas: _joursBasPct(m.vals),
+      nbJours:  m.vals.filter(function(x) { return x !== null && x !== undefined; }).length
+    };
   });
 
-  const joursRenseignes = entrees.length;
-  const derniereSaisie  = entrees[entrees.length - 1].date;
+  const metriquesSorted = metriques
+    .filter(function(m) { return m.moy !== null; })
+    .slice()
+    .sort(function(a, b) { return a.moy - b.moy; });
 
-  let nbVert = 0, nbOrange = 0, nbRouge = 0;
-  entrees.forEach(e => {
-    const scoreJour = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-      .filter(v => v !== null && v !== undefined);
-    if (scoreJour.length === 0) return;
-    const s = scoreJour.reduce((a, b) => a + b, 0) / scoreJour.length;
-    if (s >= 7) nbVert++;
-    else if (s >= 4) nbOrange++;
-    else nbRouge++;
-  });
-  const totalJoursVOR = nbVert + nbOrange + nbRouge;
-  const pctVert   = totalJoursVOR ? Math.round(nbVert   / totalJoursVOR * 100) : 0;
-  const pctOrange = totalJoursVOR ? Math.round(nbOrange / totalJoursVOR * 100) : 0;
-  const pctRouge  = totalJoursVOR ? Math.round(nbRouge  / totalJoursVOR * 100) : 0;
+  const pointAttention = metriquesSorted.length > 0
+    && metriquesSorted[0].moy !== null
+    && metriquesSorted[0].moy < 7
+    ? metriquesSorted[0]
+    : null;
 
-  const dateAujourdhui = aujourd_hui.toLocaleDateString('fr-FR', {
-    day: '2-digit', month: 'long', year: 'numeric'
-  });
+  const derniereSaisie = entrees[entrees.length - 1].date;
 
   // ---- IDENTITE PATIENT ----
   const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
@@ -190,12 +149,14 @@ function genererPDFConsultation(noteLibre) {
   const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
   const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
 
-  // Medicaments : une ligne par medicament (split \n)
   const medLines = txMed
-    ? txMed.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+    ? txMed.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
     : [];
 
-  // Note consultation
+  const compLines = txComp
+    ? txComp.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
+    : [];
+
   const noteTrimmed = _stripEmoji(
     (noteLibre || localStorage.getItem('boussole_note_consultation') || '').trim()
   );
@@ -208,24 +169,21 @@ function genererPDFConsultation(noteLibre) {
   const marginL  = 15;
   const marginR  = 15;
   const contentW = pageW - marginL - marginR;
-  const PAGE_MAX_Y = 270; // seuil saut de page (footer a ~282)
+  const PAGE_MAX_Y = 270;
   let y = 0;
 
-  // --- helpers typographie ---
-  function setNavy(bold) {
+  // ---- helpers ----
+  function tc(rgb, bold) {
     doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-  }
-  function setSage(bold) {
-    doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setTextColor(SAGE[0], SAGE[1], SAGE[2]);
-  }
-  function setGrey(bold) {
-    doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.setTextColor(rgb[0], rgb[1], rgb[2]);
   }
 
-  // --- pagination ---
+  function drawSep(yPos) {
+    doc.setDrawColor(SEP[0], SEP[1], SEP[2]);
+    doc.setLineWidth(0.5);
+    doc.line(marginL, yPos, marginL + contentW, yPos);
+  }
+
   function checkPage(neededH) {
     if (y + neededH > PAGE_MAX_Y) {
       doc.addPage();
@@ -233,590 +191,596 @@ function genererPDFConsultation(noteLibre) {
     }
   }
 
-  // --- footer (dessine sur toutes les pages a la fin) ---
   function drawFooters() {
     const total = doc.internal.getNumberOfPages();
     for (let p = 1; p <= total; p++) {
       doc.setPage(p);
-      const footerY = 282;
-      doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-      doc.setLineWidth(0.3);
-      doc.line(marginL, footerY - 3, marginL + contentW, footerY - 3);
-      doc.setFontSize(7.5);
-      setGrey(false);
+      const fy = 283;
+      drawSep(fy - 3);
+
+      doc.setFontSize(8.5);
+      tc(MUTED, false);
       doc.text(
-        "Document d'information personnelle - Pas un avis medical - myboussole.fr",
-        pageW / 2, footerY + 2, { align: 'center' }
+        "Document d'information personnelle \xB7 Donn\xe9es auto-\xe9valu\xe9es \xB7 Pas un avis m\xe9dical",
+        marginL, fy + 2
       );
       if (idTel) {
-        doc.setFontSize(7.5);
-        setGrey(false);
-        doc.text(
-          "En cas d'urgence ou de doute : contacter le patient au " + idTel,
-          pageW / 2, footerY + 7, { align: 'center' }
-        );
+        doc.setFontSize(8);
+        tc(MUTED, false);
+        doc.text('Urgence : ' + idTel, marginL, fy + 6.5);
       }
+      doc.setFontSize(8);
+      tc(MUTED, false);
+      doc.text('myboussole.fr', marginL + contentW, fy + 2, { align: 'right' });
     }
   }
 
   // ============================================================
-  // HEADER 2 COLONNES
+  // 1. EN-TETE
   // ============================================================
+  y = 14;
 
-  const colGaucheW = 105;
-  const colDroiteW = contentW - colGaucheW - 5;
-  const colDroiteX = marginL + colGaucheW + 5;
+  // Gauche
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('NOTE DE PRE-CONSULTATION', marginL, y);
 
-  // Colonne gauche
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.text('PREPARER MA CONSULTATION', marginL, 10);
-
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.text('myboussole.fr', marginL, 16);
-
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(102, 102, 102);
-  doc.text('Genere le ' + dateAujourdhui, marginL, 22);
-
-  if (idPrenom || idNom) {
-    const partsId = [];
-    const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
-    if (nomPrenom) partsId.push(nomPrenom);
-    if (idDdn) {
-      const [ddnY, ddnM, ddnD] = idDdn.split('-');
-      if (ddnY && ddnM && ddnD) partsId.push('Ne le ' + ddnD + '/' + ddnM + '/' + ddnY);
-    }
-    if (idTel) partsId.push(idTel);
-    const idLine = partsId.join('  \xB7  ');
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    doc.text(idLine, marginL, 29);
-  }
-
-  // Ligne separatrice header
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.4);
-  doc.line(0, 37, pageW, 37);
-  y = 43;
-
-  // ============================================================
-  // BLOC OBJECTIFS (pleine largeur) — juste apres le header
-  // ============================================================
-
-  let objLines = [];
-  if (noteTrimmed.length > 0) {
-    objLines = doc.splitTextToSize(noteTrimmed, contentW - 12);
-  }
-  const objContentH = noteTrimmed.length > 0 ? objLines.length * 5.5 : 6;
-  const objBlocH    = 7 + objContentH + 5;
-
-  checkPage(objBlocH + 5);
-
-  doc.setFillColor(BG_JAUNE[0], BG_JAUNE[1], BG_JAUNE[2]);
-  doc.rect(marginL, y, contentW, objBlocH, 'F');
-  doc.setDrawColor(JAUNE[0], JAUNE[1], JAUNE[2]);
-  doc.setLineWidth(4);
-  doc.line(marginL, y, marginL, y + objBlocH);
-  doc.setLineWidth(0.1);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(JAUNE[0], JAUNE[1], JAUNE[2]);
-  doc.text('OBJECTIFS DE CETTE CONSULTATION', marginL + 7, y + 5.5);
-
-  let oy = y + 5.5 + 4;
-
-  if (noteTrimmed.length === 0) {
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Aucun motif saisi', marginL + 7, oy);
-  } else {
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    objLines.forEach((l, li) => {
-      doc.text(l, marginL + 7, oy + li * 5.5);
-    });
-  }
-
-  y += objBlocH + 5;
-
-  // ============================================================
-  // 2 COLONNES : TRAITEMENT ACTUEL (gauche) + POINT D'ATTENTION (droite)
-  // ============================================================
-
-  const colTraitW = Math.floor(contentW * 0.52);
-  const colAttnW  = Math.floor(contentW * 0.44);
-  const colAttnX  = marginL + colTraitW + 8;
-
-  const ROUGE_ATT = [192, 57, 43];
-  const BG_ATT    = [255, 241, 240];
-
-  const pointAttnTop = metriquesSorted.length > 0
-    && metriquesSorted[0].moy !== null
-    && metriquesSorted[0].moy < 7
-    ? metriquesSorted[0]
-    : null;
-
-  // --- Lignes TRAITEMENT (col gauche, largeur = colTraitW) ---
-  const traitItems = [];
-  medLines.forEach(m => {
-    const wrapped = doc.splitTextToSize('- ' + m, colTraitW - 12);
-    traitItems.push({ lines: wrapped, isAllergy: false });
-  });
-  if (txComp) {
-    const wrapped = doc.splitTextToSize('Complements : ' + txComp, colTraitW - 12);
-    traitItems.push({ lines: wrapped, isAllergy: false });
-  }
-  if (txAll && txAll.toUpperCase() !== 'RAS') {
-    const wrapped = doc.splitTextToSize('Allergies/CI : ' + txAll, colTraitW - 12);
-    traitItems.push({ lines: wrapped, isAllergy: true });
-  }
-  const aucunTraitement = traitItems.length === 0;
-  let traitContentH = aucunTraitement ? 6 : 0;
-  if (!aucunTraitement) traitItems.forEach(item => { traitContentH += item.lines.length * 5.5; });
-  const traitBlocH = 7 + traitContentH + 5;
-
-  // --- Hauteur POINT D'ATTENTION compact (col droite) ---
-  let attnLine1 = [];
-  let attnValStr = '';
-  let attnBlocH;
-  if (pointAttnTop !== null) {
-    attnValStr = (Math.round(pointAttnTop.moy * 10) / 10).toFixed(1);
-    attnLine1  = doc.splitTextToSize(pointAttnTop.label + ' -- ' + attnValStr + '/10', colAttnW - 14);
-    attnBlocH  = 7 + attnLine1.length * 7 + 7 + 5;
-  } else {
-    attnBlocH = 7 + 6 + 5;
-  }
-
-  const maxBlocH = Math.max(traitBlocH, attnBlocH);
-  checkPage(maxBlocH + 5);
-  const blocY = y;
-
-  // --- Dessin TRAITEMENT (col gauche) ---
-  doc.setFillColor(BG_VERT[0], BG_VERT[1], BG_VERT[2]);
-  doc.rect(marginL, blocY, colTraitW, maxBlocH, 'F');
-  doc.setDrawColor(VERT_DARK[0], VERT_DARK[1], VERT_DARK[2]);
-  doc.setLineWidth(4);
-  doc.line(marginL, blocY, marginL, blocY + maxBlocH);
-  doc.setLineWidth(0.1);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(VERT_DARK[0], VERT_DARK[1], VERT_DARK[2]);
-  doc.text('TRAITEMENT ACTUEL', marginL + 7, blocY + 5.5);
-
-  let ty = blocY + 5.5 + 4;
-
-  if (aucunTraitement) {
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Non renseigne dans Parametres', marginL + 7, ty);
-  } else {
-    traitItems.forEach(item => {
-      doc.setFontSize(8.5);
-      if (item.isAllergy) {
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(ROUGE_ALL[0], ROUGE_ALL[1], ROUGE_ALL[2]);
-      } else {
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      }
-      item.lines.forEach((l, li) => {
-        doc.text(l, marginL + 7, ty + li * 5.5);
-      });
-      ty += item.lines.length * 5.5;
-    });
-  }
-
-  // --- Dessin POINT D'ATTENTION compact (col droite) ---
-  doc.setFillColor(BG_ATT[0], BG_ATT[1], BG_ATT[2]);
-  doc.rect(colAttnX, blocY, colAttnW, maxBlocH, 'F');
-  doc.setDrawColor(ROUGE_ATT[0], ROUGE_ATT[1], ROUGE_ATT[2]);
-  doc.setLineWidth(4);
-  doc.line(colAttnX, blocY, colAttnX, blocY + maxBlocH);
-  doc.setLineWidth(0.1);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(ROUGE_ATT[0], ROUGE_ATT[1], ROUGE_ATT[2]);
-  doc.text("POINT D'ATTENTION", colAttnX + 7, blocY + 5.5);
-
-  if (pointAttnTop !== null) {
-    const valColor = _colorVOR(pointAttnTop.moy);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(valColor[0], valColor[1], valColor[2]);
-    let attnY = blocY + 5.5 + 6;
-    attnLine1.forEach((l, li) => {
-      doc.text(l, colAttnX + 7, attnY + li * 7);
-    });
-    attnY += attnLine1.length * 7;
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text(pointAttnTop.joursBas + '/7 jours en orange/rouge', colAttnX + 7, attnY + 2);
-  } else {
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Aucun point critique cette semaine', colAttnX + 7, blocY + 5.5 + 8);
-  }
-
-  y += maxBlocH + 5;
-
-  // ============================================================
-  // SEPARATEUR VISUEL
-  // ============================================================
-
-  checkPage(12);
-
-  doc.setDrawColor(180, 180, 180);
-  doc.setLineWidth(0.4);
-  doc.line(marginL, y, marginL + contentW, y);
-  y += 4;
-
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-  doc.text(
-    '-- Donnees de suivi personnel Boussole (second plan) --',
-    pageW / 2, y, { align: 'center' }
-  );
-  y += 7;
-
-  // ============================================================
-  // SECTION : MON ETAT - 7 DERNIERS JOURS
-  // ============================================================
-
-  checkPage(20);
-
-  setSage(true);
-  doc.setFontSize(10);
-  doc.text('MON ETAT - 7 DERNIERS JOURS', marginL, y);
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.4);
-  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
   y += 6;
+  const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
+  doc.setFontSize(14);
+  tc(ANTHRACITE, true);
+  doc.text(nomPrenom || 'Patient', marginL, y);
 
-  // Score global
-  const scoreStr   = scoreGlobal !== null
-    ? (Math.round(scoreGlobal * 10) / 10).toFixed(1) + '/10'
-    : 'n/a';
-  const scoreColor = _colorVOR(scoreGlobal);
+  y += 5.5;
+  const idParts = [];
+  if (idDdn) {
+    const ddnParts = idDdn.split('-');
+    if (ddnParts.length === 3) idParts.push('N\xe9(e) le ' + ddnParts[2] + '/' + ddnParts[1] + '/' + ddnParts[0]);
+  }
+  if (idTel) idParts.push(idTel);
+  if (idParts.length > 0) {
+    doc.setFontSize(11);
+    tc(MUTED, false);
+    doc.text(idParts.join('  \xB7  '), marginL, y);
+  }
 
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
-  doc.text(scoreStr, marginL + 22, y + 8, { align: 'center' });
+  // Droite
+  const rightX = marginL + contentW;
+  doc.setFontSize(10);
+  tc(MUTED, false);
+  doc.text(
+    'Synth\xe8se 7 jours \xB7 derni\xe8re saisie ' + _dateLocale(derniereSaisie),
+    rightX, 14, { align: 'right' }
+  );
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('myboussole.fr \xB7 scores auto-\xe9valu\xe9s 0-10', rightX, 19.5, { align: 'right' });
 
-  doc.setFontSize(8);
-  setGrey(false);
-  doc.text('Score global moyen', marginL + 22, y + 13, { align: 'center' });
-
-  doc.setFontSize(6.5);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-  const scoreExplTxt = 'Boussole mesure 4 indicateurs subjectifs : Energie - Sommeil - Confort physique - Clarte mentale (0-10 chacun). Ces donnees sont declaratives et personnelles.';
-  const scoreExplLines = doc.splitTextToSize(scoreExplTxt, contentW - 50);
-  scoreExplLines.forEach((l, li) => {
-    doc.text(l, marginL + 46, y + 4 + li * 4);
-  });
-
-  y += 18;
-
-  // ---- DONNEES DE LA PERIODE ----
-  checkPage(20);
-
-  doc.setFontSize(7.5);
-  setSage(true);
-  doc.text('DONNEES DE LA PERIODE', marginL, y);
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.2);
-  doc.line(marginL, y + 1, marginL + contentW, y + 1);
+  y += 6;
+  drawSep(y);
   y += 5;
 
-  doc.setFontSize(8);
-  setNavy(false);
-  doc.text(
-    'Jours renseignes : ' + joursRenseignes + '/7  \xB7  Derniere saisie : ' + _dateLocale(derniereSaisie),
-    marginL, y + 3.5
-  );
-  y += 7;
+  // ============================================================
+  // 2. MOTIF DE CONSULTATION
+  // ============================================================
+  checkPage(20);
 
-  const vorItems = [
-    { label: 'Hauts : '   + nbVert   + 'j (' + pctVert   + '%)', color: VERT   },
-    { label: 'Moyens : '  + nbOrange + 'j (' + pctOrange + '%)', color: ORANGE },
-    { label: 'Bas : '     + nbRouge  + 'j (' + pctRouge  + '%)', color: ROUGE  }
-  ];
-  let vorX = marginL;
-  vorItems.forEach(item => {
-    doc.setFillColor(item.color[0], item.color[1], item.color[2]);
-    doc.circle(vorX + 2, y + 1.5, 2, 'F');
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
-    doc.text(item.label, vorX + 6, y + 3.5);
-    vorX += doc.getTextWidth(item.label) + 12;
-  });
-  y += 7;
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('MOTIF DE CONSULTATION', marginL, y);
+  y += 5;
 
-  // ---- POINT D'ATTENTION ----
-  const ROUGE_ALERTE = [226, 75, 74];
-  const BG_ALERTE    = [254, 242, 242];
-  const pointAttention = metriquesSorted.length > 0
-    && metriquesSorted[0].moy !== null
-    && metriquesSorted[0].moy < 7
-    ? metriquesSorted[0]
-    : null;
-
-  if (pointAttention !== null) {
-    checkPage(26);
-    const valStr   = (Math.round(pointAttention.moy * 10) / 10).toFixed(1);
-    const valColor = pointAttention.moy < 4 ? ROUGE_ALERTE
-                   : pointAttention.moy < 7 ? ORANGE
-                   : VERT;
-    const attnH = 22;
-
-    doc.setFillColor(BG_ALERTE[0], BG_ALERTE[1], BG_ALERTE[2]);
-    doc.rect(marginL, y, contentW, attnH, 'F');
-    doc.setDrawColor(ROUGE_ALERTE[0], ROUGE_ALERTE[1], ROUGE_ALERTE[2]);
-    doc.setLineWidth(3);
-    doc.line(marginL, y, marginL, y + attnH);
-
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(ROUGE_ALERTE[0], ROUGE_ALERTE[1], ROUGE_ALERTE[2]);
-    doc.text("POINT D'ATTENTION", marginL + 5, y + 5.5);
-
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(valColor[0], valColor[1], valColor[2]);
-    doc.text(pointAttention.label + ' -- ' + valStr + '/10', marginL + 5, y + 13);
-
-    doc.setFontSize(8);
+  if (noteTrimmed.length === 0) {
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Metrique la plus faible sur les 7 derniers jours', marginL + 5, y + 19);
-
-    y += attnH + 4;
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('Non renseign\xe9', marginL, y);
+    y += 8;
+  } else {
+    const noteLines = doc.splitTextToSize(noteTrimmed, contentW);
+    doc.setFontSize(13);
+    tc(ANTHRACITE, false);
+    noteLines.forEach(function(l, li) { doc.text(l, marginL, y + li * 6.5); });
+    y += noteLines.length * 6.5 + 2;
   }
 
-  // ---- TABLEAU DES 4 METRIQUES ----
+  drawSep(y);
+  y += 5;
+
+  // ============================================================
+  // 3. TRAITEMENT EN COURS
+  // ============================================================
+  checkPage(30);
+
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('TRAITEMENT EN COURS', marginL, y);
+  y += 5;
+
+  const colTW = (contentW - 8) / 2;
+  const colLX = marginL;
+  const colRX = marginL + colTW + 8;
+  const lineH  = 5.5;
+  const padV   = 6;
+  const labelH = 5.5;
+
+  // Preparer lignes col gauche (medicaments + allergies)
+  const leftItems = [];
+  if (medLines.length === 0) {
+    leftItems.push({ text: 'Non renseign\xe9', italic: true, color: MUTED, bold: false });
+  } else {
+    medLines.forEach(function(ml) {
+      doc.setFontSize(11.5);
+      doc.setFont('helvetica', 'normal');
+      const wrapped = doc.splitTextToSize(ml, colTW - 8);
+      wrapped.forEach(function(wl) { leftItems.push({ text: wl, italic: false, color: ANTHRACITE, bold: false }); });
+    });
+  }
+  if (txAll && txAll.toUpperCase() !== 'RAS') {
+    doc.setFontSize(11.5);
+    doc.setFont('helvetica', 'bold');
+    const wrapped = doc.splitTextToSize('Allergies : ' + txAll, colTW - 8);
+    wrapped.forEach(function(wl) { leftItems.push({ text: wl, italic: false, color: DARK_WARM, bold: true }); });
+  }
+
+  // Preparer lignes col droite (complements)
+  const rightItems = [];
+  if (compLines.length === 0) {
+    rightItems.push({ text: 'Non renseign\xe9', italic: true, color: MUTED, bold: false });
+  } else {
+    compLines.forEach(function(cl) {
+      doc.setFontSize(11.5);
+      doc.setFont('helvetica', 'normal');
+      const wrapped = doc.splitTextToSize(cl, colTW - 8);
+      wrapped.forEach(function(wl) { rightItems.push({ text: wl, italic: false, color: ANTHRACITE, bold: false }); });
+    });
+  }
+
+  const leftH  = padV + labelH + leftItems.length  * lineH + padV;
+  const rightH = padV + labelH + rightItems.length * lineH + padV;
+  const traitH = Math.max(leftH, rightH, 20);
+
+  checkPage(traitH + 5);
+
+  // Col gauche — medicaments
+  doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
+  doc.rect(colLX, y, colTW, traitH, 'F');
+  doc.setDrawColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+  doc.setLineWidth(2);
+  doc.line(colLX, y, colLX, y + traitH);
+  doc.setLineWidth(0.1);
+  doc.setFontSize(10);
+  tc(MUTED, false);
+  doc.text('M\xe9dicaments', colLX + 5, y + padV);
+  let lty = y + padV + labelH;
+  leftItems.forEach(function(item) {
+    doc.setFontSize(11.5);
+    doc.setFont('helvetica', item.bold ? 'bold' : (item.italic ? 'italic' : 'normal'));
+    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+    doc.text(item.text, colLX + 5, lty);
+    lty += lineH;
+  });
+
+  // Col droite — complements
+  doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
+  doc.rect(colRX, y, colTW, traitH, 'F');
+  doc.setDrawColor(TAUPE_LIGHT[0], TAUPE_LIGHT[1], TAUPE_LIGHT[2]);
+  doc.setLineWidth(2);
+  doc.line(colRX, y, colRX, y + traitH);
+  doc.setLineWidth(0.1);
+  doc.setFontSize(10);
+  tc(MUTED, false);
+  doc.text('Compl\xe9ments', colRX + 5, y + padV);
+  let rty = y + padV + labelH;
+  rightItems.forEach(function(item) {
+    doc.setFontSize(11.5);
+    doc.setFont('helvetica', item.bold ? 'bold' : (item.italic ? 'italic' : 'normal'));
+    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+    doc.text(item.text, colRX + 5, rty);
+    rty += lineH;
+  });
+
+  y += traitH + 5;
+  drawSep(y);
+  y += 5;
+
+  // ============================================================
+  // 4. PROBLEME PRINCIPAL — BLOC DOMINANT
+  // ============================================================
   checkPage(40);
 
-  const tabX       = marginL;
-  const tabW       = contentW;
-  const colLabW    = tabW * 0.34;
-  const colMoyW    = tabW * 0.17;
-  const colTendW   = tabW * 0.14;
-  const colBasW    = tabW * 0.13;
-  const colInterpW = tabW * 0.22;
-  const rowH       = 7;
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('PROBLEME PRINCIPAL', marginL, y);
+  y += 5;
 
-  function _interpretation(moy) {
-    if (moy === null) return '';
-    if (moy >= 7) return 'Correct';
-    if (moy >= 5) return 'Mod. altere';
-    return 'Altere';
+  if (pointAttention === null) {
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('Aucun probl\xe8me identifi\xe9 cette semaine', marginL, y);
+    y += 8;
+  } else {
+    const titreMap = {
+      'Energie':          'Fatigue persistante',
+      'Sommeil':          'Sommeil insuffisant malgr\xe9 traitement',
+      'Confort physique': 'G\xeane physique persistante',
+      'Clarte mentale':   'Brouillard mental persistant'
+    };
+    const titreBloc = titreMap[pointAttention.label] || (pointAttention.label + ' alt\xe9r\xe9');
+
+    // Retentissement : les autres metriques
+    const autresM = metriques.filter(function(m) {
+      return m.label !== pointAttention.label && m.moy !== null;
+    });
+    const retentParts = autresM.map(function(m) {
+      const ms  = (Math.round(m.moy * 10) / 10).toFixed(1);
+      const q   = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'mod. alt\xe9r\xe9e' : 'alt\xe9r\xe9e');
+      const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
+      return lbl + ' ' + ms + '/10 ' + q;
+    });
+    const retentText = retentParts.join(' \xB7 ');
+
+    // Pre-calculer wraps
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    const titreLines = doc.splitTextToSize(titreBloc, contentW - 18);
+
+    const inlineW    = contentW - 18;
+    const inlineColW = Math.floor(inlineW / 3);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const retentWrapped = doc.splitTextToSize(retentText, inlineColW - 4);
+
+    const inlineH   = 5 + 12 + Math.max(0, retentWrapped.length - 1) * 5;
+    const blocDomH  = 10 + titreLines.length * 8 + 6 + inlineH + 10;
+
+    checkPage(blocDomH + 5);
+
+    // Fond + bordure gauche
+    doc.setFillColor(WARM_BG[0], WARM_BG[1], WARM_BG[2]);
+    doc.rect(marginL, y, contentW, blocDomH, 'F');
+    doc.setDrawColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+    doc.setLineWidth(3);
+    doc.line(marginL, y, marginL, y + blocDomH);
+    doc.setLineWidth(0.1);
+
+    // Titre
+    let ty2 = y + 10;
+    doc.setFontSize(15);
+    tc(ANTHRACITE, true);
+    titreLines.forEach(function(l, li) { doc.text(l, marginL + 12, ty2 + li * 8); });
+    ty2 += titreLines.length * 8 + 6;
+
+    // 3 blocs inline
+    const inlineStartX = marginL + 12;
+
+    // Col 1 : Moyenne 7 jours
+    const col1X = inlineStartX;
+    const col2X = inlineStartX + inlineColW;
+    const col3X = inlineStartX + inlineColW * 2;
+
+    const moyValStr      = (Math.round(pointAttention.moy * 10) / 10).toFixed(1);
+    const joursMauvaisStr = String(pointAttention.joursBas);
+
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('Moyenne 7 jours', col1X, ty2);
+    doc.setFontSize(20);
+    tc(DARK_WARM, true);
+    doc.text(moyValStr, col1X, ty2 + 10);
+    doc.setFontSize(12);
+    tc(MUTED, false);
+    doc.text('/10', col1X + doc.getTextWidth(moyValStr) + 1, ty2 + 10);
+
+    // Col 2 : Jours mauvais
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('Jours mauvais', col2X, ty2);
+    doc.setFontSize(20);
+    tc(DARK_WARM, true);
+    doc.text(joursMauvaisStr, col2X, ty2 + 10);
+    doc.setFontSize(12);
+    tc(MUTED, false);
+    doc.text('/7', col2X + doc.getTextWidth(joursMauvaisStr) + 1, ty2 + 10);
+
+    // Col 3 : Retentissement
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('Retentissement', col3X, ty2);
+    doc.setFontSize(11);
+    tc(ANTHRACITE, false);
+    retentWrapped.forEach(function(l, li) { doc.text(l, col3X, ty2 + 7 + li * 5); });
+
+    y += blocDomH + 5;
   }
 
-  // En-tete tableau
-  doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.rect(tabX, y, tabW, rowH - 1, 'F');
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('Metrique',       tabX + 2,                                                                   y + 4.5);
-  doc.text('Moyenne',        tabX + colLabW + colMoyW / 2,                                               y + 4.5, { align: 'center' });
-  doc.text('Tendance',       tabX + colLabW + colMoyW + colTendW / 2,                                    y + 4.5, { align: 'center' });
-  doc.text('Jours < 5',      tabX + colLabW + colMoyW + colTendW + colBasW / 2,                          y + 4.5, { align: 'center' });
-  doc.text('Interpretation', tabX + colLabW + colMoyW + colTendW + colBasW + colInterpW / 2,             y + 4.5, { align: 'center' });
-  y += rowH - 1;
+  drawSep(y);
+  y += 5;
 
-  metriques.forEach((m, idx) => {
-    const bg = idx % 2 === 0 ? LIGHT : [255, 255, 255];
+  // ============================================================
+  // 5. SYNTHESE FONCTIONNELLE
+  // ============================================================
+  checkPage(50);
+
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('SYNTHESE FONCTIONNELLE - 7 JOURS', marginL, y);
+  y += 5;
+
+  const tabX      = marginL;
+  const tabW      = contentW;
+  const colDomW   = tabW * 0.26;
+  const colMoyW2  = tabW * 0.13;
+  const colJoursW = tabW * 0.15;
+  const colTendW2 = tabW * 0.20;
+  const colComW   = tabW * 0.26;
+  const rowH2     = 7.5;
+
+  checkPage(rowH2 + metriques.length * rowH2 + 4);
+
+  // En-tete — fond blanc, labels MUTED
+  doc.setFillColor(255, 255, 255);
+  doc.rect(tabX, y, tabW, rowH2, 'F');
+  doc.setFontSize(10);
+  tc(MUTED, false);
+  doc.text('Domaine',     tabX + 2,                                                                    y + 5);
+  doc.text('Moy.',        tabX + colDomW + colMoyW2 / 2,                                               y + 5, { align: 'center' });
+  doc.text('J. mauvais',  tabX + colDomW + colMoyW2 + colJoursW / 2,                                   y + 5, { align: 'center' });
+  doc.text('Tendance',    tabX + colDomW + colMoyW2 + colJoursW + colTendW2 / 2,                        y + 5, { align: 'center' });
+  doc.text('Commentaire', tabX + colDomW + colMoyW2 + colJoursW + colTendW2 + colComW / 2,              y + 5, { align: 'center' });
+  y += rowH2;
+
+  metriques.forEach(function(m, idx) {
+    const isProb = !!(pointAttention && m.label === pointAttention.label);
+    const bg = isProb ? WARM_BG : (idx % 2 === 0 ? [255, 255, 255] : LIGHT_BG);
+
     doc.setFillColor(bg[0], bg[1], bg[2]);
-    doc.rect(tabX, y, tabW, rowH, 'F');
+    doc.rect(tabX, y, tabW, rowH2, 'F');
 
-    doc.setDrawColor(220, 225, 222);
-    doc.setLineWidth(0.2);
-    doc.rect(tabX, y, tabW, rowH, 'S');
+    const moyStr2   = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : 'n/a';
+    const joursStr2 = m.joursBas + '/' + m.nbJours;
 
-    const moyStr    = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) + '/10' : 'n/a';
-    const moyColor  = _colorVOR(m.moy);
-    const interpStr = _interpretation(m.moy);
+    let tendTxt, tendColor;
+    if      (m.tendance === 'Hausse') { tendTxt = 'am\xe9lioration'; tendColor = GREEN_SOFT; }
+    else if (m.tendance === 'Baisse') { tendTxt = 'aggravation';    tendColor = DARK_WARM;  }
+    else                              { tendTxt = 'stable';         tendColor = MUTED;      }
 
-    doc.setFontSize(8);
-    setNavy(false);
-    doc.text(m.label, tabX + 2, y + 4.5);
+    let comTxt, comColor, comBold;
+    if      (m.moy === null) { comTxt = '-';             comColor = MUTED;      comBold = false; }
+    else if (m.moy < 4)      { comTxt = 'alt\xe9r\xe9';  comColor = DARK_WARM;  comBold = true;  }
+    else if (m.moy < 7)      { comTxt = 'mod. alt\xe9r\xe9'; comColor = MUTED; comBold = false; }
+    else                     { comTxt = 'correct';       comColor = GREEN_SOFT; comBold = false; }
 
-    doc.setTextColor(moyColor[0], moyColor[1], moyColor[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text(moyStr, tabX + colLabW + colMoyW / 2, y + 4.5, { align: 'center' });
+    const domBold = isProb;
+    doc.setFontSize(8.5);
+    tc(isProb ? DARK_WARM : ANTHRACITE, domBold);
+    doc.text(m.label, tabX + 2, y + 5);
 
-    setNavy(false);
-    doc.text(m.tendance, tabX + colLabW + colMoyW + colTendW / 2, y + 4.5, { align: 'center' });
+    tc(isProb ? DARK_WARM : ANTHRACITE, domBold);
+    doc.text(moyStr2, tabX + colDomW + colMoyW2 / 2, y + 5, { align: 'center' });
 
-    const joursBasStr = m.joursBas + '/' + m.nbJours;
-    doc.text(joursBasStr, tabX + colLabW + colMoyW + colTendW + colBasW / 2, y + 4.5, { align: 'center' });
+    tc(isProb ? DARK_WARM : ANTHRACITE, domBold);
+    doc.text(joursStr2, tabX + colDomW + colMoyW2 + colJoursW / 2, y + 5, { align: 'center' });
 
-    doc.setTextColor(moyColor[0], moyColor[1], moyColor[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text(interpStr, tabX + colLabW + colMoyW + colTendW + colBasW + colInterpW / 2, y + 4.5, { align: 'center' });
+    tc(tendColor, false);
+    doc.text(tendTxt, tabX + colDomW + colMoyW2 + colJoursW + colTendW2 / 2, y + 5, { align: 'center' });
 
-    y += rowH;
+    tc(comColor, comBold);
+    doc.text(comTxt, tabX + colDomW + colMoyW2 + colJoursW + colTendW2 + colComW / 2, y + 5, { align: 'center' });
+
+    y += rowH2;
   });
 
-  y += 2;
+  y += 4;
+  drawSep(y);
+  y += 5;
 
-  // Humeur moyenne 7j
-  const humeurVals7j  = entrees.map(e => e.humeur).filter(v => v !== null && v !== undefined);
-  const avgHumeurPDF  = humeurVals7j.length ? _moyenne(humeurVals7j) : null;
-  if (avgHumeurPDF !== null) {
-    function _humeurTexte(val) {
-      if (val <= 2) return 'Tres difficile';
-      if (val <= 4) return 'Difficile';
-      if (val <= 6) return 'Moyen';
-      if (val <= 8) return 'Bien';
-      return 'Excellent';
-    }
-    checkPage(10);
-    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  // ============================================================
+  // 6. BLOC SOMMEIL CIBLE (conditionnel)
+  // ============================================================
+
+  const noteLC = noteTrimmed.toLowerCase();
+  const triggerSommeil = noteLC.indexOf('sommeil') !== -1
+    || noteLC.indexOf('quviviq') !== -1
+    || noteLC.indexOf('hypnotique') !== -1
+    || noteLC.indexOf('insomnie') !== -1
+    || (pointAttention !== null && pointAttention.label === 'Sommeil');
+
+  if (triggerSommeil) {
+    checkPage(25);
+
+    const somBlocH = 22;
+    doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
+    doc.rect(marginL, y, contentW, somBlocH, 'F');
+    doc.setDrawColor(TAUPE_LIGHT[0], TAUPE_LIGHT[1], TAUPE_LIGHT[2]);
     doc.setLineWidth(0.5);
-    doc.line(marginL, y, marginL + contentW, y);
-    y += 4;
+    doc.rect(marginL, y, contentW, somBlocH, 'S');
+    doc.setLineWidth(0.1);
+
     doc.setFontSize(9);
-    setNavy(false);
-    doc.text('Ressenti general : ' + _humeurTexte(Math.round(avgHumeurPDF)), pageW / 2, y, { align: 'center' });
+    tc(MUTED, false);
+    doc.text('DETAIL SOMMEIL - DONN\xc9ES D\xc9CLARATIVES', marginL + 5, y + 7);
+
+    const somMoyStr  = moySommeil !== null
+      ? (Math.round(moySommeil * 10) / 10).toFixed(1) + '/10'
+      : 'n/a';
+    const somJoursStr = _joursBasPct(dataSommeil) + '/7';
+
+    let plainteTxt = 'insomnie de maintien';
+    if (noteLC.indexOf('endormissement') !== -1)         plainteTxt = "insomnie d'endormissement";
+    else if (noteLC.indexOf('r\xe9veil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'r\xe9veils nocturnes';
+    else if (moySommeil !== null && moySommeil < 5)      plainteTxt = 'insomnie de maintien';
+
+    doc.setFontSize(11);
+    tc(ANTHRACITE, false);
+    doc.text(
+      'Score moyen : ' + somMoyStr
+      + '   \xB7   Jours mauvais : ' + somJoursStr
+      + '   \xB7   Plainte : ' + plainteTxt,
+      marginL + 5, y + 16
+    );
+
+    y += somBlocH + 5;
+    drawSep(y);
     y += 5;
   }
 
-  y += 5;
-
   // ============================================================
-  // SECTION : MES 3 POINTS A ABORDER
+  // 7. DONNEES OBJECTIVES DECLARATIVES (conditionnelle)
   // ============================================================
 
-  checkPage(20);
-
-  setSage(true);
-  doc.setFontSize(10);
-  doc.text('MES 3 POINTS A ABORDER', marginL, y);
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.4);
-  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
-  y += 7;
-
-  pointsAAborder.forEach((m, idx) => {
-    const numStr       = (idx + 1) + '.';
-    const couleurLabel = _colorVOR(m.moy);
-    const moyStr       = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : 'n/a';
-    const niveau       = m.moy !== null
-      ? (m.moy < 4 ? 'bas' : (m.moy < 7 ? 'modere' : 'correct'))
-      : 'n/a';
-    const joursBasStr  = m.joursBas > 0
-      ? ' - ' + m.joursBas + ' jour' + (m.joursBas > 1 ? 's' : '') + ' sur ' + m.nbJours + ' en orange/rouge'
-      : ' - aucun jour bas';
-    const ligne = m.label + ' ' + niveau + ' (moy. ' + moyStr + '/10)' + joursBasStr;
-
-    const lignes = doc.splitTextToSize(ligne, contentW - 14);
-    checkPage(8 + (lignes.length - 1) * 5);
-
-    doc.setFillColor(couleurLabel[0], couleurLabel[1], couleurLabel[2]);
-    doc.circle(marginL + 3, y + 1.5, 2, 'F');
-
-    doc.setFontSize(8.5);
-    setNavy(true);
-    doc.text(numStr, marginL + 7, y + 2.5);
-    setNavy(false);
-    lignes.forEach((l, li) => {
-      doc.text(l, marginL + 12, y + 2.5 + li * 5);
+  const mesuresParJour = [];
+  entrees.forEach(function(e) {
+    const raw = localStorage.getItem('boussole_mesures_' + e.date);
+    if (!raw) return;
+    let m;
+    try { m = JSON.parse(raw); } catch (ex) { return; }
+    const vals  = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(function(v) { return v !== null && v !== undefined; });
+    const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+    mesuresParJour.push({
+      fc:            (m.fc            !== undefined && m.fc            !== null) ? m.fc            : null,
+      sommeil_duree: (m.sommeil_duree !== undefined && m.sommeil_duree !== null) ? m.sommeil_duree : null,
+      ta_sys:        (m.ta_sys        !== undefined && m.ta_sys        !== null) ? m.ta_sys        : null,
+      ta_dia:        (m.ta_dia        !== undefined && m.ta_dia        !== null) ? m.ta_dia        : null,
+      rmssd:         (m.rmssd         !== undefined && m.rmssd         !== null) ? m.rmssd         : null,
+      poids:         (m.poids         !== undefined && m.poids         !== null) ? m.poids         : null,
+      score: score
     });
-    y += 5 + (lignes.length - 1) * 5 + 3;
   });
 
-  y += 3;
+  const fcValsAll           = mesuresParJour.map(function(d) { return d.fc; }).filter(function(v) { return v !== null; });
+  const sommeilDureeValsAll = mesuresParJour.map(function(d) { return d.sommeil_duree; }).filter(function(v) { return v !== null; });
+  const taValsAll           = mesuresParJour.filter(function(d) { return d.ta_sys !== null && d.ta_dia !== null; });
+  const rmssdValsAll        = mesuresParJour.map(function(d) { return d.rmssd; }).filter(function(v) { return v !== null; });
+  const poidsValsAll        = mesuresParJour.map(function(d) { return d.poids; }).filter(function(v) { return v !== null; });
 
-  // ============================================================
-  // SECTION : JOURS REMARQUABLES
-  // ============================================================
+  const hasFc           = fcValsAll.length >= 3;
+  const hasSommeilDuree = sommeilDureeValsAll.length >= 3;
+  const hasTa           = taValsAll.length >= 3;
+  const hasRmssd        = rmssdValsAll.length >= 3;
+  const hasPoids        = poidsValsAll.length >= 3;
+  const hasAnyMesure    = hasFc || hasSommeilDuree || hasTa || hasRmssd || hasPoids;
 
-  checkPage(30);
+  if (hasAnyMesure) {
+    let mesBlockH = 12;
+    if (hasFc)           mesBlockH += 6;
+    if (hasSommeilDuree) mesBlockH += 6;
+    if (hasTa)           mesBlockH += 6;
+    if (hasRmssd)        mesBlockH += 6;
+    if (hasPoids)        mesBlockH += 6;
+    if (hasFc)           mesBlockH += 12;
+    mesBlockH += 8;
 
-  setSage(true);
-  doc.setFontSize(10);
-  doc.text('JOURS REMARQUABLES', marginL, y);
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.4);
-  doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
-  y += 7;
+    checkPage(mesBlockH + 10);
 
-  const halfW = (contentW - 6) / 2;
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('DONN\xc9ES OBJECTIVES D\xc9CLARATIVES', marginL, y);
+    y += 5;
 
-  // Meilleur jour
-  doc.setFillColor(VERT[0], VERT[1], VERT[2]);
-  doc.roundedRect(marginL, y, halfW, 16, 3, 3, 'F');
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('Meilleur jour', marginL + halfW / 2, y + 5, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  if (meilleurJour) {
-    doc.text(_dateLocale(meilleurJour.date), marginL + halfW / 2, y + 10, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
-    doc.text('Score ' + (Math.round(meilleurJour.score * 10) / 10).toFixed(1) + '/10', marginL + halfW / 2, y + 14.5, { align: 'center' });
-  }
+    doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
+    doc.rect(marginL, y, contentW, mesBlockH, 'F');
+    let my = y + 8;
 
-  // Pire jour
-  const pireX = marginL + halfW + 6;
-  doc.setFillColor(ROUGE[0], ROUGE[1], ROUGE[2]);
-  doc.roundedRect(pireX, y, halfW, 16, 3, 3, 'F');
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('Jour le plus difficile', pireX + halfW / 2, y + 5, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  if (pireJour) {
-    doc.text(_dateLocale(pireJour.date), pireX + halfW / 2, y + 10, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
-    doc.text('Score ' + (Math.round(pireJour.score * 10) / 10).toFixed(1) + '/10', pireX + halfW / 2, y + 14.5, { align: 'center' });
-  }
+    doc.setFontSize(11);
+    if (hasFc) {
+      const fcMoy = Math.round(_moyenne(fcValsAll));
+      const fcMin = Math.min.apply(null, fcValsAll);
+      const fcMax = Math.max.apply(null, fcValsAll);
+      tc(ANTHRACITE, false);
+      doc.text('FC repos : ' + fcMoy + ' bpm moy. (min ' + fcMin + ' - max ' + fcMax + ')', marginL + 5, my);
+      my += 6;
+    }
+    if (hasSommeilDuree) {
+      const sdMoy = _moyenne(sommeilDureeValsAll).toFixed(1);
+      tc(ANTHRACITE, false);
+      doc.text('Dur\xe9e sommeil : ' + sdMoy + 'h moy.', marginL + 5, my);
+      my += 6;
+    }
+    if (hasTa) {
+      const taSVals = taValsAll.map(function(d) { return d.ta_sys; });
+      const taDVals = taValsAll.map(function(d) { return d.ta_dia; });
+      const taSMoy  = Math.round(_moyenne(taSVals));
+      const taDMoy  = Math.round(_moyenne(taDVals));
+      const taSMin  = Math.min.apply(null, taSVals); const taDMin = Math.min.apply(null, taDVals);
+      const taSMax  = Math.max.apply(null, taSVals); const taDMax = Math.max.apply(null, taDVals);
+      tc(ANTHRACITE, false);
+      doc.text(
+        'Tension : ' + taSMoy + '/' + taDMoy + ' mmHg moy. (min ' + taSMin + '/' + taDMin + ' - max ' + taSMax + '/' + taDMax + ')',
+        marginL + 5, my
+      );
+      my += 6;
+    }
+    if (hasRmssd) {
+      const rMoy = Math.round(_moyenne(rmssdValsAll));
+      const rMin = Math.min.apply(null, rmssdValsAll);
+      const rMax = Math.max.apply(null, rmssdValsAll);
+      tc(ANTHRACITE, false);
+      doc.text('VFC/RMSSD : ' + rMoy + ' ms moy. (min ' + rMin + ' - max ' + rMax + ')', marginL + 5, my);
+      my += 6;
+    }
+    if (hasPoids) {
+      const pMoy = _moyenne(poidsValsAll).toFixed(1);
+      const pMin = Math.min.apply(null, poidsValsAll).toFixed(1);
+      const pMax = Math.max.apply(null, poidsValsAll).toFixed(1);
+      tc(ANTHRACITE, false);
+      doc.text('Poids : ' + pMoy + ' kg moy. (min ' + pMin + ' - max ' + pMax + ')', marginL + 5, my);
+      my += 6;
+    }
 
-  y += 19;
+    // Correlation FC x score
+    if (hasFc) {
+      const fcParJour   = mesuresParJour.filter(function(d) { return d.fc !== null; });
+      const aJourFaible = fcParJour.some(function(d) { return d.score !== null && d.score < 5; });
+      const aJourHaut   = fcParJour.some(function(d) { return d.score !== null && d.score >= 7; });
+      if (aJourFaible && aJourHaut) {
+        const fcFaibles    = fcParJour.filter(function(d) { return d.score !== null && d.score < 5; }).map(function(d) { return d.fc; });
+        const fcFavorables = fcParJour.filter(function(d) { return d.score !== null && d.score >= 5; }).map(function(d) { return d.fc; });
+        if (fcFaibles.length > 0 && fcFavorables.length > 0) {
+          const moyFaibles    = Math.round(_moyenne(fcFaibles));
+          const moyFavorables = Math.round(_moyenne(fcFavorables));
+          const diff          = Math.abs(moyFaibles - moyFavorables);
+          if (diff >= 5) {
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+            const corrLines = doc.splitTextToSize(
+              'FC \xe9lev\xe9e les jours de score faible (' + moyFaibles + ' bpm vs ' + moyFavorables + ' bpm les jours favorables).',
+              contentW - 10
+            );
+            corrLines.forEach(function(l, li) { doc.text(l, marginL + 5, my + li * 4.5); });
+            my += corrLines.length * 4.5 + 2;
+          }
+        }
+      }
+    }
 
-  if (meilleurJour && pireJour) {
-    const ecart    = Math.abs(meilleurJour.score - pireJour.score);
-    const ecartStr = (Math.round(ecart * 10) / 10).toFixed(1);
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Ecart max sur la periode : ' + ecartStr + ' points', pageW / 2, y + 3, { align: 'center' });
-    y += 7;
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('Mesures d\xe9claratives - pas de valeur diagnostique', marginL + 5, my + 4);
+
+    y += mesBlockH + 5;
+    drawSep(y);
+    y += 5;
   }
 
   // ============================================================
-  // SECTION PEM : EPISODES DE CRASH (conditionnelle)
+  // 8. EPISODES DE CRASH (conditionnel)
   // ============================================================
 
   if (typeof window.detectPEMEvents === 'function') {
-    const days7jPEM = entrees.map(e => {
+    const days7jPEM = entrees.map(function(e) {
       const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-        .filter(v => v !== null && v !== undefined);
-      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-      return { date: e.date, score };
-    }).filter(d => d.score !== null);
+        .filter(function(v) { return v !== null && v !== undefined; });
+      const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+      return { date: e.date, score: score };
+    }).filter(function(d) { return d.score !== null; });
 
     const mesures7jMapPEM = {};
-    entrees.forEach(e => {
+    entrees.forEach(function(e) {
       const raw = localStorage.getItem('boussole_mesures_' + e.date);
       if (!raw) return;
       try { mesures7jMapPEM['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
@@ -825,53 +789,55 @@ function genererPDFConsultation(noteLibre) {
     const pemEvents7j = window.detectPEMEvents(days7jPEM, mesures7jMapPEM);
     if (pemEvents7j.length > 0) {
       checkPage(25);
-      y += 3;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.text('EPISODES DE CRASH', marginL, y);
-      doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-      doc.setLineWidth(0.4);
-      doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
-      y += 7;
+
+      doc.setFontSize(9);
+      tc(MUTED, false);
+      doc.text('\xc9PISODES DE CRASH', marginL, y);
+      y += 5;
 
       const pemSum7j    = (typeof window.getPEMSummary === 'function')
         ? window.getPEMSummary(pemEvents7j)
         : { count: pemEvents7j.length, avgDelta: null };
       const avgDeltaStr = pemSum7j.avgDelta !== null ? pemSum7j.avgDelta.toFixed(1) : '-';
-      const pemLine1    = pemSum7j.count + ' episode(s) detecte(s) sur 7 jours. Chute moyenne : ' + avgDeltaStr + ' points.';
-      doc.setFontSize(8.5);
-      setNavy(false);
-      doc.text(pemLine1, marginL, y + 3.5);
-      y += 6;
 
-      const fcEvents7j = pemEvents7j.filter(ev => ev.fcJ !== null && ev.fcCrash !== null);
+      doc.setFontSize(11);
+      tc(ANTHRACITE, false);
+      doc.text(
+        pemSum7j.count + ' \xe9pisode(s) d\xe9tect\xe9(s) sur 7 jours. Chute moyenne : ' + avgDeltaStr + ' points.',
+        marginL, y + 3.5
+      );
+      y += 7;
+
+      const fcEvents7j = pemEvents7j.filter(function(ev) { return ev.fcJ !== null && ev.fcCrash !== null; });
       if (fcEvents7j.length > 0) {
-        const avgFcDelta = fcEvents7j.reduce((a, ev) => a + ev.fcDelta, 0) / fcEvents7j.length;
+        const avgFcDelta = fcEvents7j.reduce(function(a, ev) { return a + ev.fcDelta; }, 0) / fcEvents7j.length;
         const sign       = avgFcDelta >= 0 ? '+' : '';
-        const pemLine2   = 'FC repos associee : ' + sign + Math.round(avgFcDelta) + ' bpm en moyenne lors des episodes.';
-        doc.text(pemLine2, marginL, y + 3.5);
-        y += 6;
+        doc.text(
+          'FC repos associ\xe9e : ' + sign + Math.round(avgFcDelta) + ' bpm en moyenne lors des \xe9pisodes.',
+          marginL, y + 3.5
+        );
+        y += 7;
       }
 
-      y += 2;
+      drawSep(y);
+      y += 5;
     }
   }
 
   // ============================================================
-  // SECTION CYCLE ET BIEN-ETRE (conditionnelle)
+  // CYCLE HORMONAL (conditionnel — logique conservee)
   // ============================================================
 
   if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
-    const days7jCycle = entrees.map(e => {
+    const days7jCycle = entrees.map(function(e) {
       const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-        .filter(v => v !== null && v !== undefined);
-      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-      return { date: e.date, score };
-    }).filter(d => d.score !== null);
+        .filter(function(v) { return v !== null && v !== undefined; });
+      const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+      return { date: e.date, score: score };
+    }).filter(function(d) { return d.score !== null; });
 
     const mesures7jCycle = {};
-    entrees.forEach(e => {
+    entrees.forEach(function(e) {
       const raw = localStorage.getItem('boussole_mesures_' + e.date);
       if (!raw) return;
       try { mesures7jCycle['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
@@ -879,31 +845,27 @@ function genererPDFConsultation(noteLibre) {
 
     const cyclePhases7j   = window.collectCycleData(days7jCycle, mesures7jCycle, 7);
     const cycleAnalysis7j = window.analyzeCycleCorrelation(cyclePhases7j);
-    const daysWithCycle7j = Object.values(cyclePhases7j).reduce((sum, arr) => sum + arr.length, 0);
+    const daysWithCycle7j = Object.values(cyclePhases7j).reduce(function(sum, arr) { return sum + arr.length; }, 0);
 
     if (cycleAnalysis7j !== null && daysWithCycle7j >= 3) {
       checkPage(30);
-      y += 3;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.text('CYCLE ET BIEN-ETRE', marginL, y);
-      doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-      doc.setLineWidth(0.4);
-      doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
-      y += 7;
+
+      doc.setFontSize(9);
+      tc(MUTED, false);
+      doc.text('CYCLE ET BIEN-\xcaTRE', marginL, y);
+      y += 5;
 
       const cyclePhaseLabels = {
         folliculaire:  'Folliculaire',
         ovulation:     'Ovulation',
-        luteale:       'Luteale',
-        menstruation:  'Regles',
-        perimenopause: 'Irregulier'
+        luteale:       'Lut\xe9ale',
+        menstruation:  'R\xe8gles',
+        perimenopause: 'Irr\xe9gulier'
       };
 
       let phaseDominante7j = null;
       let maxCount7j = 0;
-      Object.keys(cyclePhases7j).forEach(phase => {
+      Object.keys(cyclePhases7j).forEach(function(phase) {
         if (cyclePhases7j[phase].length > maxCount7j) {
           maxCount7j = cyclePhases7j[phase].length;
           phaseDominante7j = phase;
@@ -912,18 +874,17 @@ function genererPDFConsultation(noteLibre) {
 
       const phaseDomLabel = phaseDominante7j ? (cyclePhaseLabels[phaseDominante7j] || phaseDominante7j) : '-';
       const avgScoreDom   = phaseDominante7j && cyclePhases7j[phaseDominante7j].length
-        ? (cyclePhases7j[phaseDominante7j].reduce((a, b) => a + b, 0) / cyclePhases7j[phaseDominante7j].length)
+        ? cyclePhases7j[phaseDominante7j].reduce(function(a, b) { return a + b; }, 0) / cyclePhases7j[phaseDominante7j].length
         : null;
       const avgStr        = avgScoreDom !== null ? (Math.round(avgScoreDom * 10) / 10).toFixed(1) : '-';
       const line1         = 'Phase dominante cette semaine : ' + phaseDomLabel
         + ' (' + maxCount7j + ' jour' + (maxCount7j > 1 ? 's' : '') + ').'
         + ' Score moyen : ' + avgStr + '/10.';
 
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.setFontSize(11);
+      tc(ANTHRACITE, false);
       doc.text(line1, marginL, y + 3.5);
-      y += 6;
+      y += 7;
 
       // Historique 30j
       const mesures30jCycle = {};
@@ -935,17 +896,17 @@ function genererPDFConsultation(noteLibre) {
       for (let i = 29; i >= 0; i--) {
         const d30  = new Date(today30j);
         d30.setDate(d30.getDate() - i);
-        const ds30 = d30.toISOString().split('T')[0];
+        const ds30  = d30.toISOString().split('T')[0];
         const raw30 = localStorage.getItem('boussole_mesures_' + ds30);
         if (!raw30) continue;
         try { mesures30jCycle['boussole_mesures_' + ds30] = JSON.parse(raw30); } catch(ex) {}
       }
-      const days30jCycle     = rawEntries.filter(e => e.date >= cutoff30jStr).map(e => {
+      const days30jCycle = rawEntries.filter(function(e) { return e.date >= cutoff30jStr; }).map(function(e) {
         const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-          .filter(v => v !== null && v !== undefined);
-        const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-        return { date: e.date, score };
-      }).filter(d => d.score !== null);
+          .filter(function(v) { return v !== null && v !== undefined; });
+        const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+        return { date: e.date, score: score };
+      }).filter(function(d) { return d.score !== null; });
       const cyclePhases30j   = window.collectCycleData(days30jCycle, mesures30jCycle, 30);
       const cycleAnalysis30j = window.analyzeCycleCorrelation(cyclePhases30j);
       if (cycleAnalysis30j !== null && cycleAnalysis30j.significant) {
@@ -954,179 +915,22 @@ function genererPDFConsultation(noteLibre) {
         const phaseMaxLabel = cyclePhaseLabels[cycleAnalysis30j.phaseMax] || cycleAnalysis30j.phaseMax;
         const deltaStr      = (Math.round(cycleAnalysis30j.delta * 10) / 10).toFixed(1);
         const line2         = 'Historiquement, la phase ' + phaseMinLabel
-          + ' est associee a des scores plus bas (-' + deltaStr
+          + ' est associ\xe9e \xe0 des scores plus bas (-' + deltaStr
           + ' points vs phase ' + phaseMaxLabel + ').';
         doc.text(line2, marginL, y + 3.5);
-        y += 6;
+        y += 7;
       }
 
-      y += 2;
+      drawSep(y);
+      y += 5;
     }
-  }
-
-  // ============================================================
-  // SECTION : MESURES OBJECTIVES (conditionnelle)
-  // ============================================================
-
-  const mesuresParJour = [];
-  entrees.forEach(e => {
-    const raw = localStorage.getItem('boussole_mesures_' + e.date);
-    if (!raw) return;
-    let m;
-    try { m = JSON.parse(raw); } catch (ex) { return; }
-    const vals  = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
-      .filter(v => v !== null && v !== undefined);
-    const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-    mesuresParJour.push({
-      fc:            (m.fc            !== undefined && m.fc            !== null) ? m.fc            : null,
-      sommeil_duree: (m.sommeil_duree !== undefined && m.sommeil_duree !== null) ? m.sommeil_duree : null,
-      ta_sys:        (m.ta_sys        !== undefined && m.ta_sys        !== null) ? m.ta_sys        : null,
-      ta_dia:        (m.ta_dia        !== undefined && m.ta_dia        !== null) ? m.ta_dia        : null,
-      rmssd:         (m.rmssd         !== undefined && m.rmssd         !== null) ? m.rmssd         : null,
-      poids:         (m.poids         !== undefined && m.poids         !== null) ? m.poids         : null,
-      score
-    });
-  });
-
-  const fcValsAll           = mesuresParJour.map(d => d.fc).filter(v => v !== null);
-  const sommeilDureeValsAll = mesuresParJour.map(d => d.sommeil_duree).filter(v => v !== null);
-  const taValsAll           = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
-  const rmssdValsAll        = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
-  const poidsValsAll        = mesuresParJour.map(d => d.poids).filter(v => v !== null);
-
-  const hasFc           = fcValsAll.length >= 3;
-  const hasSommeilDuree = sommeilDureeValsAll.length >= 3;
-  const hasTa           = taValsAll.length >= 3;
-  const hasRmssd        = rmssdValsAll.length >= 3;
-  const hasPoids        = poidsValsAll.length >= 3;
-  const hasAnyMesure    = hasFc || hasSommeilDuree || hasTa || hasRmssd || hasPoids;
-
-  if (hasAnyMesure) {
-    const EAF0EE = [234, 240, 238];
-    let mesuresBlockH = 12;
-    if (hasFc)           mesuresBlockH += 6;
-    if (hasSommeilDuree) mesuresBlockH += 6;
-    if (hasTa)           mesuresBlockH += 6;
-    if (hasRmssd)        mesuresBlockH += 6;
-    if (hasPoids)        mesuresBlockH += 6;
-    if (hasFc)           mesuresBlockH += 12; // correlation eventuelle
-    mesuresBlockH += 8;
-
-    checkPage(mesuresBlockH + 5);
-
-    y += 3;
-    doc.setFillColor(EAF0EE[0], EAF0EE[1], EAF0EE[2]);
-    doc.rect(marginL, y, contentW, mesuresBlockH, 'F');
-
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    doc.text('DONNEES OBJECTIVES (declaratives)', marginL + 2, y + 6);
-    doc.setDrawColor(NAVY[0], NAVY[1], NAVY[2]);
-    doc.setLineWidth(0.2);
-    doc.line(marginL, y + 8, marginL + contentW, y + 8);
-    y += 12;
-
-    doc.setFontSize(8);
-
-    if (hasFc) {
-      const fcMoy = Math.round(_moyenne(fcValsAll));
-      const fcMin = Math.min(...fcValsAll);
-      const fcMax = Math.max(...fcValsAll);
-      setNavy(false);
-      doc.text('FC repos : ' + fcMoy + ' bpm en moyenne (min ' + fcMin + ' - max ' + fcMax + ')', marginL + 2, y + 3.5);
-      y += 6;
-    }
-
-    if (hasSommeilDuree) {
-      const sdMoy = (_moyenne(sommeilDureeValsAll)).toFixed(1);
-      setNavy(false);
-      doc.text('Duree sommeil (h) - moy 7j : ' + sdMoy + 'h', marginL + 2, y + 3.5);
-      y += 6;
-    }
-
-    if (hasTa) {
-      const taSVals = taValsAll.map(d => d.ta_sys);
-      const taDVals = taValsAll.map(d => d.ta_dia);
-      const taSMoy  = Math.round(_moyenne(taSVals));
-      const taDMoy  = Math.round(_moyenne(taDVals));
-      const taSMin  = Math.min(...taSVals);
-      const taDMin  = Math.min(...taDVals);
-      const taSMax  = Math.max(...taSVals);
-      const taDMax  = Math.max(...taDVals);
-      setNavy(false);
-      doc.text(
-        'Tension : ' + taSMoy + '/' + taDMoy + ' mmHg en moyenne (min ' + taSMin + '/' + taDMin + ' - max ' + taSMax + '/' + taDMax + ')',
-        marginL + 2, y + 3.5
-      );
-      y += 6;
-    }
-
-    if (hasRmssd) {
-      const rMoy = Math.round(_moyenne(rmssdValsAll));
-      const rMin = Math.min(...rmssdValsAll);
-      const rMax = Math.max(...rmssdValsAll);
-      setNavy(false);
-      doc.text('VFC/RMSSD : ' + rMoy + ' ms en moyenne (min ' + rMin + ' - max ' + rMax + ')', marginL + 2, y + 3.5);
-      y += 6;
-    }
-
-    if (hasPoids) {
-      const pMoy = (_moyenne(poidsValsAll)).toFixed(1);
-      const pMin = Math.min(...poidsValsAll).toFixed(1);
-      const pMax = Math.max(...poidsValsAll).toFixed(1);
-      setNavy(false);
-      doc.text('Poids : ' + pMoy + ' kg en moyenne (min ' + pMin + ' - max ' + pMax + ')', marginL + 2, y + 3.5);
-      y += 6;
-    }
-
-    // Correlation FC x score
-    if (hasFc) {
-      const fcParJour    = mesuresParJour.filter(d => d.fc !== null);
-      const aJourFaible  = fcParJour.some(d => d.score !== null && d.score < 5);
-      const aJourHaut    = fcParJour.some(d => d.score !== null && d.score >= 7);
-
-      if (aJourFaible && aJourHaut) {
-        const fcFaibles    = fcParJour.filter(d => d.score !== null && d.score < 5).map(d => d.fc);
-        const fcFavorables = fcParJour.filter(d => d.score !== null && d.score >= 5).map(d => d.fc);
-
-        if (fcFaibles.length > 0 && fcFavorables.length > 0) {
-          const moyFaibles    = Math.round(_moyenne(fcFaibles));
-          const moyFavorables = Math.round(_moyenne(fcFavorables));
-          const diff          = Math.abs(moyFaibles - moyFavorables);
-
-          if (diff >= 5) {
-            const corrPhrase =
-              'Les jours de score faible coincident avec une FC plus elevee'
-              + ' (' + moyFaibles + ' bpm vs ' + moyFavorables + ' bpm les jours favorables).';
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'italic');
-            doc.setTextColor(85, 85, 85);
-            const corrLines = doc.splitTextToSize(corrPhrase, contentW - 4);
-            corrLines.forEach((l, li) => {
-              doc.text(l, marginL + 2, y + 3.5 + li * 5);
-            });
-            y += 3.5 + corrLines.length * 5 + 1;
-          }
-        }
-      }
-    }
-
-    // Disclaimer compact
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Mesures declaratives - pas de valeur diagnostique', marginL + 2, y + 3.5);
-    y += 6;
   }
 
   // ============================================================
   // FOOTER (toutes les pages)
   // ============================================================
-
   drawFooters();
 
-  // ---- OUVERTURE ----
   doc.autoPrint();
   const pdfUrl = doc.output('bloburl');
   window.open(pdfUrl, '_blank');
