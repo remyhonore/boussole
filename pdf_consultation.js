@@ -267,35 +267,6 @@ function genererPDFConsultation(noteLibre) {
   const colDroiteW = contentW - colGaucheW - 5;
   const colDroiteX = marginL + colGaucheW + 5;
 
-  // Bandeau score (colonne droite)
-  const scoreColorHdr = _colorVOR(scoreGlobal);
-  doc.setFillColor(scoreColorHdr[0], scoreColorHdr[1], scoreColorHdr[2]);
-  doc.roundedRect(colDroiteX, 4, colDroiteW, 30, 3, 3, 'F');
-
-  const scoreStrHdr = scoreGlobal !== null
-    ? (Math.round(scoreGlobal * 10) / 10).toFixed(1) + '/10'
-    : 'n/a';
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('Score Boussole', colDroiteX + colDroiteW / 2, 10, { align: 'center' });
-
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text(scoreStrHdr, colDroiteX + colDroiteW / 2, 21, { align: 'center' });
-
-  doc.setFontSize(6);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(255, 255, 255);
-  const hdrNoteLines = doc.splitTextToSize(
-    'Score de bien-etre subjectif 0-10 (outil de suivi personnel, pas de valeur diagnostique)',
-    colDroiteW - 4
-  );
-  hdrNoteLines.forEach((l, li) => {
-    doc.text(l, colDroiteX + colDroiteW / 2, 27 + li * 3.5, { align: 'center' });
-  });
-
   // Colonne gauche
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
@@ -335,66 +306,114 @@ function genererPDFConsultation(noteLibre) {
   y = 43;
 
   // ============================================================
-  // SECTION LECTURE RAPIDE
+  // BLOC OBJECTIFS (pleine largeur) — juste apres le header
   // ============================================================
 
-  doc.setFontSize(12);
+  let objLines = [];
+  if (noteTrimmed.length > 0) {
+    objLines = doc.splitTextToSize(noteTrimmed, contentW - 12);
+  }
+  const objContentH = noteTrimmed.length > 0 ? objLines.length * 5.5 : 6;
+  const objBlocH    = 7 + objContentH + 5;
+
+  checkPage(objBlocH + 5);
+
+  doc.setFillColor(BG_JAUNE[0], BG_JAUNE[1], BG_JAUNE[2]);
+  doc.rect(marginL, y, contentW, objBlocH, 'F');
+  doc.setDrawColor(JAUNE[0], JAUNE[1], JAUNE[2]);
+  doc.setLineWidth(4);
+  doc.line(marginL, y, marginL, y + objBlocH);
+  doc.setLineWidth(0.1);
+
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 0, 0);
-  doc.text('LECTURE RAPIDE -- 3 POINTS ESSENTIELS', marginL, y);
-  // Souligne manuel
-  const lrW = doc.getTextWidth('LECTURE RAPIDE -- 3 POINTS ESSENTIELS');
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.5);
-  doc.line(marginL, y + 1.2, marginL + lrW, y + 1.2);
-  y += 8;
+  doc.setTextColor(JAUNE[0], JAUNE[1], JAUNE[2]);
+  doc.text('OBJECTIFS DE CETTE CONSULTATION', marginL + 7, y + 5.5);
+
+  let oy = y + 5.5 + 4;
+
+  if (noteTrimmed.length === 0) {
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Aucun motif saisi', marginL + 7, oy);
+  } else {
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+    objLines.forEach((l, li) => {
+      doc.text(l, marginL + 7, oy + li * 5.5);
+    });
+  }
+
+  y += objBlocH + 5;
 
   // ============================================================
-  // BLOC 1 : TRAITEMENT ACTUEL (vert)
+  // 2 COLONNES : TRAITEMENT ACTUEL (gauche) + POINT D'ATTENTION (droite)
   // ============================================================
 
-  // Construire les lignes de contenu avec wrapping
+  const colTraitW = Math.floor(contentW * 0.52);
+  const colAttnW  = Math.floor(contentW * 0.44);
+  const colAttnX  = marginL + colTraitW + 8;
+
+  const ROUGE_ATT = [192, 57, 43];
+  const BG_ATT    = [255, 241, 240];
+
+  const pointAttnTop = metriquesSorted.length > 0
+    && metriquesSorted[0].moy !== null
+    && metriquesSorted[0].moy < 7
+    ? metriquesSorted[0]
+    : null;
+
+  // --- Lignes TRAITEMENT (col gauche, largeur = colTraitW) ---
   const traitItems = [];
   medLines.forEach(m => {
-    const wrapped = doc.splitTextToSize('- ' + m, contentW - 12);
+    const wrapped = doc.splitTextToSize('- ' + m, colTraitW - 12);
     traitItems.push({ lines: wrapped, isAllergy: false });
   });
   if (txComp) {
-    const wrapped = doc.splitTextToSize('Complements : ' + txComp, contentW - 12);
+    const wrapped = doc.splitTextToSize('Complements : ' + txComp, colTraitW - 12);
     traitItems.push({ lines: wrapped, isAllergy: false });
   }
   if (txAll && txAll.toUpperCase() !== 'RAS') {
-    const wrapped = doc.splitTextToSize('Allergies/CI : ' + txAll, contentW - 12);
+    const wrapped = doc.splitTextToSize('Allergies/CI : ' + txAll, colTraitW - 12);
     traitItems.push({ lines: wrapped, isAllergy: true });
   }
   const aucunTraitement = traitItems.length === 0;
-
-  // Calcul hauteur bloc
-  let traitContentH = 0;
-  if (aucunTraitement) {
-    traitContentH = 6;
-  } else {
-    traitItems.forEach(item => { traitContentH += item.lines.length * 5.5; });
-  }
+  let traitContentH = aucunTraitement ? 6 : 0;
+  if (!aucunTraitement) traitItems.forEach(item => { traitContentH += item.lines.length * 5.5; });
   const traitBlocH = 7 + traitContentH + 5;
 
-  checkPage(traitBlocH + 5);
+  // --- Hauteur POINT D'ATTENTION compact (col droite) ---
+  let attnLine1 = [];
+  let attnValStr = '';
+  let attnBlocH;
+  if (pointAttnTop !== null) {
+    attnValStr = (Math.round(pointAttnTop.moy * 10) / 10).toFixed(1);
+    attnLine1  = doc.splitTextToSize(pointAttnTop.label + ' -- ' + attnValStr + '/10', colAttnW - 14);
+    attnBlocH  = 7 + attnLine1.length * 7 + 7 + 5;
+  } else {
+    attnBlocH = 7 + 6 + 5;
+  }
 
-  // Fond + bordure gauche
+  const maxBlocH = Math.max(traitBlocH, attnBlocH);
+  checkPage(maxBlocH + 5);
+  const blocY = y;
+
+  // --- Dessin TRAITEMENT (col gauche) ---
   doc.setFillColor(BG_VERT[0], BG_VERT[1], BG_VERT[2]);
-  doc.rect(marginL, y, contentW, traitBlocH, 'F');
+  doc.rect(marginL, blocY, colTraitW, maxBlocH, 'F');
   doc.setDrawColor(VERT_DARK[0], VERT_DARK[1], VERT_DARK[2]);
   doc.setLineWidth(4);
-  doc.line(marginL, y, marginL, y + traitBlocH);
+  doc.line(marginL, blocY, marginL, blocY + maxBlocH);
   doc.setLineWidth(0.1);
 
-  // Titre
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(VERT_DARK[0], VERT_DARK[1], VERT_DARK[2]);
-  doc.text('TRAITEMENT ACTUEL', marginL + 7, y + 5.5);
+  doc.text('TRAITEMENT ACTUEL', marginL + 7, blocY + 5.5);
 
-  let ty = y + 5.5 + 4;
+  let ty = blocY + 5.5 + 4;
 
   if (aucunTraitement) {
     doc.setFontSize(8.5);
@@ -418,53 +437,41 @@ function genererPDFConsultation(noteLibre) {
     });
   }
 
-  y += traitBlocH + 5;
-
-  // ============================================================
-  // BLOC 2 : OBJECTIFS DE CETTE CONSULTATION (jaune)
-  // ============================================================
-
-  // Construire lignes contenu
-  let objLines = [];
-  if (noteTrimmed.length > 0) {
-    objLines = doc.splitTextToSize(noteTrimmed, contentW - 12);
-  }
-  const objContentH = noteTrimmed.length > 0 ? objLines.length * 5.5 : 6;
-  const objBlocH    = 7 + objContentH + 5;
-
-  checkPage(objBlocH + 5);
-
-  // Fond + bordure gauche
-  doc.setFillColor(BG_JAUNE[0], BG_JAUNE[1], BG_JAUNE[2]);
-  doc.rect(marginL, y, contentW, objBlocH, 'F');
-  doc.setDrawColor(JAUNE[0], JAUNE[1], JAUNE[2]);
+  // --- Dessin POINT D'ATTENTION compact (col droite) ---
+  doc.setFillColor(BG_ATT[0], BG_ATT[1], BG_ATT[2]);
+  doc.rect(colAttnX, blocY, colAttnW, maxBlocH, 'F');
+  doc.setDrawColor(ROUGE_ATT[0], ROUGE_ATT[1], ROUGE_ATT[2]);
   doc.setLineWidth(4);
-  doc.line(marginL, y, marginL, y + objBlocH);
+  doc.line(colAttnX, blocY, colAttnX, blocY + maxBlocH);
   doc.setLineWidth(0.1);
 
-  // Titre
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(JAUNE[0], JAUNE[1], JAUNE[2]);
-  doc.text('OBJECTIFS DE CETTE CONSULTATION', marginL + 7, y + 5.5);
+  doc.setTextColor(ROUGE_ATT[0], ROUGE_ATT[1], ROUGE_ATT[2]);
+  doc.text("POINT D'ATTENTION", colAttnX + 7, blocY + 5.5);
 
-  let oy = y + 5.5 + 4;
-
-  if (noteTrimmed.length === 0) {
-    doc.setFontSize(8.5);
+  if (pointAttnTop !== null) {
+    const valColor = _colorVOR(pointAttnTop.moy);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(valColor[0], valColor[1], valColor[2]);
+    let attnY = blocY + 5.5 + 6;
+    attnLine1.forEach((l, li) => {
+      doc.text(l, colAttnX + 7, attnY + li * 7);
+    });
+    attnY += attnLine1.length * 7;
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Aucun motif saisi', marginL + 7, oy);
+    doc.text(pointAttnTop.joursBas + '/7 jours en orange/rouge', colAttnX + 7, attnY + 2);
   } else {
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    objLines.forEach((l, li) => {
-      doc.text(l, marginL + 7, oy + li * 5.5);
-    });
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Aucun point critique cette semaine', colAttnX + 7, blocY + 5.5 + 8);
   }
 
-  y += objBlocH + 7;
+  y += maxBlocH + 5;
 
   // ============================================================
   // SEPARATEUR VISUEL
