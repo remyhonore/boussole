@@ -151,6 +151,7 @@ function genererPDFConsultation(noteLibre) {
 
   const medLines = txMed
     ? txMed.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
+        .map(function(ml) { return ml.replace(/(\d)(mg|µg|g|ml|mcg)/gi, '$1 $2'); })
     : [];
 
   const compLines = txComp
@@ -268,6 +269,10 @@ function genererPDFConsultation(noteLibre) {
   doc.setFontSize(9);
   tc(MUTED, false);
   doc.text('MOTIF DE CONSULTATION', marginL, y);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+  doc.text('d\xe9clar\xe9 par le patient', marginL + doc.getTextWidth('MOTIF DE CONSULTATION') + 4, y);
   y += 5;
 
   if (noteTrimmed.length === 0) {
@@ -415,7 +420,7 @@ function genererPDFConsultation(noteLibre) {
     });
     const retentParts = autresM.map(function(m) {
       const ms  = (Math.round(m.moy * 10) / 10).toFixed(1);
-      const q   = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'mod. alt\xe9r\xe9e' : 'alt\xe9r\xe9e');
+      const q   = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'mod\xe9r\xe9ment alt\xe9r\xe9e' : 'alt\xe9r\xe9e');
       const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
       return lbl + ' ' + ms + '/10 ' + q;
     });
@@ -528,7 +533,7 @@ function genererPDFConsultation(noteLibre) {
   doc.text('Moy.',        tabX + colDomW + colMoyW2 / 2,                                               y + 5, { align: 'center' });
   doc.text('J. mauvais',  tabX + colDomW + colMoyW2 + colJoursW / 2,                                   y + 5, { align: 'center' });
   doc.text('Tendance',    tabX + colDomW + colMoyW2 + colJoursW + colTendW2 / 2,                        y + 5, { align: 'center' });
-  doc.text('Commentaire', tabX + colDomW + colMoyW2 + colJoursW + colTendW2 + colComW / 2,              y + 5, { align: 'center' });
+  doc.text('Impact', tabX + colDomW + colMoyW2 + colJoursW + colTendW2 + colComW / 2,              y + 5, { align: 'center' });
   y += rowH2;
 
   metriques.forEach(function(m, idx) {
@@ -549,7 +554,7 @@ function genererPDFConsultation(noteLibre) {
     let comTxt, comColor, comBold;
     if      (m.moy === null) { comTxt = '-';             comColor = MUTED;      comBold = false; }
     else if (m.moy < 4)      { comTxt = 'alt\xe9r\xe9';  comColor = DARK_WARM;  comBold = true;  }
-    else if (m.moy < 7)      { comTxt = 'mod. alt\xe9r\xe9'; comColor = MUTED; comBold = false; }
+    else if (m.moy < 7)      { comTxt = 'mod\xe9r\xe9ment alt\xe9r\xe9'; comColor = MUTED; comBold = false; }
     else                     { comTxt = 'correct';       comColor = GREEN_SOFT; comBold = false; }
 
     const domBold = isProb;
