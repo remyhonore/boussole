@@ -1,11 +1,10 @@
 /**
  * Boussole — PDF Consultation 1 page
  *
- * Génère un document A4 (1 page) structuré pour préparer une consultation.
- * Vocabulaire contrôlé : métriques / points à aborder / utilisateur
- * Jamais : diagnostic / symptômes / patient
+ * Genere un document A4 structure pour preparer une consultation.
+ * Vocabulaire controle : metriques / points a aborder / utilisateur
  *
- * Dépendances : jsPDF (déjà chargé dans index.html)
+ * Dependances : jsPDF (deja charge dans index.html)
  */
 
 // ============================================
@@ -44,7 +43,7 @@ function _tendance7j(vals) {
 }
 
 /**
- * Compte le nombre de jours où une valeur est < 5
+ * Compte le nombre de jours ou une valeur est < 5
  */
 function _joursBasPct(vals) {
   const v = vals.filter(x => x !== null && x !== undefined);
@@ -70,7 +69,7 @@ function _dateLocale(dateStr) {
 }
 
 // ============================================
-// GÉNÉRATION PDF
+// GENERATION PDF
 // ============================================
 
 function genererPDFConsultation(noteLibre) {
@@ -82,7 +81,7 @@ function genererPDFConsultation(noteLibre) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  // ---- DONNÉES ----
+  // ---- DONNEES ----
   const data = loadEntries();
   let rawEntries = (data.entries || []).map(e => ({
     date:            e.date,
@@ -127,10 +126,10 @@ function genererPDFConsultation(noteLibre) {
     : null;
 
   const metriques = [
-    { label: 'Énergie',          moy: moyEnergie, vals: dataEnergie },
+    { label: 'Energie',          moy: moyEnergie, vals: dataEnergie },
     { label: 'Sommeil',          moy: moySommeil, vals: dataSommeil },
     { label: 'Confort physique', moy: moyConfort, vals: dataConfort },
-    { label: 'Clarté mentale',   moy: moyClarte,  vals: dataClarte  }
+    { label: 'Clarte mentale',   moy: moyClarte,  vals: dataClarte  }
   ].map(m => ({
     ...m,
     tendance:  _tendance7j(m.vals),
@@ -138,7 +137,7 @@ function genererPDFConsultation(noteLibre) {
     nbJours:   m.vals.filter(x => x !== null && x !== undefined).length
   }));
 
-  // 3 métriques avec la moyenne la plus basse
+  // 3 metriques avec la moyenne la plus basse
   const metriquesSorted = [...metriques]
     .filter(m => m.moy !== null)
     .sort((a, b) => a.moy - b.moy);
@@ -159,7 +158,7 @@ function genererPDFConsultation(noteLibre) {
     }
   });
 
-  // Données de la période
+  // Donnees de la periode
   const joursRenseignes = entrees.length;
   const derniereSaisie = entrees[entrees.length - 1].date;
 
@@ -182,6 +181,13 @@ function genererPDFConsultation(noteLibre) {
   const dateAujourdhui = aujourd_hui.toLocaleDateString('fr-FR', {
     day: '2-digit', month: 'long', year: 'numeric'
   });
+
+  // ---- IDENTITE PATIENT ----
+  const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
+  const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
+  const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
+  const idTel    = (localStorage.getItem('boussole_tel')        || '').trim();
+  const idEmail  = (localStorage.getItem('boussole_param_email') || '').trim();
 
   // ============================================
   // RENDU PDF
@@ -207,116 +213,122 @@ function genererPDFConsultation(noteLibre) {
     doc.setTextColor(GREY[0], GREY[1], GREY[2]);
   }
 
-  // ---- HEADER ----
-  doc.setFontSize(16);
+  // ---- HEADER 2 COLONNES ----
+  const colGaucheW = 105;
+  const colDroiteW = contentW - colGaucheW - 5;
+  const colDroiteX = marginL + colGaucheW + 5;
+
+  // Bandeau score (colonne droite) — dessine en premier pour fond
+  const scoreColorHdr = _colorVOR(scoreGlobal);
+  doc.setFillColor(scoreColorHdr[0], scoreColorHdr[1], scoreColorHdr[2]);
+  doc.roundedRect(colDroiteX, 4, colDroiteW, 30, 3, 3, 'F');
+
+  const scoreStrHdr = scoreGlobal !== null
+    ? (Math.round(scoreGlobal * 10) / 10).toFixed(1) + '/10'
+    : 'n/a';
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Score Boussole', colDroiteX + colDroiteW / 2, 10, { align: 'center' });
+
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text(scoreStrHdr, colDroiteX + colDroiteW / 2, 21, { align: 'center' });
+
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(255, 255, 255);
+  const hdrNoteLines = doc.splitTextToSize(
+    'Score de bien-etre subjectif 0-10 (outil de suivi personnel, pas de valeur diagnostique)',
+    colDroiteW - 4
+  );
+  hdrNoteLines.forEach((l, li) => {
+    doc.text(l, colDroiteX + colDroiteW / 2, 27 + li * 3.5, { align: 'center' });
+  });
+
+  // Colonne gauche
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.text('PRÉPARER MA CONSULTATION', pageW / 2, 12, { align: 'center' });
+  doc.text('PREPARER MA CONSULTATION', marginL, 10);
 
-  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
-  doc.setLineWidth(0.4);
-  doc.line(0, 15.5, pageW, 15.5);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.text('myboussole.fr', marginL, 16);
 
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(102, 102, 102);
-  doc.text(`Généré le ${dateAujourdhui}  ·  myboussole.fr`, pageW / 2, 20.5, { align: 'center' });
-
-  // Ligne identité patient (si au moins nom ou prénom renseigné)
-  const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
-  const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
-  const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
-  const idTel    = (localStorage.getItem('boussole_tel')        || '').trim();
-  const idEmail  = (localStorage.getItem('boussole_param_email') || '').trim();
+  doc.text('Genere le ' + dateAujourdhui, marginL, 22);
 
   if (idPrenom || idNom) {
-    const parts = [];
+    const partsId = [];
     const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
-    if (nomPrenom) parts.push(nomPrenom);
+    if (nomPrenom) partsId.push(nomPrenom);
     if (idDdn) {
       const [ddnY, ddnM, ddnD] = idDdn.split('-');
-      if (ddnY && ddnM && ddnD) parts.push(`${ddnD}/${ddnM}/${ddnY}`);
+      if (ddnY && ddnM && ddnD) partsId.push('Ne le ' + ddnD + '/' + ddnM + '/' + ddnY);
     }
-    if (idTel) parts.push(idTel);
-    if (idEmail) parts.push(idEmail);
-    const idLine = parts.join('  \xB7  ');
+    if (idTel) partsId.push(idTel);
+    const idLine = partsId.join('  \xB7  ');
     doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    doc.text(idLine, pageW / 2, 26, { align: 'center' });
-    y = 32;
-  } else {
-    y = 27;
-  }
-
-  // ---- TRAITEMENT EN COURS ----
-  const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
-  const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
-  const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
-
-  {
-    const BG_TRAIT    = [254, 242, 242];
-    const ROUGE_TRAIT = [220, 38, 38];
-    const lignes = [];
-    if (txMed)  lignes.push({ label: 'Medicaments : ' + txMed,    bold: false, color: NAVY });
-    if (txComp) lignes.push({ label: 'Complements : ' + txComp,   bold: false, color: NAVY });
-    if (txAll)  lignes.push({ label: 'Allergies/CI : ' + txAll,   bold: true,  color: ROUGE_TRAIT });
-
-    // Estimer la hauteur du bloc
-    let blocH = 10; // titre + note
-    lignes.forEach(function(l) {
-      const wrapped = doc.splitTextToSize(l.label, contentW - 10);
-      blocH += wrapped.length * 4.5 + 1;
-    });
-    if (lignes.length === 0) blocH += 5;
-    blocH += 5; // note de bas
-
-    doc.setFillColor(BG_TRAIT[0], BG_TRAIT[1], BG_TRAIT[2]);
-    doc.rect(marginL, y, contentW, blocH, 'F');
-    doc.setDrawColor(ROUGE_TRAIT[0], ROUGE_TRAIT[1], ROUGE_TRAIT[2]);
-    doc.setLineWidth(3);
-    doc.line(marginL, y, marginL, y + blocH);
-
-    doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-    doc.text('TRAITEMENT EN COURS - A VERIFIER AVANT TOUTE PRESCRIPTION', marginL + 5, y + 5.5);
-    let ty = y + 10;
-
-    if (lignes.length === 0) {
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'italic');
-      doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-      doc.text('Traitement non renseigne - completer dans Parametres', marginL + 5, ty);
-      ty += 5;
-    } else {
-      lignes.forEach(function(l) {
-        const wrapped = doc.splitTextToSize(l.label, contentW - 10);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', l.bold ? 'bold' : 'normal');
-        doc.setTextColor(l.color[0], l.color[1], l.color[2]);
-        wrapped.forEach(function(line, li) {
-          doc.text(line, marginL + 5, ty + li * 4.5);
-        });
-        ty += wrapped.length * 4.5 + 1;
-      });
-    }
-
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Source : saisie patient. A confirmer avec le dossier medical.', marginL + 5, ty + 3);
-
-    y += blocH + 5;
+    doc.text(idLine, marginL, 29);
   }
 
-  // ---- MOTIF DE CONSULTATION (en premier, juste après le header) ----
+  // Ligne separatrice header
+  doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+  doc.setLineWidth(0.4);
+  doc.line(0, 37, pageW, 37);
+  y = 42;
+
+  // ---- TRAITEMENT EN COURS ----
+  const DC2626 = [220, 38, 38];
+  const FEF2F2 = [254, 242, 242];
+  const traitementActuel = (localStorage.getItem('boussole_traitement_actuel') || '').trim();
+  const traitementText = traitementActuel.length > 0
+    ? traitementActuel
+    : 'Traitement non renseigne - voir onglet Parametres';
+
+  const traitLines = doc.splitTextToSize(traitementText, contentW - 12);
+  const traitH = 16 + traitLines.length * 5;
+
+  doc.setFillColor(FEF2F2[0], FEF2F2[1], FEF2F2[2]);
+  doc.rect(marginL, y, contentW, traitH, 'F');
+
+  doc.setDrawColor(DC2626[0], DC2626[1], DC2626[2]);
+  doc.setLineWidth(3);
+  doc.line(marginL, y, marginL, y + traitH);
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(DC2626[0], DC2626[1], DC2626[2]);
+  doc.text('TRAITEMENT EN COURS - A VERIFIER AVANT TOUTE PRESCRIPTION', marginL + 5, y + 6);
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+  traitLines.forEach((l, li) => {
+    doc.text(l, marginL + 5, y + 12 + li * 5);
+  });
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+  doc.text('Source : saisie patient. A confirmer avec le dossier medical.', marginL + 5, y + traitH - 2);
+
+  y += traitH + 5;
+
+  // ---- CE QUE J'ATTENDS DE CETTE CONSULTATION ----
   const noteTrimmed = _stripEmoji((noteLibre || '').trim());
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-  doc.text('MOTIF DE CONSULTATION', marginL, y);
+  doc.text("CE QUE J'ATTENDS DE CETTE CONSULTATION", marginL, y);
   doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
   doc.setLineWidth(1);
   doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
@@ -330,7 +342,7 @@ function genererPDFConsultation(noteLibre) {
   if (noteTrimmed.length > 0) {
     const lignesMotif = doc.splitTextToSize(noteTrimmed, contentW - 8);
     const motifH = lignesMotif.length * 5 + 6;
-    doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+    doc.setFillColor(242, 245, 244);
     doc.rect(marginL, y, contentW, motifH, 'F');
     doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
     doc.setLineWidth(3);
@@ -340,22 +352,21 @@ function genererPDFConsultation(noteLibre) {
     lignesMotif.forEach((l, li) => {
       doc.text(l, marginL + 5, y + 4 + li * 5);
     });
-    y += motifH + 6;
+    y += motifH + 5;
   } else {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(GREY[0], GREY[1], GREY[2]);
     doc.text('Aucune note saisie', marginL, y + 3.5);
-    y += 8;
+    y += 7;
   }
 
-  y += 5;
+  y += 4;
 
-  // ---- SECTION 1 : MON ÉTAT — 7 DERNIERS JOURS ----
-  // Titre de section
+  // ---- SECTION 1 : MON ETAT - 7 DERNIERS JOURS ----
   setSage(true);
   doc.setFontSize(10);
-  doc.text('MON ÉTAT — 7 DERNIERS JOURS', marginL, y);
+  doc.text('MON ETAT - 7 DERNIERS JOURS', marginL, y);
   doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
   doc.setLineWidth(0.4);
   doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
@@ -376,31 +387,41 @@ function genererPDFConsultation(noteLibre) {
   setGrey(false);
   doc.text('Score global moyen', marginL + 22, y + 13, { align: 'center' });
 
-  y += 20;
+  // Explication sous le score global (a droite du grand chiffre)
+  doc.setFontSize(6.5);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+  const scoreExplTxt = 'Boussole mesure 4 indicateurs subjectifs : Energie - Sommeil - Confort physique - Clarte mentale (0-10 chacun). Ces donnees sont declaratives et personnelles.';
+  const scoreExplLines = doc.splitTextToSize(scoreExplTxt, contentW - 50);
+  scoreExplLines.forEach((l, li) => {
+    doc.text(l, marginL + 46, y + 4 + li * 4);
+  });
 
-  // ---- DONNÉES DE LA PÉRIODE ----
+  y += 18;
+
+  // ---- DONNEES DE LA PERIODE ----
   doc.setFontSize(7.5);
   setSage(true);
-  doc.text('DONNÉES DE LA PÉRIODE', marginL, y);
+  doc.text('DONNEES DE LA PERIODE', marginL, y);
   doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
   doc.setLineWidth(0.2);
   doc.line(marginL, y + 1, marginL + contentW, y + 1);
   y += 5;
 
-  // Ligne 1 : Jours renseignés + dernière saisie
+  // Ligne 1 : Jours renseignes + derniere saisie
   doc.setFontSize(8);
   setNavy(false);
   doc.text(
-    `Jours renseignés : ${joursRenseignes}/7  ·  Dernière saisie : ${_dateLocale(derniereSaisie)}`,
+    'Jours renseignes : ' + joursRenseignes + '/7  \xB7  Derniere saisie : ' + _dateLocale(derniereSaisie),
     marginL, y + 3.5
   );
   y += 7;
 
-  // Ligne 2 : Répartition VOR avec pastilles colorées
+  // Ligne 2 : Repartition VOR avec pastilles colorees
   const vorItems = [
-    { label: `Hauts : ${nbVert}j (${pctVert}%)`,     color: VERT   },
-    { label: `Moyens : ${nbOrange}j (${pctOrange}%)`, color: ORANGE },
-    { label: `Bas : ${nbRouge}j (${pctRouge}%)`,      color: ROUGE  }
+    { label: 'Hauts : ' + nbVert + 'j (' + pctVert + '%)',     color: VERT   },
+    { label: 'Moyens : ' + nbOrange + 'j (' + pctOrange + '%)', color: ORANGE },
+    { label: 'Bas : ' + nbRouge + 'j (' + pctRouge + '%)',      color: ROUGE  }
   ];
   let vorX = marginL;
   vorItems.forEach(item => {
@@ -412,7 +433,7 @@ function genererPDFConsultation(noteLibre) {
     doc.text(item.label, vorX + 6, y + 3.5);
     vorX += doc.getTextWidth(item.label) + 12;
   });
-  y += 8;
+  y += 7;
 
   // ---- POINT D'ATTENTION ----
   const ROUGE_ALERTE = [226, 75, 74];
@@ -455,25 +476,34 @@ function genererPDFConsultation(noteLibre) {
     y += blocH + 4;
   }
 
-  // Tableau des 4 métriques
+  // Tableau des 4 metriques avec colonne Interpretation
   const tabX = marginL;
   const tabW = contentW;
-  const colLabW = tabW * 0.42;
-  const colMoyW = tabW * 0.23;
-  const colTendW = tabW * 0.18;
-  const colBasW = tabW * 0.17;
+  const colLabW   = tabW * 0.34;
+  const colMoyW   = tabW * 0.17;
+  const colTendW  = tabW * 0.14;
+  const colBasW   = tabW * 0.13;
+  const colInterpW = tabW * 0.22;
   const rowH = 7;
 
-  // En-tête tableau
+  function _interpretation(moy) {
+    if (moy === null) return '';
+    if (moy >= 7) return 'Correct';
+    if (moy >= 5) return 'Mod. altere';
+    return 'Altere';
+  }
+
+  // En-tete tableau
   doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
   doc.rect(tabX, y, tabW, rowH - 1, 'F');
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text('Métrique',        tabX + 2,                       y + 4.5);
-  doc.text('Moyenne',         tabX + colLabW + colMoyW / 2,   y + 4.5, { align: 'center' });
-  doc.text('Tendance',        tabX + colLabW + colMoyW + colTendW / 2, y + 4.5, { align: 'center' });
-  doc.text('Jours < 5',       tabX + colLabW + colMoyW + colTendW + colBasW / 2, y + 4.5, { align: 'center' });
+  doc.text('Metrique',       tabX + 2,                                                                    y + 4.5);
+  doc.text('Moyenne',        tabX + colLabW + colMoyW / 2,                                                y + 4.5, { align: 'center' });
+  doc.text('Tendance',       tabX + colLabW + colMoyW + colTendW / 2,                                     y + 4.5, { align: 'center' });
+  doc.text('Jours < 5',      tabX + colLabW + colMoyW + colTendW + colBasW / 2,                           y + 4.5, { align: 'center' });
+  doc.text('Interpretation', tabX + colLabW + colMoyW + colTendW + colBasW + colInterpW / 2,              y + 4.5, { align: 'center' });
   y += rowH - 1;
 
   metriques.forEach((m, idx) => {
@@ -481,13 +511,13 @@ function genererPDFConsultation(noteLibre) {
     doc.setFillColor(bg[0], bg[1], bg[2]);
     doc.rect(tabX, y, tabW, rowH, 'F');
 
-    // Bordure légère
     doc.setDrawColor(220, 225, 222);
     doc.setLineWidth(0.2);
     doc.rect(tabX, y, tabW, rowH, 'S');
 
-    const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) + '/10' : 'n/a';
-    const moyColor = _colorVOR(m.moy);
+    const moyStr    = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) + '/10' : 'n/a';
+    const moyColor  = _colorVOR(m.moy);
+    const interpStr = _interpretation(m.moy);
 
     doc.setFontSize(8);
     setNavy(false);
@@ -500,11 +530,17 @@ function genererPDFConsultation(noteLibre) {
     setNavy(false);
     doc.text(m.tendance, tabX + colLabW + colMoyW + colTendW / 2, y + 4.5, { align: 'center' });
 
-    const joursBasStr = `${m.joursBas}/${m.nbJours}`;
+    const joursBasStr = m.joursBas + '/' + m.nbJours;
     doc.text(joursBasStr, tabX + colLabW + colMoyW + colTendW + colBasW / 2, y + 4.5, { align: 'center' });
+
+    doc.setTextColor(moyColor[0], moyColor[1], moyColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(interpStr, tabX + colLabW + colMoyW + colTendW + colBasW + colInterpW / 2, y + 4.5, { align: 'center' });
 
     y += rowH;
   });
+
+  y += 2;
 
   // Humeur moyenne 7j (ADR-2026-026) — texte seul, sans emoji (Latin-1)
   const humeurVals7j = entrees.map(e => e.humeur).filter(v => v !== null && v !== undefined);
@@ -524,14 +560,13 @@ function genererPDFConsultation(noteLibre) {
     doc.setFontSize(9);
     setNavy(false);
     doc.text('Ressenti general : ' + _humeurTexte(Math.round(avgHumeurPDF)), pageW / 2, y, { align: 'center' });
-    y += 6;
+    y += 5;
   }
 
-  y += 7;
+  y += 5;
 
   // ---- MESURES OBJECTIVES (7 derniers jours) ----
-  // Collecter toutes les mesures par jour
-  const mesuresParJour = []; // { fc, ta_sys, ta_dia, rmssd, poids, score }
+  const mesuresParJour = [];
   entrees.forEach(e => {
     const raw = localStorage.getItem('boussole_mesures_' + e.date);
     if (!raw) return;
@@ -551,7 +586,6 @@ function genererPDFConsultation(noteLibre) {
     });
   });
 
-  // Extraire les séries valides (>= 3 points)
   const fcValsAll           = mesuresParJour.map(d => d.fc).filter(v => v !== null);
   const sommeilDureeValsAll = mesuresParJour.map(d => d.sommeil_duree).filter(v => v !== null);
   const taValsAll           = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
@@ -567,14 +601,29 @@ function genererPDFConsultation(noteLibre) {
   const hasAnyMesure = hasFc || hasSommeilDuree || hasTa || hasRmssd || hasPoids;
 
   if (hasAnyMesure && y <= 200) {
+    // Pre-calculer hauteur bloc pour fond sage clair
+    const EAF0EE = [234, 240, 238];
+    let mesuresBlockH = 12; // titre + underline + padding
+    if (hasFc)           mesuresBlockH += 6;
+    if (hasSommeilDuree) mesuresBlockH += 6;
+    if (hasTa)           mesuresBlockH += 6;
+    if (hasRmssd)        mesuresBlockH += 6;
+    if (hasPoids)        mesuresBlockH += 6;
+    if (hasFc)           mesuresBlockH += 12; // correlation eventuelle
+    mesuresBlockH += 8; // disclaimer + padding bas
+
+    doc.setFillColor(EAF0EE[0], EAF0EE[1], EAF0EE[2]);
+    doc.rect(marginL, y, contentW, mesuresBlockH, 'F');
+
     // Titre section
-    setSage(true);
     doc.setFontSize(9);
-    doc.text('MESURES OBJECTIVES (7 derniers jours)', marginL, y);
-    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+    doc.text('DONNEES OBJECTIVES (declaratives)', marginL + 2, y + 6);
+    doc.setDrawColor(NAVY[0], NAVY[1], NAVY[2]);
     doc.setLineWidth(0.2);
-    doc.line(marginL, y + 1, marginL + contentW, y + 1);
-    y += 5;
+    doc.line(marginL, y + 8, marginL + contentW, y + 8);
+    y += 12;
 
     doc.setFontSize(8);
 
@@ -583,14 +632,14 @@ function genererPDFConsultation(noteLibre) {
       const fcMin = Math.min(...fcValsAll);
       const fcMax = Math.max(...fcValsAll);
       setNavy(false);
-      doc.text(`FC repos : ${fcMoy} bpm en moyenne (min ${fcMin} - max ${fcMax})`, marginL, y + 3.5);
+      doc.text('FC repos : ' + fcMoy + ' bpm en moyenne (min ' + fcMin + ' - max ' + fcMax + ')', marginL + 2, y + 3.5);
       y += 6;
     }
 
     if (hasSommeilDuree) {
       const sdMoy = (_moyenne(sommeilDureeValsAll)).toFixed(1);
       setNavy(false);
-      doc.text(`Duree sommeil (h) - moy 7j : ${sdMoy}h`, marginL, y + 3.5);
+      doc.text('Duree sommeil (h) - moy 7j : ' + sdMoy + 'h', marginL + 2, y + 3.5);
       y += 6;
     }
 
@@ -605,8 +654,8 @@ function genererPDFConsultation(noteLibre) {
       const taDMax  = Math.max(...taDVals);
       setNavy(false);
       doc.text(
-        `Tension : ${taSMoy}/${taDMoy} mmHg en moyenne (min ${taSMin}/${taDMin} - max ${taSMax}/${taDMax})`,
-        marginL, y + 3.5
+        'Tension : ' + taSMoy + '/' + taDMoy + ' mmHg en moyenne (min ' + taSMin + '/' + taDMin + ' - max ' + taSMax + '/' + taDMax + ')',
+        marginL + 2, y + 3.5
       );
       y += 6;
     }
@@ -616,7 +665,7 @@ function genererPDFConsultation(noteLibre) {
       const rMin = Math.min(...rmssdValsAll);
       const rMax = Math.max(...rmssdValsAll);
       setNavy(false);
-      doc.text(`VFC/RMSSD : ${rMoy} ms en moyenne (min ${rMin} - max ${rMax})`, marginL, y + 3.5);
+      doc.text('VFC/RMSSD : ' + rMoy + ' ms en moyenne (min ' + rMin + ' - max ' + rMax + ')', marginL + 2, y + 3.5);
       y += 6;
     }
 
@@ -625,11 +674,11 @@ function genererPDFConsultation(noteLibre) {
       const pMin = Math.min(...poidsValsAll).toFixed(1);
       const pMax = Math.max(...poidsValsAll).toFixed(1);
       setNavy(false);
-      doc.text(`Poids : ${pMoy} kg en moyenne (min ${pMin} - max ${pMax})`, marginL, y + 3.5);
+      doc.text('Poids : ' + pMoy + ' kg en moyenne (min ' + pMin + ' - max ' + pMax + ')', marginL + 2, y + 3.5);
       y += 6;
     }
 
-    // Corrélation FC x score (conserver logique existante)
+    // Correlation FC x score
     if (hasFc) {
       const fcParJour = mesuresParJour.filter(d => d.fc !== null);
       const aJourFaible = fcParJour.some(d => d.score !== null && d.score < 5);
@@ -646,14 +695,14 @@ function genererPDFConsultation(noteLibre) {
 
           if (diff >= 5) {
             const corrPhrase =
-              `Les jours de score faible coincident avec une frequence cardiaque plus elevee` +
-              ` (${moyFaibles} bpm vs ${moyFavorables} bpm les jours favorables).`;
+              'Les jours de score faible coincident avec une FC plus elevee' +
+              ' (' + moyFaibles + ' bpm vs ' + moyFavorables + ' bpm les jours favorables).';
             doc.setFontSize(8);
             doc.setFont('helvetica', 'italic');
             doc.setTextColor(85, 85, 85);
-            const corrLines = doc.splitTextToSize(corrPhrase, contentW);
+            const corrLines = doc.splitTextToSize(corrPhrase, contentW - 4);
             corrLines.forEach((l, li) => {
-              doc.text(l, marginL, y + 3.5 + li * 5);
+              doc.text(l, marginL + 2, y + 3.5 + li * 5);
             });
             y += 3.5 + corrLines.length * 5 + 1;
           }
@@ -665,36 +714,34 @@ function genererPDFConsultation(noteLibre) {
     doc.setFontSize(7);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(GREY[0], GREY[1], GREY[2]);
-    doc.text('Mesures declaratives - pas de valeur diagnostique', marginL, y + 3.5);
+    doc.text('Mesures declaratives - pas de valeur diagnostique', marginL + 2, y + 3.5);
     y += 6;
   }
 
   y += 3;
 
-  // ---- SECTION 2 : MES 3 POINTS À ABORDER ----
+  // ---- SECTION 2 : MES 3 POINTS A ABORDER ----
   setSage(true);
   doc.setFontSize(10);
-  doc.text('MES 3 POINTS À ABORDER', marginL, y);
+  doc.text('MES 3 POINTS A ABORDER', marginL, y);
   doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
   doc.setLineWidth(0.4);
   doc.line(marginL, y + 1.5, marginL + contentW, y + 1.5);
   y += 7;
 
   pointsAAborder.forEach((m, idx) => {
-    const numStr = `${idx + 1}.`;
+    const numStr = (idx + 1) + '.';
     const couleurLabel = _colorVOR(m.moy);
     const moyStr = m.moy !== null ? (Math.round(m.moy * 10) / 10).toFixed(1) : 'n/a';
-    // Ex: "Énergie faible - 5 jours sur 7 en orange/rouge"
     const niveau = m.moy !== null
-      ? (m.moy < 4 ? 'bas' : (m.moy < 7 ? 'modéré' : 'correct'))
+      ? (m.moy < 4 ? 'bas' : (m.moy < 7 ? 'modere' : 'correct'))
       : 'n/a';
     const nbreJoursTotal = m.nbJours;
     const joursBasStr = m.joursBas > 0
-      ? ` - ${m.joursBas} jour${m.joursBas > 1 ? 's' : ''} sur ${nbreJoursTotal} en orange/rouge`
+      ? ' - ' + m.joursBas + ' jour' + (m.joursBas > 1 ? 's' : '') + ' sur ' + nbreJoursTotal + ' en orange/rouge'
       : ' - aucun jour bas';
-    const ligne = `${m.label} ${niveau} (moy. ${moyStr}/10)${joursBasStr}`;
+    const ligne = m.label + ' ' + niveau + ' (moy. ' + moyStr + '/10)' + joursBasStr;
 
-    // Pastille colorée
     doc.setFillColor(couleurLabel[0], couleurLabel[1], couleurLabel[2]);
     doc.circle(marginL + 3, y + 1.5, 2, 'F');
 
@@ -733,7 +780,7 @@ function genererPDFConsultation(noteLibre) {
   if (meilleurJour) {
     doc.text(_dateLocale(meilleurJour.date), marginL + halfW / 2, y + 10, { align: 'center' });
     doc.setFont('helvetica', 'bold');
-    doc.text(`Score ${(Math.round(meilleurJour.score * 10) / 10).toFixed(1)}/10`, marginL + halfW / 2, y + 14.5, { align: 'center' });
+    doc.text('Score ' + (Math.round(meilleurJour.score * 10) / 10).toFixed(1) + '/10', marginL + halfW / 2, y + 14.5, { align: 'center' });
   }
 
   // Pire jour
@@ -748,10 +795,21 @@ function genererPDFConsultation(noteLibre) {
   if (pireJour) {
     doc.text(_dateLocale(pireJour.date), pireX + halfW / 2, y + 10, { align: 'center' });
     doc.setFont('helvetica', 'bold');
-    doc.text(`Score ${(Math.round(pireJour.score * 10) / 10).toFixed(1)}/10`, pireX + halfW / 2, y + 14.5, { align: 'center' });
+    doc.text('Score ' + (Math.round(pireJour.score * 10) / 10).toFixed(1) + '/10', pireX + halfW / 2, y + 14.5, { align: 'center' });
   }
 
-  y += 22;
+  y += 19;
+
+  // Ecart max sur la periode
+  if (meilleurJour && pireJour) {
+    const ecart = Math.abs(meilleurJour.score - pireJour.score);
+    const ecartStr = (Math.round(ecart * 10) / 10).toFixed(1);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Ecart max sur la periode : ' + ecartStr + ' points', pageW / 2, y + 3, { align: 'center' });
+    y += 7;
+  }
 
   // ---- SECTION PEM : EPISODES DE CRASH (7 jours, conditionnelle) ----
   if (typeof window.detectPEMEvents === 'function') {
@@ -823,7 +881,6 @@ function genererPDFConsultation(noteLibre) {
     const cyclePhases7j = window.collectCycleData(days7jCycle, mesures7jCycle, 7);
     const cycleAnalysis7j = window.analyzeCycleCorrelation(cyclePhases7j);
 
-    // Compter les jours avec cycle_phase renseignee sur 7j
     const daysWithCycle7j = Object.values(cyclePhases7j).reduce((sum, arr) => sum + arr.length, 0);
 
     if (cycleAnalysis7j !== null && daysWithCycle7j >= 3 && y <= 200) {
@@ -845,7 +902,6 @@ function genererPDFConsultation(noteLibre) {
         perimenopause: 'Irregulier'
       };
 
-      // Phase dominante 7j = phase avec le plus de jours
       let phaseDominante7j = null;
       let maxCount7j = 0;
       Object.keys(cyclePhases7j).forEach(phase => {
@@ -917,11 +973,22 @@ function genererPDFConsultation(noteLibre) {
   doc.setFontSize(7.5);
   setGrey(false);
   doc.text(
-    'Document d\'information personnelle · Pas un avis médical · myboussole.fr',
+    "Document d'information personnelle - Pas un avis medical - myboussole.fr",
     pageW / 2,
     footerY + 2,
     { align: 'center' }
   );
+
+  if (idTel) {
+    doc.setFontSize(7.5);
+    setGrey(false);
+    doc.text(
+      "En cas d'urgence ou de doute : contacter le patient au " + idTel,
+      pageW / 2,
+      footerY + 7,
+      { align: 'center' }
+    );
+  }
 
   // ---- OUVERTURE ----
   doc.autoPrint();
