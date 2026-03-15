@@ -423,11 +423,8 @@ function genererPDFConsultation(noteLibre) {
       const ms  = (Math.round(m.moy * 10) / 10).toFixed(1);
       const q   = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'mod\xe9r\xe9ment alt\xe9r\xe9e' : 'alt\xe9r\xe9e');
       const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
-      var txt = lbl + ' ' + ms + '/10 ' + q;
-      return txt.length > 28 ? txt.substring(0, 26) + '..' : txt;
+      return lbl + ' ' + ms + '/10 ' + q;
     });
-    const retentText = retentParts.join(' \xB7 ');
-
     // Pre-calculer wraps
     doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
@@ -435,11 +432,8 @@ function genererPDFConsultation(noteLibre) {
 
     const inlineW    = contentW - 18;
     const inlineColW = Math.floor(inlineW / 3);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    const retentWrapped = doc.splitTextToSize(retentText, inlineColW - 4);
 
-    const inlineH   = 5 + 12 + Math.max(0, retentWrapped.length - 1) * 5;
+    const inlineH   = 5 + 12 + Math.max(0, retentParts.length - 1) * 5;
     const blocDomH  = 10 + titreLines.length * 8 + 6 + inlineH + 10;
 
     checkPage(blocDomH + 5);
@@ -476,9 +470,10 @@ function genererPDFConsultation(noteLibre) {
     doc.setFontSize(20);
     tc(DARK_WARM, true);
     doc.text(moyValStr, col1X, ty2 + 10);
+    var mw1 = doc.getTextWidth(moyValStr);
     doc.setFontSize(12);
     tc(MUTED, false);
-    doc.text('/10', col1X + doc.getTextWidth(moyValStr) + 1, ty2 + 10);
+    doc.text('/10', col1X + mw1 + 1, ty2 + 10);
 
     // Col 2 : Jours mauvais
     doc.setFontSize(9);
@@ -487,9 +482,10 @@ function genererPDFConsultation(noteLibre) {
     doc.setFontSize(20);
     tc(DARK_WARM, true);
     doc.text(joursMauvaisStr, col2X, ty2 + 10);
+    var mw2 = doc.getTextWidth(joursMauvaisStr);
     doc.setFontSize(12);
     tc(MUTED, false);
-    doc.text('/7', col2X + doc.getTextWidth(joursMauvaisStr) + 1, ty2 + 10);
+    doc.text('/7', col2X + mw2 + 1, ty2 + 10);
 
     // Col 3 : Retentissement
     doc.setFontSize(9);
@@ -497,7 +493,9 @@ function genererPDFConsultation(noteLibre) {
     doc.text('Retentissement', col3X, ty2);
     doc.setFontSize(9);
     tc(ANTHRACITE, false);
-    retentWrapped.forEach(function(l, li) { doc.text(l, col3X, ty2 + 7 + li * 4.5); });
+    retentParts.forEach(function(part, pi) {
+      doc.text(part, col3X, ty2 + 7 + pi * 5);
+    });
 
     y += blocDomH + 5;
   }
@@ -810,7 +808,7 @@ function genererPDFConsultation(noteLibre) {
       doc.setFontSize(11);
       tc(ANTHRACITE, false);
       doc.text(
-        pemSum7j.count + ' \xe9pisode(s) d\xe9tect\xe9(s) sur 7 jours. Chute moyenne : ' + avgDeltaStr + ' points.',
+        pemSum7j.count + ' \xe9pisode de d\xe9gradation fonctionnelle d\xe9tect\xe9 sur 7 jours. Chute moyenne : ' + avgDeltaStr + ' points.',
         marginL, y + 3.5
       );
       y += 7;
