@@ -459,6 +459,33 @@
           </div>
         </div>
 
+        <div class="settings-group" style="margin-top:16px;">
+          <p class="settings-label">Traitement actuel</p>
+          <p class="settings-desc">Ces informations apparaîtront dans votre PDF de consultation.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <div>
+              <label for="param-medicaments" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Médicaments (ordonnance)</label>
+              <textarea id="param-medicaments" rows="2" maxlength="300"
+                placeholder="Ex : Brintellix 20mg/j · Quviviq 25mg/j"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
+              <span id="counter-medicaments" style="font-size:11px;color:rgba(6,23,45,.45);">0/300</span>
+            </div>
+            <div>
+              <label for="param-complements" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Compléments nutritionnels</label>
+              <textarea id="param-complements" rows="2" maxlength="300"
+                placeholder="Ex : Magnésium 300mg · Choline · Créatine 3g"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
+              <span id="counter-complements" style="font-size:11px;color:rgba(6,23,45,.45);">0/300</span>
+            </div>
+            <div>
+              <label for="param-allergies" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Allergies / contre-indications</label>
+              <input type="text" id="param-allergies" maxlength="150"
+                placeholder="Ex : pénicilline, AINS"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            </div>
+          </div>
+        </div>
+
         <div class="settings-group">
           <p class="settings-label">Profil</p>
           <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
@@ -714,11 +741,14 @@
     // ---- Champs identité Paramètres ----
     (function () {
       const fields = [
-        { id: 'param-prenom', key: 'boussole_prenom' },
-        { id: 'param-nom',    key: 'boussole_nom'    },
-        { id: 'param-ddn',    key: 'boussole_ddn'    },
-        { id: 'param-tel',    key: 'boussole_tel'    },
-        { id: 'param-email',  key: 'boussole_param_email' }
+        { id: 'param-prenom',       key: 'boussole_prenom'       },
+        { id: 'param-nom',          key: 'boussole_nom'          },
+        { id: 'param-ddn',          key: 'boussole_ddn'          },
+        { id: 'param-tel',          key: 'boussole_tel'          },
+        { id: 'param-email',        key: 'boussole_param_email'  },
+        { id: 'param-medicaments',  key: 'boussole_medicaments'  },
+        { id: 'param-complements',  key: 'boussole_complements'  },
+        { id: 'param-allergies',    key: 'boussole_allergies'    }
       ];
       function initParamFields() {
         fields.forEach(function (f) {
@@ -747,6 +777,11 @@
           const el = document.getElementById(id);
           if (el) localStorage.setItem('boussole_' + id, el.value);
         });
+        // Traitement actuel — clés explicites
+        ['medicaments','complements','allergies'].forEach(function(k) {
+          const el = document.getElementById('param-' + k);
+          if (el) localStorage.setItem('boussole_' + k, el.value);
+        });
         const conf = document.getElementById('params-save-confirmation');
         if (conf) {
           conf.textContent = 'Enregistre ✓';
@@ -763,6 +798,17 @@
           counter.textContent = textarea.value.length + '/500';
         });
       }
+      // Compteurs traitement actuel
+      ['medicaments','complements'].forEach(function(k) {
+        const ta  = document.getElementById('param-' + k);
+        const cnt = document.getElementById('counter-' + k);
+        if (ta && cnt) {
+          cnt.textContent = ta.value.length + '/300';
+          ta.addEventListener('input', function() {
+            cnt.textContent = ta.value.length + '/300';
+          });
+        }
+      });
       // Fermer en cliquant en dehors de la modale
       const modal = document.getElementById('consultation-modal');
       if (modal) {

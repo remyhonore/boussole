@@ -249,6 +249,67 @@ function genererPDFConsultation(noteLibre) {
     y = 27;
   }
 
+  // ---- TRAITEMENT EN COURS ----
+  const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
+  const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
+  const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
+
+  {
+    const BG_TRAIT    = [254, 242, 242];
+    const ROUGE_TRAIT = [220, 38, 38];
+    const lignes = [];
+    if (txMed)  lignes.push({ label: 'Medicaments : ' + txMed,    bold: false, color: NAVY });
+    if (txComp) lignes.push({ label: 'Complements : ' + txComp,   bold: false, color: NAVY });
+    if (txAll)  lignes.push({ label: 'Allergies/CI : ' + txAll,   bold: true,  color: ROUGE_TRAIT });
+
+    // Estimer la hauteur du bloc
+    let blocH = 10; // titre + note
+    lignes.forEach(function(l) {
+      const wrapped = doc.splitTextToSize(l.label, contentW - 10);
+      blocH += wrapped.length * 4.5 + 1;
+    });
+    if (lignes.length === 0) blocH += 5;
+    blocH += 5; // note de bas
+
+    doc.setFillColor(BG_TRAIT[0], BG_TRAIT[1], BG_TRAIT[2]);
+    doc.rect(marginL, y, contentW, blocH, 'F');
+    doc.setDrawColor(ROUGE_TRAIT[0], ROUGE_TRAIT[1], ROUGE_TRAIT[2]);
+    doc.setLineWidth(3);
+    doc.line(marginL, y, marginL, y + blocH);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+    doc.text('TRAITEMENT EN COURS - A VERIFIER AVANT TOUTE PRESCRIPTION', marginL + 5, y + 5.5);
+    let ty = y + 10;
+
+    if (lignes.length === 0) {
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+      doc.text('Traitement non renseigne - completer dans Parametres', marginL + 5, ty);
+      ty += 5;
+    } else {
+      lignes.forEach(function(l) {
+        const wrapped = doc.splitTextToSize(l.label, contentW - 10);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', l.bold ? 'bold' : 'normal');
+        doc.setTextColor(l.color[0], l.color[1], l.color[2]);
+        wrapped.forEach(function(line, li) {
+          doc.text(line, marginL + 5, ty + li * 4.5);
+        });
+        ty += wrapped.length * 4.5 + 1;
+      });
+    }
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY[0], GREY[1], GREY[2]);
+    doc.text('Source : saisie patient. A confirmer avec le dossier medical.', marginL + 5, ty + 3);
+
+    y += blocH + 5;
+  }
+
   // ---- MOTIF DE CONSULTATION (en premier, juste après le header) ----
   const noteTrimmed = _stripEmoji((noteLibre || '').trim());
 
