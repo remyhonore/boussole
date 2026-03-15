@@ -269,10 +269,11 @@ function genererPDFConsultation(noteLibre) {
   doc.setFontSize(9);
   tc(MUTED, false);
   doc.text('MOTIF DE CONSULTATION', marginL, y);
+  y += 4;
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-  doc.text('d\xe9clar\xe9 par le patient', marginL + doc.getTextWidth('MOTIF DE CONSULTATION') + 4, y);
+  doc.text('d\xe9clar\xe9 par le patient', marginL, y);
   y += 5;
 
   if (noteTrimmed.length === 0) {
@@ -422,7 +423,8 @@ function genererPDFConsultation(noteLibre) {
       const ms  = (Math.round(m.moy * 10) / 10).toFixed(1);
       const q   = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'mod\xe9r\xe9ment alt\xe9r\xe9e' : 'alt\xe9r\xe9e');
       const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
-      return lbl + ' ' + ms + '/10 ' + q;
+      var txt = lbl + ' ' + ms + '/10 ' + q;
+      return txt.length > 28 ? txt.substring(0, 26) + '..' : txt;
     });
     const retentText = retentParts.join(' \xB7 ');
 
@@ -493,9 +495,9 @@ function genererPDFConsultation(noteLibre) {
     doc.setFontSize(9);
     tc(MUTED, false);
     doc.text('Retentissement', col3X, ty2);
-    doc.setFontSize(11);
+    doc.setFontSize(9);
     tc(ANTHRACITE, false);
-    retentWrapped.forEach(function(l, li) { doc.text(l, col3X, ty2 + 7 + li * 5); });
+    retentWrapped.forEach(function(l, li) { doc.text(l, col3X, ty2 + 7 + li * 4.5); });
 
     y += blocDomH + 5;
   }
