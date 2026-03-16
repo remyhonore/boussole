@@ -297,6 +297,7 @@ function loadTodayData() {
 
   updateLastSavedDisplay();
   refreshPacingAlert();
+  refreshDegradationAlert();
 
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
@@ -345,6 +346,58 @@ function dismissPacingAlert() {
   var today = getTodayDate();
   try { localStorage.setItem('boussole_pacing_alert_dismissed_' + today, '1'); } catch(e) {}
   var alertEl = document.getElementById('pacing-alert-today');
+  if (alertEl) alertEl.style.display = 'none';
+}
+
+function refreshDegradationAlert() {
+  var alertEl = document.getElementById('degradation-alert');
+  if (!alertEl) return;
+
+  // Vérifier dismiss (7 jours)
+  var dismissedDate = null;
+  try { dismissedDate = localStorage.getItem('boussole_alerte_degradation_dismiss'); } catch(e) {}
+  if (dismissedDate) {
+    var dismissed = new Date(dismissedDate);
+    var now = new Date();
+    var daysSince = (now - dismissed) / (1000 * 60 * 60 * 24);
+    if (daysSince < 7) {
+      alertEl.style.display = 'none';
+      return;
+    }
+  }
+
+  // Vérifier 5 jours consécutifs tous < 5
+  var data = loadEntries();
+  var entriesMap = {};
+  data.entries.forEach(function(e) { entriesMap[e.date] = e; });
+
+  var allLow = true;
+  for (var i = 0; i < 5; i++) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    var dateStr = localDateStr(d);
+    var entry = entriesMap[dateStr];
+    if (!entry) { allLow = false; break; }
+    var sc = calculateDayScore(entry);
+    if (sc === null || sc >= 5) { allLow = false; break; }
+  }
+
+  if (allLow) {
+    alertEl.innerHTML =
+      '<button onclick="dismissDegradationAlert()" aria-label="Fermer l\'alerte" style="position:absolute;top:8px;right:10px;background:none;border:none;font-size:18px;cursor:pointer;color:#c0392b;line-height:1;">&times;</button>' +
+      '<span style="font-size:15px;">⚠️</span> ' +
+      'Score bas depuis 5 jours. Si vous avez un suivi médical prévu, c\'est un bon moment d\'en parler à votre professionnel de santé.' +
+      '<br><a href="#" onclick="window._ouvrirModePresentation && window._ouvrirModePresentation(); return false;" style="display:inline-block;margin-top:8px;color:#c0392b;font-weight:600;text-decoration:none;">Préparer ma consultation →</a>';
+    alertEl.style.display = 'block';
+  } else {
+    alertEl.style.display = 'none';
+  }
+}
+
+function dismissDegradationAlert() {
+  var today = getTodayDate();
+  try { localStorage.setItem('boussole_alerte_degradation_dismiss', today); } catch(e) {}
+  var alertEl = document.getElementById('degradation-alert');
   if (alertEl) alertEl.style.display = 'none';
 }
 

@@ -359,6 +359,9 @@
       <!-- Alerte pacing PEM -->
       <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
 
+      <!-- Alerte dégradation prolongée (Feature Q) -->
+      <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:#333;" role="alert"></div>
+
       <!-- Section Mes mesures (ADR-2026-021) -->
       <div id="section-mesures" class="mesures-section">
         <div class="mesures-header" id="toggle-mesures">
@@ -619,7 +622,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.23 — </span>
+    <span>Boussole v8.24 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -629,10 +632,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.23</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.24</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Feature Q : bannière alerte dégradation prolongée (5j score &lt; 5) avec lien consultation</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.23</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Fix cohérence couleurs pastilles 14j — calcul score unifié résumé/médecin/PDF</li>
