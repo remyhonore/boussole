@@ -1083,6 +1083,44 @@ window._ouvrirModePresentation = function() {
     ? '<div style="margin-top:24px;text-align:center;"><button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button></div>'
     : '';
 
+  // Calendrier 14 jours
+  const today14 = new Date();
+  today14.setHours(0, 0, 0, 0);
+  const entryMap14 = {};
+  data.entries.forEach(function(e) { entryMap14[e.date] = e; });
+  let calCells14 = '';
+  for (let ci = 13; ci >= 0; ci--) {
+    const cd = new Date(today14);
+    cd.setDate(cd.getDate() - ci);
+    const cdStr = cd.toISOString().split('T')[0];
+    const cdm = String(cd.getDate()).padStart(2, '0');
+    const cmm = String(cd.getMonth() + 1).padStart(2, '0');
+    const e14 = entryMap14[cdStr];
+    let dotClass = 'cal-dot cal-dot-vide';
+    let tooltipScore = '\u2014';
+    if (e14) {
+      const vals = [e14.energie, e14.qualite_sommeil, e14.douleurs, e14.clarte_mentale]
+        .filter(v => v !== null && v !== undefined);
+      if (vals.length > 0) {
+        const sc = vals.reduce((a, b) => a + b, 0) / vals.length;
+        tooltipScore = sc.toFixed(1) + '/10';
+        if (sc >= 7) dotClass = 'cal-dot cal-dot-vert';
+        else if (sc >= 4) dotClass = 'cal-dot cal-dot-orange';
+        else dotClass = 'cal-dot cal-dot-rouge';
+      }
+    }
+    calCells14 +=
+      '<div class="cal-cell" title="' + cdm + '/' + cmm + ' \u2014 ' + tooltipScore + '">' +
+        '<div class="' + dotClass + '"></div>' +
+        '<span class="cal-day-num">' + cdm + '/' + cmm + '</span>' +
+      '</div>';
+  }
+  const cal14Html =
+    '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Calendrier 14 jours</p>' +
+    '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
+    '<div class="cal-grid">' + calCells14 + '</div>' +
+    '<p style="font-size:11px;color:#6E877D;margin:6px 0 16px;">Couleur = score composite (\xe9nergie / sommeil / confort / clart\xe9)</p>';
+
   const html =
     '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;">' +
       '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Préparer ma consultation</p>' +
@@ -1097,6 +1135,7 @@ window._ouvrirModePresentation = function() {
       '<div style="font-size:12px;color:#999;margin-top:4px;">Score global moyen</div>' +
     '</div>' +
     pointAttentionHtml +
+    cal14Html +
     '<table style="width:100%;border-collapse:collapse;">' +
       '<thead><tr>' +
         '<th style="font-size:12px;color:#999;font-weight:600;text-align:left;padding:0 0 8px;">Métrique</th>' +

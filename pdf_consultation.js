@@ -982,6 +982,81 @@ function genererPDFConsultation(noteLibre) {
   y += 5;
 
   // ============================================================
+  // CALENDRIER 14 JOURS
+  // ============================================================
+
+  var aujourd_hui14 = new Date();
+  aujourd_hui14.setHours(0, 0, 0, 0);
+  var cutoff14 = new Date(aujourd_hui14);
+  cutoff14.setDate(cutoff14.getDate() - 13);
+  var cutoff14Str = cutoff14.toISOString().split('T')[0];
+  var entries14j = rawEntries.filter(function(e) { return e.date >= cutoff14Str; });
+
+  if (entries14j.length >= 3) {
+    checkPage(35);
+
+    var NAVY_CAL = [6, 23, 45];
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(NAVY_CAL[0], NAVY_CAL[1], NAVY_CAL[2]);
+    doc.text('CALENDRIER 14 JOURS', marginL, y);
+    y += 4;
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('Couleur = score composite (energie / sommeil / confort / clarte)', marginL, y);
+    y += 5;
+
+    var pastW    = 10;
+    var pastH    = 10;
+    var pastR    = 2;
+    var pastGap  = 2;
+    var pastStep = pastW + pastGap;
+    var totalCalW = 14 * pastW + 13 * pastGap;
+    var startCalX = marginL + (contentW - totalCalW) / 2;
+
+    var entryMap14 = {};
+    rawEntries.forEach(function(e) { entryMap14[e.date] = e; });
+
+    for (var ci = 13; ci >= 0; ci--) {
+      var cd    = new Date(aujourd_hui14);
+      cd.setDate(cd.getDate() - ci);
+      var cdStr = cd.toISOString().split('T')[0];
+      var px    = startCalX + (13 - ci) * pastStep;
+
+      var entry14 = entryMap14[cdStr];
+      if (!entry14) {
+        doc.setFillColor(204, 204, 204);
+      } else {
+        var vals14 = [entry14.energie, entry14.qualite_sommeil, entry14.douleurs, entry14.clarte_mentale]
+          .filter(function(v) { return v !== null && v !== undefined; });
+        if (vals14.length === 0) {
+          doc.setFillColor(204, 204, 204);
+        } else {
+          var score14 = vals14.reduce(function(a, b) { return a + b; }, 0) / vals14.length;
+          if      (score14 >= 7) { doc.setFillColor(39,  174, 96); }
+          else if (score14 >= 4) { doc.setFillColor(243, 156, 18); }
+          else                   { doc.setFillColor(231,  76, 60); }
+        }
+      }
+      doc.roundedRect(px, y, pastW, pastH, pastR, pastR, 'F');
+
+      var cdm = (cd.getDate() < 10 ? '0' : '') + cd.getDate();
+      var cmm = (cd.getMonth() + 1 < 10 ? '0' : '') + (cd.getMonth() + 1);
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text(cdm + '/' + cmm, px + pastW / 2, y + pastH + 4, { align: 'center' });
+    }
+
+    y += pastH + 8;
+    drawSep(y);
+    y += 5;
+  }
+
+  // ============================================================
   // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
   // ============================================================
 
