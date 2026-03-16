@@ -898,6 +898,7 @@ function refreshSummary() {
   html += `</div>`;
   
   container.innerHTML = html;
+  refreshPostConsultationIndicator();
 }
 
 /**
@@ -1560,6 +1561,31 @@ function triggerRappel() {
 // === POST-CONSULTATION (Feature J) ===
 // ============================================================
 
+function refreshPostConsultationIndicator() {
+  var indicator = document.getElementById('pc-indicator');
+  if (!indicator) return;
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  var found = null;
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith('boussole_post_consultation_')) {
+      var dateStr = key.replace('boussole_post_consultation_', '');
+      if (dateStr >= cutoff.toISOString().slice(0, 10)) {
+        if (!found || dateStr > found) found = dateStr;
+      }
+    }
+  }
+  if (found) {
+    var parts = found.split('-');
+    var label = parts[2] + '/' + parts[1];
+    indicator.textContent = '\u2713 Fiche du ' + label + ' enregistr\u00e9e \u2014 toucher pour modifier';
+    indicator.style.display = 'block';
+  } else {
+    indicator.style.display = 'none';
+  }
+}
+
 function hasPostConsultation() {
   for (var i = 0; i < localStorage.length; i++) {
     if (localStorage.key(i) && localStorage.key(i).startsWith('boussole_post_consultation_')) return true;
@@ -1623,6 +1649,6 @@ function savePostConsultation() {
   var feedback = document.getElementById('pc-feedback');
   if (feedback) {
     feedback.style.display = 'block';
-    setTimeout(function() { closePostConsultation(); }, 1200);
+    setTimeout(function() { closePostConsultation(); refreshPostConsultationIndicator(); }, 1200);
   }
 }
