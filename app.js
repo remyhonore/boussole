@@ -2020,3 +2020,83 @@ function exportJournalConsultationPDF() {
     URL.revokeObjectURL(url);
   }, 1000);
 }
+
+// ============================================================
+// IMPORT / EXPORT JSON (v8.30)
+// ============================================================
+
+function exportDonneesJSON() {
+  var data = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith('boussole')) {
+      var raw = localStorage.getItem(key);
+      try { data[key] = JSON.parse(raw); } catch(e) { data[key] = raw; }
+    }
+  }
+  var payload = {
+    version: '1.0',
+    export_date: getTodayDate(),
+    app_version: '8.30',
+    data: data
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'boussole-export-' + getTodayDate() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+
+function importDonneesJSON(event) {
+  var feedback = document.getElementById('import-feedback');
+  var file = event.target.files && event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var parsed;
+    try {
+      parsed = JSON.parse(e.target.result);
+    } catch(err) {
+      feedback.style.display = 'block';
+      feedback.style.color = '#e24b4a';
+      feedback.textContent = 'Fichier invalide — JSON non reconnu.';
+      return;
+    }
+    if (!parsed || typeof parsed.data !== 'object' || Array.isArray(parsed.data)) {
+      feedback.style.display = 'block';
+      feedback.style.color = '#e24b4a';
+      feedback.textContent = 'Fichier invalide — structure non reconnue.';
+      return;
+    }
+    var ok = window.confirm(
+      'Cette action va fusionner les données importées avec vos données actuelles. ' +
+      'Les données importées écrasent les données locales en cas de conflit. Continuer ?'
+    );
+    if (!ok) {
+      feedback.style.display = 'block';
+      feedback.style.color = 'rgba(6,23,45,.45)';
+      feedback.textContent = 'Import annulé.';
+      return;
+    }
+    var count = 0;
+    var dataObj = parsed.data;
+    Object.keys(dataObj).forEach(function(key) {
+      var val = dataObj[key];
+      try {
+        localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+        count++;
+      } catch(err) {}
+    });
+    feedback.style.display = 'block';
+    feedback.style.color = '#2d6a4f';
+    feedback.textContent = '\u2713 ' + count + ' entr\xe9es import\xe9es \u2014 rechargement\u2026';
+    setTimeout(function() { window.location.reload(); }, 1500);
+  };
+  reader.readAsText(file);
+}
