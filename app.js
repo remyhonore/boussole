@@ -597,25 +597,6 @@ function refreshSummary() {
     html += ` · Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong>`;
   }
   html += `</p>`;
-  if (summary.joursRenseignes < 5) {
-    html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
-  }
-  html += `</div>`;
-
-  // 2b. Type de journées
-  const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
-  if (dist && dist.total > 0) {
-    html += `<div class="card">`;
-    html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
-    html += `<ul class="summary-list">`;
-    html += `<li>🟢 Hauts (score >= 7) : <strong>${dist.vert} jour${dist.vert > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🟠 Moyens (score 4-6) : <strong>${dist.orange} jour${dist.orange > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🔴 Bas (score < 4) : <strong>${dist.rouge} jour${dist.rouge > 1 ? 's' : ''}</strong></li>`;
-    html += `</ul>`;
-    html += `</div>`;
-  }
-
-  // 2c. Calendrier 14 jours
   if (typeof getDayType === 'function') {
     const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     const today14 = new Date();
@@ -633,9 +614,23 @@ function refreshSummary() {
         <span class="cal-day-num">${d.getDate()}</span>
       </div>`;
     }
-    html += `<div class="card">`;
-    html += `<h2 class="summary-section">CALENDRIER 14 JOURS</h2>`;
     html += `<div class="cal-grid">${calCells}</div>`;
+  }
+  if (summary.joursRenseignes < 5) {
+    html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
+  }
+  html += `</div>`;
+
+  // 2b. Type de journées
+  const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
+  if (dist && dist.total > 0) {
+    html += `<div class="card">`;
+    html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
+    html += `<ul class="summary-list">`;
+    html += `<li>🟢 Hauts (score >= 7) : <strong>${dist.vert} jour${dist.vert > 1 ? 's' : ''}</strong></li>`;
+    html += `<li>🟠 Moyens (score 4-6) : <strong>${dist.orange} jour${dist.orange > 1 ? 's' : ''}</strong></li>`;
+    html += `<li>🔴 Bas (score < 4) : <strong>${dist.rouge} jour${dist.rouge > 1 ? 's' : ''}</strong></li>`;
+    html += `</ul>`;
     html += `</div>`;
   }
 
