@@ -6,6 +6,16 @@
  */
 
 // ============================================
+// UTILS DATE LOCALE
+// ============================================
+function _localDateStr(d) {
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+// ============================================
 // PALETTE CHARTE CLINIQUE v4
 // ============================================
 const ANTHRACITE  = [26,  26,  26];
@@ -90,7 +100,7 @@ function genererPDFConsultation(noteLibre) {
   aujourd_hui.setHours(0, 0, 0, 0);
   const cutoff = new Date(aujourd_hui);
   cutoff.setDate(cutoff.getDate() - 6);
-  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const cutoffStr = _localDateStr(cutoff);
   const entrees = rawEntries.filter(function(e) { return e.date >= cutoffStr; });
 
   if (entrees.length === 0) {
@@ -913,11 +923,11 @@ function genererPDFConsultation(noteLibre) {
       today30j.setHours(0, 0, 0, 0);
       const cutoff30j    = new Date(today30j);
       cutoff30j.setDate(cutoff30j.getDate() - 29);
-      const cutoff30jStr = cutoff30j.toISOString().split('T')[0];
+      const cutoff30jStr = _localDateStr(cutoff30j);
       for (let i = 29; i >= 0; i--) {
         const d30  = new Date(today30j);
         d30.setDate(d30.getDate() - i);
-        const ds30  = d30.toISOString().split('T')[0];
+        const ds30  = _localDateStr(d30);
         const raw30 = localStorage.getItem('boussole_mesures_' + ds30);
         if (!raw30) continue;
         try { mesures30jCycle['boussole_mesures_' + ds30] = JSON.parse(raw30); } catch(ex) {}
@@ -989,7 +999,7 @@ function genererPDFConsultation(noteLibre) {
   aujourd_hui14.setHours(0, 0, 0, 0);
   var cutoff14 = new Date(aujourd_hui14);
   cutoff14.setDate(cutoff14.getDate() - 13);
-  var cutoff14Str = cutoff14.toISOString().split('T')[0];
+  var cutoff14Str = _localDateStr(cutoff14);
   var entries14j = rawEntries.filter(function(e) { return e.date >= cutoff14Str; });
 
   if (entries14j.length >= 3) {
@@ -1023,7 +1033,7 @@ function genererPDFConsultation(noteLibre) {
     for (var ci = 13; ci >= 0; ci--) {
       var cd    = new Date(aujourd_hui14);
       cd.setDate(cd.getDate() - ci);
-      var cdStr = cd.toISOString().split('T')[0];
+      var cdStr = _localDateStr(cd);
       var px    = startCalX + (13 - ci) * pastStep;
 
       var entry14 = entryMap14[cdStr];

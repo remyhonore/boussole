@@ -884,6 +884,13 @@ async function downloadPDFFromModal() {
 /**
  * === UTILS ===
  */
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
 function getTodayDate() {
   const now = new Date();
   return now.toISOString().split('T')[0];
@@ -1092,7 +1099,7 @@ window._ouvrirModePresentation = function() {
   for (let ci = 13; ci >= 0; ci--) {
     const cd = new Date(today14);
     cd.setDate(cd.getDate() - ci);
-    const cdStr = cd.toISOString().split('T')[0];
+    const cdStr = localDateStr(cd);
     const cdm = String(cd.getDate()).padStart(2, '0');
     const cmm = String(cd.getMonth() + 1).padStart(2, '0');
     const e14 = entryMap14[cdStr];
