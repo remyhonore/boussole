@@ -445,7 +445,19 @@
           </button>
         </div>
 
-        <!-- 3. Action tertiaire : PDF enrichi (discret) -->
+        <!-- 3. Action post-consultation -->
+        <div style="margin-top: 10px;">
+          <button
+            id="btn-post-consultation"
+            onclick="openPostConsultation()"
+            style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
+            aria-label="Documenter ce qui a été décidé après ma consultation"
+          >
+            &#x1F4DD; Après ma consultation
+          </button>
+        </div>
+
+        <!-- 4. Action tertiaire : PDF enrichi (discret) -->
         <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(6,23,45,.08); text-align: center;">
           <button
             id="btn-generate-pdf"
@@ -622,7 +634,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.25 — </span>
+    <span>Boussole v8.26 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -632,10 +644,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.25</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.26</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.26</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Feature J : mode post-consultation (formulaire structuré + PDF)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Feature P : score de stabilité 30j (écart-type, comparaison quinzaines)</li>
@@ -794,6 +811,66 @@
       <div style="display:flex;gap:10px;">
         <button onclick="fermerModaleConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#2d6a4f;cursor:pointer;">Annuler</button>
         <button onclick="lancerPDFConsultation()" style="flex:2;padding:10px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Générer le PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Post-Consultation -->
+  <div id="modal-post-consultation" role="dialog" aria-modal="true" aria-labelledby="post-consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 id="post-consultation-modal-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après ma consultation</h2>
+        <button onclick="closePostConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-date-rdv" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Date du RDV</label>
+        <input type="date" id="pc-date-rdv" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-decisions" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Décisions prises</label>
+        <textarea id="pc-decisions" maxlength="500" rows="3" placeholder="Ex: Continuer Brintellix 20mg, arrêter X..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-examens" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Examens prescrits</label>
+        <textarea id="pc-examens" maxlength="300" rows="2" placeholder="Ex: NFS, ferritine, TSH..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-traitement" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Traitement / complément à tester</label>
+        <input type="text" id="pc-traitement" maxlength="200" placeholder="Ex: Magnésium 300mg/j - 4 semaines" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-date-reeval" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Date de réévaluation (optionnel)</label>
+        <input type="date" id="pc-date-reeval" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label for="pc-variable" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Variable principale à surveiller</label>
+        <select id="pc-variable" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;">
+          <option value="">— Choisir —</option>
+          <option value="energie">Énergie</option>
+          <option value="sommeil">Sommeil</option>
+          <option value="confort">Confort physique</option>
+          <option value="clarte">Clarté mentale</option>
+          <option value="fc">Fréquence cardiaque</option>
+          <option value="poids">Poids</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="pc-signaux-stop" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Signaux d'arrêt</label>
+        <textarea id="pc-signaux-stop" maxlength="300" rows="2" placeholder="Ex: Si aggravation sommeil, si douleurs > 7/10..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+
+      <div id="pc-feedback" style="display:none;text-align:center;color:#2d6a4f;font-weight:600;margin-bottom:12px;">Enregistré ✓</div>
+
+      <div style="display:flex;gap:10px;">
+        <button onclick="closePostConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
+        <button onclick="savePostConsultation()" style="flex:2;padding:10px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
       </div>
     </div>
   </div>

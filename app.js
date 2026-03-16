@@ -1555,3 +1555,74 @@ function triggerRappel() {
     });
   });
 }
+
+// ============================================================
+// === POST-CONSULTATION (Feature J) ===
+// ============================================================
+
+function hasPostConsultation() {
+  for (var i = 0; i < localStorage.length; i++) {
+    if (localStorage.key(i) && localStorage.key(i).startsWith('boussole_post_consultation_')) return true;
+  }
+  return false;
+}
+
+function loadPostConsultation(dateStr) {
+  var raw = localStorage.getItem('boussole_post_consultation_' + dateStr);
+  if (!raw) return false;
+  try {
+    var data = JSON.parse(raw);
+    document.getElementById('pc-date-rdv').value = data.date_rdv || dateStr;
+    document.getElementById('pc-decisions').value = data.decisions || '';
+    document.getElementById('pc-examens').value = data.examens || '';
+    document.getElementById('pc-traitement').value = data.traitement_teste || '';
+    document.getElementById('pc-date-reeval').value = data.date_reevaluation || '';
+    document.getElementById('pc-variable').value = data.variable_suivie || '';
+    document.getElementById('pc-signaux-stop').value = data.signaux_stop || '';
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function openPostConsultation() {
+  var modal = document.getElementById('modal-post-consultation');
+  if (!modal) return;
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  document.getElementById('pc-date-rdv').value = dateStr;
+  document.getElementById('pc-decisions').value = '';
+  document.getElementById('pc-examens').value = '';
+  document.getElementById('pc-traitement').value = '';
+  document.getElementById('pc-date-reeval').value = '';
+  document.getElementById('pc-variable').value = '';
+  document.getElementById('pc-signaux-stop').value = '';
+  document.getElementById('pc-feedback').style.display = 'none';
+  loadPostConsultation(dateStr);
+  modal.style.display = 'flex';
+}
+
+function closePostConsultation() {
+  var modal = document.getElementById('modal-post-consultation');
+  if (modal) modal.style.display = 'none';
+}
+
+function savePostConsultation() {
+  var dateRdv = document.getElementById('pc-date-rdv').value;
+  if (!dateRdv) return;
+  var data = {
+    date_rdv: dateRdv,
+    decisions: document.getElementById('pc-decisions').value,
+    examens: document.getElementById('pc-examens').value,
+    traitement_teste: document.getElementById('pc-traitement').value,
+    date_reevaluation: document.getElementById('pc-date-reeval').value,
+    variable_suivie: document.getElementById('pc-variable').value,
+    signaux_stop: document.getElementById('pc-signaux-stop').value
+  };
+  localStorage.setItem('boussole_post_consultation_' + dateRdv, JSON.stringify(data));
+  var feedback = document.getElementById('pc-feedback');
+  if (feedback) {
+    feedback.style.display = 'block';
+    setTimeout(function() { closePostConsultation(); }, 1200);
+  }
+}

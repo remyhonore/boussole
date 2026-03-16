@@ -1235,6 +1235,96 @@ function genererPDFConsultation(noteLibre) {
   }
 
   // ============================================================
+  // 10. PLAN POST-CONSULTATION (conditionnel)
+  // ============================================================
+  var NAVY_PC = [6, 23, 45];
+  var SAGE_PC = [74, 122, 90];
+  var GREY_PC = [107, 114, 128];
+
+  var postConsultData = null;
+  var now30 = new Date();
+  for (var d = 0; d < 30; d++) {
+    var dd = new Date(now30);
+    dd.setDate(dd.getDate() - d);
+    var ddStr = _localDateStr(dd);
+    var rawPC = localStorage.getItem('boussole_post_consultation_' + ddStr);
+    if (rawPC) {
+      try { postConsultData = JSON.parse(rawPC); break; } catch(ex) {}
+    }
+  }
+
+  if (postConsultData) {
+    var varLabelsPC = {
+      energie: 'Energie', sommeil: 'Sommeil', confort: 'Confort physique',
+      clarte: 'Clarte mentale', fc: 'Frequence cardiaque', poids: 'Poids'
+    };
+
+    var pcBlocH = 14;
+    if (postConsultData.decisions) pcBlocH += 12;
+    if (postConsultData.examens) pcBlocH += 12;
+    if (postConsultData.traitement_teste) pcBlocH += 10;
+    if (postConsultData.date_reevaluation) pcBlocH += 10;
+    if (postConsultData.variable_suivie) pcBlocH += 10;
+    if (postConsultData.signaux_stop) pcBlocH += 12;
+    pcBlocH += 8;
+    checkPage(pcBlocH);
+
+    var dateRdvFmt = postConsultData.date_rdv || '';
+    if (dateRdvFmt.length === 10 && dateRdvFmt[4] === '-') {
+      dateRdvFmt = dateRdvFmt.slice(8, 10) + '/' + dateRdvFmt.slice(5, 7) + '/' + dateRdvFmt.slice(0, 4);
+    }
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(NAVY_PC[0], NAVY_PC[1], NAVY_PC[2]);
+    doc.text('PLAN POST-CONSULTATION \u2014 RDV du ' + dateRdvFmt, marginL, y);
+    y += 3;
+
+    doc.setDrawColor(SAGE_PC[0], SAGE_PC[1], SAGE_PC[2]);
+    doc.setLineWidth(0.5);
+    doc.line(marginL, y, marginL + contentW, y);
+    doc.setLineWidth(0.1);
+    y += 5;
+
+    var _pcLine = function(label, value) {
+      if (!value) return;
+      var lines = doc.splitTextToSize(label + ' ' + value, contentW - 4);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(NAVY_PC[0], NAVY_PC[1], NAVY_PC[2]);
+      lines.forEach(function(l, li) { doc.text(l, marginL, y + li * 5); });
+      y += lines.length * 5 + 2;
+    };
+
+    if (postConsultData.decisions) _pcLine('Decisions :', postConsultData.decisions);
+    if (postConsultData.examens) _pcLine('Examens :', postConsultData.examens);
+    if (postConsultData.traitement_teste) _pcLine('A tester :', postConsultData.traitement_teste);
+    if (postConsultData.date_reevaluation) {
+      var reevalFmt = postConsultData.date_reevaluation;
+      if (reevalFmt.length === 10 && reevalFmt[4] === '-') {
+        reevalFmt = reevalFmt.slice(8, 10) + '/' + reevalFmt.slice(5, 7) + '/' + reevalFmt.slice(0, 4);
+      }
+      _pcLine('Reevaluation :', reevalFmt);
+    }
+    if (postConsultData.variable_suivie) {
+      _pcLine('Variable a surveiller :', varLabelsPC[postConsultData.variable_suivie] || postConsultData.variable_suivie);
+    }
+    if (postConsultData.signaux_stop) _pcLine('Signaux d\'arret :', postConsultData.signaux_stop);
+
+    y += 2;
+    var discTxtPC = 'Notes personnelles post-consultation. Pas un avis medical.';
+    var discLinesPC = doc.splitTextToSize(discTxtPC, contentW);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY_PC[0], GREY_PC[1], GREY_PC[2]);
+    discLinesPC.forEach(function(l, li) { doc.text(l, marginL, y + li * 4); });
+    y += discLinesPC.length * 4 + 3;
+
+    drawSep(y);
+    y += 5;
+  }
+
+  // ============================================================
   // FOOTER (toutes les pages)
   // ============================================================
   drawFooters();
