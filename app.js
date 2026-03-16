@@ -1700,7 +1700,8 @@ function refreshPostConsultationHistorique() {
 
   var html = '<div style="margin-bottom:8px;">';
   html += '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.45);text-transform:uppercase;margin-bottom:2px;">Mes consultations</div>';
-  html += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-bottom:10px;">' + fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '') + ' enregistr\u00e9e' + (fiches.length > 1 ? 's' : '') + '</div>';
+  html += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-bottom:6px;">' + fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '') + ' enregistr\u00e9e' + (fiches.length > 1 ? 's' : '') + '</div>';
+  html += '<button onclick="exportJournalConsultationPDF()" style="background:none;border:1px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 14px;font-size:12px;cursor:pointer;margin-bottom:10px;">\u2193 Exporter le journal (PDF)</button>';
 
   fiches.forEach(function(fiche, idx) {
     var dateRdv = fiche.date_rdv || '';
@@ -1779,4 +1780,243 @@ function savePostConsultation() {
     feedback.style.display = 'block';
     setTimeout(function() { closePostConsultation(); refreshPostConsultationIndicator(); }, 1200);
   }
+}
+
+// ============================================================
+// === EXPORT PDF JOURNAL CONSULTATIONS ===
+// ============================================================
+
+function exportJournalConsultationPDF() {
+  if (typeof window.jspdf === 'undefined') {
+    alert('jsPDF non disponible - verifiez votre connexion internet.');
+    return;
+  }
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  // Palette
+  var NAVY       = [6,   23,  45];
+  var SAGE       = [74,  122, 90];
+  var MUTED      = [107, 114, 128];
+  var ANTHRACITE = [26,  26,  26]; // eslint-disable-line no-unused-vars
+  var RED        = [231, 76,  60];
+  var ORANGE     = [243, 156, 18];
+  var SEP_COLOR  = [232, 229, 224];
+
+  var pageW    = 210;
+  var marginL  = 15;
+  var marginR  = 15;
+  var contentW = pageW - marginL - marginR;
+  var PAGE_MAX_Y = 270;
+  var y = 0;
+
+  function drawSep(yPos) {
+    doc.setDrawColor(SEP_COLOR[0], SEP_COLOR[1], SEP_COLOR[2]);
+    doc.setLineWidth(0.5);
+    doc.line(marginL, yPos, marginL + contentW, yPos);
+  }
+
+  function checkPage(neededH) {
+    if (y + neededH > PAGE_MAX_Y) {
+      doc.addPage();
+      y = 15;
+    }
+  }
+
+  function drawFooters() {
+    var total = doc.internal.getNumberOfPages();
+    for (var p = 1; p <= total; p++) {
+      doc.setPage(p);
+      var fy = 283;
+      drawSep(fy - 3);
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text(
+        "Document d'information personnelle \xB7 Donn\xe9es auto-\xe9valu\xe9es \xB7 Pas un avis m\xe9dical",
+        marginL, fy + 2
+      );
+      doc.setFontSize(8);
+      doc.text('myboussole.fr', marginL + contentW, fy + 2, { align: 'right' });
+    }
+  }
+
+  function _encLatin(str) {
+    return (str || '')
+      .replace(/[\xe9\xe8\xea\xeb]/g, 'e').replace(/[\xc9\xc8\xca\xcb]/g, 'E')
+      .replace(/[\xe0\xe2\xe4]/g,     'a').replace(/[\xc0\xc2\xc4]/g,     'A')
+      .replace(/[\xf4\xf6]/g,         'o').replace(/[\xd4\xd6]/g,         'O')
+      .replace(/[\xee\xef]/g,         'i').replace(/[\xce\xcf]/g,         'I')
+      .replace(/[\xfb\xfc]/g,         'u').replace(/[\xdb\xdc]/g,         'U')
+      .replace(/[\xe7]/g,             'c').replace(/[\xc7]/g,             'C');
+  }
+
+  function formatDateFR(dateStr) {
+    if (!dateStr) return '';
+    var p = dateStr.split('-');
+    if (p.length !== 3) return dateStr;
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  var variableLabels = {
+    energie: 'Energie',
+    sommeil: 'Sommeil',
+    confort: 'Confort physique',
+    clarte: 'Clarte mentale',
+    fc: 'Frequence cardiaque',
+    poids: 'Poids'
+  };
+
+  // Fiches
+  var fiches = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith('boussole_post_consultation_')) {
+      try {
+        var fiche = JSON.parse(localStorage.getItem(key));
+        fiches.push(fiche);
+      } catch (e) { /* skip */ }
+    }
+  }
+  if (fiches.length === 0) {
+    alert('Aucune fiche de consultation enregistree.');
+    return;
+  }
+  fiches.sort(function(a, b) { return (b.date_rdv || '').localeCompare(a.date_rdv || ''); });
+
+  // Today / in7 for reevaluation color
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  var in7 = new Date(today);
+  in7.setDate(in7.getDate() + 7);
+  var in7Str = in7.getFullYear() + '-' + String(in7.getMonth() + 1).padStart(2, '0') + '-' + String(in7.getDate()).padStart(2, '0');
+
+  // Identity
+  var prenom = (localStorage.getItem('boussole_prenom') || '').trim();
+  var nom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
+  var nomComplet = _encLatin([prenom, nom].filter(Boolean).join(' ') || 'Utilisateur');
+  var exportDate = formatDateFR(todayStr);
+
+  // ============================================================
+  // PAGE DE GARDE
+  // ============================================================
+  doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+  doc.rect(0, 0, pageW, 28, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(255, 255, 255);
+  doc.text('JOURNAL DE SUIVI - CONSULTATIONS', pageW / 2, 12, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(210, 210, 210);
+  doc.text(nomComplet + '  \xB7  Export du ' + exportDate, pageW / 2, 19, { align: 'center' });
+
+  doc.setFontSize(8);
+  doc.setTextColor(170, 170, 170);
+  doc.text('myboussole.fr \xB7 donn\xe9es auto-\xe9valu\xe9es', pageW / 2, 25, { align: 'center' });
+
+  y = 36;
+
+  // ============================================================
+  // FICHES
+  // ============================================================
+  fiches.forEach(function(f) {
+    checkPage(50);
+
+    // Separateur sage + titre
+    doc.setDrawColor(SAGE[0], SAGE[1], SAGE[2]);
+    doc.setLineWidth(0.8);
+    doc.line(marginL, y, marginL + contentW, y);
+    y += 5;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+    doc.text('RDV DU ' + formatDateFR(f.date_rdv || ''), marginL, y);
+    y += 6;
+
+    function drawField(labelTxt, value) {
+      if (!value || !value.trim()) return;
+      checkPage(15);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text(labelTxt, marginL, y);
+      y += 3.5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      var lines = doc.splitTextToSize(value, contentW);
+      lines.forEach(function(l) {
+        checkPage(5);
+        doc.text(l, marginL, y);
+        y += 4.5;
+      });
+      y += 2;
+    }
+
+    if (f.decisions)       drawField('DECISIONS',          f.decisions);
+    if (f.examens)         drawField('EXAMENS PRESCRITS',  f.examens);
+    if (f.traitement_teste) drawField('A TESTER',          f.traitement_teste);
+
+    if (f.date_reevaluation) {
+      checkPage(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('REEVALUATION', marginL, y);
+      y += 3.5;
+      var reevalColor = f.date_reevaluation < todayStr ? RED
+                      : f.date_reevaluation <= in7Str  ? ORANGE
+                      : NAVY;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(reevalColor[0], reevalColor[1], reevalColor[2]);
+      doc.text(formatDateFR(f.date_reevaluation), marginL, y);
+      y += 6;
+    }
+
+    if (f.variable_suivie) {
+      checkPage(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('VARIABLE SURVEILLEE', marginL, y);
+      y += 3.5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      var varLabel = variableLabels[f.variable_suivie] || _encLatin(f.variable_suivie);
+      doc.text(varLabel, marginL, y);
+      y += 6;
+    }
+
+    if (f.signaux_stop) drawField("SIGNAUX D'ARRET", f.signaux_stop);
+
+    // Separateur fin gris
+    y += 2;
+    doc.setDrawColor(SEP_COLOR[0], SEP_COLOR[1], SEP_COLOR[2]);
+    doc.setLineWidth(0.3);
+    doc.line(marginL, y, marginL + contentW, y);
+    y += 5;
+  });
+
+  drawFooters();
+
+  // Telechargement
+  var filename = 'boussole-journal-consultations-' + todayStr + '.pdf';
+  var blob = doc.output('blob');
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
 }
