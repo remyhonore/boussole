@@ -692,6 +692,26 @@ function refreshSummary() {
     html += `</div>`;
   }
 
+  // 2c. Stabilité 30j
+  const stability = computeStabilityScore();
+  if (stability !== null) {
+    const trendIcon = stability.trend === 'amelioration' ? '🟢' : stability.trend === 'stable' ? '🟡' : '🔴';
+    const pct = Math.round(Math.abs(1 - stability.stdDevSecond / (stability.stdDevFirst || 1)) * 100);
+    let trendPhrase;
+    if (stability.trend === 'amelioration') {
+      trendPhrase = `Ta variabilité a diminué de ${pct}% sur les 15 derniers jours.`;
+    } else if (stability.trend === 'stable') {
+      trendPhrase = `Ta variabilité est stable sur les 15 derniers jours.`;
+    } else {
+      trendPhrase = `Ta variabilité a augmenté de ${pct}% sur les 15 derniers jours.`;
+    }
+    html += `<div class="card">`;
+    html += `<h2 class="summary-section">STABILITÉ</h2>`;
+    html += `<p style="margin:8px 0 4px;font-size:15px;">${trendIcon} ${trendPhrase}</p>`;
+    html += `<p style="font-size:12px;color:var(--color-text-muted);">Écart-type 30j : ${stability.stdDev30.toFixed(1)} pts</p>`;
+    html += `</div>`;
+  }
+
   // 3. Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
@@ -957,6 +977,55 @@ function formatDateFr(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
+/**
+ * Score de stabilité — écart-type du score composite sur 30 jours
+ * Compare J1-J15 (récent) vs J16-J30 (ancien)
+ */
+function computeStabilityScore() {
+  const data = loadEntries();
+  const entries = data.entries || [];
+
+  const sorted = entries.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+
+  const scores = [];
+  for (let i = sorted.length - 1; i >= 0 && scores.length < 30; i--) {
+    const e = sorted[i];
+    const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale]
+      .filter(v => v !== null && v !== undefined);
+    if (vals.length > 0) {
+      scores.unshift(vals.reduce((a, b) => a + b, 0) / vals.length);
+    }
+  }
+
+  const count = scores.length;
+  if (count < 10) return null;
+
+  function _std(arr) {
+    if (arr.length < 2) return 0;
+    const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+    return Math.sqrt(arr.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / arr.length);
+  }
+
+  const stdDev30 = _std(scores);
+  const mid = Math.floor(count / 2);
+  const stdDevFirst  = _std(scores.slice(0, mid));        // J16-J30 (plus ancien)
+  const stdDevSecond = _std(scores.slice(count - mid));   // J1-J15  (plus récent)
+
+  let trend;
+  if (stdDevFirst === 0) {
+    trend = 'stable';
+  } else if (stdDevSecond < stdDevFirst * 0.85) {
+    trend = 'amelioration';
+  } else if (stdDevSecond > stdDevFirst * 1.15) {
+    trend = 'variable';
+  } else {
+    trend = 'stable';
+  }
+
+  return { stdDev30, stdDevFirst, stdDevSecond, count, trend };
+}
+window.computeStabilityScore = computeStabilityScore;
+
 function showStatus(message, type = 'info') {
   const statusEl = document.getElementById('status-message');
   if (!statusEl) return;
@@ -1175,6 +1244,29 @@ window._ouvrirModePresentation = function() {
         '<span class="cal-day-num">' + cdm + '/' + cmm + '</span>' +
       '</div>';
   }
+  // Stabilité 30j
+  let stabilityHtml = '';
+  const stab = computeStabilityScore();
+  if (stab !== null) {
+    const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
+    const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
+    let stabPhrase;
+    if (stab.trend === 'amelioration') {
+      stabPhrase = 'Ta variabilité a diminué de ' + stabPct + '% sur les 15 derniers jours.';
+    } else if (stab.trend === 'stable') {
+      stabPhrase = 'Ta variabilité est stable sur les 15 derniers jours.';
+    } else {
+      stabPhrase = 'Ta variabilité a augmenté de ' + stabPct + '% sur les 15 derniers jours.';
+    }
+    stabilityHtml =
+      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Stabilité</p>' +
+      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
+      '<p style="font-size:15px;margin:0 0 4px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
+      '<p style="font-size:12px;color:#6E877D;margin:0 0 16px;">' +
+        'Écart-type 30j : ' + stab.stdDev30.toFixed(1) + ' pts' +
+      '</p>';
+  }
+
   const cal14Html =
     '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Calendrier 14 jours</p>' +
     '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
@@ -1195,6 +1287,7 @@ window._ouvrirModePresentation = function() {
       '<div style="font-size:12px;color:#999;margin-top:4px;">Score global moyen</div>' +
     '</div>' +
     pointAttentionHtml +
+    stabilityHtml +
     cal14Html +
     '<table style="width:100%;border-collapse:collapse;">' +
       '<thead><tr>' +

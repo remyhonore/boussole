@@ -603,6 +603,50 @@ function genererPDFConsultation(noteLibre) {
     y += rowH2;
   });
 
+  // Ligne Stabilite 30j
+  if (typeof window.computeStabilityScore === 'function') {
+    var stabData = window.computeStabilityScore();
+    if (stabData !== null) {
+      checkPage(rowH2);
+      var stabIdx = metriques.length;
+      var stabBg = stabIdx % 2 === 0 ? [255, 255, 255] : LIGHT_BG;
+      doc.setFillColor(stabBg[0], stabBg[1], stabBg[2]);
+      doc.rect(tabX, y, tabW, rowH2, 'F');
+
+      var stabValStr   = stabData.stdDev30.toFixed(1);
+      var stabTendTxt, stabTendColor, stabComTxt, stabComColor, stabComBold;
+
+      if (stabData.trend === 'amelioration') {
+        stabTendTxt   = 'Bonne';     stabTendColor = GREEN_SOFT;
+        stabComTxt    = '->';        stabComColor  = GREEN_SOFT; stabComBold = false;
+      } else if (stabData.trend === 'stable') {
+        stabTendTxt   = 'Stable';    stabTendColor = MUTED;
+        stabComTxt    = '->';        stabComColor  = MUTED;      stabComBold = false;
+      } else {
+        stabTendTxt   = 'Variable';  stabTendColor = DARK_WARM;
+        stabComTxt    = '/!\\';      stabComColor  = DARK_WARM;  stabComBold = true;
+      }
+
+      doc.setFontSize(8.5);
+      tc(ANTHRACITE, false);
+      doc.text('Stabilite 30j', tabX + 2, y + 5);
+
+      tc(ANTHRACITE, false);
+      doc.text(stabValStr, tabX + colDomW + colMoyW2 / 2, y + 5, { align: 'center' });
+
+      tc(MUTED, false);
+      doc.text('-', tabX + colDomW + colMoyW2 + colJoursW / 2, y + 5, { align: 'center' });
+
+      tc(stabTendColor, false);
+      doc.text(stabTendTxt, tabX + colDomW + colMoyW2 + colJoursW + colTendW2 / 2, y + 5, { align: 'center' });
+
+      tc(stabComColor, stabComBold);
+      doc.text(stabComTxt, tabX + colDomW + colMoyW2 + colJoursW + colTendW2 + colComW / 2, y + 5, { align: 'center' });
+
+      y += rowH2;
+    }
+  }
+
   y += 4;
   drawSep(y);
   y += 5;
