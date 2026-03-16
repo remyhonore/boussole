@@ -63,8 +63,8 @@ function calculateTrend(values) {
   const sd = standardDeviation(filtered);
   
   // Règles de tendance
-  if (delta >= 1.0) return 'plutôt en amélioration';
-  if (delta <= -1.0) return 'plutôt en baisse';
+  if (delta >= 0.5) return 'plutôt en amélioration';
+  if (delta <= -0.5) return 'plutôt en baisse';
   if (sd > 2.0) return 'plutôt fluctuant';
   return 'plutôt stable';
 }
