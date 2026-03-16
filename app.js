@@ -586,7 +586,11 @@ function refreshSummary() {
   if (!hasAnyTendance) {
     html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible. Commencez par saisir vos repères dans l'onglet "Aujourd'hui".</p>`;
   }
-  
+
+  html += `<p style="font-size:12px;color:#6b7280;font-style:italic;margin-top:8px;padding:0 4px;">
+  Les valeurs affichées sont des moyennes calculées sur les 30 derniers jours enregistrés.
+</p>`;
+
   html += `</div>`;
 
   // 2. Résumé 30 jours
@@ -614,6 +618,7 @@ function refreshSummary() {
         <span class="cal-day-num">${d.getDate()}</span>
       </div>`;
     }
+    html += `<p style="font-size:11px;color:#6b7280;margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
     html += `<div class="cal-grid">${calCells}</div>`;
   }
   if (summary.joursRenseignes < 5) {
