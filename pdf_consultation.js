@@ -138,6 +138,22 @@ function genererPDFConsultation(noteLibre) {
 
   const derniereSaisie = entrees[entrees.length - 1].date;
 
+  // VOR -- repartition type de journees
+  let nbVert = 0, nbOrange = 0, nbRouge = 0;
+  entrees.forEach(function(e) {
+    const vv = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(function(v) { return v !== null && v !== undefined; });
+    if (vv.length === 0) return;
+    const s = vv.reduce(function(a, b) { return a + b; }, 0) / vv.length;
+    if (s >= 7) nbVert++;
+    else if (s >= 4) nbOrange++;
+    else nbRouge++;
+  });
+  const totalJoursVOR = nbVert + nbOrange + nbRouge;
+  const pctVert   = totalJoursVOR ? Math.round(nbVert   / totalJoursVOR * 100) : 0;
+  const pctOrange = totalJoursVOR ? Math.round(nbOrange / totalJoursVOR * 100) : 0;
+  const pctRouge  = totalJoursVOR ? Math.round(nbRouge  / totalJoursVOR * 100) : 0;
+
   // ---- IDENTITE PATIENT ----
   const idPrenom = (localStorage.getItem('boussole_prenom') || '').trim();
   const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
@@ -930,6 +946,40 @@ function genererPDFConsultation(noteLibre) {
       y += 5;
     }
   }
+
+  // ============================================================
+  // TYPE DE JOURNEES — repartition Vert / Orange / Rouge
+  // ============================================================
+  checkPage(22);
+
+  const VOR_VERT   = [74,  122, 90];
+  const VOR_ORANGE = [200, 130, 50];
+  const VOR_ROUGE  = [190,  65, 55];
+
+  doc.setFontSize(9);
+  tc(MUTED, false);
+  doc.text('TYPE DE JOURN\xc9ES - 7 JOURS', marginL, y);
+  y += 5;
+
+  const vorItems = [
+    { label: 'Hauts : '  + nbVert   + 'j (' + pctVert   + '%)', color: VOR_VERT   },
+    { label: 'Moyens : ' + nbOrange + 'j (' + pctOrange + '%)', color: VOR_ORANGE },
+    { label: 'Bas : '    + nbRouge  + 'j (' + pctRouge  + '%)', color: VOR_ROUGE  }
+  ];
+  let vorX = marginL;
+  vorItems.forEach(function(item) {
+    doc.setFillColor(item.color[0], item.color[1], item.color[2]);
+    doc.circle(vorX + 2, y + 1.5, 2, 'F');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+    doc.text(item.label, vorX + 6, y + 3.5);
+    vorX += doc.getTextWidth(item.label) + 14;
+  });
+  y += 8;
+
+  drawSep(y);
+  y += 5;
 
   // ============================================================
   // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
