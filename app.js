@@ -615,6 +615,30 @@ function refreshSummary() {
     html += `</div>`;
   }
 
+  // 2c. Calendrier 14 jours
+  if (typeof getDayType === 'function') {
+    const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+    const today14 = new Date();
+    let calCells = '';
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today14);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const entry = data.entries.find(e => e.date === dateStr);
+      const dt = entry ? getDayType(entry) : null;
+      const dotClass = dt ? 'cal-dot cal-dot-' + dt.type : 'cal-dot cal-dot-vide';
+      calCells += `<div class="cal-cell">
+        <span class="cal-day-label">${DAY_LABELS[d.getDay()]}</span>
+        <div class="${dotClass}"></div>
+        <span class="cal-day-num">${d.getDate()}</span>
+      </div>`;
+    }
+    html += `<div class="card">`;
+    html += `<h2 class="summary-section">CALENDRIER 14 JOURS</h2>`;
+    html += `<div class="cal-grid">${calCells}</div>`;
+    html += `</div>`;
+  }
+
   // 3. Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
@@ -1129,7 +1153,7 @@ document.getElementById('btn-download-pdf')?.addEventListener('click', downloadP
 document.getElementById('btn-cancel-pdf')?.addEventListener('click', closePDFModal);
 
 // Changelog modal
-const CURRENT_VERSION = '1.8';
+const CURRENT_VERSION = '1.9';
 const VERSION_KEY = 'boussole_last_version_seen';
 
 function openChangelog() {

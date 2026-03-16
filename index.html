@@ -23,6 +23,36 @@
       0%,100% { transform: scale(1); }
       50%      { transform: scale(1.12); }
     }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .cal-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .cal-day-label {
+      font-size: 9px;
+      color: var(--color-text-muted, #6b7280);
+      font-weight: 600;
+    }
+    .cal-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    .cal-day-num {
+      font-size: 9px;
+      color: var(--color-text-muted, #6b7280);
+    }
+    .cal-dot-vert   { background: #2d6a4f; }
+    .cal-dot-orange { background: #D97706; }
+    .cal-dot-rouge  { background: #DC2626; }
+    .cal-dot-vide   { background: #D1D5DB; }
   </style>
 
   <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
@@ -589,7 +619,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.16 — </span>
+    <span>Boussole v8.17 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -599,10 +629,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.16</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.17</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.17</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Calendrier 14 jours avec pastilles colorées dans le Résumé</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.16</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Fix régression : TYPE DE JOURNÉES restauré dans le Résumé</li>
