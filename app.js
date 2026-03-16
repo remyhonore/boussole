@@ -1584,6 +1584,7 @@ function refreshPostConsultationIndicator() {
   } else {
     indicator.style.display = 'none';
   }
+  refreshPostConsultationHistorique();
 }
 
 function hasPostConsultation() {
@@ -1631,6 +1632,133 @@ function openPostConsultation() {
 function closePostConsultation() {
   var modal = document.getElementById('modal-post-consultation');
   if (modal) modal.style.display = 'none';
+}
+
+function openPostConsultationFromDate(dateStr) {
+  var modal = document.getElementById('modal-post-consultation');
+  if (!modal) return;
+  document.getElementById('pc-date-rdv').value = dateStr;
+  document.getElementById('pc-decisions').value = '';
+  document.getElementById('pc-examens').value = '';
+  document.getElementById('pc-traitement').value = '';
+  document.getElementById('pc-date-reeval').value = '';
+  document.getElementById('pc-variable').value = '';
+  document.getElementById('pc-signaux-stop').value = '';
+  document.getElementById('pc-feedback').style.display = 'none';
+  loadPostConsultation(dateStr);
+  modal.style.display = 'flex';
+}
+
+function refreshPostConsultationHistorique() {
+  var container = document.getElementById('pc-historique');
+  if (!container) return;
+
+  var variableLabels = {
+    energie: '\u00c9nergie',
+    sommeil: 'Sommeil',
+    confort: 'Confort physique',
+    clarte: 'Clart\u00e9 mentale',
+    fc: 'Fr\u00e9quence cardiaque',
+    poids: 'Poids'
+  };
+
+  var fiches = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith('boussole_post_consultation_')) {
+      try {
+        var data = JSON.parse(localStorage.getItem(key));
+        fiches.push(data);
+      } catch (e) { /* skip */ }
+    }
+  }
+
+  if (fiches.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  fiches.sort(function(a, b) { return (b.date_rdv || '').localeCompare(a.date_rdv || ''); });
+
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  var in7 = new Date(today);
+  in7.setDate(in7.getDate() + 7);
+  var in7Str = in7.getFullYear() + '-' + String(in7.getMonth() + 1).padStart(2, '0') + '-' + String(in7.getDate()).padStart(2, '0');
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var p = dateStr.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function formatDateShort(dateStr) {
+    if (!dateStr) return '';
+    var p = dateStr.split('-');
+    return p[2] + '/' + p[1];
+  }
+
+  var html = '<div style="margin-bottom:8px;">';
+  html += '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.45);text-transform:uppercase;margin-bottom:2px;">Mes consultations</div>';
+  html += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-bottom:10px;">' + fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '') + ' enregistr\u00e9e' + (fiches.length > 1 ? 's' : '') + '</div>';
+
+  fiches.forEach(function(fiche, idx) {
+    var dateRdv = fiche.date_rdv || '';
+    var varLabel = fiche.variable_suivie ? (variableLabels[fiche.variable_suivie] || fiche.variable_suivie) : '';
+    var headerText = formatDate(dateRdv) + (varLabel ? ' \u2014 ' + varLabel : '');
+    var isOpen = idx === 0;
+    var cardId = 'pc-card-' + idx;
+
+    html += '<div style="background:#fff;border-left:3px solid #6E877D;border-radius:10px;padding:12px;margin-bottom:8px;">';
+    html += '<div class="pc-card-header" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#06172D;">';
+    html += '<span>' + headerText + '</span>';
+    html += '<span id="' + cardId + '-chevron" style="font-size:12px;color:rgba(6,23,45,.45);">' + (isOpen ? '\u25bc' : '\u25b6') + '</span>';
+    html += '</div>';
+    html += '<div id="' + cardId + '" style="display:' + (isOpen ? 'block' : 'none') + ';margin-top:10px;font-size:13px;color:#333;line-height:1.8;">';
+
+    if (fiche.decisions) html += '<div><strong>D\u00e9cisions\u00a0:</strong> ' + fiche.decisions + '</div>';
+    if (fiche.examens) html += '<div><strong>Examens\u00a0:</strong> ' + fiche.examens + '</div>';
+    if (fiche.traitement_teste) html += '<div><strong>\u00c0 tester\u00a0:</strong> ' + fiche.traitement_teste + '</div>';
+    if (fiche.date_reevaluation) {
+      var reevalColor = '#333';
+      if (fiche.date_reevaluation < todayStr) {
+        reevalColor = '#e74c3c';
+      } else if (fiche.date_reevaluation <= in7Str) {
+        reevalColor = '#f39c12';
+      }
+      html += '<div><strong>R\u00e9\u00e9valuation\u00a0:</strong> <span style="color:' + reevalColor + ';">' + formatDateShort(fiche.date_reevaluation) + '</span></div>';
+    }
+    if (fiche.variable_suivie) html += '<div><strong>Surveiller\u00a0:</strong> ' + (variableLabels[fiche.variable_suivie] || fiche.variable_suivie) + '</div>';
+    if (fiche.signaux_stop) html += '<div><strong>Signaux d\u2019arr\u00eat\u00a0:</strong> ' + fiche.signaux_stop + '</div>';
+
+    html += '<div style="margin-top:8px;"><button onclick="openPostConsultationFromDate(\'' + dateRdv + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button></div>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+
+  container.innerHTML = html;
+  container.style.display = 'block';
+
+  // Wire up chevron toggles
+  fiches.forEach(function(fiche, idx) {
+    var cardId = 'pc-card-' + idx;
+    var header = container.querySelector('#' + cardId).previousElementSibling;
+    if (header) {
+      header.onclick = function() {
+        var body = document.getElementById(cardId);
+        var chevron = document.getElementById(cardId + '-chevron');
+        if (body.style.display === 'none') {
+          body.style.display = 'block';
+          if (chevron) chevron.textContent = '\u25bc';
+        } else {
+          body.style.display = 'none';
+          if (chevron) chevron.textContent = '\u25b6';
+        }
+      };
+    }
+  });
 }
 
 function savePostConsultation() {
