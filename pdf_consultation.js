@@ -932,6 +932,130 @@ function genererPDFConsultation(noteLibre) {
   }
 
   // ============================================================
+  // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
+  // ============================================================
+
+  // Scores composites 7j pour les regles
+  const scores7jQ = entrees.map(function(e) {
+    const vvQ = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      .filter(function(v) { return v !== null && v !== undefined; });
+    return vvQ.length ? vvQ.reduce(function(a, b) { return a + b; }, 0) / vvQ.length : null;
+  }).filter(function(v) { return v !== null; });
+
+  const scoreMoy7jQ = _moyenne(scores7jQ);
+
+  let scoreStdDevQ = 0;
+  if (scores7jQ.length >= 2 && scoreMoy7jQ !== null) {
+    const varQ = scores7jQ.reduce(function(acc, v) { return acc + (v - scoreMoy7jQ) * (v - scoreMoy7jQ); }, 0) / scores7jQ.length;
+    scoreStdDevQ = Math.sqrt(varQ);
+  }
+
+  const humeurValsQ = entrees.map(function(e) { return e.humeur; }).filter(function(v) { return v !== null && v !== undefined; });
+  const humeurMoy7jQ = _moyenne(humeurValsQ);
+
+  let pemCount7jQ = 0;
+  if (typeof window.detectPEMEvents === 'function') {
+    const days7jQpem = entrees.map(function(e) {
+      const vvQp = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+        .filter(function(v) { return v !== null && v !== undefined; });
+      const scQp = vvQp.length ? vvQp.reduce(function(a, b) { return a + b; }, 0) / vvQp.length : null;
+      return { date: e.date, score: scQp };
+    }).filter(function(d) { return d.score !== null; });
+    const mesures7jQpem = {};
+    entrees.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jQpem['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    pemCount7jQ = window.detectPEMEvents(days7jQpem, mesures7jQpem).length;
+  }
+
+  let daysWithCycleQ = 0;
+  if (typeof window.collectCycleData === 'function') {
+    const days7jQcyc = entrees.map(function(e) {
+      const vvQc = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+        .filter(function(v) { return v !== null && v !== undefined; });
+      const scQc = vvQc.length ? vvQc.reduce(function(a, b) { return a + b; }, 0) / vvQc.length : null;
+      return { date: e.date, score: scQc };
+    }).filter(function(d) { return d.score !== null; });
+    const mesures7jQcyc = {};
+    entrees.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jQcyc['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    const cyclePhases7jQ = window.collectCycleData(days7jQcyc, mesures7jQcyc, 7);
+    daysWithCycleQ = Object.values(cyclePhases7jQ).reduce(function(sum, arr) { return sum + arr.length; }, 0);
+  }
+
+  const fcMoyQ = hasFc ? _moyenne(fcValsAll) : null;
+
+  const questionsQ = [];
+  if (pemCount7jQ >= 1) {
+    questionsQ.push('Mes donnees montrent des chutes de score apres les jours a bonne energie. Faut-il evoquer le malaise post-effort / PEM ?');
+  }
+  if (daysWithCycleQ >= 1) {
+    questionsQ.push('Mon score varie selon les phases de mon cycle. Ce suivi merite-t-il une attention hormonale ?');
+  }
+  if (fcMoyQ !== null && fcMoyQ > 85) {
+    questionsQ.push('Ma frequence cardiaque au repos est elevee sur cette periode. Faut-il evaluer une composante orthostatique ?');
+  }
+  if (scoreMoy7jQ !== null && scoreMoy7jQ < 5.0) {
+    questionsQ.push('Mon score global est bas de facon persistante. Quels examens complementaires seraient pertinents a ce stade ?');
+  }
+  if (scoreStdDevQ > 2.5) {
+    questionsQ.push('Ma variabilite est importante d un jour a l autre. Ce profil evoque-t-il quelque chose de specifique ?');
+  }
+  if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) {
+    questionsQ.push('Mon ressenti global est souvent different de mon score composite. Cette dissociation est-elle un signal clinique ?');
+  }
+
+  const questionsAffQ = questionsQ.slice(0, 5);
+
+  if (questionsAffQ.length > 0) {
+    const NAVY_Q = [6, 23, 45];
+    const SAGE_Q = [74, 122, 90];
+    const GREY_Q = [107, 114, 128];
+
+    const qBlocH = 10 + questionsAffQ.length * 6 + 10;
+    checkPage(qBlocH);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(NAVY_Q[0], NAVY_Q[1], NAVY_Q[2]);
+    doc.text('QUESTIONS A POSER A MON MEDECIN', marginL, y);
+    y += 3;
+
+    doc.setDrawColor(SAGE_Q[0], SAGE_Q[1], SAGE_Q[2]);
+    doc.setLineWidth(0.5);
+    doc.line(marginL, y, marginL + contentW, y);
+    doc.setLineWidth(0.1);
+    y += 5;
+
+    questionsAffQ.forEach(function(q) {
+      const qLines = doc.splitTextToSize('- ' + q, contentW - 4);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(NAVY_Q[0], NAVY_Q[1], NAVY_Q[2]);
+      qLines.forEach(function(l, li) { doc.text(l, marginL, y + li * 5); });
+      y += qLines.length * 5 + 1;
+    });
+
+    y += 3;
+
+    const discTxt = 'Ces questions sont des suggestions basees sur vos donnees. Elles ne constituent pas un avis medical.';
+    const discLines = doc.splitTextToSize(discTxt, contentW);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(GREY_Q[0], GREY_Q[1], GREY_Q[2]);
+    discLines.forEach(function(l, li) { doc.text(l, marginL, y + li * 4); });
+    y += discLines.length * 4 + 3;
+
+    drawSep(y);
+    y += 5;
+  }
+
+  // ============================================================
   // FOOTER (toutes les pages)
   // ============================================================
   drawFooters();
