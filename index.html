@@ -459,15 +459,42 @@
         </button>
       </div>
 
-      <div id="journal-hub" class="card">
-        <div style="font-weight:700;font-size:15px;color:#06172D;margin-bottom:12px;">&#x1F4D3; Mon journal de bord</div>
-        <div id="journal-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
-          <button class="journal-tab active" data-tab="events">&#x1F4CC; Événements</button>
-          <button class="journal-tab" data-tab="essais">&#x1F9EA; Essais</button>
-          <button class="journal-tab" data-tab="consultations">&#x1F4CB; Consultations</button>
-          <button class="journal-tab" data-tab="historique">&#x1F5D3; Historique</button>
-        </div>
-        <div id="journal-tab-content"></div>
+      <div id="journal-accordeons">
+
+        <details class="journal-accord" id="accord-events" open>
+          <summary class="journal-accord-title">📌 Événements notables</summary>
+          <div class="journal-accord-body">
+            <div id="events-summary-container"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-essais">
+          <summary class="journal-accord-title">🧪 Mes essais</summary>
+          <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="openModalEssai()" class="btn-outline-sage" style="font-size:13px;padding:5px 14px;width:auto;">+ Ajouter un essai</button>
+            </div>
+            <div id="essais-list"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-consultations">
+          <summary class="journal-accord-title">📋 Après ma consultation</summary>
+          <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="openPostConsultation()" style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">📝 Après ma consultation</button>
+            </div>
+            <div id="pc-historique" style="display:none;"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-historique">
+          <summary class="journal-accord-title">🗓 Historique consultations</summary>
+          <div class="journal-accord-body">
+            <div id="historique-content"></div>
+          </div>
+        </details>
+
       </div>
 
     </div>
@@ -650,7 +677,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.55 — </span>
+    <span>Boussole v8.56 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -660,11 +687,11 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.55</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.56</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
-        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.55</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.56</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Label onglet TB Santé renommé en Suivi</li>
         </ul>

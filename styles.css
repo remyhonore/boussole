@@ -1239,21 +1239,43 @@ html.dark #card-essais > div[style*="border-left"] {
 }
 
 /* === JOURNAL TABS (TB Santé) === */
-.journal-tab {
-  background: #f3f4f6;
-  border: none;
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
+.journal-accord {
+  border: 1px solid rgba(6,23,45,0.08);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.journal-accord[open] {
+  border-color: rgba(45,106,79,0.25);
+}
+
+.journal-accord-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #06172D;
+  padding: 14px 16px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
 }
-.journal-tab.active {
-  background: #2d6a4f;
-  color: #fff;
+
+.journal-accord-title::-webkit-details-marker { display: none; }
+
+.journal-accord[open] .journal-accord-title {
+  color: #2d6a4f;
+  border-bottom: 1px solid rgba(45,106,79,0.12);
 }
-.journal-tab:hover:not(.active) {
-  background: #e5e7eb;
+
+.journal-accord-body {
+  padding: 14px 16px;
+}
+
+html.dark .journal-accord {
+  background: #1b2838;
+  border-color: rgba(255,255,255,0.08);
 }

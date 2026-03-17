@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initTodayPanel();
   initSummaryPanel();
-  initJournalHub();
   loadTodayData();
   initRappels();
   document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
@@ -100,7 +99,7 @@ function switchPanel(panelId) {
   }
 
   if (panelId === 'tbsante') {
-    renderJournalTab(localStorage.getItem('boussole_journal_tab') || 'events');
+    renderAccordeons();
   }
 
   // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
@@ -684,47 +683,11 @@ function initSummaryPanel() {
 /**
  * === JOURNAL DE BORD (TB Santé) ===
  */
-function initJournalHub() {
-  document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.journal-tab');
-    if (!btn) return;
-    document.querySelectorAll('.journal-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const tab = btn.dataset.tab;
-    localStorage.setItem('boussole_journal_tab', tab);
-    renderJournalTab(tab);
-  });
-}
-
-function renderJournalTab(tab) {
-  const content = document.getElementById('journal-tab-content');
-  if (!content) return;
-
-  // Sync active tab button
-  document.querySelectorAll('.journal-tab').forEach(b => {
-    b.classList.toggle('active', b.dataset.tab === tab);
-  });
-
-  if (tab === 'events') {
-    content.innerHTML = '<div id="events-summary-container"></div>';
-    renderEventsSummary();
-  } else if (tab === 'essais') {
-    content.innerHTML =
-      '<div style="margin-bottom:12px;">' +
-        '<button onclick="openModalEssai()" style="background:#2d6a4f;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">+ Ajouter un essai</button>' +
-      '</div>' +
-      '<div id="essais-list"></div>';
-    renderEssaisList();
-  } else if (tab === 'consultations') {
-    content.innerHTML =
-      '<div style="margin-bottom:12px;">' +
-        '<button onclick="openPostConsultation()" style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">&#x1F4DD; Après ma consultation</button>' +
-      '</div>' +
-      '<div id="pc-historique" style="display:none;"></div>';
-    refreshPostConsultationHistorique();
-  } else if (tab === 'historique') {
-    _renderHistoriqueTab(content);
-  }
+function renderAccordeons() {
+  renderEventsSummary();
+  renderEssaisList();
+  refreshPostConsultationHistorique();
+  _renderHistoriqueTab(document.getElementById('historique-content'));
 }
 
 function _renderHistoriqueTab(content) {
