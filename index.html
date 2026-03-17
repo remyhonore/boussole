@@ -462,19 +462,6 @@
           </button>
         </div>
 
-        <!-- Dashboard visuel -->
-        <div style="margin-top: 10px;">
-          <button
-            id="btn-dashboard-visuel"
-            onclick="_ouvrirDashboardVisuel()"
-            class="btn btn-secondary"
-            style="width: 100%;"
-            aria-label="Ouvrir le dashboard visuel de santé"
-          >
-            &#x1F4CA; Dashboard visuel
-          </button>
-        </div>
-
         <!-- 3. Action post-consultation -->
         <div style="margin-top: 10px;">
           <button
@@ -683,20 +670,9 @@
     <div id="mode-presentation-content"></div>
   </div>
 
-  <!-- Overlay Dashboard Visuel -->
-  <div id="overlay-dashboard-visuel" style="display:none;position:fixed;inset:0;background:#F8F6F0;z-index:9999;overflow-y:auto;">
-    <button
-      id="btn-fermer-dashboard"
-      onclick="window._fermerDashboardVisuel()"
-      style="position:fixed;top:16px;right:16px;background:#06172D;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;z-index:10000;display:flex;align-items:center;justify-content:center;line-height:1;"
-      aria-label="Fermer le dashboard visuel"
-    >&#x2715;</button>
-    <div id="overlay-dashboard-visuel-content" style="padding:24px 20px 40px;max-width:700px;margin:0 auto;"></div>
-  </div>
-
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.35 — </span>
+    <span>Boussole v8.36 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

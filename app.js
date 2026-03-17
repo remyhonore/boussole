@@ -1513,6 +1513,54 @@ window._ouvrirModePresentation = function() {
       '<canvas id="mode-presentation-chart" height="180"></canvas>' +
     '</div>';
 
+  // MOTIF DE CONSULTATION (bloc 2)
+  const motifHtml = noteConsultation
+    ? '<div style="' + SECTION_STYLE + 'background:#fffbf0;border:1.5px solid #d4a017;">' +
+        '<p style="' + SECTION_TITLE + 'color:#d4a017;">Motif de consultation</p>' +
+        '<div style="font-size:15px;font-weight:600;color:#06172D;">' + noteConsultation.replace(/\n/g, '<br>') + '</div>' +
+      '</div>'
+    : '';
+
+  // CALENDRIER 14 JOURS (bloc 7)
+  const today14mp = new Date(); today14mp.setHours(0, 0, 0, 0);
+  const entryMap14mp = {};
+  rawEntries.forEach(function(e) { entryMap14mp[e.date] = e; });
+  const DAY_LABELS_14MP = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  let calCells14mp = '';
+  for (let i = 13; i >= 0; i--) {
+    const cd14 = new Date(today14mp);
+    cd14.setDate(cd14.getDate() - i);
+    const cdStr14 = localDateStr(cd14);
+    const cdm14 = String(cd14.getDate()).padStart(2, '0');
+    const cmm14 = String(cd14.getMonth() + 1).padStart(2, '0');
+    const e14mp = entryMap14mp[cdStr14];
+    let dotClass14 = 'cal-dot cal-dot-vide';
+    if (e14mp) {
+      const vals14 = [e14mp.energie, e14mp.qualite_sommeil, e14mp.douleurs, e14mp.clarte_mentale].filter(v => v !== null && v !== undefined);
+      if (vals14.length > 0) {
+        const sc14 = vals14.reduce((a, b) => a + b, 0) / vals14.length;
+        dotClass14 = sc14 >= 7 ? 'cal-dot cal-dot-vert' : sc14 >= 4 ? 'cal-dot cal-dot-orange' : 'cal-dot cal-dot-rouge';
+      }
+    }
+    calCells14mp +=
+      '<div class="cal-cell">' +
+        '<span class="cal-day-label">' + DAY_LABELS_14MP[cd14.getDay()] + '</span>' +
+        '<div class="' + dotClass14 + '"></div>' +
+        '<span class="cal-day-num">' + cdm14 + '/' + cmm14 + '</span>' +
+      '</div>';
+  }
+  const calendrier14jHtml =
+    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
+      '<p style="' + SECTION_TITLE + 'color:#06172D;">Calendrier 14 jours</p>' +
+      '<div class="cal-grid">' + calCells14mp + '</div>' +
+      '<div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
+        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2d6a4f;display:inline-block;"></span> Haut (\u22657)</span>' +
+        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Moyen (4-6)</span>' +
+        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Bas (&lt;4)</span>' +
+        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D1D5DB;display:inline-block;"></span> Non renseigné</span>' +
+      '</div>' +
+    '</div>';
+
   // Texte brut pour partage
   const shareLines = [
     'Mon suivi Boussole — 7 derniers jours',
@@ -1532,10 +1580,12 @@ window._ouvrirModePresentation = function() {
 
   const html =
     enTeteHtml +
+    motifHtml +
     traitementHtml +
     problemePrincipalHtml +
     syntheseHtml +
     graphique30jHtml +
+    calendrier14jHtml +
     sommeilHtml +
     donneesObjectivesHtml +
     pemHtml +
@@ -1612,265 +1662,6 @@ window._partagerResume = function() {
   }
 };
 
-/**
- * === DASHBOARD VISUEL ===
- */
-window.openDashboardVisuel = function() {
-  const data = loadEntries();
-
-  const now = new Date();
-  const monthsFr = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const dateJourLong = now.getDate() + ' ' + monthsFr[now.getMonth()] + ' ' + now.getFullYear();
-  const today = getTodayDate();
-
-  const prenom = localStorage.getItem('boussole_prenom') || '';
-  const nom    = localStorage.getItem('boussole_nom')    || '';
-  const patientName = (prenom + ' ' + nom).trim();
-
-  // 7-day window
-  const cutoff7 = new Date(today + 'T12:00:00');
-  cutoff7.setDate(cutoff7.getDate() - 6);
-  const cutoffStr7 = cutoff7.toISOString().split('T')[0];
-  const entries7j = data.entries.filter(e => e.date >= cutoffStr7);
-  const sorted7j  = entries7j.slice().sort((a, b) => a.date < b.date ? -1 : 1);
-
-  function avg(arr) {
-    const vals = arr.filter(v => v !== null && v !== undefined);
-    return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-  }
-  function trendArrow(vals) {
-    const filtered = vals.filter(v => v !== null && v !== undefined);
-    if (filtered.length < 4) return '→';
-    const half = Math.floor(filtered.length / 2);
-    const delta = avg(filtered.slice(-half)) - avg(filtered.slice(0, half));
-    if (delta >= 0.5) return '↑';
-    if (delta <= -0.5) return '↓';
-    return '→';
-  }
-
-  const scores7j     = sorted7j.map(e => calculateDayScore(e)).filter(s => s !== null);
-  const scoreGlobal  = avg(scores7j);
-  const jours7       = scores7j.length;
-  const avgEnergie   = avg(sorted7j.map(e => e.energie));
-  const avgSommeil   = avg(sorted7j.map(e => e.qualite_sommeil));
-  const avgConfort   = avg(sorted7j.map(e => e.douleurs));
-  const avgClarte    = avg(sorted7j.map(e => e.clarte_mentale));
-
-  function scoreColor(s) {
-    if (s === null) return '#999';
-    if (s >= 7) return '#2d9e6e';
-    if (s >= 4) return '#e07b2a';
-    return '#c0392b';
-  }
-  function scoreBg(s) {
-    if (s === null) return '#f5f5f5';
-    if (s >= 7) return '#d1fae5';
-    if (s >= 4) return '#FEF3C7';
-    return '#FEE2E2';
-  }
-
-  // Traitement
-  const medicaments       = localStorage.getItem('boussole_medicaments')  || '';
-  const complements       = localStorage.getItem('boussole_complements')  || '';
-  const allergies         = localStorage.getItem('boussole_allergies')    || '';
-  const noteConsultation  = localStorage.getItem('boussole_note_consultation') || '';
-
-  function listLines(text) {
-    if (!text || !text.trim()) return '<em style="color:#999;">Non renseigné</em>';
-    return text.trim().split('\n').map(l => '<div style="padding:2px 0;">' + l + '</div>').join('');
-  }
-
-  let html = '';
-
-  // HEADER
-  html +=
-    '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;">' +
-      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Dashboard consultation</p>' +
-      '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
-      (patientName ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientName.toUpperCase() + '</p>' : '') +
-      '<button id="btn-imprimer-dashboard" onclick="window.print()" style="margin-top:12px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;padding:8px 18px;font-size:13px;cursor:pointer;">🖨️ Imprimer</button>' +
-    '</div>';
-
-  // SECTION 1 — Score global
-  const scoreDisplay = scoreGlobal !== null ? scoreGlobal.toFixed(1) : '—';
-  html +=
-    '<div class="dashboard-section" style="background:' + scoreBg(scoreGlobal) + ';border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;">' +
-      '<p style="margin:0 0 4px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#06172D;">Score global — 7 derniers jours</p>' +
-      '<div style="font-size:56px;font-weight:700;color:' + scoreColor(scoreGlobal) + ';line-height:1.1;">' + scoreDisplay + '</div>' +
-      '<div style="font-size:14px;color:#6E877D;margin-top:4px;">/10</div>' +
-      '<div style="font-size:13px;color:rgba(6,23,45,.6);margin-top:8px;">' + jours7 + ' jour' + (jours7 > 1 ? 's' : '') + ' renseigné' + (jours7 > 1 ? 's' : '') + ' sur 7</div>' +
-    '</div>';
-
-  // SECTION 2 — Tendances 4 métriques
-  function metricCard(icon, label, val, arrow, bg) {
-    const displayVal = val !== null ? val.toFixed(1) + '/10' : '—';
-    const arrowColor = arrow === '↑' ? '#2d9e6e' : arrow === '↓' ? '#c0392b' : '#e07b2a';
-    return '<div class="dashboard-section" style="background:' + bg + ';border-radius:12px;padding:14px;text-align:center;">' +
-      '<div style="font-size:24px;">' + icon + '</div>' +
-      '<div style="font-size:12px;font-weight:700;color:#06172D;margin:4px 0;">' + label + '</div>' +
-      '<div style="font-size:22px;font-weight:700;color:#06172D;">' + displayVal + '</div>' +
-      '<div style="font-size:20px;color:' + arrowColor + ';">' + arrow + '</div>' +
-    '</div>';
-  }
-  html +=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">' +
-      metricCard('💪', 'Énergie',          avgEnergie, trendArrow(sorted7j.map(e => e.energie)),           '#e8f5f0') +
-      metricCard('🌙', 'Sommeil',          avgSommeil, trendArrow(sorted7j.map(e => e.qualite_sommeil)),   '#fdf0eb') +
-      metricCard('❤️', 'Confort physique', avgConfort, trendArrow(sorted7j.map(e => e.douleurs)),          '#f3eef8') +
-      metricCard('🧠', 'Clarté mentale',   avgClarte,  trendArrow(sorted7j.map(e => e.clarte_mentale)),   '#eaf2f8') +
-    '</div>';
-
-  // SECTION 3 — Calendrier 14j
-  const today14 = new Date(); today14.setHours(0, 0, 0, 0);
-  const entryMap14 = {};
-  data.entries.forEach(function(e) { entryMap14[e.date] = e; });
-  const DAY_LABELS_DB = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-  let calCells = '';
-  for (let i = 13; i >= 0; i--) {
-    const cd = new Date(today14);
-    cd.setDate(cd.getDate() - i);
-    const cdStr = localDateStr(cd);
-    const cdm = String(cd.getDate()).padStart(2, '0');
-    const cmm = String(cd.getMonth() + 1).padStart(2, '0');
-    const e14 = entryMap14[cdStr];
-    let dotClass = 'cal-dot cal-dot-vide';
-    if (e14) {
-      const vals = [e14.energie, e14.qualite_sommeil, e14.douleurs, e14.clarte_mentale].filter(v => v !== null && v !== undefined);
-      if (vals.length > 0) {
-        const sc = vals.reduce((a, b) => a + b, 0) / vals.length;
-        dotClass = sc >= 7 ? 'cal-dot cal-dot-vert' : sc >= 4 ? 'cal-dot cal-dot-orange' : 'cal-dot cal-dot-rouge';
-      }
-    }
-    calCells +=
-      '<div class="cal-cell">' +
-        '<span class="cal-day-label">' + DAY_LABELS_DB[cd.getDay()] + '</span>' +
-        '<div class="' + dotClass + '"></div>' +
-        '<span class="cal-day-num">' + cdm + '/' + cmm + '</span>' +
-      '</div>';
-  }
-  html +=
-    '<div class="dashboard-section" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid rgba(6,23,45,.08);">' +
-      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px;">Calendrier 14 jours</p>' +
-      '<div class="cal-grid">' + calCells + '</div>' +
-      '<div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2d6a4f;display:inline-block;"></span> Haut (≥7)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Moyen (4-6)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Bas (&lt;4)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D1D5DB;display:inline-block;"></span> Non renseigné</span>' +
-      '</div>' +
-    '</div>';
-
-  // SECTION 4 — Graphique Chart.js (canvas, rendu après injection)
-  html +=
-    '<div class="dashboard-section" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid rgba(6,23,45,.08);">' +
-      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px;">Évolution 30 jours</p>' +
-      '<canvas id="dashboard-chart" height="200"></canvas>' +
-    '</div>';
-
-  // SECTION 5 — Traitement actuel
-  html +=
-    '<div class="dashboard-section" style="background:#f0f7f4;border:1.5px solid #2d6a4f;border-radius:12px;padding:16px;margin-bottom:16px;">' +
-      '<p style="font-size:13px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px;">Traitement actuel</p>' +
-      '<div style="margin-bottom:10px;">' +
-        '<div style="font-size:12px;font-weight:700;color:#06172D;margin-bottom:4px;">Médicaments</div>' +
-        '<div style="font-size:14px;color:#06172D;">' + listLines(medicaments) + '</div>' +
-      '</div>' +
-      '<div style="margin-bottom:10px;">' +
-        '<div style="font-size:12px;font-weight:700;color:#06172D;margin-bottom:4px;">Compléments</div>' +
-        '<div style="font-size:14px;color:#06172D;">' + listLines(complements) + '</div>' +
-      '</div>' +
-      (allergies ?
-        '<div>' +
-          '<div style="font-size:12px;font-weight:700;color:#06172D;margin-bottom:4px;">Allergies</div>' +
-          '<div style="font-size:14px;color:#06172D;">' + allergies + '</div>' +
-        '</div>' : '') +
-    '</div>';
-
-  // SECTION 6 — Motif / Note consultation
-  html +=
-    '<div class="dashboard-section" style="background:#fffbf0;border:1.5px solid #d4a017;border-radius:12px;padding:16px;margin-bottom:16px;">' +
-      '<p style="font-size:13px;font-weight:700;color:#d4a017;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;">Motif / Note consultation</p>' +
-      '<div style="font-size:14px;color:#06172D;line-height:1.6;">' +
-        (noteConsultation ? noteConsultation.replace(/\n/g, '<br>') : '<em style="color:#999;">Aucun motif saisi</em>') +
-      '</div>' +
-    '</div>';
-
-  // SECTION 7 — Liens PDF
-  html +=
-    '<div style="margin-bottom:16px;display:flex;flex-direction:column;gap:10px;">' +
-      '<button onclick="(function(){if(typeof window.generatePDFEnrichi===\'function\')window.generatePDFEnrichi();else if(typeof window.downloadPDF===\'function\')window.downloadPDF();})()" ' +
-        'style="width:100%;background:#06172D;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">' +
-        '📄 Générer le PDF enrichi (30j)' +
-      '</button>' +
-      '<button onclick="(function(){window._fermerDashboardVisuel();setTimeout(function(){ouvrirModaleConsultation();},200);})()" ' +
-        'style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">' +
-        '📋 Générer le PDF consultation' +
-      '</button>' +
-    '</div>';
-
-  // FOOTER DASHBOARD
-  html += '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:8px;">Document d\'information personnelle · Pas un avis médical · myboussole.fr<br>Généré le ' + dateJourLong + '</p>';
-
-  // Inject + show overlay
-  const overlay = document.getElementById('overlay-dashboard-visuel');
-  const content = document.getElementById('overlay-dashboard-visuel-content');
-  if (!overlay || !content) return;
-  content.innerHTML = html;
-  overlay.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-
-  // Chart.js — after DOM is ready
-  setTimeout(function() {
-    const canvas = document.getElementById('dashboard-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    const cutoff30 = new Date(today + 'T12:00:00');
-    cutoff30.setDate(cutoff30.getDate() - 29);
-    const entryMapChart = {};
-    data.entries.forEach(function(e) { entryMapChart[e.date] = e; });
-
-    const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
-    const chartLabels = [], cEnergie = [], cSommeil = [], cConfort = [], cClarte = [];
-    for (let i = 29; i >= 0; i--) {
-      const cd = new Date(todayD);
-      cd.setDate(cd.getDate() - i);
-      const ds = localDateStr(cd);
-      chartLabels.push(String(cd.getDate()) + '/' + String(cd.getMonth() + 1).padStart(2, '0'));
-      const e = entryMapChart[ds];
-      cEnergie.push(e ? e.energie        : null);
-      cSommeil.push(e ? e.qualite_sommeil: null);
-      cConfort.push(e ? e.douleurs       : null);
-      cClarte.push( e ? e.clarte_mentale : null);
-    }
-
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [
-          { label: 'Énergie',          data: cEnergie, borderColor: '#2d9e6e', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
-        scales: {
-          x: { ticks: { font: { size: 9 }, maxRotation: 45 } },
-          y: { min: 0, max: 10, ticks: { stepSize: 2 } }
-        }
-      }
-    });
-  }, 300);
-};
-
-window._fermerDashboardVisuel = function() {
-  const overlay = document.getElementById('overlay-dashboard-visuel');
-  if (overlay) overlay.style.display = 'none';
-  document.body.style.overflow = '';
-};
 
 // Event listeners globaux
 document.getElementById('modal-close')?.addEventListener('click', closePDFModal);
