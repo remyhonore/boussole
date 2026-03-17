@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSummaryPanel();
   loadTodayData();
   initRappels();
+  document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
 
   // Onboarding : premier lancement
   if (!localStorage.getItem('boussole_onboarded')) {
@@ -232,7 +233,6 @@ function initTodayPanel() {
   // Boutons
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
   document.getElementById('btn-quick')?.addEventListener('click', fillLastValues);
-  document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
   document.getElementById('btn-event-save')?.addEventListener('click', saveEvent);
   document.getElementById('btn-event-cancel')?.addEventListener('click', () => { document.getElementById('modal-event').style.display = 'none'; });
   document.getElementById('event-desc')?.addEventListener('input', function() { document.getElementById('event-desc-count').textContent = this.value.length + '/300'; });
