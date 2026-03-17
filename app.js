@@ -34,12 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initRappels();
   document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
 
-  // Onboarding : premier lancement
+  // Onboarding : premier lancement — welcome banner conditionnel dans panel-today
   if (!localStorage.getItem('boussole_onboarded')) {
-    switchPanel('onboarding');
-  } else {
-    switchPanel('today');
+    const banner = document.getElementById('welcome-banner');
+    if (banner) banner.style.display = 'block';
   }
+  switchPanel('today');
 
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
@@ -529,6 +529,10 @@ function saveCurrentEntry() {
   const success = saveEntry(today, entry);
 
   if (success) {
+    // Masquer le welcome banner et marquer l'onboarding comme terminé
+    const banner = document.getElementById('welcome-banner');
+    if (banner) banner.style.display = 'none';
+    if (!localStorage.getItem('boussole_onboarded')) localStorage.setItem('boussole_onboarded', '1');
     updateLastSavedDisplay();
     // Mettre à jour le smiley accueil (ADR-2026-026)
     const humeurVal = (humeurRangeEl?.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null;

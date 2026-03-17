@@ -171,6 +171,18 @@
     <!-- Panel Aujourd'hui -->
     <div class="panel" id="panel-today">
 
+      <div id="welcome-banner" style="display:none;">
+        <div class="card" style="text-align:center; margin-bottom:16px; background:linear-gradient(135deg,#f0f7f4,#e8f5f0);">
+          <div style="font-size:40px; margin-bottom:8px;">🧭</div>
+          <h2 style="font-size:18px; font-weight:700; color:#06172D; margin:0 0 8px;">Bienvenue sur Boussole</h2>
+          <p style="font-size:14px; color:#374151; margin:0 0 4px;">Ton journal de bien-être — sans compte, sans cloud.</p>
+          <p style="font-size:13px; color:#6B7280; margin:0 0 16px;">Tes données restent uniquement sur ton appareil.</p>
+          <div style="font-size:12px; color:#9CA3AF; padding:8px; background:rgba(255,255,255,0.6); border-radius:8px;">
+            🔒 Données stockées uniquement sur ton appareil · Zéro serveur · Zéro compte
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
@@ -638,7 +650,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.53 — </span>
+    <span>Boussole v8.54 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -648,10 +660,16 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.53</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.54</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.54</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Écran de bienvenue J1 conditionnel (welcome banner) dans le panel Aujourd'hui</li>
+          <li>Fix : résumé mobile — vérification des IDs panel-resume / summary-content</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.53</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>ADR-2026-030 : Refonte navigation — Accueil supprimé, nouvel onglet TB Santé avec journal de bord (Événements, Essais, Consultations, Historique)</li>
