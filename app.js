@@ -1059,153 +1059,461 @@ function loadDebugDataset() {
  */
 window._ouvrirModePresentation = function() {
   const data = loadEntries();
+  const rawEntries = (data.entries || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
 
   // 7 derniers jours
   const today = getTodayDate();
   const cutoff = new Date(today + 'T12:00:00');
   cutoff.setDate(cutoff.getDate() - 6);
   const cutoffStr = cutoff.toISOString().split('T')[0];
-  const recentEntries = data.entries.filter(e => e.date >= cutoffStr);
+  const recentEntries = rawEntries.filter(e => e.date >= cutoffStr);
 
-  // Score global 7j
-  const scores7j = recentEntries.map(e => calculateDayScore(e)).filter(s => s !== null);
-  const scoreGlobal = scores7j.length > 0 ? scores7j.reduce((a, b) => a + b, 0) / scores7j.length : null;
-
+  // Helpers calcul
   function avg(arr) {
     const vals = arr.filter(v => v !== null && v !== undefined);
     return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
   }
-  const avgEnergie = avg(recentEntries.map(e => e.energie));
-  const avgSommeil  = avg(recentEntries.map(e => e.qualite_sommeil));
-  const avgConfort  = avg(recentEntries.map(e => e.douleurs));
-  const avgClarte   = avg(recentEntries.map(e => e.clarte_mentale));
-  const avgHumeur   = avg(recentEntries.map(e => e.humeur).filter(v => v !== undefined));
-
-  // Meilleur / pire jour
-  let bestDay = null, worstDay = null;
-  recentEntries.forEach(function(e) {
-    const sc = calculateDayScore(e);
-    if (sc === null) return;
-    if (!bestDay || sc > bestDay.score) bestDay = { date: e.date, score: sc };
-    if (!worstDay || sc < worstDay.score) worstDay = { date: e.date, score: sc };
-  });
-
-  function scoreColor(s) {
-    if (s === null) return '#999';
-    if (s >= 7) return '#2d9e6e';
-    if (s >= 4) return '#e07b2a';
-    return '#c0392b';
+  function tendance7j(vals) {
+    const v = vals.filter(x => x !== null && x !== undefined);
+    if (v.length < 5) return 'stable';
+    const debut = v.slice(0, 3);
+    const fin   = v.slice(-3);
+    const delta = avg(fin) - avg(debut);
+    if (delta > 0.5)  return 'hausse';
+    if (delta < -0.5) return 'baisse';
+    return 'stable';
   }
-  function metricColor(s) {
-    if (s === null) return '#999';
-    if (s >= 7) return '#2d9e6e';
-    if (s < 3) return '#c0392b';
-    if (s < 5) return '#e07b2a';
-    return '#06172D';
+  function joursBasCount(vals) {
+    return vals.filter(x => x !== null && x !== undefined && x < 5).length;
   }
+  function impactLabel(moy) {
+    if (moy === null) return { txt: '—', color: '#999' };
+    if (moy < 4) return { txt: 'Altéré', color: '#dc2626' };
+    if (moy < 7) return { txt: 'Modéré', color: '#d97706' };
+    return { txt: 'Correct', color: '#2d9e6e' };
+  }
+  function tendanceHtml(t) {
+    if (t === 'hausse') return '<span style="color:#2d9e6e;">↑ Hausse</span>';
+    if (t === 'baisse') return '<span style="color:#dc2626;">↓ Baisse</span>';
+    return '<span style="color:#999;">→ Stable</span>';
+  }
+
+  // Métriques 7j
+  const dataEnergie = recentEntries.map(e => e.energie);
+  const dataSommeil = recentEntries.map(e => e.qualite_sommeil);
+  const dataConfort = recentEntries.map(e => e.douleurs);
+  const dataClarte  = recentEntries.map(e => e.clarte_mentale);
+  const dataHumeur  = recentEntries.map(e => e.humeur).filter(v => v !== undefined && v !== null);
+
+  const avgEnergie = avg(dataEnergie);
+  const avgSommeil = avg(dataSommeil);
+  const avgConfort = avg(dataConfort);
+  const avgClarte  = avg(dataClarte);
+  const avgHumeur  = avg(dataHumeur);
+
+  const metriques = [
+    { label: 'Énergie',          emoji: '💪', moy: avgEnergie, vals: dataEnergie },
+    { label: 'Sommeil',          emoji: '🌙', moy: avgSommeil, vals: dataSommeil },
+    { label: 'Confort physique', emoji: '❤️', moy: avgConfort, vals: dataConfort },
+    { label: 'Clarté mentale',   emoji: '🧠', moy: avgClarte,  vals: dataClarte  }
+  ].map(m => Object.assign({}, m, {
+    tendance: tendance7j(m.vals),
+    joursBas: joursBasCount(m.vals),
+    nbJours:  m.vals.filter(x => x !== null && x !== undefined).length
+  }));
+
+  const metriquesSorted = metriques.filter(m => m.moy !== null).slice().sort((a, b) => a.moy - b.moy);
+  const pointAttention = metriquesSorted.length > 0 && metriquesSorted[0].moy < 7 ? metriquesSorted[0] : null;
 
   // Identité
   const prenom = localStorage.getItem('boussole_prenom') || '';
   const nom    = localStorage.getItem('boussole_nom')    || '';
   const ddn    = localStorage.getItem('boussole_ddn')    || '';
   const tel    = localStorage.getItem('boussole_tel')    || '';
-  let identiteHtml = '';
-  if (prenom || nom) {
-    const parts = [(prenom + ' ' + nom).trim().toUpperCase()];
-    if (ddn) parts.push(formatDateFr(ddn));
-    if (tel) parts.push(tel);
-    identiteHtml = '<p style="margin:4px 0 0;font-size:13px;color:#fff;text-align:center;">' + parts.join(' · ') + '</p>';
-  }
+
+  // Traitement
+  const txMed  = (localStorage.getItem('boussole_medicaments') || '').trim();
+  const txComp = (localStorage.getItem('boussole_complements') || '').trim();
+  const txAll  = (localStorage.getItem('boussole_allergies')   || '').trim();
 
   // Note consultation
   const noteConsultation = localStorage.getItem('boussole_note_consultation') || '';
+  const noteLC = noteConsultation.toLowerCase();
 
   // Date en français long
   const monthsFr = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const now = new Date();
   const dateJourLong = now.getDate() + ' ' + monthsFr[now.getMonth()] + ' ' + now.getFullYear();
 
-  function metricRow(label, val) {
-    const displayVal = val !== null ? val.toFixed(1) : '—';
-    const color = metricColor(val);
-    const trend = val === null ? '' : (val >= 7 ? '↑' : val < 5 ? '↓' : '→');
-    return '<tr>' +
-      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;">' + label + '</td>' +
-      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;font-weight:600;color:' + color + ';text-align:center;">' + displayVal + '</td>' +
-      '<td style="padding:10px 0;border-bottom:1px solid rgba(110,135,125,.2);font-size:14px;color:' + color + ';text-align:center;">' + trend + '</td>' +
-      '</tr>';
-  }
+  const SECTION_STYLE = 'border-radius:10px;padding:14px;margin-bottom:12px;';
+  const SECTION_TITLE = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
 
-  const scoreDisplay = scoreGlobal !== null ? scoreGlobal.toFixed(1) : '—';
-  const scoreCol = scoreColor(scoreGlobal);
+  // ============================================================
+  // 1. EN-TÊTE : nom patient + date + motif
+  // ============================================================
+  const patientName = (prenom + ' ' + nom).trim().toUpperCase();
+  const patientParts = [patientName, ddn ? formatDateFr(ddn) : '', tel].filter(Boolean);
+  const patientLine = patientParts.join(' · ');
 
-  // Point d'attention : métrique la plus basse sur 7j
-  const metriques7j = [
-    { label: '💪 Énergie',          val: avgEnergie },
-    { label: '🌙 Sommeil',          val: avgSommeil  },
-    { label: '❤️ Confort physique', val: avgConfort  },
-    { label: '🧠 Clarté mentale',   val: avgClarte   }
-  ].filter(m => m.val !== null);
-  let pointAttentionHtml = '';
-  if (metriques7j.length > 0) {
-    const lowestMetrique = metriques7j.reduce((min, m) => m.val < min.val ? m : min);
-    if (lowestMetrique.val < 7) {
-      const attValColor = lowestMetrique.val < 4 ? '#e24b4a' : '#e88c30';
-      pointAttentionHtml =
-        '<div style="background:#FEF2F2;border-left:3px solid #e24b4a;padding:10px 14px;border-radius:6px;margin:12px 0;">' +
-          '<div style="font-size:11px;font-weight:bold;color:#e24b4a;text-transform:uppercase;margin-bottom:4px;">Point d\'attention</div>' +
-          '<div style="font-size:18px;font-weight:bold;color:' + attValColor + ';margin-bottom:2px;">' + lowestMetrique.label + ' — ' + lowestMetrique.val.toFixed(1) + '/10</div>' +
-          '<div style="font-size:12px;color:#888;font-style:italic;">Métrique la plus faible sur les 7 derniers jours</div>' +
-        '</div>';
-    }
-  }
+  const enTeteHtml =
+    '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:12px;text-align:center;">' +
+      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Préparer ma consultation</p>' +
+      '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
+      (patientLine ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientLine + '</p>' : '') +
+      (noteConsultation ? '<p style="margin:8px 0 0;font-size:13px;color:#cde0d8;font-style:italic;">' + noteConsultation.replace(/\n/g, ' ') + '</p>' : '') +
+    '</div>';
 
-  let motifHtml = '';
-  if (noteConsultation) {
-    motifHtml =
-      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Motif de consultation</p>' +
-      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
-      '<div style="border-left:3px solid #6E877D;background:#F2F5F4;padding:12px;font-size:14px;line-height:1.6;color:#06172D;border-radius:0 6px 6px 0;">' +
-        noteConsultation.replace(/\n/g, '<br>') +
+  // ============================================================
+  // 2. TRAITEMENT ACTUEL — fond #f0f7f4, bordure #2d6a4f
+  // ============================================================
+  const medLines  = txMed  ? txMed.split('\n').map(l => l.trim()).filter(Boolean)  : [];
+  const compLines = txComp ? txComp.split('\n').map(l => l.trim()).filter(Boolean) : [];
+  const allergiesHtml = (txAll && txAll.toUpperCase() !== 'RAS')
+    ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:6px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
+    : '';
+
+  const traitementHtml =
+    '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
+      '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+        '<div>' +
+          '<div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Médicaments</div>' +
+          (medLines.length > 0
+            ? medLines.map(l => '<div style="font-size:13px;color:#06172D;padding:2px 0;">• ' + l + '</div>').join('')
+            : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Compléments</div>' +
+          (compLines.length > 0
+            ? compLines.map(l => '<div style="font-size:13px;color:#06172D;padding:2px 0;">• ' + l + '</div>').join('')
+            : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+        '</div>' +
+      '</div>' +
+      allergiesHtml +
+    '</div>';
+
+  // ============================================================
+  // 3. PROBLÈME PRINCIPAL — fond #FEE2E2, bordure #dc2626
+  // ============================================================
+  let problemePrincipalHtml = '';
+  if (pointAttention !== null) {
+    const titreMap = {
+      'Énergie':          'Fatigue persistante',
+      'Sommeil':          'Sommeil insuffisant malgré traitement',
+      'Confort physique': 'Gêne physique persistante',
+      'Clarté mentale':   'Brouillard mental persistant'
+    };
+    const titreBloc = titreMap[pointAttention.label] || (pointAttention.label + ' altéré');
+    const autresM = metriques.filter(m => m.label !== pointAttention.label && m.moy !== null);
+    const retentParts = autresM.map(m => {
+      const q = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'modérément altérée' : 'altérée');
+      const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
+      return lbl + ' ' + m.moy.toFixed(1) + '/10 ' + q;
+    });
+    const attColor = pointAttention.moy < 4 ? '#dc2626' : '#d97706';
+    problemePrincipalHtml =
+      '<div style="' + SECTION_STYLE + 'background:#FEE2E2;border:1.5px solid #dc2626;">' +
+        '<p style="' + SECTION_TITLE + 'color:#dc2626;">Problème principal</p>' +
+        '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
+          '<div style="text-align:center;">' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Moyenne 7j</div>' +
+            '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.moy.toFixed(1) + '</div>' +
+            '<div style="font-size:11px;color:#999;">/10</div>' +
+          '</div>' +
+          '<div style="text-align:center;">' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
+            '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.joursBas + '</div>' +
+            '<div style="font-size:11px;color:#999;">/7</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Retentissement</div>' +
+            retentParts.map(p => '<div style="font-size:11px;color:#06172D;padding:1px 0;">' + p + '</div>').join('') +
+          '</div>' +
+        '</div>' +
       '</div>';
   }
 
-  let joursHtml = '';
-  if (bestDay || worstDay) {
-    joursHtml =
-      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Jours remarquables</p>' +
-      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
-      '<div style="display:flex;gap:12px;">';
-    if (bestDay) {
-      joursHtml +=
-        '<div style="flex:1;background:#F2F5F4;border-radius:12px;padding:14px;text-align:center;">' +
-        '<div style="font-size:12px;color:#6E877D;font-weight:600;margin-bottom:4px;">MEILLEUR JOUR</div>' +
-        '<div style="font-size:13px;color:#06172D;">' + formatDateFr(bestDay.date) + '</div>' +
-        '<div style="font-size:22px;font-weight:700;color:#2d9e6e;margin-top:4px;">' + bestDay.score.toFixed(1) + '</div>' +
+  // ============================================================
+  // 4. SYNTHÈSE FONCTIONNELLE — grille 4 colonnes
+  // ============================================================
+  const metricColors = {
+    'Énergie': '#f59e0b', 'Sommeil': '#3b82f6',
+    'Confort physique': '#ef4444', 'Clarté mentale': '#8b5cf6'
+  };
+
+  const syntheseGrid = metriques.map(m => {
+    const impact = impactLabel(m.moy);
+    const tend   = tendanceHtml(m.tendance);
+    const isProb = !!(pointAttention && m.label === pointAttention.label);
+    return (
+      '<div style="background:' + (isProb ? '#FEF2F2' : '#F8F9FA') + ';border-radius:8px;padding:10px;text-align:center;border:' + (isProb ? '1.5px solid #fca5a5' : '1px solid #e5e7eb') + ';">' +
+        '<div style="font-size:18px;">' + m.emoji + '</div>' +
+        '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' + (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
+        '<div style="font-size:10px;color:#999;margin-top:2px;">' + tend + '</div>' +
+        '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
+        '<div style="font-size:10px;color:#aaa;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
+      '</div>'
+    );
+  }).join('');
+
+  const syntheseHtml =
+    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
+      '<p style="' + SECTION_TITLE + 'color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">' +
+        syntheseGrid +
+      '</div>' +
+    '</div>';
+
+  // ============================================================
+  // 5. BLOC SOMMEIL (conditionnel) — fond #EFF6FF, bordure #3B82F6
+  // ============================================================
+  const triggerSommeil = noteLC.indexOf('sommeil') !== -1
+    || noteLC.indexOf('quviviq') !== -1
+    || noteLC.indexOf('hypnotique') !== -1
+    || noteLC.indexOf('insomnie') !== -1
+    || (pointAttention !== null && pointAttention.label === 'Sommeil');
+
+  let sommeilHtml = '';
+  if (triggerSommeil) {
+    const somMoyStr   = avgSommeil !== null ? avgSommeil.toFixed(1) + '/10' : 'n/a';
+    const somJoursStr = joursBasCount(dataSommeil) + '/7';
+    let plainteTxt = 'insomnie de maintien';
+    if (noteLC.indexOf('endormissement') !== -1)                                 plainteTxt = "insomnie d'endormissement";
+    else if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'réveils nocturnes';
+    else if (avgSommeil !== null && avgSommeil < 5)                              plainteTxt = 'insomnie de maintien';
+
+    sommeilHtml =
+      '<div style="' + SECTION_STYLE + 'background:#EFF6FF;border:1.5px solid #3B82F6;">' +
+        '<p style="' + SECTION_TITLE + 'color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
+        '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
+          '<div style="text-align:center;min-width:70px;">' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Score moyen</div>' +
+            '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somMoyStr + '</div>' +
+          '</div>' +
+          '<div style="text-align:center;min-width:70px;">' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
+            '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somJoursStr + '</div>' +
+          '</div>' +
+          '<div style="flex:1;min-width:120px;">' +
+            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Plainte principale</div>' +
+            '<div style="font-size:13px;color:#06172D;font-style:italic;">' + plainteTxt + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // ============================================================
+  // 6. DONNÉES OBJECTIVES (conditionnel — si >= 3 mesures)
+  // ============================================================
+  const mesuresParJour = [];
+  recentEntries.forEach(function(e) {
+    const raw = localStorage.getItem('boussole_mesures_' + e.date);
+    if (!raw) return;
+    let m;
+    try { m = JSON.parse(raw); } catch(ex) { return; }
+    mesuresParJour.push({
+      fc:     m.fc     !== undefined ? m.fc     : null,
+      ta_sys: m.ta_sys !== undefined ? m.ta_sys : null,
+      ta_dia: m.ta_dia !== undefined ? m.ta_dia : null,
+      rmssd:  m.rmssd  !== undefined ? m.rmssd  : null,
+      poids:  m.poids  !== undefined ? m.poids  : null
+    });
+  });
+
+  const fcVals    = mesuresParJour.map(d => d.fc).filter(v => v !== null);
+  const taVals    = mesuresParJour.filter(d => d.ta_sys !== null && d.ta_dia !== null);
+  const rmssdVals = mesuresParJour.map(d => d.rmssd).filter(v => v !== null);
+  const poidsVals = mesuresParJour.map(d => d.poids).filter(v => v !== null);
+  const hasAnyMesure = fcVals.length >= 3 || taVals.length >= 3 || rmssdVals.length >= 3 || poidsVals.length >= 3;
+
+  let donneesObjectivesHtml = '';
+  if (hasAnyMesure) {
+    const rows = [];
+    if (fcVals.length >= 3) {
+      const fcMoy = Math.round(avg(fcVals));
+      const fcMin = Math.min.apply(null, fcVals);
+      const fcMax = Math.max.apply(null, fcVals);
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">❤️ FC repos : <strong>' + fcMoy + ' bpm</strong> moy. (min ' + fcMin + ' – max ' + fcMax + ')</div>');
+    }
+    if (taVals.length >= 3) {
+      const taSys = Math.round(avg(taVals.map(d => d.ta_sys)));
+      const taDia = Math.round(avg(taVals.map(d => d.ta_dia)));
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">🩺 Tension : <strong>' + taSys + '/' + taDia + ' mmHg</strong> moy.</div>');
+    }
+    if (rmssdVals.length >= 3) {
+      const rMoy = Math.round(avg(rmssdVals));
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">📊 VFC/RMSSD : <strong>' + rMoy + ' ms</strong> moy.</div>');
+    }
+    if (poidsVals.length >= 3) {
+      const pMoy = avg(poidsVals).toFixed(1);
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;">⚖️ Poids : <strong>' + pMoy + ' kg</strong> moy.</div>');
+    }
+    donneesObjectivesHtml =
+      '<div style="' + SECTION_STYLE + 'background:#F9FAFB;border:1.5px solid #d1d5db;">' +
+        '<p style="' + SECTION_TITLE + 'color:#6b7280;">Données objectives déclaratives</p>' +
+        rows.join('') +
+        '<div style="font-size:10px;color:#9ca3af;font-style:italic;margin-top:6px;">Mesures déclaratives — pas de valeur diagnostique</div>' +
+      '</div>';
+  }
+
+  // ============================================================
+  // 7. ÉPISODES DE CRASH PEM (conditionnel)
+  // ============================================================
+  let pemHtml = '';
+  if (typeof window.detectPEMEvents === 'function') {
+    const days7jPEM = recentEntries.map(function(e) {
+      const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      return { date: e.date, score: score };
+    }).filter(d => d.score !== null);
+    const mesures7jPEM = {};
+    recentEntries.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jPEM['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    const pemEvents = window.detectPEMEvents(days7jPEM, mesures7jPEM);
+    if (pemEvents.length > 0) {
+      const pemSum = (typeof window.getPEMSummary === 'function') ? window.getPEMSummary(pemEvents) : { count: pemEvents.length, avgDelta: null };
+      const avgDeltaStr = pemSum.avgDelta !== null ? pemSum.avgDelta.toFixed(1) : '—';
+      pemHtml =
+        '<div style="' + SECTION_STYLE + 'background:#FFF7ED;border:1.5px solid #f97316;">' +
+          '<p style="' + SECTION_TITLE + 'color:#f97316;">Épisodes de crash (PEM)</p>' +
+          '<div style="font-size:14px;color:#06172D;">' +
+            '<strong>' + pemSum.count + ' épisode(s)</strong> de dégradation fonctionnelle détecté(s) sur 7 jours.' +
+            (pemSum.avgDelta !== null ? ' Chute moyenne : <strong>' + avgDeltaStr + ' pts</strong>.' : '') +
+          '</div>' +
         '</div>';
     }
-    if (worstDay) {
-      joursHtml +=
-        '<div style="flex:1;background:#F2F5F4;border-radius:12px;padding:14px;text-align:center;">' +
-        '<div style="font-size:12px;color:#6E877D;font-weight:600;margin-bottom:4px;">JOUR LE PLUS BAS</div>' +
-        '<div style="font-size:13px;color:#06172D;">' + formatDateFr(worstDay.date) + '</div>' +
-        '<div style="font-size:22px;font-weight:700;color:#c0392b;margin-top:4px;">' + worstDay.score.toFixed(1) + '</div>' +
+  }
+
+  // ============================================================
+  // 8. CYCLE HORMONAL (conditionnel)
+  // ============================================================
+  let cycleHtml = '';
+  if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
+    const days7jCycle = recentEntries.map(function(e) {
+      const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      return { date: e.date, score: score };
+    }).filter(d => d.score !== null);
+    const mesures7jCycle = {};
+    recentEntries.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { mesures7jCycle['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    const cyclePhases7j   = window.collectCycleData(days7jCycle, mesures7jCycle, 7);
+    const cycleAnalysis7j = window.analyzeCycleCorrelation(cyclePhases7j);
+    const daysWithCycle7j = Object.values(cyclePhases7j).reduce((sum, arr) => sum + arr.length, 0);
+
+    if (cycleAnalysis7j !== null && daysWithCycle7j >= 3) {
+      const cyclePhaseLabels = {
+        folliculaire: 'Folliculaire', ovulation: 'Ovulation',
+        luteale: 'Lutéale', menstruation: 'Règles', perimenopause: 'Irrégulier'
+      };
+      let phaseDominante = null;
+      let maxCount = 0;
+      Object.keys(cyclePhases7j).forEach(function(phase) {
+        if (cyclePhases7j[phase].length > maxCount) {
+          maxCount = cyclePhases7j[phase].length;
+          phaseDominante = phase;
+        }
+      });
+      const phaseDomLabel = phaseDominante ? (cyclePhaseLabels[phaseDominante] || phaseDominante) : '—';
+      const avgScoreDom = phaseDominante && cyclePhases7j[phaseDominante].length
+        ? cyclePhases7j[phaseDominante].reduce((a, b) => a + b, 0) / cyclePhases7j[phaseDominante].length
+        : null;
+      cycleHtml =
+        '<div style="' + SECTION_STYLE + 'background:#FDF4FF;border:1.5px solid #a855f7;">' +
+          '<p style="' + SECTION_TITLE + 'color:#a855f7;">Cycle et bien-être</p>' +
+          '<div style="font-size:13px;color:#06172D;">' +
+            'Phase dominante cette semaine : <strong>' + phaseDomLabel + '</strong> (' + maxCount + ' jour' + (maxCount > 1 ? 's' : '') + ')' +
+            (avgScoreDom !== null ? ' · Score moyen : <strong>' + avgScoreDom.toFixed(1) + '/10</strong>' : '') +
+          '</div>' +
         '</div>';
     }
-    joursHtml += '</div>';
+  }
+
+  // ============================================================
+  // 9. QUESTIONS À POSER AU MÉDECIN (conditionnel)
+  // ============================================================
+  const scores7jQ = recentEntries.map(function(e) {
+    const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+    return vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null;
+  }).filter(v => v !== null);
+  const scoreMoy7jQ = avg(scores7jQ);
+
+  let scoreStdDevQ = 0;
+  if (scores7jQ.length >= 2 && scoreMoy7jQ !== null) {
+    const varQ = scores7jQ.reduce((acc, v) => acc + (v - scoreMoy7jQ) * (v - scoreMoy7jQ), 0) / scores7jQ.length;
+    scoreStdDevQ = Math.sqrt(varQ);
+  }
+  const humeurValsQ = recentEntries.map(e => e.humeur).filter(v => v !== null && v !== undefined);
+  const humeurMoy7jQ = avg(humeurValsQ);
+
+  let pemCount7jQ = 0;
+  if (typeof window.detectPEMEvents === 'function') {
+    const days7jQpem = recentEntries.map(function(e) {
+      const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      return { date: e.date, score: vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null };
+    }).filter(d => d.score !== null);
+    const m7jpem = {};
+    recentEntries.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { m7jpem['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    pemCount7jQ = window.detectPEMEvents(days7jQpem, m7jpem).length;
+  }
+
+  let daysWithCycleQ = 0;
+  if (typeof window.collectCycleData === 'function') {
+    const days7jQcyc = recentEntries.map(function(e) {
+      const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      return { date: e.date, score: vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null };
+    }).filter(d => d.score !== null);
+    const m7jcyc = {};
+    recentEntries.forEach(function(e) {
+      const raw = localStorage.getItem('boussole_mesures_' + e.date);
+      if (!raw) return;
+      try { m7jcyc['boussole_mesures_' + e.date] = JSON.parse(raw); } catch(ex) {}
+    });
+    const cyclePhases7jQ = window.collectCycleData(days7jQcyc, m7jcyc, 7);
+    daysWithCycleQ = Object.values(cyclePhases7jQ).reduce((sum, arr) => sum + arr.length, 0);
+  }
+
+  const fcMoyQ = fcVals.length >= 3 ? avg(fcVals) : null;
+  const questionsQ = [];
+  if (pemCount7jQ >= 1)  questionsQ.push("Mes données montrent des chutes de score après les jours à bonne énergie. Faut-il évoquer le malaise post-effort / PEM ?");
+  if (daysWithCycleQ >= 1) questionsQ.push("Mon score varie selon les phases de mon cycle. Ce suivi mérite-t-il une attention hormonale ?");
+  if (fcMoyQ !== null && fcMoyQ > 85) questionsQ.push("Ma fréquence cardiaque au repos est élevée sur cette période. Faut-il évaluer une composante orthostatique ?");
+  if (scoreMoy7jQ !== null && scoreMoy7jQ < 5.0) questionsQ.push("Mon score global est bas de façon persistante. Quels examens complémentaires seraient pertinents à ce stade ?");
+  if (scoreStdDevQ > 2.5) questionsQ.push("Ma variabilité est importante d'un jour à l'autre. Ce profil évoque-t-il quelque chose de spécifique ?");
+  if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) questionsQ.push("Mon ressenti global est souvent différent de mon score composite. Cette dissociation est-elle un signal clinique ?");
+
+  let questionsHtml = '';
+  if (questionsQ.length > 0) {
+    questionsHtml =
+      '<div style="' + SECTION_STYLE + 'background:#F0FDF4;border:1.5px solid #2d6a4f;">' +
+        '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Questions à poser au médecin</p>' +
+        questionsQ.slice(0, 5).map(q => '<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(45,106,79,.1);">→ ' + q + '</div>').join('') +
+        '<div style="font-size:10px;color:#9ca3af;font-style:italic;margin-top:8px;">Suggestions basées sur vos données · Pas un avis médical</div>' +
+      '</div>';
   }
 
   // Texte brut pour partage
   const shareLines = [
     'Mon suivi Boussole — 7 derniers jours',
     '',
-    'Score global : ' + scoreDisplay + '/10',
     avgEnergie !== null ? 'Énergie : ' + avgEnergie.toFixed(1) + '/10' : '',
     avgSommeil !== null ? 'Sommeil : ' + avgSommeil.toFixed(1) + '/10' : '',
     avgConfort !== null ? 'Confort physique : ' + avgConfort.toFixed(1) + '/10' : '',
     avgClarte  !== null ? 'Clarté mentale : '  + avgClarte.toFixed(1)  + '/10' : '',
     noteConsultation ? '\nMotif : ' + noteConsultation : '',
-    '\nDocument d\'information personnelle · Pas un avis médical'
+    "\nDocument d'information personnelle · Pas un avis médical"
   ].filter(Boolean);
   window._boussoleShareText = shareLines.join('\n');
 
@@ -1213,109 +1521,16 @@ window._ouvrirModePresentation = function() {
     ? '<div style="margin-top:24px;text-align:center;"><button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button></div>'
     : '';
 
-  // Calendrier 14 jours
-  const today14 = new Date();
-  today14.setHours(0, 0, 0, 0);
-  const entryMap14 = {};
-  data.entries.forEach(function(e) { entryMap14[e.date] = e; });
-  let calCells14 = '';
-  for (let ci = 13; ci >= 0; ci--) {
-    const cd = new Date(today14);
-    cd.setDate(cd.getDate() - ci);
-    const cdStr = localDateStr(cd);
-    const cdm = String(cd.getDate()).padStart(2, '0');
-    const cmm = String(cd.getMonth() + 1).padStart(2, '0');
-    const e14 = entryMap14[cdStr];
-    let dotClass = 'cal-dot cal-dot-vide';
-    let tooltipScore = '\u2014';
-    if (e14) {
-      const vals = [e14.energie, e14.qualite_sommeil, e14.douleurs, e14.clarte_mentale]
-        .filter(v => v !== null && v !== undefined);
-      if (vals.length > 0) {
-        const sc = vals.reduce((a, b) => a + b, 0) / vals.length;
-        tooltipScore = sc.toFixed(1) + '/10';
-        if (sc >= 7) dotClass = 'cal-dot cal-dot-vert';
-        else if (sc >= 4) dotClass = 'cal-dot cal-dot-orange';
-        else dotClass = 'cal-dot cal-dot-rouge';
-      }
-    }
-    calCells14 +=
-      '<div class="cal-cell" title="' + cdm + '/' + cmm + ' \u2014 ' + tooltipScore + '">' +
-        '<div class="' + dotClass + '"></div>' +
-        '<span class="cal-day-num">' + cdm + '/' + cmm + '</span>' +
-      '</div>';
-  }
-  // Stabilité 30j
-  let stabilityHtml = '';
-  const stab = computeStabilityScore();
-  if (stab !== null) {
-    const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
-    const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
-    let stabPhrase;
-    if (stab.trend === 'amelioration') {
-      stabPhrase = 'Ta variabilité a diminué de ' + stabPct + '% sur les 15 derniers jours.';
-    } else if (stab.trend === 'stable') {
-      stabPhrase = 'Ta variabilité est stable sur les 15 derniers jours.';
-    } else {
-      stabPhrase = 'Ta variabilité a augmenté de ' + stabPct + '% sur les 15 derniers jours.';
-    }
-    stabilityHtml =
-      '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Stabilité</p>' +
-      '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
-      '<p style="font-size:15px;margin:0 0 4px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
-      '<p style="font-size:12px;color:#6E877D;margin:0 0 16px;">' +
-        'Écart-type 30j : ' + stab.stdDev30.toFixed(1) + ' pts' +
-      '</p>';
-  }
-
-  const cal14Html =
-    '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Calendrier 14 jours</p>' +
-    '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
-    '<div class="cal-grid">' + calCells14 + '</div>' +
-    '<p style="font-size:11px;color:#6E877D;margin:6px 0 16px;">Couleur = score composite (\xe9nergie / sommeil / confort / clart\xe9)</p>';
-
   const html =
-    '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:20px;text-align:center;">' +
-      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Préparer ma consultation</p>' +
-      '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
-      identiteHtml +
-    '</div>' +
-    motifHtml +
-    '<p style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 6px;">Mon état — 7 derniers jours</p>' +
-    '<div style="width:100%;height:1px;background:#6E877D;margin-bottom:12px;"></div>' +
-    '<div style="text-align:center;margin-bottom:16px;">' +
-      '<div style="font-size:48px;font-weight:700;color:' + scoreCol + ';line-height:1;">' + scoreDisplay + '</div>' +
-      '<div style="font-size:12px;color:#999;margin-top:4px;">Score global moyen</div>' +
-    '</div>' +
-    pointAttentionHtml +
-    stabilityHtml +
-    cal14Html +
-    '<table style="width:100%;border-collapse:collapse;">' +
-      '<thead><tr>' +
-        '<th style="font-size:12px;color:#999;font-weight:600;text-align:left;padding:0 0 8px;">Métrique</th>' +
-        '<th style="font-size:12px;color:#999;font-weight:600;text-align:center;padding:0 0 8px;">Moyenne</th>' +
-        '<th style="font-size:12px;color:#999;font-weight:600;text-align:center;padding:0 0 8px;">Tendance</th>' +
-      '</tr></thead>' +
-      '<tbody>' +
-        metricRow('💪 Énergie', avgEnergie) +
-        metricRow('🌙 Sommeil', avgSommeil) +
-        metricRow('❤️ Confort physique', avgConfort) +
-        metricRow('🧠 Clarté mentale', avgClarte) +
-      '</tbody>' +
-    '</table>' +
-    '<div style="text-align:center; margin-top:20px; padding:16px;' +
-    'background:#F2F5F4; border-radius:12px;">' +
-      '<p style="font-size:12px; color:#6E877D; font-weight:600;' +
-      'margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em;">' +
-      'Ressenti général 7j</p>' +
-      '<div style="font-size:40px;">' +
-        (avgHumeur !== null ? getHumeurSmiley(Math.round(avgHumeur)) : '😐') +
-      '</div>' +
-      (avgHumeur !== null
-        ? '<p style="font-size:12px; color:rgba(6,23,45,.5); margin:4px 0 0;">Humeur · bien-être émotionnel</p>'
-        : '<p style="font-size:11px; color:#aaa; margin:4px 0 0; font-style:italic;">Données insuffisantes</p>') +
-    '</div>' +
-    joursHtml +
+    enTeteHtml +
+    traitementHtml +
+    problemePrincipalHtml +
+    syntheseHtml +
+    sommeilHtml +
+    donneesObjectivesHtml +
+    pemHtml +
+    cycleHtml +
+    questionsHtml +
     partagerBtn +
     '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
 
