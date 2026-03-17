@@ -1617,6 +1617,7 @@ function openPostConsultation() {
   if (!modal) return;
   var today = new Date();
   var dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  window._pcOriginalDate = dateStr;
   document.getElementById('pc-date-rdv').value = dateStr;
   document.getElementById('pc-decisions').value = '';
   document.getElementById('pc-examens').value = '';
@@ -1637,6 +1638,7 @@ function closePostConsultation() {
 function openPostConsultationFromDate(dateStr) {
   var modal = document.getElementById('modal-post-consultation');
   if (!modal) return;
+  window._pcOriginalDate = dateStr;
   document.getElementById('pc-date-rdv').value = dateStr;
   document.getElementById('pc-decisions').value = '';
   document.getElementById('pc-examens').value = '';
@@ -1732,7 +1734,10 @@ function refreshPostConsultationHistorique() {
     if (fiche.variable_suivie) html += '<div><strong>Surveiller\u00a0:</strong> ' + (variableLabels[fiche.variable_suivie] || fiche.variable_suivie) + '</div>';
     if (fiche.signaux_stop) html += '<div><strong>Signaux d\u2019arr\u00eat\u00a0:</strong> ' + fiche.signaux_stop + '</div>';
 
-    html += '<div style="margin-top:8px;"><button onclick="openPostConsultationFromDate(\'' + dateRdv + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button></div>';
+    html += '<div style="margin-top:8px;display:flex;gap:8px;">';
+    html += '<button onclick="openPostConsultationFromDate(\'' + dateRdv + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>';
+    html += '<button onclick="deletePostConsultation(\'' + dateRdv + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
+    html += '</div>';
     html += '</div>';
     html += '</div>';
   });
@@ -1774,6 +1779,10 @@ function savePostConsultation() {
     variable_suivie: document.getElementById('pc-variable').value,
     signaux_stop: document.getElementById('pc-signaux-stop').value
   };
+  if (window._pcOriginalDate && window._pcOriginalDate !== dateRdv) {
+    localStorage.removeItem('boussole_post_consultation_' + window._pcOriginalDate);
+  }
+  window._pcOriginalDate = dateRdv;
   localStorage.setItem('boussole_post_consultation_' + dateRdv, JSON.stringify(data));
   var feedback = document.getElementById('pc-feedback');
   if (feedback) {
@@ -1785,6 +1794,12 @@ function savePostConsultation() {
 // ============================================================
 // === EXPORT PDF JOURNAL CONSULTATIONS ===
 // ============================================================
+
+window.deletePostConsultation = function(dateStr) {
+  if (!confirm('Supprimer la fiche du ' + dateStr + ' ?')) return;
+  localStorage.removeItem('boussole_post_consultation_' + dateStr);
+  refreshPostConsultationHistorique();
+};
 
 function exportJournalConsultationPDF() {
   if (typeof window.jspdf === 'undefined') {
