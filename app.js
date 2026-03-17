@@ -785,29 +785,23 @@ function refreshSummary() {
   '</div>';
 
   // 3. Problème principal
-  html += buildProblemePrincipal(pointAttention7j, metriques7j);
-
-  // 4. Détail sommeil déclaratif (conditionnel)
-  html += buildDetailSommeil(dataSommeil7j, _avgVals(dataSommeil7j), noteLC7j, pointAttention7j);
+  html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
 
   // 5. Score de stabilité 30j
   const stability = computeStabilityScore();
   if (stability !== null) {
-    const trendIcon = stability.trend === 'amelioration' ? '🟢' : stability.trend === 'stable' ? '🟡' : '🔴';
-    const pct = Math.round(Math.abs(1 - stability.stdDevSecond / (stability.stdDevFirst || 1)) * 100);
-    let trendPhrase;
+    let trendMsg;
     if (stability.trend === 'amelioration') {
-      trendPhrase = `Ta variabilité a diminué de ${pct}% sur les 15 derniers jours.`;
+      trendMsg = '🟢 Ta régularité s\'améliore — moins de variations ces 15 derniers jours.';
     } else if (stability.trend === 'stable') {
-      trendPhrase = `Ta variabilité est stable sur les 15 derniers jours.`;
+      trendMsg = '🟡 Ta régularité est stable ces 15 derniers jours.';
     } else {
-      trendPhrase = `Ta variabilité a augmenté de ${pct}% sur les 15 derniers jours.`;
+      trendMsg = '🔴 Tes variations augmentent — surveille les fluctuations.';
     }
-    html += `<div class="card">`;
-    html += `<h2 class="summary-section">STABILITÉ</h2>`;
-    html += `<p style="margin:8px 0 4px;font-size:15px;">${trendIcon} ${trendPhrase}</p>`;
-    html += `<p style="font-size:12px;color:var(--color-text-muted);">Écart-type 30j : ${stability.stdDev30.toFixed(1)} pts</p>`;
-    html += `</div>`;
+    html += '<div class="card">';
+    html += '<h2 class="summary-section">STABILITÉ</h2>';
+    html += '<p style="margin:8px 0;font-size:15px;">' + trendMsg + '</p>';
+    html += '</div>';
   }
 
   // 5. Calendrier 14j (résumé 30 jours)
@@ -1167,7 +1161,7 @@ function renderEventsSummary() {
       (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
       '</div>';
   }).join('');
-  container.innerHTML = '<div class="card"><h3>📌 Événements notables (30 derniers jours)</h3>' + items + '</div>';
+  container.innerHTML = '<div class="card">' + items + '</div>';
 }
 
 window.getRecentEvents = function(daysSince) {
@@ -1390,7 +1384,14 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
   );
 }
 
-function buildProblemePrincipal(pointAttention, metriques) {
+function _detectPlainteSommeil(noteLC, avgSommeil) {
+  if (noteLC.indexOf('endormissement') !== -1) return "insomnie d'endormissement";
+  if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) return 'réveils nocturnes';
+  if (avgSommeil !== null && avgSommeil < 5) return 'insomnie de maintien';
+  return 'insomnie de maintien';
+}
+
+function buildProblemePrincipal(pointAttention, metriques, noteLC, avgSommeil) {
   if (!pointAttention) return '';
   const titreMap = {
     'Énergie':          'Fatigue persistante',
@@ -1406,6 +1407,9 @@ function buildProblemePrincipal(pointAttention, metriques) {
     return lbl + ' ' + m.moy.toFixed(1) + '/10 ' + q;
   });
   const attColor = pointAttention.moy < 4 ? '#dc2626' : '#d97706';
+  const sommeilLine = (pointAttention.label === 'Sommeil' && noteLC !== undefined)
+    ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #fca5a5;font-size:12px;color:#d97706;">Plainte déclarée : ' + _detectPlainteSommeil(noteLC, avgSommeil !== undefined ? avgSommeil : null) + '</div>'
+    : '';
   return (
     '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#FEE2E2;border-left:4px solid #dc2626;">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#d97706;">PROBLÈME PRINCIPAL</p>' +
@@ -1426,6 +1430,7 @@ function buildProblemePrincipal(pointAttention, metriques) {
           retentParts.map(p => '<div style="font-size:11px;color:#06172D;padding:1px 0;">' + p + '</div>').join('') +
         '</div>' +
       '</div>' +
+      sommeilLine +
     '</div>'
   );
 }
