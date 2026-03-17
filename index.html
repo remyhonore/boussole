@@ -474,7 +474,7 @@
           <button
             class="btn btn-secondary"
             id="btn-consultation"
-            onclick="genererPDFConsultation('')"
+            onclick="genererPDFConsultation([], '')"
             style="width: 100%;"
             aria-label="Préparer un document PDF pour ma consultation"
           >
@@ -694,7 +694,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.50 — </span>
+    <span>Boussole v8.51 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1043,7 +1043,7 @@
       localStorage.setItem('boussole_note_consultation', motifsFinal);
       fermerModaleConsultation();
       if (_consultationMode === 'pdf') {
-        genererPDFConsultation(motifsFinal);
+        genererPDFConsultation(cochees, texteLibre);
       } else {
         if (typeof window._ouvrirModePresentation === 'function') {
           window._ouvrirModePresentation();
@@ -1054,7 +1054,7 @@
       const note = document.getElementById('consultation-note').value;
       localStorage.setItem('boussole_note_consultation', note);
       fermerModaleConsultation();
-      genererPDFConsultation(note);
+      genererPDFConsultation([], note);
     }
     function ouvrirModePresentation() {
       if (typeof window._ouvrirModePresentation === 'function') {

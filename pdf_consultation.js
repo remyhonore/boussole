@@ -71,7 +71,7 @@ function _dateLocale(dateStr) {
 // GENERATION PDF
 // ============================================
 
-function genererPDFConsultation(noteLibre) {
+function genererPDFConsultation(motifItems, noteLibre) {
   if (typeof window.jspdf === 'undefined') {
     alert('jsPDF non disponible - verifiez votre connexion internet.');
     return;
@@ -184,9 +184,24 @@ function genererPDFConsultation(noteLibre) {
     ? txComp.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
     : [];
 
-  const noteTrimmed = _stripEmoji(
-    (noteLibre || localStorage.getItem('boussole_note_consultation') || '').trim()
-  );
+  // Normaliser motifItems et noteLibre
+  let motifList = Array.isArray(motifItems) ? motifItems : [];
+  let noteLibreTrimmed = _stripEmoji((noteLibre || '').trim());
+
+  // Fallback localStorage si rien fourni (ex: appel direct sans modale)
+  if (motifList.length === 0 && noteLibreTrimmed.length === 0) {
+    const stored = _stripEmoji((localStorage.getItem('boussole_note_consultation') || '').trim());
+    if (stored) {
+      const dashIdx = stored.indexOf(' \u2014 ');
+      const cocheesPart = dashIdx !== -1 ? stored.slice(0, dashIdx) : stored;
+      const notePart    = dashIdx !== -1 ? stored.slice(dashIdx + 3) : '';
+      motifList = cocheesPart ? cocheesPart.split(' \u00b7 ').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+      noteLibreTrimmed = notePart.trim();
+    }
+  }
+
+  // noteTrimmed : texte combiné utilisé pour détection de mots-clés
+  const noteTrimmed = [motifList.join(' '), noteLibreTrimmed].filter(Boolean).join(' ');
 
   // ============================================
   // RENDU PDF
@@ -302,18 +317,27 @@ function genererPDFConsultation(noteLibre) {
   doc.text('d\xe9clar\xe9 par le patient', marginL, y);
   y += 5;
 
-  if (noteTrimmed.length === 0) {
-    doc.setFontSize(13);
+  if (motifList.length === 0 && noteLibreTrimmed.length === 0) {
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-    doc.text('Non renseign\xe9', marginL, y);
-    y += 8;
+    doc.text('Aucun motif saisi', marginL, y);
+    y += 7;
   } else {
-    const noteLines = doc.splitTextToSize(noteTrimmed, contentW);
-    doc.setFontSize(13);
-    tc(ANTHRACITE, false);
-    noteLines.forEach(function(l, li) { doc.text(l, marginL, y + li * 6.5); });
-    y += noteLines.length * 6.5 + 2;
+    doc.setFontSize(9);
+    motifList.forEach(function(item) {
+      tc(ANTHRACITE, false);
+      const itemLines = doc.splitTextToSize('- ' + item, contentW);
+      itemLines.forEach(function(l) { doc.text(l, marginL, y); y += 5; });
+    });
+    if (noteLibreTrimmed.length > 0) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+      const precLines = doc.splitTextToSize(noteLibreTrimmed, contentW);
+      precLines.forEach(function(l) { doc.text(l, marginL, y); y += 5; });
+    }
+    y += 2;
   }
 
   drawSep(y);
@@ -1188,11 +1212,6 @@ function genererPDFConsultation(noteLibre) {
   if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) {
     questionsQ.push('Mon ressenti global est souvent different de mon score composite. Cette dissociation est-elle un signal clinique ?');
   }
-  // REGLE TEST (à retirer après validation) — garantit l'affichage si >= 1 saisie
-  if (entrees.length >= 1) {
-    questionsQ.push('Faut-il realiser un bilan de suivi de la fatigue chronique ?');
-  }
-
   const questionsAffQ = questionsQ.slice(0, 5);
 
   if (questionsAffQ.length > 0) {
