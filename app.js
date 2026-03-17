@@ -427,7 +427,7 @@ function refreshPacingAlert() {
   if (window.shouldShowPacingAlert(recentDays)) {
     alertEl.innerHTML =
       '<span class="pacing-icon">(i)</span>' +
-      ' Vous accumulez de l\'energie depuis 3 jours. Restez attentif a ne pas depasser votre enveloppe energetique.' +
+      ' Tu accumules de l\'energie depuis 3 jours. Reste attentif(ve) a ne pas depasser ton enveloppe energetique.' +
       '<button class="pacing-dismiss" onclick="dismissPacingAlert()" aria-label="Fermer l\'alerte">&times;</button>';
     alertEl.style.display = 'block';
   } else {
@@ -479,7 +479,7 @@ function refreshDegradationAlert() {
     alertEl.innerHTML =
       '<button onclick="dismissDegradationAlert()" aria-label="Fermer l\'alerte" style="position:absolute;top:8px;right:10px;background:none;border:none;font-size:18px;cursor:pointer;color:#c0392b;line-height:1;">&times;</button>' +
       '<span style="font-size:15px;">⚠️</span> ' +
-      'Score bas depuis 5 jours. Si vous avez un suivi médical prévu, c\'est un bon moment d\'en parler à votre professionnel de santé.' +
+      'Score bas depuis 5 jours. Si tu as un suivi médical prévu, c\'est un bon moment d\'en parler à ton professionnel de santé.' +
       '<br><a href="#" onclick="window._ouvrirModePresentation && window._ouvrirModePresentation(); return false;" style="display:inline-block;margin-top:8px;color:#c0392b;font-weight:600;text-decoration:none;">Préparer ma consultation →</a>';
     alertEl.style.display = 'block';
   } else {
@@ -784,7 +784,7 @@ function refreshSummary() {
   }
 
   if (!hasAnyTendance) {
-    html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible. Commencez par saisir vos repères dans l'onglet "Aujourd'hui".</p>`;
+    html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible. Commence par saisir tes repères dans l'onglet "Aujourd'hui".</p>`;
   }
 
   html += `<p style="font-size:12px;color:#6b7280;font-style:italic;margin-top:8px;padding:0 4px;">
@@ -969,7 +969,7 @@ function refreshSummary() {
         }
         html += '</div>';
       });
-      html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montrez ces episodes a votre professionnel de sante pour en discuter.</p>';
+      html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montre ces episodes a ton professionnel de sante pour en discuter.</p>';
       html += '</div>';
     }
   }
@@ -2409,7 +2409,7 @@ window.deletePostConsultation = function(dateStr) {
 
 function exportJournalConsultationPDF() {
   if (typeof window.jspdf === 'undefined') {
-    alert('jsPDF non disponible - verifiez votre connexion internet.');
+    alert('jsPDF non disponible - verifie ta connexion internet.');
     return;
   }
 
