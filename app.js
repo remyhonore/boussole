@@ -67,6 +67,13 @@ function initNavigation() {
 }
 
 function switchPanel(panelId) {
+  // Réinitialiser _saisieDate si on quitte today
+  if (app.currentPanel === 'today' && panelId !== 'today') {
+    window._saisieDate = localDateStr(new Date());
+    const btnSave = document.getElementById('btn-save');
+    if (btnSave) btnSave.textContent = 'Enregistrer';
+  }
+
   // Désactiver tous les boutons et panels
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.remove('active');
@@ -103,6 +110,7 @@ function switchPanel(panelId) {
       if (humeurRange && humeurDisplay) {
         humeurDisplay.textContent = getHumeurSmiley(parseInt(humeurRange.value));
       }
+      initRetroDateSelect();
     });
   }
 }
@@ -308,6 +316,92 @@ function loadTodayData() {
   });
 }
 
+/**
+ * === SAISIE RÉTROACTIVE (Feature S) ===
+ */
+function initRetroDateSelect() {
+  const select = document.getElementById('retro-date-select');
+  if (!select) return;
+
+  if (!window._saisieDate) window._saisieDate = localDateStr(new Date());
+
+  const JOURS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const MOIS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+  select.innerHTML = '';
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = localDateStr(d);
+    let label;
+    if (i === 0) label = `Aujourd'hui (${d.getDate()} ${MOIS_FR[d.getMonth()]})`;
+    else if (i === 1) label = `Hier (${d.getDate()} ${MOIS_FR[d.getMonth()]})`;
+    else label = `${JOURS_FR[d.getDay()]} ${d.getDate()} ${MOIS_FR[d.getMonth()]}`;
+    const opt = document.createElement('option');
+    opt.value = dateStr;
+    opt.textContent = label;
+    if (dateStr === window._saisieDate) opt.selected = true;
+    select.appendChild(opt);
+  }
+}
+
+function changerDateSaisie(dateStr) {
+  window._saisieDate = dateStr;
+  const today = localDateStr(new Date());
+  const entry = getEntry(dateStr);
+
+  const sliders = [
+    { id: 'energie', key: 'energie' },
+    { id: 'qualite-sommeil', key: 'qualite_sommeil' },
+    { id: 'douleurs', key: 'douleurs' },
+    { id: 'clarte-mentale', key: 'clarte_mentale' }
+  ];
+  sliders.forEach(({ id, key }) => {
+    const slider = document.getElementById(id);
+    const valueEl = document.getElementById(id + '-value');
+    if (!slider) return;
+    const hasVal = entry && entry[key] !== null && entry[key] !== undefined;
+    const val = hasVal ? entry[key] : 0;
+    slider.value = val;
+    if (valueEl) valueEl.textContent = hasVal ? val : '—';
+    updateSmiley(id, val);
+  });
+
+  const humeurRange = document.getElementById('humeur-range');
+  const humeurDisplay = document.getElementById('humeur-smiley-display');
+  if (humeurRange) {
+    const humeurSaisi = entry && entry.humeur !== null && entry.humeur !== undefined;
+    humeurRange.value = humeurSaisi ? entry.humeur : 5;
+    humeurRange.dataset.touched = humeurSaisi ? 'true' : 'false';
+    if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(parseInt(humeurRange.value));
+  }
+
+  const noteEl = document.getElementById('note');
+  const noteCount = document.getElementById('note-count');
+  if (noteEl) {
+    noteEl.value = (entry && entry.note) ? entry.note : '';
+    if (noteCount) noteCount.textContent = `${noteEl.value.length}/200`;
+  }
+
+  const btnSave = document.getElementById('btn-save');
+  if (btnSave) {
+    if (dateStr !== today) {
+      const MOIS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+      const d = new Date(dateStr + 'T12:00:00');
+      btnSave.textContent = `Enregistrer pour le ${d.getDate()} ${MOIS_FR[d.getMonth()]}`;
+    } else {
+      btnSave.textContent = 'Enregistrer';
+    }
+  }
+
+  requestAnimationFrame(() => {
+    sliders.forEach(({ id }) => {
+      const slider = document.getElementById(id);
+      if (slider) updateSmiley(id, parseInt(slider.value));
+    });
+  });
+}
+
 function refreshPacingAlert() {
   var alertEl = document.getElementById('pacing-alert-today');
   if (!alertEl) return;
@@ -418,7 +512,7 @@ function saveCurrentEntry() {
     return;
   }
   
-  const today = getTodayDate();
+  const today = window._saisieDate || getTodayDate();
 
   // Sauvegarder
   const humeurRangeEl = document.getElementById('humeur-range');

@@ -204,6 +204,14 @@
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
+        <!-- Saisie rétroactive (Feature S) -->
+        <div id="retro-date-selector" style="margin-bottom:16px;background:#f8f9fa;border-radius:10px;padding:10px 14px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;color:#6b7280;">Saisir pour :</span>
+          <select id="retro-date-select" onchange="changerDateSaisie(this.value)" style="font-size:13px;color:#06172D;border:none;background:transparent;font-weight:600;cursor:pointer;outline:none;">
+            <!-- options générées dynamiquement par JS -->
+          </select>
+        </div>
+
         <!-- Humeur (ADR-2026-026) -->
         <div id="humeur-section" style="margin-bottom:16px; padding:16px;
         background:rgba(110,135,125,0.08); border-radius:14px;">
@@ -672,7 +680,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.41 — </span>
+    <span>Boussole v8.42 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
