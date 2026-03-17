@@ -1306,13 +1306,13 @@ function buildBlocStabilite(mode) {
   const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
   let stabPhrase;
   if (stab.trend === 'amelioration') {
-    stabPhrase = 'Variabilité en baisse de ' + stabPct + '% sur les 15 derniers jours.';
+    stabPhrase = 'Ta stabilité s\'améliore — ' + stabPct + '% moins de fluctuations ces 15 derniers jours.';
   } else if (stab.trend === 'stable') {
-    stabPhrase = 'Variabilité stable sur les 15 derniers jours.';
+    stabPhrase = 'Ta stabilité est stable ces 15 derniers jours.';
   } else {
-    stabPhrase = 'Variabilité en hausse de ' + stabPct + '% sur les 15 derniers jours.';
+    stabPhrase = 'Tes scores sont plus irréguliers — ' + stabPct + '% plus de fluctuations ces 15 derniers jours.';
   }
-  const ecartType = 'Écart-type 30j\u00a0: ' + stab.stdDev30.toFixed(1) + ' pts';
+  const ecartType = 'Calculé sur les 30 derniers jours';
   if (mode === 'resume') {
     return '<div class="card">' +
       '<h2 class="summary-section">SCORE DE STABILITÉ — 30 JOURS</h2>' +
