@@ -932,7 +932,7 @@ function refreshSummary() {
   // 4. Notes
   if (summary.notes && summary.notes.length > 0) {
     html += `<div class="card">`;
-    html += `<h2 class="summary-section">VOS NOTES</h2>`;
+    html += `<h2 class="summary-section">TES NOTES</h2>`;
     html += `<ul class="summary-list">`;
     
     summary.notes.forEach(n => {
@@ -1160,12 +1160,12 @@ function renderEventsSummary() {
   };
   const items = recent.map(k => {
     const e = JSON.parse(localStorage.getItem(k));
-    const label = labels[e.type] || '';
-    const score = e.score !== null ? ' · Score ' + e.score + '/10' : '';
-    return '<div class="event-item"><span class="event-date">' + e.date + '</span>' +
-      (label ? '<span class="event-type-badge">' + label + '</span>' : '') +
-      '<p class="event-desc">' + e.description + '</p>' +
-      '<span class="event-meta">' + score + '</span></div>';
+    const label = labels[e.type] || e.type || '';
+    const dateFr = formatDateFr(e.date);
+    return '<div class="event-item">' +
+      '<div style="font-weight:600;margin-bottom:4px;">📌 ' + dateFr + ' · ' + label + '</div>' +
+      (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
+      '</div>';
   }).join('');
   container.innerHTML = '<div class="card"><h3>📌 Événements notables (30 derniers jours)</h3>' + items + '</div>';
 }
