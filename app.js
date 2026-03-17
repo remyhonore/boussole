@@ -1152,12 +1152,22 @@ function renderEventsSummary() {
     'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle',
     'autre': 'Autre'
   };
+  function _formatDateLong(dateStr) {
+    const mois = ['janvier','février','mars','avril','mai','juin',
+      'juillet','août','septembre','octobre','novembre','décembre'];
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const j = parseInt(parts[2], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const a = parts[0];
+    return j + ' ' + mois[m] + ' ' + a;
+  }
   const items = recent.map(k => {
     const e = JSON.parse(localStorage.getItem(k));
     const label = labels[e.type] || e.type || '';
-    const dateFr = formatDateFr(e.date);
+    const dateFr = _formatDateLong(e.date);
     return '<div class="event-item">' +
-      '<div style="font-weight:600;margin-bottom:4px;">📌 ' + dateFr + ' · ' + label + '</div>' +
+      '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
       (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
       '</div>';
   }).join('');
