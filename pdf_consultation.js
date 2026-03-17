@@ -1188,6 +1188,10 @@ function genererPDFConsultation(noteLibre) {
   if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) {
     questionsQ.push('Mon ressenti global est souvent different de mon score composite. Cette dissociation est-elle un signal clinique ?');
   }
+  // REGLE TEST (à retirer après validation) — garantit l'affichage si >= 1 saisie
+  if (entrees.length >= 1) {
+    questionsQ.push('Faut-il realiser un bilan de suivi de la fatigue chronique ?');
+  }
 
   const questionsAffQ = questionsQ.slice(0, 5);
 
