@@ -57,7 +57,7 @@
     @media print {
       .header, .nav, #banner-install, #btn-fermer-dashboard, #btn-imprimer-dashboard,
       .skip-link, .app-footer, #status-message, .panel,
-      #consultation-modal, #modal-post-consultation, #pdf-modal, #changelog-modal,
+      #consultation-modal, #modal-post-consultation, #modal-event, #pdf-modal, #changelog-modal,
       .container > .nav, .container > .header { display: none !important; }
       #overlay-dashboard-visuel {
         position: static !important;
@@ -379,6 +379,10 @@
           </button>
         </div>
 
+        <div style="text-align:center;margin-top:8px;">
+          <button id="btn-mark-event" class="btn-secondary-outline">📌 Marquer un événement</button>
+        </div>
+
         <div id="save-confirmation" aria-live="polite" aria-atomic="true" style="display:none; text-align:center; color:#2d6a4f; font-weight:600; font-size:15px; padding:10px;">
           Enregistré ✓
         </div>
@@ -507,6 +511,8 @@
       <div id="summary-content">
         <!-- Contenu généré dynamiquement -->
       </div>
+
+      <div id="events-summary-container"></div>
 
     </div>
 
@@ -688,7 +694,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.43 — </span>
+    <span>Boussole v8.44 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -974,6 +980,28 @@
       <div style="display:flex;gap:10px;">
         <button onclick="closePostConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
         <button onclick="savePostConsultation()" style="flex:2;padding:10px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Événement -->
+  <div id="modal-event" class="modal-overlay" style="display:none">
+    <div class="modal-card">
+      <h3>📌 Événement notable</h3>
+      <p class="modal-hint">Ce que vous voulez vous rappeler pour votre prochain RDV.</p>
+      <select id="event-type">
+        <option value="">Type (optionnel)</option>
+        <option value="reaction-medicament">Réaction médicament</option>
+        <option value="symptome-inhabituel">Symptôme inhabituel</option>
+        <option value="bonne-journee-exceptionnelle">Bonne journée exceptionnelle</option>
+        <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
+        <option value="autre">Autre</option>
+      </select>
+      <textarea id="event-desc" maxlength="300" placeholder="Décrivez l'événement... (300 car max)" rows="4"></textarea>
+      <span id="event-desc-count">0/300</span>
+      <div class="modal-actions">
+        <button id="btn-event-save" class="btn-primary">Enregistrer</button>
+        <button id="btn-event-cancel" class="btn-secondary">Annuler</button>
       </div>
     </div>
   </div>

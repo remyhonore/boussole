@@ -1235,6 +1235,41 @@ function genererPDFConsultation(noteLibre) {
   }
 
   // ============================================================
+  // 9b. ÉVÉNEMENTS NOTABLES (30 derniers jours)
+  // ============================================================
+  const recentEvents = window.getRecentEvents ? window.getRecentEvents(30) : [];
+  if (recentEvents.length > 0) {
+    checkPage(40);
+    y += 8;
+    doc.setFontSize(9); doc.setTextColor(45, 80, 22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('EVENEMENTS NOTABLES (30 derniers jours)', marginL, y);
+    y += 5;
+    doc.setDrawColor(45, 80, 22); doc.line(marginL, y, marginL + contentW, y);
+    y += 6;
+    const typeLabels = {
+      'reaction-medicament': 'Reaction medicament',
+      'symptome-inhabituel': 'Symptome inhabituel',
+      'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle',
+      'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle',
+      'autre': 'Autre'
+    };
+    recentEvents.forEach(ev => {
+      checkPage(20);
+      doc.setFontSize(8); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
+      const typeLabel = ev.type ? ' [' + (typeLabels[ev.type] || ev.type) + ']' : '';
+      const scoreTxt = ev.score !== null ? ' - Score ' + ev.score + '/10' : '';
+      doc.text(ev.date + typeLabel + scoreTxt, marginL, y); y += 5;
+      const descLines = doc.splitTextToSize(ev.description, contentW - 4);
+      descLines.forEach(line => { checkPage(6); doc.text(line, marginL + 4, y); y += 5; });
+      y += 2;
+    });
+    doc.setFontSize(7); doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'italic');
+    doc.text('Evenements declares par l\'utilisateur au moment ou ils se sont produits.', marginL, y);
+    y += 8;
+  }
+
+  // ============================================================
   // 10. PLAN POST-CONSULTATION (conditionnel)
   // ============================================================
   var NAVY_PC = [6, 23, 45];

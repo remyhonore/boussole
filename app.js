@@ -232,6 +232,10 @@ function initTodayPanel() {
   // Boutons
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
   document.getElementById('btn-quick')?.addEventListener('click', fillLastValues);
+  document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
+  document.getElementById('btn-event-save')?.addEventListener('click', saveEvent);
+  document.getElementById('btn-event-cancel')?.addEventListener('click', () => { document.getElementById('modal-event').style.display = 'none'; });
+  document.getElementById('event-desc')?.addEventListener('input', function() { document.getElementById('event-desc-count').textContent = this.value.length + '/300'; });
 }
 
 function loadTodayData() {
@@ -993,7 +997,79 @@ function refreshSummary() {
   
   container.innerHTML = html;
   refreshPostConsultationIndicator();
+  renderEventsSummary();
 }
+
+/**
+ * === ÉVÉNEMENTS CLINIQUES (Feature T) ===
+ */
+function openEventModal() {
+  document.getElementById('modal-event').style.display = 'flex';
+  document.getElementById('event-desc').value = '';
+  document.getElementById('event-type').value = '';
+  document.getElementById('event-desc-count').textContent = '0/300';
+}
+
+function saveEvent() {
+  const desc = document.getElementById('event-desc').value.trim();
+  if (!desc) return;
+  const type = document.getElementById('event-type').value;
+  const dateStr = window._saisieDate || localDateStr(new Date());
+  const ts = Date.now();
+  const todayEntry = JSON.parse(localStorage.getItem('boussole_' + dateStr) || '{}');
+  const event = {
+    date: dateStr,
+    type: type,
+    description: desc,
+    score: todayEntry.score ?? null,
+    humeur: todayEntry.humeur ?? null,
+    medicaments: localStorage.getItem('boussole_medicaments') || '',
+    created_at: ts
+  };
+  const key = 'boussole_event_' + dateStr + '_' + ts;
+  localStorage.setItem(key, JSON.stringify(event));
+  document.getElementById('modal-event').style.display = 'none';
+  showStatus('Événement enregistré ✓');
+  renderEventsSummary();
+}
+
+function renderEventsSummary() {
+  const container = document.getElementById('events-summary-container');
+  if (!container) return;
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('boussole_event_')).sort().reverse();
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+  const recent = keys.filter(k => {
+    const e = JSON.parse(localStorage.getItem(k) || '{}');
+    return new Date(e.date) >= cutoff;
+  });
+  if (recent.length === 0) { container.innerHTML = ''; return; }
+  const labels = {
+    'reaction-medicament': 'Réaction médicament',
+    'symptome-inhabituel': 'Symptôme inhabituel',
+    'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle',
+    'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle',
+    'autre': 'Autre'
+  };
+  const items = recent.map(k => {
+    const e = JSON.parse(localStorage.getItem(k));
+    const label = labels[e.type] || '';
+    const score = e.score !== null ? ' · Score ' + e.score + '/10' : '';
+    return '<div class="event-item"><span class="event-date">' + e.date + '</span>' +
+      (label ? '<span class="event-type-badge">' + label + '</span>' : '') +
+      '<p class="event-desc">' + e.description + '</p>' +
+      '<span class="event-meta">' + score + '</span></div>';
+  }).join('');
+  container.innerHTML = '<div class="card"><h3>📌 Événements notables (30 derniers jours)</h3>' + items + '</div>';
+}
+
+window.getRecentEvents = function(daysSince) {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - (daysSince || 30));
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith('boussole_event_'))
+    .map(k => JSON.parse(localStorage.getItem(k)))
+    .filter(e => new Date(e.date) >= cutoff)
+    .sort((a, b) => a.date.localeCompare(b.date));
+};
 
 /**
  * === GÉNÉRATION PDF ===
