@@ -442,7 +442,7 @@
         <!-- 1. Action primaire : Montrer au médecin -->
         <button
           id="btn-show-doctor"
-          onclick="ouvrirModePresentation()"
+          onclick="ouvrirModaleConsultation('presentation')"
           style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
           aria-label="Afficher le résumé en plein écran pour votre médecin"
         >
@@ -454,7 +454,7 @@
           <button
             class="btn btn-secondary"
             id="btn-consultation"
-            onclick="ouvrirModaleConsultation()"
+            onclick="genererPDFConsultation('')"
             style="width: 100%;"
             aria-label="Préparer un document PDF pour ma consultation"
           >
@@ -672,7 +672,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.38 — </span>
+    <span>Boussole v8.40 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -855,20 +855,49 @@
         <h2 id="consultation-modal-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
         <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
-      <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 14px;">
-        Motif principal de consultation (optionnel)
-      </p>
+      <p style="font-size:13px;font-weight:600;color:#06172D;margin:0 0 10px;">Motifs fréquents</p>
+      <div id="consultation-motifs-rapides" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Renouvellement d'ordonnance" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Renouvellement d'ordonnance
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Réévaluation du traitement" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Réévaluation du traitement
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Résultats d'examens" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Résultats d'examens
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Demande d'examens complémentaires" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Demande d'examens complémentaires
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Courrier d'adressage spécialiste" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Courrier d'adressage spécialiste
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Bilan de suivi (fatigue chronique / Covid long)" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Bilan de suivi (fatigue chronique / Covid long)
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+          <input type="checkbox" value="Autre (préciser ci-dessous)" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
+          Autre (préciser ci-dessous)
+        </label>
+      </div>
+      <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">Précisions / autres informations</p>
       <textarea
         id="consultation-note"
         maxlength="500"
-        placeholder="Quel est le motif principal de votre consultation ? Ce texte apparaitra en tete du document."
+        placeholder="Ex: renouvellement Brintellix + demande bilan hépatique..."
         style="width:100%;min-height:90px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"
         aria-label="Note pour le médecin, 500 caractères maximum"
       ></textarea>
       <p id="consultation-note-count" style="font-size:11px;color:rgba(6,23,45,.4);text-align:right;margin:4px 0 16px;">0/500</p>
       <div style="display:flex;gap:10px;">
         <button onclick="fermerModaleConsultation()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#2d6a4f;cursor:pointer;">Annuler</button>
-        <button onclick="lancerPDFConsultation()" style="flex:2;padding:10px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Générer le PDF</button>
+        <button id="btn-valider-consultation" onclick="validerConsultation()" style="flex:2;padding:10px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Afficher le tableau de bord</button>
       </div>
     </div>
   </div>
@@ -946,15 +975,36 @@
 
   <script>
     // ---- Modale consultation ----
-    function ouvrirModaleConsultation() {
+    var _consultationMode = 'presentation'; // 'pdf' | 'presentation'
+    function ouvrirModaleConsultation(mode) {
+      _consultationMode = mode || 'presentation';
       const modal = document.getElementById('consultation-modal');
       modal.style.display = 'flex';
       document.getElementById('consultation-note').value = '';
       document.getElementById('consultation-note-count').textContent = '0/500';
+      document.querySelectorAll('#consultation-motifs-rapides input[type=checkbox]').forEach(cb => cb.checked = false);
+      const btnValider = document.getElementById('btn-valider-consultation');
+      if (btnValider) {
+        btnValider.textContent = _consultationMode === 'pdf' ? 'Générer le PDF' : 'Afficher le tableau de bord';
+      }
       document.getElementById('consultation-note').focus();
     }
     function fermerModaleConsultation() {
       document.getElementById('consultation-modal').style.display = 'none';
+    }
+    function validerConsultation() {
+      const cochees = Array.from(document.querySelectorAll('#consultation-motifs-rapides input[type=checkbox]:checked')).map(cb => cb.value);
+      const texteLibre = document.getElementById('consultation-note').value.trim();
+      const motifsFinal = [cochees.join(' · '), texteLibre].filter(Boolean).join(' — ');
+      localStorage.setItem('boussole_note_consultation', motifsFinal);
+      fermerModaleConsultation();
+      if (_consultationMode === 'pdf') {
+        genererPDFConsultation(motifsFinal);
+      } else {
+        if (typeof window._ouvrirModePresentation === 'function') {
+          window._ouvrirModePresentation();
+        }
+      }
     }
     function lancerPDFConsultation() {
       const note = document.getElementById('consultation-note').value;
