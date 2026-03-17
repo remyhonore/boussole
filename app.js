@@ -1504,6 +1504,15 @@ window._ouvrirModePresentation = function() {
       '</div>';
   }
 
+  // ============================================================
+  // GRAPHIQUE 30J
+  // ============================================================
+  const graphique30jHtml =
+    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
+      '<p style="' + SECTION_TITLE + 'color:#06172D;">Évolution 30 jours</p>' +
+      '<canvas id="mode-presentation-chart" height="180"></canvas>' +
+    '</div>';
+
   // Texte brut pour partage
   const shareLines = [
     'Mon suivi Boussole — 7 derniers jours',
@@ -1526,6 +1535,7 @@ window._ouvrirModePresentation = function() {
     traitementHtml +
     problemePrincipalHtml +
     syntheseHtml +
+    graphique30jHtml +
     sommeilHtml +
     donneesObjectivesHtml +
     pemHtml +
@@ -1540,6 +1550,53 @@ window._ouvrirModePresentation = function() {
     content.innerHTML = html;
     overlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
+    setTimeout(function() {
+      const canvas = document.getElementById('mode-presentation-chart');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      if (window._modePresentationChart) { window._modePresentationChart.destroy(); }
+
+      const cutoff30 = new Date(today + 'T12:00:00');
+      cutoff30.setDate(cutoff30.getDate() - 29);
+      const entryMapChart = {};
+      data.entries.forEach(function(e) { entryMapChart[e.date] = e; });
+
+      const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
+      const chartLabels = [], cEnergie = [], cSommeil = [], cConfort = [], cClarte = [];
+      for (let i = 29; i >= 0; i--) {
+        const cd = new Date(todayD);
+        cd.setDate(cd.getDate() - i);
+        const ds = localDateStr(cd);
+        chartLabels.push(String(cd.getDate()) + '/' + String(cd.getMonth() + 1).padStart(2, '0'));
+        const e = entryMapChart[ds];
+        cEnergie.push(e ? e.energie         : null);
+        cSommeil.push(e ? e.qualite_sommeil  : null);
+        cConfort.push(e ? e.douleurs         : null);
+        cClarte.push( e ? e.clarte_mentale   : null);
+      }
+
+      window._modePresentationChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [
+            { label: 'Énergie',          data: cEnergie, borderColor: '#2d9e6e', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+            { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+            { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+            { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+          scales: {
+            x: { ticks: { font: { size: 9 }, maxRotation: 45 } },
+            y: { min: 0, max: 10, ticks: { stepSize: 2 } }
+          }
+        }
+      });
+    }, 300);
   }
 };
 
