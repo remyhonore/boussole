@@ -20,14 +20,36 @@
 
   <style>
     .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      position: fixed !important;
+      top: 0 !important; left: 0 !important;
+      width: 100% !important; height: 100% !important;
+      background: rgba(6,23,45,0.55);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
-      background: rgba(0,0,0,0.5);
+      z-index: 9000;
     }
+    .modal-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      width: min(480px, 92vw);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-card h3 { font-size: 17px; font-weight: 700; color: #06172D; margin: 0; }
+    .modal-card .modal-hint { font-size: 14px; color: #6B7280; margin: 0; }
+    .modal-card select, .modal-card textarea {
+      width: 100%; border: 1px solid rgba(6,23,45,0.15);
+      border-radius: 8px; padding: 10px 12px;
+      font-family: inherit; font-size: 15px; color: #06172D;
+      background: #fafaf8;
+    }
+    .modal-card textarea { resize: vertical; }
+    #event-desc-count { font-size: 12px; color: #9CA3AF; text-align: right; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
     @keyframes pulse-invite {
       0%,100% { transform: scale(1); }
       50%      { transform: scale(1.12); }
@@ -703,7 +725,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.48 — </span>
+    <span>Boussole v8.49 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1009,8 +1031,8 @@
       <textarea id="event-desc" maxlength="300" placeholder="Décrivez l'événement... (300 car max)" rows="4"></textarea>
       <span id="event-desc-count">0/300</span>
       <div class="modal-actions">
-        <button id="btn-event-save" class="btn-primary">Enregistrer</button>
-        <button id="btn-event-cancel" class="btn-secondary">Annuler</button>
+        <button id="btn-event-save" style="background:#2d6a4f;color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
+        <button id="btn-event-cancel" style="background:none;border:1px solid rgba(6,23,45,0.2);color:#6B7280;padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;">Annuler</button>
       </div>
     </div>
   </div>
