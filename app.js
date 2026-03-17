@@ -1157,7 +1157,7 @@ window._ouvrirModePresentation = function() {
 
   const enTeteHtml =
     '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:12px;text-align:center;">' +
-      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Préparer ma consultation</p>' +
+      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Montrer au médecin</p>' +
       '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
       (patientLine ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientLine + '</p>' : '') +
       (noteConsultation ? '<p style="margin:8px 0 0;font-size:13px;color:#cde0d8;font-style:italic;">' + noteConsultation.replace(/\n/g, ' ') + '</p>' : '') +
@@ -1261,7 +1261,7 @@ window._ouvrirModePresentation = function() {
   const syntheseHtml =
     '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
       '<p style="' + SECTION_TITLE + 'color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">' +
+      '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
         syntheseGrid +
       '</div>' +
     '</div>';
@@ -1585,6 +1585,25 @@ window._ouvrirModePresentation = function() {
     problemePrincipalHtml +
     syntheseHtml +
     graphique30jHtml +
+    (() => {
+      const stab = computeStabilityScore();
+      if (stab === null) return '';
+      const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
+      const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
+      let stabPhrase;
+      if (stab.trend === 'amelioration') {
+        stabPhrase = `Variabilité en baisse de ${stabPct}% sur les 15 derniers jours.`;
+      } else if (stab.trend === 'stable') {
+        stabPhrase = `Variabilité stable sur les 15 derniers jours.`;
+      } else {
+        stabPhrase = `Variabilité en hausse de ${stabPct}% sur les 15 derniers jours.`;
+      }
+      return '<div style="' + SECTION_STYLE + 'background:#fff;border:1px solid #e5e7eb;">' +
+        '<p style="' + SECTION_TITLE + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
+        '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
+        '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">Écart-type 30j : ' + stab.stdDev30.toFixed(1) + ' pts</p>' +
+        '</div>';
+    })() +
     calendrier14jHtml +
     sommeilHtml +
     donneesObjectivesHtml +
