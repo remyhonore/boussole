@@ -788,21 +788,7 @@ function refreshSummary() {
   html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
 
   // 5. Score de stabilité 30j
-  const stability = computeStabilityScore();
-  if (stability !== null) {
-    let trendMsg;
-    if (stability.trend === 'amelioration') {
-      trendMsg = '🟢 Ta régularité s\'améliore — moins de variations ces 15 derniers jours.';
-    } else if (stability.trend === 'stable') {
-      trendMsg = '🟡 Ta régularité est stable ces 15 derniers jours.';
-    } else {
-      trendMsg = '🔴 Tes variations augmentent — surveille les fluctuations.';
-    }
-    html += '<div class="card">';
-    html += '<h2 class="summary-section">STABILITÉ</h2>';
-    html += '<p style="margin:8px 0;font-size:15px;">' + trendMsg + '</p>';
-    html += '</div>';
-  }
+  html += buildBlocStabilite('resume');
 
   // 5. Calendrier 14j (résumé 30 jours)
   html += `<div class="card">`;
@@ -1308,6 +1294,41 @@ function computeStabilityScore() {
   return { stdDev30, stdDevFirst, stdDevSecond, count, trend };
 }
 window.computeStabilityScore = computeStabilityScore;
+
+/**
+ * Génère le bloc HTML de score de stabilité (partagé Résumé + Montrer au médecin).
+ * @param {'resume'|'medecin'} mode
+ */
+function buildBlocStabilite(mode) {
+  const stab = computeStabilityScore();
+  if (stab === null) return '';
+  const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
+  const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
+  let stabPhrase;
+  if (stab.trend === 'amelioration') {
+    stabPhrase = 'Variabilité en baisse de ' + stabPct + '% sur les 15 derniers jours.';
+  } else if (stab.trend === 'stable') {
+    stabPhrase = 'Variabilité stable sur les 15 derniers jours.';
+  } else {
+    stabPhrase = 'Variabilité en hausse de ' + stabPct + '% sur les 15 derniers jours.';
+  }
+  const ecartType = 'Écart-type 30j\u00a0: ' + stab.stdDev30.toFixed(1) + ' pts';
+  if (mode === 'resume') {
+    return '<div class="card">' +
+      '<h2 class="summary-section">SCORE DE STABILITÉ — 30 JOURS</h2>' +
+      '<p style="margin:8px 0;font-size:15px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
+      '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
+      '</div>';
+  }
+  // mode === 'medecin'
+  const SS = 'border-radius:10px;padding:14px;margin-bottom:12px;';
+  const ST = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
+  return '<div style="' + SS + 'background:#fff;border:1px solid #e5e7eb;">' +
+    '<p style="' + ST + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
+    '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
+    '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
+    '</div>';
+}
 
 function showStatus(message, type = 'info') {
   const statusEl = document.getElementById('status-message');
@@ -1936,25 +1957,7 @@ window._ouvrirModePresentation = function() {
     problemePrincipalHtml +
     syntheseHtml +
     graphique30jHtml +
-    (() => {
-      const stab = computeStabilityScore();
-      if (stab === null) return '';
-      const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
-      const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
-      let stabPhrase;
-      if (stab.trend === 'amelioration') {
-        stabPhrase = `Variabilité en baisse de ${stabPct}% sur les 15 derniers jours.`;
-      } else if (stab.trend === 'stable') {
-        stabPhrase = `Variabilité stable sur les 15 derniers jours.`;
-      } else {
-        stabPhrase = `Variabilité en hausse de ${stabPct}% sur les 15 derniers jours.`;
-      }
-      return '<div style="' + SECTION_STYLE + 'background:#fff;border:1px solid #e5e7eb;">' +
-        '<p style="' + SECTION_TITLE + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
-        '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
-        '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">Écart-type 30j : ' + stab.stdDev30.toFixed(1) + ' pts</p>' +
-        '</div>';
-    })() +
+    buildBlocStabilite('medecin') +
     calendrier14jHtml +
     sommeilHtml +
     donneesObjectivesHtml +
