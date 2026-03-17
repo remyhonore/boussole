@@ -466,7 +466,7 @@
         <div style="margin-top: 10px;">
           <button
             id="btn-dashboard-visuel"
-            onclick="openDashboardVisuel()"
+            onclick="_ouvrirDashboardVisuel()"
             class="btn btn-secondary"
             style="width: 100%;"
             aria-label="Ouvrir le dashboard visuel de santé"
@@ -696,7 +696,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.32 — </span>
+    <span>Boussole v8.33 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1001,7 +1001,7 @@
         window._partagerResume();
       }
     }
-    function openDashboardVisuel() {
+    function _ouvrirDashboardVisuel() {
       if (typeof window.openDashboardVisuel === 'function') {
         window.openDashboardVisuel();
       }
