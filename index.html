@@ -53,6 +53,23 @@
     .cal-dot-orange { background: #D97706; }
     .cal-dot-rouge  { background: #DC2626; }
     .cal-dot-vide   { background: #D1D5DB; }
+
+    @media print {
+      .header, .nav, #banner-install, #btn-fermer-dashboard, #btn-imprimer-dashboard,
+      .skip-link, .app-footer, #status-message, .panel, #mode-presentation,
+      #consultation-modal, #modal-post-consultation, #pdf-modal, #changelog-modal,
+      .container > .nav, .container > .header { display: none !important; }
+      #overlay-dashboard-visuel {
+        position: static !important;
+        overflow: visible !important;
+        display: block !important;
+        background: #F8F6F0 !important;
+      }
+      .dashboard-section {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
   </style>
 
   <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
@@ -445,6 +462,19 @@
           </button>
         </div>
 
+        <!-- Dashboard visuel -->
+        <div style="margin-top: 10px;">
+          <button
+            id="btn-dashboard-visuel"
+            onclick="openDashboardVisuel()"
+            class="btn btn-secondary"
+            style="width: 100%;"
+            aria-label="Ouvrir le dashboard visuel de santé"
+          >
+            &#x1F4CA; Dashboard visuel
+          </button>
+        </div>
+
         <!-- 3. Action post-consultation -->
         <div style="margin-top: 10px;">
           <button
@@ -653,9 +683,20 @@
     <div id="mode-presentation-content"></div>
   </div>
 
+  <!-- Overlay Dashboard Visuel -->
+  <div id="overlay-dashboard-visuel" style="display:none;position:fixed;inset:0;background:#F8F6F0;z-index:9999;overflow-y:auto;">
+    <button
+      id="btn-fermer-dashboard"
+      onclick="window._fermerDashboardVisuel()"
+      style="position:fixed;top:16px;right:16px;background:#06172D;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;z-index:10000;display:flex;align-items:center;justify-content:center;line-height:1;"
+      aria-label="Fermer le dashboard visuel"
+    >&#x2715;</button>
+    <div id="overlay-dashboard-visuel-content" style="padding:24px 20px 40px;max-width:700px;margin:0 auto;"></div>
+  </div>
+
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.31 — </span>
+    <span>Boussole v8.32 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -958,6 +999,11 @@
     function partagerResume() {
       if (typeof window._partagerResume === 'function') {
         window._partagerResume();
+      }
+    }
+    function openDashboardVisuel() {
+      if (typeof window.openDashboardVisuel === 'function') {
+        window.openDashboardVisuel();
       }
     }
     // ---- Champs identité Paramètres ----
