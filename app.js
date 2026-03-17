@@ -1160,7 +1160,6 @@ window._ouvrirModePresentation = function() {
       '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Montrer au médecin</p>' +
       '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
       (patientLine ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientLine + '</p>' : '') +
-      (noteConsultation ? '<p style="margin:8px 0 0;font-size:13px;color:#cde0d8;font-style:italic;">' + noteConsultation.replace(/\n/g, ' ') + '</p>' : '') +
     '</div>';
 
   // ============================================================
@@ -1514,12 +1513,22 @@ window._ouvrirModePresentation = function() {
     '</div>';
 
   // MOTIF DE CONSULTATION (bloc 2)
-  const motifHtml = noteConsultation
-    ? '<div style="' + SECTION_STYLE + 'background:#fffbf0;border:1.5px solid #d4a017;">' +
-        '<p style="' + SECTION_TITLE + 'color:#d4a017;">Motif de consultation</p>' +
-        '<div style="font-size:15px;font-weight:600;color:#06172D;">' + noteConsultation.replace(/\n/g, '<br>') + '</div>' +
-      '</div>'
-    : '';
+  let motifHtml;
+  if (noteConsultation) {
+    const parts = noteConsultation.split(' — ');
+    const cochees = parts[0] ? parts[0].split(' · ').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+    const texteLibre = parts[1] ? parts[1].trim() : '';
+    const allItems = cochees.concat(texteLibre ? [texteLibre] : []);
+    const listHtml = allItems.map(function(item) {
+      return '<div style="font-size:14px;color:#06172D;padding:3px 0;">• ' + item + '</div>';
+    }).join('');
+    motifHtml = '<div style="' + SECTION_STYLE + 'background:#fffbf0;border:1.5px solid #d4a017;">' +
+      '<p style="' + SECTION_TITLE + 'color:#d4a017;">Motif de consultation</p>' +
+      listHtml +
+      '</div>';
+  } else {
+    motifHtml = '';
+  }
 
   // CALENDRIER 14 JOURS (bloc 7)
   const today14mp = new Date(); today14mp.setHours(0, 0, 0, 0);
