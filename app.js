@@ -739,13 +739,124 @@ function _renderHistoriqueTab(content) {
 function refreshSummary() {
   const data = loadEntries();
   const summary = calculateSummary(data.entries, 30);
-  
+
   const container = document.getElementById('summary-content');
   if (!container) return;
-  
+
+  // === Calcul métriques 7j (partagé avec mode médecin) ===
+  const rawEntries7j = (data.entries || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
+  const today7j = getTodayDate();
+  const cutoff7j = new Date(today7j + 'T12:00:00');
+  cutoff7j.setDate(cutoff7j.getDate() - 6);
+  const cutoff7jStr = cutoff7j.toISOString().split('T')[0];
+  const recent7j = rawEntries7j.filter(e => e.date >= cutoff7jStr);
+
+  const dataEnergie7j = recent7j.map(e => e.energie);
+  const dataSommeil7j = recent7j.map(e => e.qualite_sommeil);
+  const dataConfort7j = recent7j.map(e => e.douleurs);
+  const dataClarte7j  = recent7j.map(e => e.clarte_mentale);
+
+  const metriques7j = [
+    { label: 'Énergie',          emoji: '💪', moy: _avgVals(dataEnergie7j), vals: dataEnergie7j },
+    { label: 'Sommeil',          emoji: '🌙', moy: _avgVals(dataSommeil7j), vals: dataSommeil7j },
+    { label: 'Confort physique', emoji: '❤️', moy: _avgVals(dataConfort7j), vals: dataConfort7j },
+    { label: 'Clarté mentale',   emoji: '🧠', moy: _avgVals(dataClarte7j),  vals: dataClarte7j  }
+  ].map(m => Object.assign({}, m, {
+    tendance: _tendance7j(m.vals),
+    joursBas: _joursBasCount(m.vals),
+    nbJours:  m.vals.filter(x => x !== null && x !== undefined).length
+  }));
+
+  const mSorted7j = metriques7j.filter(m => m.moy !== null).slice().sort((a, b) => a.moy - b.moy);
+  const pointAttention7j = mSorted7j.length > 0 && mSorted7j[0].moy < 7 ? mSorted7j[0] : null;
+
+  const noteConsultation7j = localStorage.getItem('boussole_note_consultation') || '';
+  const noteLC7j = noteConsultation7j.toLowerCase();
+
   let html = '';
 
-  // 1. Tendances
+  // 1. Synthèse fonctionnelle 7j
+  html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
+
+  // 2. Graphique évolution 30j
+  html += '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
+    '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Évolution 30 jours</p>' +
+    '<canvas id="resume-chart-30j" height="180"></canvas>' +
+  '</div>';
+
+  // 3. Problème principal
+  html += buildProblemePrincipal(pointAttention7j, metriques7j);
+
+  // 4. Score de stabilité 30j
+  const stability = computeStabilityScore();
+  if (stability !== null) {
+    const trendIcon = stability.trend === 'amelioration' ? '🟢' : stability.trend === 'stable' ? '🟡' : '🔴';
+    const pct = Math.round(Math.abs(1 - stability.stdDevSecond / (stability.stdDevFirst || 1)) * 100);
+    let trendPhrase;
+    if (stability.trend === 'amelioration') {
+      trendPhrase = `Ta variabilité a diminué de ${pct}% sur les 15 derniers jours.`;
+    } else if (stability.trend === 'stable') {
+      trendPhrase = `Ta variabilité est stable sur les 15 derniers jours.`;
+    } else {
+      trendPhrase = `Ta variabilité a augmenté de ${pct}% sur les 15 derniers jours.`;
+    }
+    html += `<div class="card">`;
+    html += `<h2 class="summary-section">STABILITÉ</h2>`;
+    html += `<p style="margin:8px 0 4px;font-size:15px;">${trendIcon} ${trendPhrase}</p>`;
+    html += `<p style="font-size:12px;color:var(--color-text-muted);">Écart-type 30j : ${stability.stdDev30.toFixed(1)} pts</p>`;
+    html += `</div>`;
+  }
+
+  // 5. Calendrier 14j (résumé 30 jours)
+  html += `<div class="card">`;
+  html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
+  html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
+  if (summary.lastDate) {
+    html += ` · Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong>`;
+  }
+  html += `</p>`;
+  if (typeof getDayType === 'function') {
+    const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+    const today14 = new Date();
+    let calCells = '';
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today14);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const entry = data.entries.find(e => e.date === dateStr);
+      const dt = entry ? getDayType(entry) : null;
+      const dotClass = dt ? 'cal-dot cal-dot-' + dt.type : 'cal-dot cal-dot-vide';
+      calCells += `<div class="cal-cell">
+        <span class="cal-day-label">${DAY_LABELS[d.getDay()]}</span>
+        <div class="${dotClass}"></div>
+        <span class="cal-day-num">${d.getDate()}</span>
+      </div>`;
+    }
+    html += `<p style="font-size:11px;color:#6b7280;margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
+    html += `<div class="cal-grid">${calCells}</div>`;
+  }
+  if (summary.joursRenseignes < 5) {
+    html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
+  }
+  html += `</div>`;
+
+  // 6. Détail sommeil déclaratif (conditionnel)
+  html += buildDetailSommeil(dataSommeil7j, _avgVals(dataSommeil7j), noteLC7j, pointAttention7j);
+
+  // 7. Type de journées
+  const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
+  if (dist && dist.total > 0) {
+    html += `<div class="card">`;
+    html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
+    html += `<ul class="summary-list">`;
+    html += `<li>🟢 Hauts (score >= 7) : <strong>${dist.vert} jour${dist.vert > 1 ? 's' : ''}</strong></li>`;
+    html += `<li>🟠 Moyens (score 4-6) : <strong>${dist.orange} jour${dist.orange > 1 ? 's' : ''}</strong></li>`;
+    html += `<li>🔴 Bas (score < 4) : <strong>${dist.rouge} jour${dist.rouge > 1 ? 's' : ''}</strong></li>`;
+    html += `</ul>`;
+    html += `</div>`;
+  }
+
+  // 8. Tendances
   html += `<div class="card">`;
   html += `<h2 class="summary-section">TENDANCES</h2>`;
   
@@ -793,73 +904,7 @@ function refreshSummary() {
 
   html += `</div>`;
 
-  // 2. Résumé 30 jours
-  html += `<div class="card">`;
-  html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
-  html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
-  if (summary.lastDate) {
-    html += ` · Dernière saisie : <strong>${formatDateFr(summary.lastDate)}</strong>`;
-  }
-  html += `</p>`;
-  if (typeof getDayType === 'function') {
-    const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-    const today14 = new Date();
-    let calCells = '';
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(today14);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const entry = data.entries.find(e => e.date === dateStr);
-      const dt = entry ? getDayType(entry) : null;
-      const dotClass = dt ? 'cal-dot cal-dot-' + dt.type : 'cal-dot cal-dot-vide';
-      calCells += `<div class="cal-cell">
-        <span class="cal-day-label">${DAY_LABELS[d.getDay()]}</span>
-        <div class="${dotClass}"></div>
-        <span class="cal-day-num">${d.getDate()}</span>
-      </div>`;
-    }
-    html += `<p style="font-size:11px;color:#6b7280;margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
-    html += `<div class="cal-grid">${calCells}</div>`;
-  }
-  if (summary.joursRenseignes < 5) {
-    html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
-  }
-  html += `</div>`;
-
-  // 2b. Type de journées
-  const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
-  if (dist && dist.total > 0) {
-    html += `<div class="card">`;
-    html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
-    html += `<ul class="summary-list">`;
-    html += `<li>🟢 Hauts (score >= 7) : <strong>${dist.vert} jour${dist.vert > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🟠 Moyens (score 4-6) : <strong>${dist.orange} jour${dist.orange > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🔴 Bas (score < 4) : <strong>${dist.rouge} jour${dist.rouge > 1 ? 's' : ''}</strong></li>`;
-    html += `</ul>`;
-    html += `</div>`;
-  }
-
-  // 2c. Stabilité 30j
-  const stability = computeStabilityScore();
-  if (stability !== null) {
-    const trendIcon = stability.trend === 'amelioration' ? '🟢' : stability.trend === 'stable' ? '🟡' : '🔴';
-    const pct = Math.round(Math.abs(1 - stability.stdDevSecond / (stability.stdDevFirst || 1)) * 100);
-    let trendPhrase;
-    if (stability.trend === 'amelioration') {
-      trendPhrase = `Ta variabilité a diminué de ${pct}% sur les 15 derniers jours.`;
-    } else if (stability.trend === 'stable') {
-      trendPhrase = `Ta variabilité est stable sur les 15 derniers jours.`;
-    } else {
-      trendPhrase = `Ta variabilité a augmenté de ${pct}% sur les 15 derniers jours.`;
-    }
-    html += `<div class="card">`;
-    html += `<h2 class="summary-section">STABILITÉ</h2>`;
-    html += `<p style="margin:8px 0 4px;font-size:15px;">${trendIcon} ${trendPhrase}</p>`;
-    html += `<p style="font-size:12px;color:var(--color-text-muted);">Écart-type 30j : ${stability.stdDev30.toFixed(1)} pts</p>`;
-    html += `</div>`;
-  }
-
-  // 3. Variations
+  // Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
     html += `<h2 class="summary-section">VARIATIONS IMPORTANTES</h2>`;
@@ -1045,6 +1090,48 @@ function refreshSummary() {
   html += `</div>`;
   
   container.innerHTML = html;
+
+  // Chart.js — graphique 30j dans le résumé
+  setTimeout(function() {
+    if (window._resumeChart) { window._resumeChart.destroy(); window._resumeChart = null; }
+    const canvas = document.getElementById('resume-chart-30j');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const entryMapChart = {};
+    data.entries.forEach(function(e) { entryMapChart[e.date] = e; });
+    const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
+    const chartLabels = [], cEnergie = [], cSommeil = [], cConfort = [], cClarte = [];
+    for (let i = 29; i >= 0; i--) {
+      const cd = new Date(todayD);
+      cd.setDate(cd.getDate() - i);
+      const ds = localDateStr(cd);
+      chartLabels.push(String(cd.getDate()) + '/' + String(cd.getMonth() + 1).padStart(2, '0'));
+      const e = entryMapChart[ds];
+      cEnergie.push(e ? e.energie        : null);
+      cSommeil.push(e ? e.qualite_sommeil : null);
+      cConfort.push(e ? e.douleurs        : null);
+      cClarte.push( e ? e.clarte_mentale  : null);
+    }
+    window._resumeChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [
+          { label: 'Énergie',          data: cEnergie, borderColor: '#2d9e6e', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+          { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+          { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+          { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+        scales: {
+          x: { ticks: { font: { size: 9 }, maxRotation: 45 } },
+          y: { min: 0, max: 10, ticks: { stepSize: 2 } }
+        }
+      }
+    });
+  }, 300);
 }
 
 /**
@@ -1271,6 +1358,137 @@ function loadDebugDataset() {
   showStatus('Dataset de référence chargé ✓ (7 entrées)', 'success');
 }
 
+// ============================================================
+// === Helpers partagés (mode médecin + résumé) ===
+// ============================================================
+function _avgVals(arr) {
+  const vals = arr.filter(v => v !== null && v !== undefined);
+  return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
+function _tendance7j(vals) {
+  const v = vals.filter(x => x !== null && x !== undefined);
+  if (v.length < 5) return 'stable';
+  const d = v.slice(0, 3), f = v.slice(-3);
+  const delta = _avgVals(f) - _avgVals(d);
+  if (delta > 0.5)  return 'hausse';
+  if (delta < -0.5) return 'baisse';
+  return 'stable';
+}
+function _joursBasCount(vals) {
+  return vals.filter(x => x !== null && x !== undefined && x < 5).length;
+}
+function _impactLabel(moy) {
+  if (moy === null) return { txt: '—', color: '#999' };
+  if (moy < 4) return { txt: 'Altéré', color: '#dc2626' };
+  if (moy < 7) return { txt: 'Modéré', color: '#d97706' };
+  return { txt: 'Correct', color: '#2d9e6e' };
+}
+function _tendanceHtml(t) {
+  if (t === 'hausse') return '<span style="color:#2d9e6e;">↑ Hausse</span>';
+  if (t === 'baisse') return '<span style="color:#dc2626;">↓ Baisse</span>';
+  return '<span style="color:#999;">→ Stable</span>';
+}
+
+function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
+  const grid = metriques.map(m => {
+    const impact = _impactLabel(m.moy);
+    const tend   = _tendanceHtml(m.tendance);
+    const isProb = !!(pointAttention && m.label === pointAttention.label);
+    return (
+      '<div style="background:' + (isProb ? '#FEF2F2' : '#F8F9FA') + ';border-radius:12px;padding:10px;text-align:center;border:' +
+        (isProb ? '1.5px solid #fca5a5' : '1px solid #e5e7eb') + ';">' +
+        '<div style="font-size:18px;">' + m.emoji + '</div>' +
+        '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' +
+          (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
+        '<div style="font-size:10px;color:#999;margin-top:2px;">' + tend + '</div>' +
+        '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
+        '<div style="font-size:10px;color:#aaa;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
+      '</div>'
+    );
+  }).join('');
+  return (
+    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
+      '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
+      '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
+    '</div>'
+  );
+}
+
+function buildProblemePrincipal(pointAttention, metriques) {
+  if (!pointAttention) return '';
+  const titreMap = {
+    'Énergie':          'Fatigue persistante',
+    'Sommeil':          'Sommeil insuffisant',
+    'Confort physique': 'Gêne physique persistante',
+    'Clarté mentale':   'Brouillard mental persistant'
+  };
+  const titreBloc = titreMap[pointAttention.label] || (pointAttention.label + ' altéré');
+  const autresM = metriques.filter(m => m.label !== pointAttention.label && m.moy !== null);
+  const retentParts = autresM.map(m => {
+    const q = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'modérément altérée' : 'altérée');
+    const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
+    return lbl + ' ' + m.moy.toFixed(1) + '/10 ' + q;
+  });
+  const attColor = pointAttention.moy < 4 ? '#dc2626' : '#d97706';
+  return (
+    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#FEE2E2;border-left:4px solid #dc2626;">' +
+      '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#d97706;">PROBLÈME PRINCIPAL</p>' +
+      '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Moyenne 7j</div>' +
+          '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.moy.toFixed(1) + '</div>' +
+          '<div style="font-size:11px;color:#999;">/10</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours bas</div>' +
+          '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.joursBas + '</div>' +
+          '<div style="font-size:11px;color:#999;">/7</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Retentissement</div>' +
+          retentParts.map(p => '<div style="font-size:11px;color:#06172D;padding:1px 0;">' + p + '</div>').join('') +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function buildDetailSommeil(dataSommeil, avgSommeil, noteLC, pointAttention) {
+  const trigger = noteLC.indexOf('sommeil') !== -1
+    || noteLC.indexOf('quviviq') !== -1
+    || noteLC.indexOf('hypnotique') !== -1
+    || noteLC.indexOf('insomnie') !== -1
+    || (pointAttention !== null && pointAttention !== undefined && pointAttention.label === 'Sommeil');
+  if (!trigger) return '';
+  const somMoyStr   = avgSommeil !== null ? avgSommeil.toFixed(1) + '/10' : 'n/a';
+  const somJoursStr = _joursBasCount(dataSommeil) + '/7';
+  let plainteTxt = 'insomnie de maintien';
+  if (noteLC.indexOf('endormissement') !== -1)                                 plainteTxt = "insomnie d'endormissement";
+  else if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'réveils nocturnes';
+  else if (avgSommeil !== null && avgSommeil < 5)                              plainteTxt = 'insomnie de maintien';
+  return (
+    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#EFF6FF;border:1.5px solid #3B82F6;">' +
+      '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
+        '<div style="text-align:center;min-width:70px;">' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Score moyen</div>' +
+          '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somMoyStr + '</div>' +
+        '</div>' +
+        '<div style="text-align:center;min-width:70px;">' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
+          '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somJoursStr + '</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:120px;">' +
+          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Plainte principale</div>' +
+          '<div style="font-size:13px;color:#06172D;font-style:italic;">' + plainteTxt + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
 /**
  * === MODE PRÉSENTATION MÉDECIN ===
  */
@@ -1285,35 +1503,12 @@ window._ouvrirModePresentation = function() {
   const cutoffStr = cutoff.toISOString().split('T')[0];
   const recentEntries = rawEntries.filter(e => e.date >= cutoffStr);
 
-  // Helpers calcul
-  function avg(arr) {
-    const vals = arr.filter(v => v !== null && v !== undefined);
-    return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-  }
-  function tendance7j(vals) {
-    const v = vals.filter(x => x !== null && x !== undefined);
-    if (v.length < 5) return 'stable';
-    const debut = v.slice(0, 3);
-    const fin   = v.slice(-3);
-    const delta = avg(fin) - avg(debut);
-    if (delta > 0.5)  return 'hausse';
-    if (delta < -0.5) return 'baisse';
-    return 'stable';
-  }
-  function joursBasCount(vals) {
-    return vals.filter(x => x !== null && x !== undefined && x < 5).length;
-  }
-  function impactLabel(moy) {
-    if (moy === null) return { txt: '—', color: '#999' };
-    if (moy < 4) return { txt: 'Altéré', color: '#dc2626' };
-    if (moy < 7) return { txt: 'Modéré', color: '#d97706' };
-    return { txt: 'Correct', color: '#2d9e6e' };
-  }
-  function tendanceHtml(t) {
-    if (t === 'hausse') return '<span style="color:#2d9e6e;">↑ Hausse</span>';
-    if (t === 'baisse') return '<span style="color:#dc2626;">↓ Baisse</span>';
-    return '<span style="color:#999;">→ Stable</span>';
-  }
+  // Helpers calcul (définis au niveau module, aliasés ici pour clarté)
+  const avg = _avgVals;
+  const tendance7j = _tendance7j;
+  const joursBasCount = _joursBasCount;
+  const impactLabel = _impactLabel;
+  const tendanceHtml = _tendanceHtml;
 
   // Métriques 7j
   const dataEnergie = recentEntries.map(e => e.energie);
@@ -1409,116 +1604,19 @@ window._ouvrirModePresentation = function() {
     '</div>';
 
   // ============================================================
-  // 3. PROBLÈME PRINCIPAL — fond #FEE2E2, bordure #dc2626
+  // 3. PROBLÈME PRINCIPAL
   // ============================================================
-  let problemePrincipalHtml = '';
-  if (pointAttention !== null) {
-    const titreMap = {
-      'Énergie':          'Fatigue persistante',
-      'Sommeil':          'Sommeil insuffisant malgré traitement',
-      'Confort physique': 'Gêne physique persistante',
-      'Clarté mentale':   'Brouillard mental persistant'
-    };
-    const titreBloc = titreMap[pointAttention.label] || (pointAttention.label + ' altéré');
-    const autresM = metriques.filter(m => m.label !== pointAttention.label && m.moy !== null);
-    const retentParts = autresM.map(m => {
-      const q = m.moy >= 7 ? 'correcte' : (m.moy >= 4 ? 'modérément altérée' : 'altérée');
-      const lbl = m.label === 'Confort physique' ? 'Confort' : m.label;
-      return lbl + ' ' + m.moy.toFixed(1) + '/10 ' + q;
-    });
-    const attColor = pointAttention.moy < 4 ? '#dc2626' : '#d97706';
-    problemePrincipalHtml =
-      '<div style="' + SECTION_STYLE + 'background:#FEE2E2;border:1.5px solid #dc2626;">' +
-        '<p style="' + SECTION_TITLE + 'color:#dc2626;">Problème principal</p>' +
-        '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
-          '<div style="text-align:center;">' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Moyenne 7j</div>' +
-            '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.moy.toFixed(1) + '</div>' +
-            '<div style="font-size:11px;color:#999;">/10</div>' +
-          '</div>' +
-          '<div style="text-align:center;">' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
-            '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.joursBas + '</div>' +
-            '<div style="font-size:11px;color:#999;">/7</div>' +
-          '</div>' +
-          '<div>' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Retentissement</div>' +
-            retentParts.map(p => '<div style="font-size:11px;color:#06172D;padding:1px 0;">' + p + '</div>').join('') +
-          '</div>' +
-        '</div>' +
-      '</div>';
-  }
+  const problemePrincipalHtml = buildProblemePrincipal(pointAttention, metriques);
 
   // ============================================================
-  // 4. SYNTHÈSE FONCTIONNELLE — grille 4 colonnes
+  // 4. SYNTHÈSE FONCTIONNELLE
   // ============================================================
-  const metricColors = {
-    'Énergie': '#f59e0b', 'Sommeil': '#3b82f6',
-    'Confort physique': '#ef4444', 'Clarté mentale': '#8b5cf6'
-  };
-
-  const syntheseGrid = metriques.map(m => {
-    const impact = impactLabel(m.moy);
-    const tend   = tendanceHtml(m.tendance);
-    const isProb = !!(pointAttention && m.label === pointAttention.label);
-    return (
-      '<div style="background:' + (isProb ? '#FEF2F2' : '#F8F9FA') + ';border-radius:8px;padding:10px;text-align:center;border:' + (isProb ? '1.5px solid #fca5a5' : '1px solid #e5e7eb') + ';">' +
-        '<div style="font-size:18px;">' + m.emoji + '</div>' +
-        '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
-        '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' + (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
-        '<div style="font-size:10px;color:#999;margin-top:2px;">' + tend + '</div>' +
-        '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
-        '<div style="font-size:10px;color:#aaa;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
-      '</div>'
-    );
-  }).join('');
-
-  const syntheseHtml =
-    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
-      '<p style="' + SECTION_TITLE + 'color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
-      '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
-        syntheseGrid +
-      '</div>' +
-    '</div>';
+  const syntheseHtml = buildSyntheseFonctionnelle7j(metriques, pointAttention);
 
   // ============================================================
-  // 5. BLOC SOMMEIL (conditionnel) — fond #EFF6FF, bordure #3B82F6
+  // 5. BLOC SOMMEIL (conditionnel)
   // ============================================================
-  const triggerSommeil = noteLC.indexOf('sommeil') !== -1
-    || noteLC.indexOf('quviviq') !== -1
-    || noteLC.indexOf('hypnotique') !== -1
-    || noteLC.indexOf('insomnie') !== -1
-    || (pointAttention !== null && pointAttention.label === 'Sommeil');
-
-  let sommeilHtml = '';
-  if (triggerSommeil) {
-    const somMoyStr   = avgSommeil !== null ? avgSommeil.toFixed(1) + '/10' : 'n/a';
-    const somJoursStr = joursBasCount(dataSommeil) + '/7';
-    let plainteTxt = 'insomnie de maintien';
-    if (noteLC.indexOf('endormissement') !== -1)                                 plainteTxt = "insomnie d'endormissement";
-    else if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'réveils nocturnes';
-    else if (avgSommeil !== null && avgSommeil < 5)                              plainteTxt = 'insomnie de maintien';
-
-    sommeilHtml =
-      '<div style="' + SECTION_STYLE + 'background:#EFF6FF;border:1.5px solid #3B82F6;">' +
-        '<p style="' + SECTION_TITLE + 'color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
-        '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
-          '<div style="text-align:center;min-width:70px;">' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Score moyen</div>' +
-            '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somMoyStr + '</div>' +
-          '</div>' +
-          '<div style="text-align:center;min-width:70px;">' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
-            '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somJoursStr + '</div>' +
-          '</div>' +
-          '<div style="flex:1;min-width:120px;">' +
-            '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Plainte principale</div>' +
-            '<div style="font-size:13px;color:#06172D;font-style:italic;">' + plainteTxt + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-  }
+  const sommeilHtml = buildDetailSommeil(dataSommeil, avgSommeil, noteLC, pointAttention);
 
   // ============================================================
   // 6. DONNÉES OBJECTIVES (conditionnel — si >= 3 mesures)
