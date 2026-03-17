@@ -57,7 +57,7 @@
     @media print {
       .header, .nav, #banner-install, #btn-fermer-dashboard, #btn-imprimer-dashboard,
       .skip-link, .app-footer, #status-message, .panel,
-      #consultation-modal, #modal-post-consultation, #modal-event, #pdf-modal, #changelog-modal,
+      #consultation-modal, #modal-post-consultation, #modal-event, #modal-essai, #pdf-modal, #changelog-modal,
       .container > .nav, .container > .header { display: none !important; }
       #overlay-dashboard-visuel {
         position: static !important;
@@ -514,6 +514,14 @@
 
       <div id="events-summary-container"></div>
 
+      <div class="card" id="card-essais">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="card-title">🧪 Mes essais</span>
+          <button id="btn-add-essai" class="btn-outline-sage" style="font-size:13px; padding:4px 12px; width:auto; display:inline-block;">+ Ajouter</button>
+        </div>
+        <div id="essais-list"><!-- rendu JS --></div>
+      </div>
+
     </div>
 
     <!-- Panel Paramètres (ADR-2026-025) -->
@@ -694,7 +702,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.51 — </span>
+    <span>Boussole v8.52 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -704,10 +712,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.30</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.52</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.52</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Feature M : Journal essais/intolérances (suivi des essais thérapeutiques)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.30</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Import/Export données JSON (sauvegarde et restauration)</li>
@@ -1002,6 +1015,88 @@
       <div class="modal-actions">
         <button id="btn-event-save" style="background:#2d6a4f;color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
         <button id="btn-event-cancel" style="background:none;border:1px solid rgba(6,23,45,0.2);color:#6B7280;padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Essai (Feature M) -->
+  <div id="modal-essai" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="essai-modal-title">
+    <div class="modal-card" style="width:min(480px,94vw);max-height:90vh;overflow-y:auto;">
+      <h3 id="essai-modal-title">Nouvel essai</h3>
+
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Nom <span style="color:#dc2626;">*</span></label>
+        <input id="essai-nom" type="text" maxlength="100" placeholder="Ex: Magnésium bisglycinate"
+          style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Type</label>
+          <select id="essai-type" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+            <option value="">—</option>
+            <option value="Médicament">Médicament</option>
+            <option value="Complément">Complément</option>
+            <option value="Stratégie">Stratégie</option>
+            <option value="Activité">Activité</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Date de début</label>
+          <input id="essai-date" type="date"
+            style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Objectif</label>
+        <textarea id="essai-objectif" maxlength="100" rows="2" placeholder="Ce que j'espérais obtenir"
+          style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet initial</label>
+          <select id="essai-effet" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+            <option value="">—</option>
+            <option value="Positif">Positif</option>
+            <option value="Neutre">Neutre</option>
+            <option value="Négatif">Négatif</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Aggravation secondaire</label>
+          <select id="essai-aggravation" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+            <option value="Non">Non</option>
+            <option value="Oui">Oui</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet paradoxal</label>
+          <select id="essai-paradoxal" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+            <option value="Non">Non</option>
+            <option value="Oui">Oui</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Arrêt</label>
+          <select id="essai-arret" onchange="document.getElementById('essai-raison-arret-wrap').style.display=this.value==='Oui'?'block':'none'"
+            style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+            <option value="Non">Non</option>
+            <option value="Oui">Oui</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="essai-raison-arret-wrap" style="display:none;">
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Raison d'arrêt</label>
+        <textarea id="essai-raison-arret" maxlength="100" rows="2" placeholder="Pourquoi cet arrêt ?"
+          style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button onclick="saveModalEssai()" style="background:#2d6a4f;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
+        <button onclick="closeModalEssai()" style="background:none;border:1px solid rgba(6,23,45,0.2);color:#6B7280;padding:10px 16px;border-radius:8px;font-size:14px;cursor:pointer;">Annuler</button>
       </div>
     </div>
   </div>

@@ -685,6 +685,7 @@ function initSummaryPanel() {
       showPDFPreview();
     }
   });
+  document.getElementById('btn-add-essai')?.addEventListener('click', () => openModalEssai());
 }
 
 function refreshSummary() {
@@ -998,6 +999,7 @@ function refreshSummary() {
   container.innerHTML = html;
   refreshPostConsultationIndicator();
   renderEventsSummary();
+  renderEssaisList();
 }
 
 /**
@@ -1758,6 +1760,42 @@ window._ouvrirModePresentation = function() {
     (navigator.share || navigator.clipboard ? '<button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button>' : '') +
     '</div>';
 
+  // ============================================================
+  // 10. ESSAIS RÉCENTS (90 jours)
+  // ============================================================
+  let essaisRecentsHtml = '';
+  const allEssaisMP = loadEssais();
+  const cutoff90MP = new Date();
+  cutoff90MP.setDate(cutoff90MP.getDate() - 90);
+  const cutoff90Str = cutoff90MP.toISOString().split('T')[0];
+  const essaisRecentsMP = allEssaisMP.filter(function(e) { return e.date_debut >= cutoff90Str; });
+  if (essaisRecentsMP.length > 0) {
+    const essaisRows = essaisRecentsMP.map(function(e) {
+      const debut = new Date(e.date_debut + 'T12:00:00');
+      const diffJ = Math.max(0, Math.floor((Date.now() - debut) / 86400000));
+      const duree = diffJ > 0 ? diffJ + 'j' : '<1j';
+      return '<tr>' +
+        '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.nom || '') + '</td>' +
+        '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.type || '') + '</td>' +
+        '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.effet || '') + '</td>' +
+        '<td style="padding:5px 8px;font-size:13px;color:#6b7280;border-bottom:1px solid #f0f0f0;">' + duree + '</td>' +
+        '</tr>';
+    }).join('');
+    essaisRecentsHtml =
+      '<div style="' + SECTION_STYLE + 'background:#FAF5FF;border-left:3px solid #a855f7;">' +
+        '<p style="' + SECTION_TITLE + 'color:#a855f7;">Essais récents (90 jours)</p>' +
+        '<table style="width:100%;border-collapse:collapse;">' +
+          '<thead><tr>' +
+            '<th style="font-size:11px;font-weight:600;color:#a855f7;text-align:left;padding:4px 8px;">Nom</th>' +
+            '<th style="font-size:11px;font-weight:600;color:#a855f7;text-align:left;padding:4px 8px;">Type</th>' +
+            '<th style="font-size:11px;font-weight:600;color:#a855f7;text-align:left;padding:4px 8px;">Effet</th>' +
+            '<th style="font-size:11px;font-weight:600;color:#a855f7;text-align:left;padding:4px 8px;">Durée</th>' +
+          '</tr></thead>' +
+          '<tbody>' + essaisRows + '</tbody>' +
+        '</table>' +
+      '</div>';
+  }
+
   const html =
     enTeteHtml +
     motifHtml +
@@ -1789,6 +1827,7 @@ window._ouvrirModePresentation = function() {
     donneesObjectivesHtml +
     pemHtml +
     cycleHtml +
+    essaisRecentsHtml +
     questionsHtml +
     partagerBtn +
     '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
@@ -2636,4 +2675,150 @@ function importDonneesJSON(event) {
     setTimeout(function() { window.location.reload(); }, 1500);
   };
   reader.readAsText(file);
+}
+
+// ============================================================
+// === FEATURE M — Journal essais/intolérances ===
+// ============================================================
+
+function loadEssais() {
+  try {
+    return JSON.parse(localStorage.getItem('boussole_essais') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveEssai(data) {
+  var essais = loadEssais();
+  if (data.id) {
+    var idx = essais.findIndex(function(e) { return e.id === data.id; });
+    if (idx >= 0) {
+      essais[idx] = data;
+    } else {
+      essais.push(data);
+    }
+  } else {
+    data.id = Date.now().toString();
+    essais.push(data);
+  }
+  localStorage.setItem('boussole_essais', JSON.stringify(essais));
+}
+
+function deleteEssai(id) {
+  if (!confirm('Supprimer cet essai ?')) return;
+  var essais = loadEssais().filter(function(e) { return e.id !== id; });
+  localStorage.setItem('boussole_essais', JSON.stringify(essais));
+  renderEssaisList();
+}
+
+function renderEssaisList() {
+  var container = document.getElementById('essais-list');
+  if (!container) return;
+  var essais = loadEssais();
+  if (essais.length === 0) {
+    container.innerHTML = '<p style="color:var(--color-text-muted);font-size:14px;font-style:italic;margin:8px 0 0;">Aucun essai enregistré</p>';
+    return;
+  }
+  var sorted = essais.slice().sort(function(a, b) { return (b.date_debut || '').localeCompare(a.date_debut || ''); });
+  var effectColors = {
+    'Positif':  { bg: '#dcfce7', color: '#166534' },
+    'Neutre':   { bg: '#f3f4f6', color: '#374151' },
+    'Négatif':  { bg: '#fee2e2', color: '#991b1b' }
+  };
+  var html = '';
+  sorted.forEach(function(e) {
+    var debut = new Date(e.date_debut + 'T12:00:00');
+    var diffJ = Math.max(0, Math.floor((Date.now() - debut) / 86400000));
+    var dureeStr = diffJ > 0 ? diffJ + ' jour' + (diffJ > 1 ? 's' : '') : 'Aujourd\'hui';
+    var effetStyle = effectColors[e.effet] || { bg: '#f3f4f6', color: '#374151' };
+    html += '<div style="border-left:3px solid #a855f7;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">';
+    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">';
+    html += '<strong style="font-size:14px;color:#06172D;">' + (e.nom || '') + '</strong>';
+    if (e.type) {
+      html += '<span class="essai-badge-type">' + e.type + '</span>';
+    }
+    if (e.effet) {
+      html += '<span class="essai-badge-effet" style="background:' + effetStyle.bg + ';color:' + effetStyle.color + ';">' + e.effet + '</span>';
+    }
+    html += '</div>';
+    if (e.objectif) {
+      html += '<div style="font-size:13px;color:#374151;margin-bottom:2px;">' + e.objectif + '</div>';
+    }
+    html += '<div class="essai-duree">Depuis ' + formatDateFr(e.date_debut) + ' · ' + dureeStr + '</div>';
+    html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+    html += '<button onclick="openModalEssai(\'' + e.id + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>';
+    html += '<button onclick="deleteEssai(\'' + e.id + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function openModalEssai(id) {
+  var modal = document.getElementById('modal-essai');
+  if (!modal) return;
+  var today = localDateStr(new Date());
+  if (id) {
+    var essais = loadEssais();
+    var essai = essais.find(function(e) { return e.id === id; });
+    if (!essai) return;
+    modal.dataset.editId = id;
+    document.getElementById('essai-nom').value        = essai.nom || '';
+    document.getElementById('essai-type').value       = essai.type || '';
+    document.getElementById('essai-date').value       = essai.date_debut || today;
+    document.getElementById('essai-objectif').value   = essai.objectif || '';
+    document.getElementById('essai-effet').value      = essai.effet || '';
+    document.getElementById('essai-aggravation').value= essai.aggravation || 'Non';
+    document.getElementById('essai-paradoxal').value  = essai.paradoxal || 'Non';
+    document.getElementById('essai-arret').value      = essai.arret || 'Non';
+    document.getElementById('essai-raison-arret').value = essai.raison_arret || '';
+    document.querySelector('#modal-essai h3').textContent = 'Modifier l\'essai';
+  } else {
+    delete modal.dataset.editId;
+    document.getElementById('essai-nom').value        = '';
+    document.getElementById('essai-type').value       = '';
+    document.getElementById('essai-date').value       = today;
+    document.getElementById('essai-objectif').value   = '';
+    document.getElementById('essai-effet').value      = '';
+    document.getElementById('essai-aggravation').value= 'Non';
+    document.getElementById('essai-paradoxal').value  = 'Non';
+    document.getElementById('essai-arret').value      = 'Non';
+    document.getElementById('essai-raison-arret').value = '';
+    document.querySelector('#modal-essai h3').textContent = 'Nouvel essai';
+  }
+  var arretVal = document.getElementById('essai-arret').value;
+  document.getElementById('essai-raison-arret-wrap').style.display = arretVal === 'Oui' ? 'block' : 'none';
+  modal.style.display = 'flex';
+}
+
+function closeModalEssai() {
+  var modal = document.getElementById('modal-essai');
+  if (modal) modal.style.display = 'none';
+}
+
+function saveModalEssai() {
+  var nom = document.getElementById('essai-nom').value.trim();
+  if (!nom) {
+    document.getElementById('essai-nom').focus();
+    return;
+  }
+  var modal = document.getElementById('modal-essai');
+  var data = {
+    nom:          nom,
+    type:         document.getElementById('essai-type').value,
+    date_debut:   document.getElementById('essai-date').value,
+    objectif:     document.getElementById('essai-objectif').value.trim(),
+    effet:        document.getElementById('essai-effet').value,
+    aggravation:  document.getElementById('essai-aggravation').value,
+    paradoxal:    document.getElementById('essai-paradoxal').value,
+    arret:        document.getElementById('essai-arret').value,
+    raison_arret: document.getElementById('essai-raison-arret').value.trim()
+  };
+  if (modal.dataset.editId) {
+    data.id = modal.dataset.editId;
+  }
+  saveEssai(data);
+  closeModalEssai();
+  renderEssaisList();
 }
