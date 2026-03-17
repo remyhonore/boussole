@@ -1237,3 +1237,23 @@ html.dark #card-essais .essai-badge-type {
 html.dark #card-essais > div[style*="border-left"] {
   background: #162230;
 }
+
+/* === JOURNAL TABS (TB Santé) === */
+.journal-tab {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.journal-tab.active {
+  background: #2d6a4f;
+  color: #fff;
+}
+.journal-tab:hover:not(.active) {
+  background: #e5e7eb;
+}

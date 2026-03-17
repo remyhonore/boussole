@@ -89,7 +89,7 @@
   <!-- jsPDF pour génération PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body><a href="#panel-home" class="skip-link">Aller au contenu principal</a>
+<body><a href="#panel-today" class="skip-link">Aller au contenu principal</a>
 
   <!-- Banner installation PWA (affiché par JS si non installée et non dismissed) -->
   <div id="banner-install" style="display:none; position:relative; background:#2d6a4f; color:#fff; padding:12px 40px 12px 16px; font-size:14px; line-height:1.4;">
@@ -112,16 +112,16 @@
 
     <!-- Navigation -->
     <nav class="nav" role="navigation">
-      <button class="nav-btn active" data-panel="home" aria-label="Aller à la page Accueil" aria-current="page">
-        Accueil
-      </button>
-      <button class="nav-btn" data-panel="today" aria-label="Aller à la page Aujourd'hui">
+      <button class="nav-btn active" data-panel="today" aria-label="Aller à la page Aujourd'hui" aria-current="page">
         Aujourd'hui
       </button>
-      <button class="nav-btn" data-panel="summary" aria-label="Aller à la page Résumé">
+      <button class="nav-btn" data-panel="resume" aria-label="Aller à la page Résumé">
         Résumé
       </button>
-      <button class="nav-btn" data-panel="settings" aria-label="Aller aux Paramètres">
+      <button class="nav-btn" data-panel="tbsante" aria-label="Aller au tableau de bord santé">
+        TB Santé
+      </button>
+      <button class="nav-btn" data-panel="params" aria-label="Aller aux Paramètres">
         Paramètres
       </button>
     </nav>
@@ -166,43 +166,6 @@
           Commencer ma première saisie
         </button>
       </div>
-    </div>
-
-    <!-- Panel Accueil -->
-    <div class="panel" id="panel-home">
-
-      <div class="card">
-        <h2 class="card-title">Boussole</h2>
-        <p style="margin-bottom:8px;">Ton journal de bien-être — sans compte, sans cloud. Tes données restent sur ton appareil.</p>
-        <p style="margin-bottom:20px;color:rgba(6,23,45,.58);font-size:14px;">Suis chaque jour ton énergie, ton sommeil, ton confort physique et ta clarté mentale.</p>
-        <div id="home-humeur-block" style="text-align:center; margin: 0 0 20px;">
-          <p style="font-size:12px; color:rgba(6,23,45,.45); margin:0 0 8px;
-          letter-spacing:.04em; text-transform:uppercase; font-weight:500;">
-            Comment je me sens aujourd'hui
-          </p>
-          <div id="home-humeur-smiley"
-            style="font-size:64px; line-height:1; cursor:pointer;
-            transition: transform 0.2s;"
-            onclick="switchPanel('today')"
-            title="Cliquer pour saisir ma journée"
-            role="button" tabindex="0" aria-label="Saisir mon humeur du jour">
-            😐
-          </div>
-        </div>
-        <button class="btn" id="btn-start-entry" style="width:100%;" aria-label="Faire ma saisie du jour">
-          Faire ma saisie du jour
-        </button>
-        <a href="https://myboussole.fr/articles/" target="_self" class="btn-outline-sage" style="margin-top:12px;" aria-label="Consulter les articles sur myboussole.fr">
-          Consulter les articles
-        </a>
-      </div>
-
-      <div class="card" style="margin-top:16px;">
-        <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0;">
-          🔒 Données stockées uniquement sur ton appareil · Zéro serveur · Zéro compte
-        </p>
-      </div>
-
     </div>
 
     <!-- Panel Aujourd'hui -->
@@ -456,76 +419,49 @@
     </div>
 
     <!-- Panel Résumé -->
-    <div class="panel" id="panel-summary">
+    <div class="panel" id="panel-resume">
 
-      <div class="card" style="margin-bottom: 16px;">
-        <!-- 1. Action primaire : Montrer au médecin -->
+      <div id="summary-content">
+        <!-- Contenu généré dynamiquement -->
+      </div>
+
+    </div>
+
+    <!-- Panel TB Santé -->
+    <div class="panel" id="panel-tbsante">
+
+      <div class="card" style="margin-bottom:16px;">
         <button
-          id="btn-show-doctor"
+          onclick="ouvrirModaleConsultation('pdf')"
+          style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
+          aria-label="Préparer ma consultation en PDF"
+        >
+          &#x1F4CB; Préparer ma consultation
+        </button>
+        <button
           onclick="ouvrirModaleConsultation('presentation')"
           style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
           aria-label="Afficher le résumé en plein écran pour votre médecin"
         >
           &#x1F4F1; Montrer au médecin
         </button>
-
-        <!-- 2. Action secondaire : Préparer ma consultation -->
-        <div style="margin-top: 10px;">
-          <button
-            class="btn btn-secondary"
-            id="btn-consultation"
-            onclick="genererPDFConsultation([], '')"
-            style="width: 100%;"
-            aria-label="Préparer un document PDF pour ma consultation"
-          >
-            &#x1F4C4; Exporter en PDF
-          </button>
-        </div>
-
-        <!-- 3. Action post-consultation -->
-        <div style="margin-top: 10px;">
-          <button
-            id="btn-post-consultation"
-            onclick="openPostConsultation()"
-            style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
-            aria-label="Documenter ce qui a été décidé après ma consultation"
-          >
-            &#x1F4DD; Après ma consultation
-          </button>
-          <span id="pc-indicator" style="display:none;font-size:12px;color:#2d6a4f;text-align:center;display:block;margin-top:4px;"></span>
-          <div id="pc-historique" style="display:none;margin-top:12px;"></div>
-        </div>
-
-        <!-- 4. Action tertiaire : PDF enrichi (discret) -->
-        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(6,23,45,.08); text-align: center;">
-          <button
-            id="btn-generate-pdf"
-            style="background:none;border:none;cursor:pointer;font-size:13px;color:rgba(6,23,45,.45);padding:0;text-decoration:underline;text-decoration-color:rgba(6,23,45,.2);"
-            aria-label="Générer le PDF enrichi pour impression"
-          >
-            Exporter mes 30 derniers jours en PDF
-          </button>
-        </div>
       </div>
 
-      <div id="summary-content">
-        <!-- Contenu généré dynamiquement -->
-      </div>
-
-      <div id="events-summary-container"></div>
-
-      <div class="card" id="card-essais">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="card-title">🧪 Mes essais</span>
-          <button id="btn-add-essai" class="btn-outline-sage" style="font-size:13px; padding:4px 12px; width:auto; display:inline-block;">+ Ajouter</button>
+      <div id="journal-hub" class="card">
+        <div style="font-weight:700;font-size:15px;color:#06172D;margin-bottom:12px;">&#x1F4D3; Mon journal de bord</div>
+        <div id="journal-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="journal-tab active" data-tab="events">&#x1F4CC; Événements</button>
+          <button class="journal-tab" data-tab="essais">&#x1F9EA; Essais</button>
+          <button class="journal-tab" data-tab="consultations">&#x1F4CB; Consultations</button>
+          <button class="journal-tab" data-tab="historique">&#x1F5D3; Historique</button>
         </div>
-        <div id="essais-list"><!-- rendu JS --></div>
+        <div id="journal-tab-content"></div>
       </div>
 
     </div>
 
     <!-- Panel Paramètres (ADR-2026-025) -->
-    <div class="panel" id="panel-settings">
+    <div class="panel" id="panel-params">
       <div class="card">
         <h2 class="card-title">Paramètres</h2>
 
@@ -702,7 +638,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.52 — </span>
+    <span>Boussole v8.53 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -712,10 +648,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.52</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.53</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.53</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>ADR-2026-030 : Refonte navigation — Accueil supprimé, nouvel onglet TB Santé avec journal de bord (Événements, Essais, Consultations, Historique)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.52</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Feature M : Journal essais/intolérances (suivi des essais thérapeutiques)</li>

@@ -4,7 +4,7 @@
 
 // État de l'application
 const app = {
-  currentPanel: 'home',
+  currentPanel: 'today',
   isGeneratingPDF: false
 };
 
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   initNavigation();
-  initHomePanel();
   initTodayPanel();
   initSummaryPanel();
+  initJournalHub();
   loadTodayData();
   initRappels();
   document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!localStorage.getItem('boussole_onboarded')) {
     switchPanel('onboarding');
   } else {
-    switchPanel('home');
+    switchPanel('today');
   }
 
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
@@ -91,16 +91,21 @@ function switchPanel(panelId) {
     navBtn.setAttribute('aria-current', 'page');
   }
   if (panel) panel.classList.add('active');
-  
+
   app.currentPanel = panelId;
-  
-  // Rafraîchir le résumé si on affiche ce panel
-  if (panelId === 'summary') {
+
+  // Rafraîchir selon le panel
+  if (panelId === 'resume') {
     refreshSummary();
+  }
+
+  if (panelId === 'tbsante') {
+    renderJournalTab(localStorage.getItem('boussole_journal_tab') || 'events');
   }
 
   // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
   if (panelId === 'today') {
+    loadTodayData();
     requestAnimationFrame(() => {
       ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
         const slider = document.getElementById(id);
@@ -114,15 +119,6 @@ function switchPanel(panelId) {
       initRetroDateSelect();
     });
   }
-}
-
-/**
- * === ÉCRAN ACCUEIL ===
- */
-function initHomePanel() {
-  document.getElementById('btn-start-entry')?.addEventListener('click', () => {
-    switchPanel('today');
-  });
 }
 
 /**
@@ -596,7 +592,7 @@ function showFeedbackPanel(today) {
   // Redirection automatique vers Résumé après 4 secondes
   setTimeout(() => {
     if (app.currentPanel === 'feedback') {
-      switchPanel('summary');
+      switchPanel('resume');
     }
   }, 4000);
 }
@@ -678,14 +674,99 @@ function updateLastSavedDisplay() {
  * === ÉCRAN RÉSUMÉ ===
  */
 function initSummaryPanel() {
-  document.getElementById('btn-generate-pdf')?.addEventListener('click', () => {
-    if (typeof genererPDFEnrichi === 'function') {
-      genererPDFEnrichi();
-    } else {
-      showPDFPreview();
-    }
+  // boutons d'action déplacés dans panel-tbsante
+}
+
+/**
+ * === JOURNAL DE BORD (TB Santé) ===
+ */
+function initJournalHub() {
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.journal-tab');
+    if (!btn) return;
+    document.querySelectorAll('.journal-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    localStorage.setItem('boussole_journal_tab', tab);
+    renderJournalTab(tab);
   });
-  document.getElementById('btn-add-essai')?.addEventListener('click', () => openModalEssai());
+}
+
+function renderJournalTab(tab) {
+  const content = document.getElementById('journal-tab-content');
+  if (!content) return;
+
+  // Sync active tab button
+  document.querySelectorAll('.journal-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+
+  if (tab === 'events') {
+    content.innerHTML = '<div id="events-summary-container"></div>';
+    renderEventsSummary();
+  } else if (tab === 'essais') {
+    content.innerHTML =
+      '<div style="margin-bottom:12px;">' +
+        '<button onclick="openModalEssai()" style="background:#2d6a4f;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">+ Ajouter un essai</button>' +
+      '</div>' +
+      '<div id="essais-list"></div>';
+    renderEssaisList();
+  } else if (tab === 'consultations') {
+    content.innerHTML =
+      '<div style="margin-bottom:12px;">' +
+        '<button onclick="openPostConsultation()" style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">&#x1F4DD; Après ma consultation</button>' +
+      '</div>' +
+      '<div id="pc-historique" style="display:none;"></div>';
+    refreshPostConsultationHistorique();
+  } else if (tab === 'historique') {
+    _renderHistoriqueTab(content);
+  }
+}
+
+function _renderHistoriqueTab(content) {
+  var MOIS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var variableLabels = { energie: 'Énergie', sommeil: 'Sommeil', confort: 'Confort physique', clarte: 'Clarté mentale', fc: 'Fréquence cardiaque', poids: 'Poids' };
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.startsWith('boussole_post_consultation_')) keys.push(k);
+  }
+  keys.sort().reverse();
+
+  if (keys.length === 0) {
+    content.innerHTML = '<p style="color:#9ca3af;font-size:14px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
+    return;
+  }
+
+  var html = '';
+  keys.forEach(function(k) {
+    var dateStr = k.replace('boussole_post_consultation_', '');
+    var fiche = null;
+    try { fiche = JSON.parse(localStorage.getItem(k)); } catch(e) {}
+    var parts = dateStr.split('-');
+    var dateLabel = '';
+    if (parts.length === 3) {
+      var d = parseInt(parts[2], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var y = parseInt(parts[0], 10);
+      dateLabel = d + ' ' + MOIS_FR[m] + ' ' + y;
+    } else {
+      dateLabel = dateStr;
+    }
+    var motif = '';
+    if (fiche && fiche.variable_suivie) {
+      motif = variableLabels[fiche.variable_suivie] || fiche.variable_suivie;
+    } else if (fiche && fiche.decisions) {
+      motif = fiche.decisions.substring(0, 50) + (fiche.decisions.length > 50 ? '\u2026' : '');
+    }
+    var isEmpty = !fiche || (!fiche.decisions && !fiche.examens && !fiche.traitement_teste && !fiche.variable_suivie);
+    var textColor = isEmpty ? '#9ca3af' : '#06172D';
+    html += '<div style="padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);font-size:14px;color:' + textColor + ';">';
+    html += '&#x1F4CB; ' + dateLabel;
+    if (motif) html += ' \u2014 ' + motif;
+    html += '</div>';
+  });
+  content.innerHTML = html;
 }
 
 function refreshSummary() {
@@ -997,9 +1078,6 @@ function refreshSummary() {
   html += `</div>`;
   
   container.innerHTML = html;
-  refreshPostConsultationIndicator();
-  renderEventsSummary();
-  renderEssaisList();
 }
 
 /**
@@ -1219,7 +1297,7 @@ function loadDebugDataset() {
   loadTodayData();
   
   // Rafraîchir le résumé si on est sur cet onglet
-  if (app.currentPanel === 'summary') {
+  if (app.currentPanel === 'resume') {
     refreshSummary();
   }
   
