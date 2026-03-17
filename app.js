@@ -787,7 +787,10 @@ function refreshSummary() {
   // 3. Problème principal
   html += buildProblemePrincipal(pointAttention7j, metriques7j);
 
-  // 4. Score de stabilité 30j
+  // 4. Détail sommeil déclaratif (conditionnel)
+  html += buildDetailSommeil(dataSommeil7j, _avgVals(dataSommeil7j), noteLC7j, pointAttention7j);
+
+  // 5. Score de stabilité 30j
   const stability = computeStabilityScore();
   if (stability !== null) {
     const trendIcon = stability.trend === 'amelioration' ? '🟢' : stability.trend === 'stable' ? '🟡' : '🔴';
@@ -840,69 +843,40 @@ function refreshSummary() {
   }
   html += `</div>`;
 
-  // 6. Détail sommeil déclaratif (conditionnel)
-  html += buildDetailSommeil(dataSommeil7j, _avgVals(dataSommeil7j), noteLC7j, pointAttention7j);
-
-  // 7. Type de journées
+  // 6. Type de journées
   const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
   if (dist && dist.total > 0) {
     html += `<div class="card">`;
     html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
-    html += `<ul class="summary-list">`;
-    html += `<li>🟢 Hauts (score >= 7) : <strong>${dist.vert} jour${dist.vert > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🟠 Moyens (score 4-6) : <strong>${dist.orange} jour${dist.orange > 1 ? 's' : ''}</strong></li>`;
-    html += `<li>🔴 Bas (score < 4) : <strong>${dist.rouge} jour${dist.rouge > 1 ? 's' : ''}</strong></li>`;
-    html += `</ul>`;
+    html += '<div style="margin-bottom:10px;">' +
+      '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+        '<span style="font-size:12px;color:#06172D;">🟢 Hauts (&gt;= 7)</span>' +
+        '<span style="font-size:12px;font-weight:700;color:#2d9e6e;">' + dist.vert + ' j.</span>' +
+      '</div>' +
+      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+        '<div style="background:#2d9e6e;border-radius:4px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
+      '</div>' +
+    '</div>';
+    html += '<div style="margin-bottom:10px;">' +
+      '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+        '<span style="font-size:12px;color:#06172D;">🟠 Moyens (4–6)</span>' +
+        '<span style="font-size:12px;font-weight:700;color:#d97706;">' + dist.orange + ' j.</span>' +
+      '</div>' +
+      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+        '<div style="background:#d97706;border-radius:4px;height:8px;width:' + Math.round(dist.orange / dist.total * 100) + '%;"></div>' +
+      '</div>' +
+    '</div>';
+    html += '<div style="margin-bottom:10px;">' +
+      '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+        '<span style="font-size:12px;color:#06172D;">🔴 Bas (&lt; 4)</span>' +
+        '<span style="font-size:12px;font-weight:700;color:#dc2626;">' + dist.rouge + ' j.</span>' +
+      '</div>' +
+      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+        '<div style="background:#dc2626;border-radius:4px;height:8px;width:' + Math.round(dist.rouge / dist.total * 100) + '%;"></div>' +
+      '</div>' +
+    '</div>';
     html += `</div>`;
   }
-
-  // 8. Tendances
-  html += `<div class="card">`;
-  html += `<h2 class="summary-section">TENDANCES</h2>`;
-  
-  let hasAnyTendance = false;
-  
-  if (summary.energie.moyenne !== null) {
-    hasAnyTendance = true;
-    html += `<div class="summary-item">`;
-    html += `<strong>Énergie : ${summary.energie.moyenne}/10</strong>`;
-    html += `<div class="summary-trend">→ ${summary.energie.tendance}</div>`;
-    html += `</div>`;
-  }
-  
-  if (summary.qualite_sommeil.moyenne !== null) {
-    hasAnyTendance = true;
-    html += `<div class="summary-item">`;
-    html += `<strong>Qualité sommeil : ${summary.qualite_sommeil.moyenne}/10</strong>`;
-    html += `<div class="summary-trend">→ ${summary.qualite_sommeil.tendance}</div>`;
-    html += `</div>`;
-  }
-  
-  if (summary.douleurs.moyenne !== null) {
-    hasAnyTendance = true;
-    html += `<div class="summary-item">`;
-    html += `<strong>Confort physique : ${summary.douleurs.moyenne}/10</strong>`;
-    html += `<div class="summary-trend">→ ${summary.douleurs.tendance}</div>`;
-    html += `</div>`;
-  }
-  
-  if (summary.clarte_mentale && summary.clarte_mentale.moyenne !== null) {
-    hasAnyTendance = true;
-    html += `<div class="summary-item">`;
-    html += `<strong>Clarté mentale : ${summary.clarte_mentale.moyenne}/10</strong>`;
-    html += `<div class="summary-trend">→ ${summary.clarte_mentale.tendance}</div>`;
-    html += `</div>`;
-  }
-
-  if (!hasAnyTendance) {
-    html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible. Commence par saisir tes repères dans l'onglet "Aujourd'hui".</p>`;
-  }
-
-  html += `<p style="font-size:12px;color:#6b7280;font-style:italic;margin-top:8px;padding:0 4px;">
-  Les valeurs affichées sont des moyennes calculées sur les 30 derniers jours enregistrés.
-</p>`;
-
-  html += `</div>`;
 
   // Variations
   if (summary.variations && summary.variations.length > 0) {
@@ -998,7 +972,7 @@ function refreshSummary() {
       var levelLabel = { probable: 'Probable', confirmed: 'Confirme (FC)', reinforced: 'Renforce (FC + VFC)' };
       var displayed = pemEvents.slice(0, 5);
       html += '<div class="card pem-section">';
-      html += '<h3 class="pem-header">Episodes de crash detectes (30 derniers jours)</h3>';
+      html += '<h3 class="pem-header">ÉPISODES DE CRASH DÉTECTÉS</h3>';
       html += '<p class="pem-count">' + pemEvents.length + ' episode(s) identifie(s)</p>';
       displayed.forEach(function(ev) {
         var deltaStr = '-' + ev.delta.toFixed(1) + ' pts';
@@ -1411,6 +1385,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
+      '<p style="font-size:10px;color:#9ca3af;font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
     '</div>'
   );
 }
