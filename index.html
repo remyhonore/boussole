@@ -19,6 +19,15 @@
   <link rel="stylesheet" href="styles.css">
 
   <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+    }
     @keyframes pulse-invite {
       0%,100% { transform: scale(1); }
       50%      { transform: scale(1.12); }
@@ -245,7 +254,7 @@
         </div>
 
         <div style="text-align:right; margin:-4px 0 12px;">
-          <button id="btn-mark-event" style="background:none; border:1px solid rgba(45,80,22,0.3); color:#2d6a4f; font-size:13px; font-weight:500; cursor:pointer; padding:4px 12px; border-radius:16px; opacity:0.85;">📌 Déclarer un signal</button>
+          <button id="btn-mark-event" style="background:none; border:1px solid rgba(45,80,22,0.3); color:#2d6a4f; font-size:13px; font-weight:500; cursor:pointer; padding:4px 12px; border-radius:16px; opacity:0.85;">📌 Signaler un événement</button>
         </div>
 
         <hr style="border:none; border-top:1px solid rgba(110,135,125,.2);
@@ -694,7 +703,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.47 — </span>
+    <span>Boussole v8.48 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
