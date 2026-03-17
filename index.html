@@ -56,7 +56,7 @@
 
     @media print {
       .header, .nav, #banner-install, #btn-fermer-dashboard, #btn-imprimer-dashboard,
-      .skip-link, .app-footer, #status-message, .panel, #mode-presentation,
+      .skip-link, .app-footer, #status-message, .panel,
       #consultation-modal, #modal-post-consultation, #pdf-modal, #changelog-modal,
       .container > .nav, .container > .header { display: none !important; }
       #overlay-dashboard-visuel {
@@ -69,6 +69,14 @@
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
+      #mode-presentation {
+        position: static !important;
+        overflow: visible !important;
+        display: block !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      #mode-presentation button:first-child { display: none !important; }
     }
   </style>
 
@@ -680,7 +688,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.42 — </span>
+    <span>Boussole v8.43 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
