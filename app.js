@@ -1597,7 +1597,7 @@ window._ouvrirModePresentation = function() {
   const overlay = document.getElementById('mode-presentation');
   const content = document.getElementById('mode-presentation-content');
   if (overlay && content) {
-    content.innerHTML = html;
+    content.innerHTML = '<div style="max-width:660px;margin:0 auto;padding:24px 20px 48px;">' + html + '</div>';
     overlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
