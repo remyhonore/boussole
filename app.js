@@ -2958,3 +2958,111 @@ function saveModalEssai() {
   closeModalEssai();
   renderEssaisList();
 }
+
+// === Feature U : Hub suivi unifié (ADR-2026-032) ===
+
+function toggleHubHistory() {
+  var container = document.getElementById('hub-history-container');
+  var btn = document.getElementById('btn-hub-history');
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+    btn.textContent = '📓 Mon historique clinique ▲';
+    renderHubHistory('all');
+  } else {
+    container.style.display = 'none';
+    btn.textContent = '📓 Mon historique clinique';
+  }
+}
+
+function collectHubEntries() {
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  var cutoffStr = cutoff.toISOString().split('T')[0];
+  var entries = [];
+
+  // Feature T — Événements (boussole_event_*)
+  var eventTypeLabels = {
+    'reaction-medicament': 'Réaction médicament',
+    'symptome-inhabituel': 'Symptôme inhabituel',
+    'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle',
+    'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle',
+    'autre': 'Autre'
+  };
+  Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); }).forEach(function(k) {
+    try {
+      var e = JSON.parse(localStorage.getItem(k));
+      if (!e || !e.date || e.date < cutoffStr) return;
+      entries.push({
+        date: e.date,
+        type: 'event',
+        label: '📌 Événement',
+        text: e.description || '',
+        badge: eventTypeLabels[e.type] || e.type || ''
+      });
+    } catch(ex) {}
+  });
+
+  // Feature M — Essais (boussole_essais)
+  try {
+    var essais = JSON.parse(localStorage.getItem('boussole_essais') || '[]');
+    essais.forEach(function(e) {
+      if (!e.date_debut || e.date_debut < cutoffStr) return;
+      var badge = e.arret === 'Oui' ? 'Arrêté' : 'En cours';
+      var text = e.nom || '';
+      if (e.type) text += ' · ' + e.type;
+      entries.push({
+        date: e.date_debut,
+        type: 'essai',
+        label: '🧪 Essai',
+        text: text,
+        badge: badge
+      });
+    });
+  } catch(ex) {}
+
+  // Feature J — Post-consultation (boussole_post_consultation_*)
+  Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_post_consultation_'); }).forEach(function(k) {
+    try {
+      var fiche = JSON.parse(localStorage.getItem(k));
+      if (!fiche || !fiche.date_rdv || fiche.date_rdv < cutoffStr) return;
+      var text = (fiche.decisions || '').substring(0, 50);
+      if (text.length === 50) text += '…';
+      if (!text && fiche.examens) text = (fiche.examens || '').substring(0, 50);
+      entries.push({
+        date: fiche.date_rdv,
+        type: 'consult',
+        label: '📋 Consultation',
+        text: text || '(sans notes)',
+        badge: formatDateFr(fiche.date_rdv)
+      });
+    } catch(ex) {}
+  });
+
+  entries.sort(function(a, b) { return b.date.localeCompare(a.date); });
+  return entries;
+}
+
+function renderHubHistory(filter) {
+  var list = document.getElementById('hub-history-list');
+  if (!list) return;
+  var entries = collectHubEntries();
+  var filtered = filter === 'all' ? entries : entries.filter(function(e) { return e.type === filter; });
+  if (filtered.length === 0) {
+    list.innerHTML = '<p class="hub-empty">Aucun élément sur les 30 derniers jours.</p>';
+    return;
+  }
+  list.innerHTML = filtered.map(function(e) {
+    return '<div class="hub-entry type-' + e.type + '">' +
+      '<div class="hub-entry-date">' + e.label + ' · ' + formatDateFr(e.date) +
+      (e.badge ? '<span class="hub-entry-badge">' + e.badge + '</span>' : '') + '</div>' +
+      '<div class="hub-entry-text">' + e.text + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function filterHubHistory(filter) {
+  document.querySelectorAll('.hub-filter').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.filter === filter);
+  });
+  renderHubHistory(filter);
+}
