@@ -1173,7 +1173,8 @@ function renderEventsSummary() {
     const label = labels[e.type] || e.type || '';
     const dateFr = _formatDateLong(e.date);
     const kEsc = k.replace(/'/g, "\\'");
-    return '<div class="event-item">' +
+    const borderColor = e.color || '#6E877D';
+    return '<div style="border-left:3px solid ' + borderColor + ';border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">' +
       '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
       (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
       '<div style="display:flex;gap:8px;margin-top:8px;">' +
@@ -1182,7 +1183,7 @@ function renderEventsSummary() {
       '</div>' +
       '</div>';
   }).join('');
-  container.innerHTML = '<div class="card">' + items + '</div>';
+  container.innerHTML = items;
 }
 
 function deleteEvent(key) {
