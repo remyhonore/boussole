@@ -81,7 +81,27 @@
   </style>
   <style>
     /* === Feature U : Hub suivi unifié === */
-    .hub-history-section { margin: 12px 0 16px 0; }
+    .hub-history-section {
+      background: var(--color-card, #fff);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(6,23,45,0.07);
+      padding: 4px 0;
+      margin-bottom: 10px;
+    }
+    #btn-hub-history {
+      border: none;
+      border-radius: 14px;
+      background: transparent;
+      width: 100%;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--color-navy, #06172D);
+      cursor: pointer;
+    }
+    #btn-hub-history:hover { background: rgba(45,106,79,0.06); }
+    #hub-history-container { padding: 0 14px 14px 14px; }
     .btn-secondary-outline {
       width: 100%;
       padding: 10px 16px;
@@ -520,7 +540,7 @@
       </div>
 
       <div class="hub-history-section">
-        <button id="btn-hub-history" class="btn-secondary-outline" onclick="toggleHubHistory()">
+        <button id="btn-hub-history" onclick="toggleHubHistory()">
           📓 Mon historique clinique
         </button>
         <div id="hub-history-container" style="display:none;">
@@ -752,7 +772,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.68 — </span>
+    <span>Boussole v8.69 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -762,10 +782,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.68</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.69</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.69</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+          <li>Feature U : hub-history-section dans card blanche (cohérence visuelle avec les accordéons)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.68</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
           <li>Feature U : Hub suivi unifié — chronologie Événements + Essais + Consultations sur 30 jours dans le panel Suivi</li>
