@@ -229,7 +229,7 @@ function initTodayPanel() {
   document.getElementById('btn-save')?.addEventListener('click', saveCurrentEntry);
   document.getElementById('btn-quick')?.addEventListener('click', fillLastValues);
   document.getElementById('btn-event-save')?.addEventListener('click', saveEvent);
-  document.getElementById('btn-event-cancel')?.addEventListener('click', () => { document.getElementById('modal-event').style.display = 'none'; });
+  document.getElementById('btn-event-cancel')?.addEventListener('click', () => { window._editEventKey = null; document.getElementById('modal-event').style.display = 'none'; });
   document.getElementById('event-desc')?.addEventListener('input', function() { document.getElementById('event-desc-count').textContent = this.value.length + '/300'; });
 }
 
@@ -1091,33 +1091,53 @@ function refreshSummary() {
 /**
  * === ÉVÉNEMENTS CLINIQUES (Feature T) ===
  */
-function openEventModal() {
-  document.getElementById('modal-event').style.display = 'flex';
-  document.getElementById('event-desc').value = '';
-  document.getElementById('event-type').value = '';
-  document.getElementById('event-desc-count').textContent = '0/300';
+function openEventModal(editKey) {
+  window._editEventKey = editKey || null;
+  const modal = document.getElementById('modal-event');
+  modal.style.display = 'flex';
+  if (editKey) {
+    const e = JSON.parse(localStorage.getItem(editKey) || '{}');
+    document.getElementById('event-type').value = e.type || '';
+    document.getElementById('event-desc').value = e.description || '';
+    document.getElementById('event-desc-count').textContent = (e.description || '').length + '/300';
+    modal.querySelector('h3').textContent = '✏️ Modifier l\'événement';
+  } else {
+    document.getElementById('event-desc').value = '';
+    document.getElementById('event-type').value = '';
+    document.getElementById('event-desc-count').textContent = '0/300';
+    modal.querySelector('h3').textContent = '📌 Événement notable';
+  }
 }
 
 function saveEvent() {
   const desc = document.getElementById('event-desc').value.trim();
   if (!desc) return;
   const type = document.getElementById('event-type').value;
-  const dateStr = window._saisieDate || localDateStr(new Date());
-  const ts = Date.now();
-  const todayEntry = JSON.parse(localStorage.getItem('boussole_' + dateStr) || '{}');
-  const event = {
-    date: dateStr,
-    type: type,
-    description: desc,
-    score: todayEntry.score ?? null,
-    humeur: todayEntry.humeur ?? null,
-    medicaments: localStorage.getItem('boussole_medicaments') || '',
-    created_at: ts
-  };
-  const key = 'boussole_event_' + dateStr + '_' + ts;
+  const editKey = window._editEventKey || null;
+  let key, event;
+  if (editKey) {
+    const existing = JSON.parse(localStorage.getItem(editKey) || '{}');
+    event = Object.assign({}, existing, { type: type, description: desc });
+    key = editKey;
+  } else {
+    const dateStr = window._saisieDate || localDateStr(new Date());
+    const ts = Date.now();
+    const todayEntry = JSON.parse(localStorage.getItem('boussole_' + dateStr) || '{}');
+    event = {
+      date: dateStr,
+      type: type,
+      description: desc,
+      score: todayEntry.score ?? null,
+      humeur: todayEntry.humeur ?? null,
+      medicaments: localStorage.getItem('boussole_medicaments') || '',
+      created_at: ts
+    };
+    key = 'boussole_event_' + dateStr + '_' + ts;
+  }
   localStorage.setItem(key, JSON.stringify(event));
+  window._editEventKey = null;
   document.getElementById('modal-event').style.display = 'none';
-  showStatus('Événement enregistré ✓');
+  showStatus(editKey ? 'Événement modifié ✓' : 'Événement enregistré ✓');
   renderEventsSummary();
 }
 
@@ -1152,12 +1172,25 @@ function renderEventsSummary() {
     const e = JSON.parse(localStorage.getItem(k));
     const label = labels[e.type] || e.type || '';
     const dateFr = _formatDateLong(e.date);
-    return '<div class="event-item">' +
-      '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
-      (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
+    const kEsc = k.replace(/'/g, "\\'");
+    return '<div class="event-item" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
+      '<div style="flex:1;">' +
+        '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
+        (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
+      '</div>' +
+      '<div style="display:flex;gap:4px;flex-shrink:0;">' +
+        '<button onclick="openEventModal(\'' + kEsc + '\')" title="Modifier" style="background:none;border:1px solid rgba(45,106,79,0.3);color:#2d6a4f;border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;">✏️</button>' +
+        '<button onclick="deleteEvent(\'' + kEsc + '\')" title="Supprimer" style="background:none;border:1px solid rgba(220,38,38,0.3);color:#dc2626;border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;">🗑️</button>' +
+      '</div>' +
       '</div>';
   }).join('');
   container.innerHTML = '<div class="card">' + items + '</div>';
+}
+
+function deleteEvent(key) {
+  if (!confirm('Supprimer cet événement ?')) return;
+  localStorage.removeItem(key);
+  renderEventsSummary();
 }
 
 window.getRecentEvents = function(daysSince) {
