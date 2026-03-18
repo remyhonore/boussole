@@ -1173,14 +1173,12 @@ function renderEventsSummary() {
     const label = labels[e.type] || e.type || '';
     const dateFr = _formatDateLong(e.date);
     const kEsc = k.replace(/'/g, "\\'");
-    return '<div class="event-item" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
-      '<div style="flex:1;">' +
-        '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
-        (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
-      '</div>' +
-      '<div style="display:flex;gap:4px;flex-shrink:0;">' +
-        '<button onclick="openEventModal(\'' + kEsc + '\')" title="Modifier" style="background:none;border:1px solid rgba(45,106,79,0.3);color:#2d6a4f;border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;">✏️</button>' +
-        '<button onclick="deleteEvent(\'' + kEsc + '\')" title="Supprimer" style="background:none;border:1px solid rgba(220,38,38,0.3);color:#dc2626;border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;">🗑️</button>' +
+    return '<div class="event-item">' +
+      '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
+      (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
+      '<div style="display:flex;gap:8px;margin-top:8px;">' +
+        '<button onclick="openEventModal(\'' + kEsc + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>' +
+        '<button onclick="deleteEvent(\'' + kEsc + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>' +
       '</div>' +
       '</div>';
   }).join('');
