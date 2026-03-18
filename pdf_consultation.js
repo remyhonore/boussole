@@ -19,14 +19,14 @@ function _localDateStr(d) {
 // PALETTE CHARTE CLINIQUE v4
 // ============================================
 const ANTHRACITE  = [26,  26,  26];
-const TAUPE       = [138, 126, 110];
-const TAUPE_LIGHT = [200, 196, 188];
-const WARM_BG     = [247, 244, 240];
-const LIGHT_BG    = [245, 245, 242];
+const TAUPE       = [120, 120, 120];
+const TAUPE_LIGHT = [190, 190, 190];
+const WARM_BG     = [235, 235, 235];
+const LIGHT_BG    = [248, 248, 248];
 const MUTED       = [153, 153, 153];
-const DARK_WARM   = [122, 92,  58];
-const GREEN_SOFT  = [74,  122, 90];
-const SEP         = [232, 229, 224];
+const DARK_WARM   = [80,  80,  80];
+const GREEN_SOFT  = [100, 100, 100];
+const SEP         = [220, 220, 220];
 
 // ============================================
 // UTILITAIRES CALCUL
@@ -1030,9 +1030,9 @@ function genererPDFConsultation(motifItems, noteLibre) {
   // ============================================================
   checkPage(22);
 
-  const VOR_VERT   = [74,  122, 90];
-  const VOR_ORANGE = [200, 130, 50];
-  const VOR_ROUGE  = [190,  65, 55];
+  const VOR_VERT   = [100, 100, 100];
+  const VOR_ORANGE = [150, 150, 150];
+  const VOR_ROUGE  = [60,  60,  60];
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -1073,7 +1073,7 @@ function genererPDFConsultation(motifItems, noteLibre) {
   if (entries14j.length >= 3) {
     checkPage(35);
 
-    var NAVY_CAL = [6, 23, 45];
+    var NAVY_CAL = [26, 26, 26];
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
@@ -1114,9 +1114,9 @@ function genererPDFConsultation(motifItems, noteLibre) {
           doc.setFillColor(204, 204, 204);
         } else {
           var score14 = vals14.reduce(function(a, b) { return a + b; }, 0) / vals14.length;
-          if      (score14 >= 7) { doc.setFillColor(39,  174, 96); }
-          else if (score14 >= 4) { doc.setFillColor(243, 156, 18); }
-          else                   { doc.setFillColor(231,  76, 60); }
+          if      (score14 >= 7) { doc.setFillColor(200, 200, 200); }
+          else if (score14 >= 4) { doc.setFillColor(140, 140, 140); }
+          else                   { doc.setFillColor(80,  80,  80);  }
         }
       }
       doc.roundedRect(px, y, pastW, pastH, pastR, pastR, 'F');
@@ -1215,9 +1215,9 @@ function genererPDFConsultation(motifItems, noteLibre) {
   const questionsAffQ = questionsQ.slice(0, 5);
 
   if (questionsAffQ.length > 0) {
-    const NAVY_Q = [6, 23, 45];
-    const SAGE_Q = [74, 122, 90];
-    const GREY_Q = [107, 114, 128];
+    const NAVY_Q = [26, 26, 26];
+    const SAGE_Q = [100, 100, 100];
+    const GREY_Q = [110, 110, 110];
 
     const qBlocH = 10 + questionsAffQ.length * 6 + 10;
     checkPage(qBlocH);
@@ -1264,11 +1264,11 @@ function genererPDFConsultation(motifItems, noteLibre) {
   if (recentEvents.length > 0) {
     checkPage(40);
     y += 8;
-    doc.setFontSize(9); doc.setTextColor(45, 80, 22);
+    doc.setFontSize(9); doc.setTextColor(26, 26, 26);
     doc.setFont('helvetica', 'bold');
     doc.text('EVENEMENTS NOTABLES (30 derniers jours)', marginL, y);
     y += 5;
-    doc.setDrawColor(45, 80, 22); doc.line(marginL, y, marginL + contentW, y);
+    doc.setDrawColor(26, 26, 26); doc.line(marginL, y, marginL + contentW, y);
     y += 6;
     const typeLabels = {
       'reaction-medicament': 'Reaction medicament',
@@ -1277,7 +1277,7 @@ function genererPDFConsultation(motifItems, noteLibre) {
       'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle',
       'autre': 'Autre'
     };
-    recentEvents.forEach(ev => {
+    recentEvents.slice().reverse().forEach(ev => {
       checkPage(20);
       doc.setFontSize(8); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
       const typeLabel = ev.type ? ' [' + (typeLabels[ev.type] || ev.type) + ']' : '';
@@ -1295,9 +1295,9 @@ function genererPDFConsultation(motifItems, noteLibre) {
   // ============================================================
   // 10. PLAN POST-CONSULTATION (conditionnel)
   // ============================================================
-  var NAVY_PC = [6, 23, 45];
-  var SAGE_PC = [74, 122, 90];
-  var GREY_PC = [107, 114, 128];
+  var NAVY_PC = [26, 26, 26];
+  var SAGE_PC = [100, 100, 100];
+  var GREY_PC = [110, 110, 110];
 
   var postConsultData = null;
   var now30 = new Date();
