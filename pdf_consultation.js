@@ -1084,7 +1084,7 @@ function genererPDFConsultation(motifItems, noteLibre) {
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-    doc.text('Couleur = score composite (energie / sommeil / confort / clarte)', marginL, y);
+    doc.text('Niveau de gris = score composite (energie / sommeil / confort / clarte)', marginL, y);
     y += 5;
 
     var pastW    = 10;
@@ -1389,7 +1389,26 @@ function genererPDFConsultation(motifItems, noteLibre) {
 
   doc.autoPrint();
   const pdfUrl = doc.output('bloburl');
-  window.open(pdfUrl, '_blank');
+
+  // Nom de fichier dynamique
+  const _nom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
+  const _prenom = (localStorage.getItem('boussole_prenom') || '').trim();
+  const _now    = new Date();
+  const _dd     = String(_now.getDate()).padStart(2, '0');
+  const _mm     = String(_now.getMonth() + 1).padStart(2, '0');
+  const _yyyy   = _now.getFullYear();
+  const _dateStr = _dd + _mm + _yyyy;
+  const _filename = (_nom && _prenom)
+    ? 'PreConsultation_' + _nom + '_' + _prenom + '_' + _dateStr + '.pdf'
+    : 'PreConsultation_' + _dateStr + '.pdf';
+
+  const _a = document.createElement('a');
+  _a.href = pdfUrl;
+  _a.download = _filename;
+  _a.target = '_blank';
+  document.body.appendChild(_a);
+  _a.click();
+  document.body.removeChild(_a);
 }
 
 // Export global
