@@ -1,0 +1,34 @@
+name: Audit Claude Code
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 5 --model claude-sonnet-4-6"
+          prompt: |
+            Tu es un auditeur de code pour une PWA santé locale-first (zéro serveur, données dans localStorage).
+            Analyse les fichiers modifiés dans le dernier commit (`git diff HEAD~1 HEAD`) et produis un rapport concis :
+
+            1. **Bugs potentiels** — logique cassée, edge cases non gérés, régressions possibles
+            2. **Sécurité** — XSS, injection, fuite de données sensibles dans les logs
+            3. **Qualité** — fonctions trop longues (>40 lignes), couplage fort, duplication évidente
+            4. **PWA/Performance** — cache Service Worker (sw.js) mal versionné, localStorage corrompu, emojis oubliés dans le PDF
+
+            Modules clés : storage.js, calc.js, daytype.js, app.js, pdf.js, sw.js
+            Convention : camelCase pour les fonctions, snake_case français pour les champs de données.
+
+            Si aucun problème critique n'est détecté, indique-le clairement et liste les points positifs.
