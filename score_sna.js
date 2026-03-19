@@ -127,14 +127,14 @@ window.ScoreSNA = (function() {
     var res = calculer();
 
     if (!res) {
-      container.innerHTML = '<p style="color:#6b7280;font-size:0.85rem;text-align:center;padding:8px 0;">Renseigne au moins 5 jours de mesures pour activer le Score de recuperation.</p>';
+      container.innerHTML = '<p style="color:#6b7280;font-size:0.85rem;text-align:center;padding:8px 0;">Renseigne au moins 5 jours de mesures pour activer le Score de récupération.</p>';
       return;
     }
 
     var score = res.score, couleur = res.couleur, detail = res.detail;
     var couleurs = { vert: '#2d6a4f', orange: '#f59e0b', rouge: '#dc2626' };
     var c = couleurs[couleur];
-    var labels = { vert: 'Bonne recuperation', orange: 'Recuperation moderee', rouge: 'Recuperation faible' };
+    var labels = { vert: 'Bonne récupération', orange: 'Récupération modérée', rouge: 'Récupération faible' };
 
     // Jauge SVG demi-cercle
     var rayon = 54;
@@ -153,10 +153,10 @@ window.ScoreSNA = (function() {
 
     container.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
-        '<div style="font-size:0.85rem;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;">Score de recuperation</div>' +
+        '<div style="font-size:0.85rem;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;">Score de récupération</div>' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'flex\'" ' +
           'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:0.7rem;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
-          'aria-label="En savoir plus sur le Score de recuperation">?</button>' +
+          'aria-label="En savoir plus sur le Score de récupération">?</button>' +
       '</div>' +
       '<div style="text-align:center;padding:4px 0 8px;">' +
         '<svg viewBox="0 0 120 70" width="150" style="display:block;margin:0 auto;overflow:visible;">' +
@@ -183,13 +183,13 @@ window.ScoreSNA = (function() {
       modal.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'none\'" ' +
           'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;color:#9ca3af;cursor:pointer;" aria-label="Fermer">x</button>' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de recuperation</h3>' +
+        '<h3 style="font-size:1rem;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de récupération</h3>' +
         '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] mesure l\'etat de recuperation de ton systeme nerveux autonome.</p>' +
         '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Il combine 6 indicateurs : VFC (RMSSD), frequence cardiaque au repos, qualite et duree du sommeil, tension arterielle et poids.</p>' +
         '<div style="background:#f8f6f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:0.82rem;line-height:1.6;">' +
-          '<div><span style="color:#2d6a4f;font-weight:700;">Vert (65+)</span> : bonne recuperation</div>' +
-          '<div><span style="color:#f59e0b;font-weight:700;">Orange (40-64)</span> : recuperation moderee</div>' +
-          '<div><span style="color:#dc2626;font-weight:700;">Rouge (&lt;40)</span> : recuperation faible</div>' +
+          '<div><span style="color:#2d6a4f;font-weight:700;">Vert (65+)</span> : bonne récupération</div>' +
+          '<div><span style="color:#f59e0b;font-weight:700;">Orange (40-64)</span> : récupération modérée</div>' +
+          '<div><span style="color:#dc2626;font-weight:700;">Rouge (&lt;40)</span> : récupération faible</div>' +
         '</div>' +
         '<p style="font-size:0.82rem;color:#6b7280;line-height:1.5;margin:0 0 6px 0;">Le score est calcule par rapport a ta propre baseline des 30 derniers jours - pas des normes exterieures.</p>' +
         '<p style="font-size:0.78rem;color:#9ca3af;margin:0;">Base sur minimum 5 jours de mesures renseignees.</p>' +
