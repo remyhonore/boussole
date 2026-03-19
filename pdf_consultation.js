@@ -43,13 +43,13 @@ function _moyenne(vals) {
  */
 function _tendance7j(vals) {
   const v = vals.filter(x => x !== null && x !== undefined);
-  if (v.length < 5) return 'Stable';
+  if (v.length < 5) return 'stable';
   const debut = v.slice(0, 3);
   const fin   = v.slice(-3);
   const delta = _moyenne(fin) - _moyenne(debut);
-  if (delta > 0.5)  return 'Hausse';
-  if (delta < -0.5) return 'Baisse';
-  return 'Stable';
+  if (delta > 0.5)  return 'hausse';
+  if (delta < -0.5) return 'baisse';
+  return 'stable';
 }
 
 function _joursBasPct(vals) {
@@ -596,8 +596,8 @@ function genererPDFConsultation(motifItems, noteLibre) {
     const joursStr2 = m.joursBas + '/' + m.nbJours;
 
     let tendTxt, tendColor;
-    if      (m.tendance === 'Hausse') { tendTxt = 'am\xe9lioration'; tendColor = GREEN_SOFT; }
-    else if (m.tendance === 'Baisse') { tendTxt = 'aggravation';    tendColor = DARK_WARM;  }
+    if      (m.tendance === 'hausse') { tendTxt = 'am\xe9lioration'; tendColor = GREEN_SOFT; }
+    else if (m.tendance === 'baisse') { tendTxt = 'aggravation';    tendColor = DARK_WARM;  }
     else                              { tendTxt = 'stable';         tendColor = MUTED;      }
 
     let comTxt, comColor, comBold;
