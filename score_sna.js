@@ -25,7 +25,7 @@ window.ScoreSNA = (function() {
   }
 
   function _series30j() {
-    var vide = { series: { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [] }, derniere: null };
+    var vide = { series: { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [], duree_sommeil: [] }, derniere: null };
     var raw;
     try { raw = localStorage.getItem(STORAGE_KEY); } catch (ex) { return vide; }
     var data = raw ? JSON.parse(raw) : { entries: [] };
@@ -38,7 +38,7 @@ window.ScoreSNA = (function() {
     });
     recent.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
 
-    var series = { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [] };
+    var series = { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [], duree_sommeil: [] };
 
     recent.forEach(function(e) {
       // Sommeil : qualite_sommeil (1-10), normalise sur [0-100]
@@ -52,16 +52,27 @@ window.ScoreSNA = (function() {
         var m;
         try { m = JSON.parse(rawM); } catch (ex) {}
         if (m) {
-          if (typeof m.rmssd  === 'number' && m.rmssd  > 0) series.rmssd.push(m.rmssd);
-          if (typeof m.fc     === 'number' && m.fc     > 0) series.fc.push(m.fc);
-          if (typeof m.ta_sys === 'number' && m.ta_sys > 0) series.ta_sys.push(m.ta_sys);
-          if (typeof m.ta_dia === 'number' && m.ta_dia > 0) series.ta_dia.push(m.ta_dia);
-          if (typeof m.poids  === 'number' && m.poids  > 0) series.poids_kg.push(m.poids);
+          if (typeof m.rmssd        === 'number' && m.rmssd        > 0) series.rmssd.push(m.rmssd);
+          if (typeof m.fc           === 'number' && m.fc           > 0) series.fc.push(m.fc);
+          if (typeof m.ta_sys       === 'number' && m.ta_sys       > 0) series.ta_sys.push(m.ta_sys);
+          if (typeof m.ta_dia       === 'number' && m.ta_dia       > 0) series.ta_dia.push(m.ta_dia);
+          if (typeof m.poids        === 'number' && m.poids        > 0) series.poids_kg.push(m.poids);
+          if (typeof m.duree_sommeil === 'number' && m.duree_sommeil > 0) series.duree_sommeil.push(m.duree_sommeil);
         }
       }
     });
 
     return { series: series, derniere: recent[recent.length - 1] || null };
+  }
+
+  function _scoreSommeil(entry, mesures) {
+    var qualite = typeof entry.qualite_sommeil === 'number' ? entry.qualite_sommeil : null;
+    var duree = mesures && typeof mesures.duree_sommeil === 'number' ? mesures.duree_sommeil : null;
+    if (!qualite) return null;
+    var scoreQualite = qualite * 10; // [0-100]
+    if (!duree) return scoreQualite; // fallback si pas de duree
+    var scoreDuree = Math.max(0, Math.min(100, 100 - Math.abs(duree - 8.5) / 8.5 * 100));
+    return scoreQualite * 0.6 + scoreDuree * 0.4;
   }
 
   function calculer() {
@@ -78,19 +89,19 @@ window.ScoreSNA = (function() {
       try { mesures = JSON.parse(rawM); } catch (ex) {}
     }
 
-    var som = typeof derniere.qualite_sommeil === 'number' ? derniere.qualite_sommeil : null;
+    var mesures_j = mesures;
 
     var scoreTotal = 0;
     var poidsActifs = 0;
     var detail = {};
 
     var configs = [
-      { cle: 'rmssd',    valeur: mesures.rmssd,                    inverse: false },
-      { cle: 'fc',       valeur: mesures.fc,                       inverse: true  },
-      { cle: 'sommeil',  valeur: som !== null ? som * 10 : null,   inverse: false },
-      { cle: 'ta_sys',   valeur: mesures.ta_sys,                   inverse: true  },
-      { cle: 'ta_dia',   valeur: mesures.ta_dia,                   inverse: true  },
-      { cle: 'poids_kg', valeur: mesures.poids,                    inverse: true  }
+      { cle: 'rmssd',    valeur: mesures.rmssd,                      inverse: false },
+      { cle: 'fc',       valeur: mesures.fc,                         inverse: true  },
+      { cle: 'sommeil',  valeur: _scoreSommeil(derniere, mesures_j), inverse: false },
+      { cle: 'ta_sys',   valeur: mesures.ta_sys,                     inverse: true  },
+      { cle: 'ta_dia',   valeur: mesures.ta_dia,                     inverse: true  },
+      { cle: 'poids_kg', valeur: mesures.poids,                      inverse: true  }
     ];
 
     configs.forEach(function(cfg) {
