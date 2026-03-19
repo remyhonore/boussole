@@ -858,9 +858,8 @@ function refreshSummary() {
     html += `</div>`;
   }
 
-  // Score SNA (Feature R — ADR-2026-032)
+  // Score de recuperation (Feature R — ADR-2026-032)
   html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
-    '<div style="font-size:0.85rem;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Score SNA</div>' +
     '<div id="jauge-sna"></div>' +
     '</div>';
 
