@@ -865,6 +865,37 @@ function genererPDFConsultation(motifItems, noteLibre) {
     y += 5;
   }
 
+  // Score SNA
+  if (typeof window.ScoreSNA === 'object' && window.ScoreSNA !== null) {
+    var sna = window.ScoreSNA.resumePDF();
+    if (sna) {
+      var margin  = marginL;
+      var contentWidth = contentW;
+      checkPage(20 + sna.lignes.length * 5);
+      doc.setFillColor(240, 247, 243);
+      doc.roundedRect(margin, y, contentWidth, 14 + sna.lignes.length * 5, 3, 3, 'F');
+      y += 5;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(45, 106, 79);
+      doc.text('SCORE SNA - Systeme Nerveux Autonome', margin + 4, y);
+      y += 5;
+      doc.setFontSize(12);
+      doc.text(String(sna.score) + '/100  ' + sna.label, margin + 4, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(107, 114, 128);
+      sna.lignes.forEach(function(ligne) {
+        doc.text('- ' + ligne, margin + 6, y);
+        y += 5;
+      });
+      y += 2;
+      drawSep(y);
+      y += 5;
+    }
+  }
+
   // ============================================================
   // 8. EPISODES DE CRASH (conditionnel)
   // ============================================================
