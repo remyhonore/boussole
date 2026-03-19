@@ -1180,10 +1180,10 @@ html.dark .mesures-header-sub { color: #8aab9e; }
 /* Bouton "Signaler un événement" — outline vert cohérent avec l'app */
 #btn-mark-event {
   background: none;
-  border: 1px solid #2d6a4f;
+  border: 2px solid #2d6a4f;
   color: #2d6a4f;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   padding: 5px 14px;
   border-radius: 16px;
