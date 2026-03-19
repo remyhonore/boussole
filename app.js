@@ -1117,7 +1117,7 @@ function openEventModal(editKey) {
     document.getElementById('event-desc').value = '';
     document.getElementById('event-type').value = '';
     document.getElementById('event-desc-count').textContent = '0/300';
-    modal.querySelector('h3').textContent = '📌 Événement notable';
+    modal.querySelector('h3').textContent = '▶ Événement notable';
   }
 }
 
@@ -3041,7 +3041,7 @@ function collectHubEntries() {
       entries.push({
         date: e.date,
         type: 'event',
-        label: '📌 Événement',
+        label: '▶ Événement',
         text: e.description || '',
         badge: eventTypeLabels[e.type] || e.type || ''
       });
