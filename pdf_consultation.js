@@ -96,11 +96,10 @@ function genererPDFConsultation(motifItems, noteLibre) {
 
   rawEntries.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
 
-  const aujourd_hui = new Date();
-  aujourd_hui.setHours(0, 0, 0, 0);
-  const cutoff = new Date(aujourd_hui);
+  const aujourd_hui = _localDateStr(new Date());
+  const cutoff = new Date(aujourd_hui + 'T12:00:00');
   cutoff.setDate(cutoff.getDate() - 6);
-  const cutoffStr = _localDateStr(cutoff);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
   const entrees = rawEntries.filter(function(e) { return e.date >= cutoffStr; });
 
   if (entrees.length === 0) {
