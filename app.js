@@ -858,6 +858,12 @@ function refreshSummary() {
     html += `</div>`;
   }
 
+  // Corrélations mesures biologiques / bien-être
+  if (typeof window.renderCorrelationsCard === 'function') {
+    const corrHtml = window.renderCorrelationsCard(data.entries);
+    if (corrHtml) html += corrHtml;
+  }
+
   // Variations
   if (summary.variations && summary.variations.length > 0) {
     html += `<div class="card">`;
@@ -1207,7 +1213,8 @@ window.getRecentEvents = function(daysSince) {
 function showPDFPreview() {
   const data = loadEntries();
   const summary = calculateSummary(data.entries, 30);
-  
+  summary.entries = data.entries;
+
   const preview = generatePDFPreview(summary);
   
   // Afficher modal avec aperçu
@@ -1238,7 +1245,8 @@ async function downloadPDFFromModal() {
   try {
     const data = loadEntries();
     const summary = calculateSummary(data.entries, 30);
-    
+    summary.entries = data.entries;
+
     const filename = await downloadPDF(summary);
     
     showStatus(`PDF téléchargé : ${filename}`, 'success');

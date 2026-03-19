@@ -327,6 +327,21 @@ function renderTendances(engine, summary) {
   engine.drawCard('1. TENDANCES', rows);
 }
 
+function renderCorrelationsPDF(engine, summary) {
+  if (typeof window.computeCorrelations !== 'function') return;
+  if (!summary.entries || !Array.isArray(summary.entries)) return;
+
+  const correlations = window.computeCorrelations(summary.entries, 30);
+  const significant  = correlations.filter(c => c.r !== null && Math.abs(c.r) >= 0.3 && c.n >= 5);
+  if (significant.length < 2) return;
+
+  const rows = significant.map(c => ({ main: c.interpretation, bold: false }));
+  const daysWithMeasures = correlations.reduce((max, c) => Math.max(max, c.n), 0);
+  rows.push({ main: `Base : ${daysWithMeasures} jours avec mesures renseignees.`, bold: false });
+
+  engine.drawCard('CORRELATIONS', rows);
+}
+
 function renderVFC(engine, summary) {
   if (!summary.rmssd) return;
   const { moyenne, min, max } = summary.rmssd;
@@ -436,6 +451,7 @@ async function generatePDF(summary) {
   renderHeader(engine, summary);
   renderStatusMessage(engine, summary);
   renderTendances(engine, summary);
+  renderCorrelationsPDF(engine, summary);
   renderVFC(engine, summary);
   renderVariations(engine, summary);
   renderPointsMarquants(engine, summary);
