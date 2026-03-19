@@ -5,7 +5,7 @@
 
 window.ScoreSNA = (function() {
 
-  var POIDS = { rmssd: 0.30, fc: 0.25, sommeil: 0.25, ta_sys: 0.15, poids_kg: 0.05 };
+  var POIDS = { rmssd: 0.30, fc: 0.25, sommeil: 0.25, ta_sys: 0.10, ta_dia: 0.05, poids_kg: 0.05 };
   var MIN_JOURS = 5;
   var STORAGE_KEY = 'boussole_v1_data';
 
@@ -25,7 +25,7 @@ window.ScoreSNA = (function() {
   }
 
   function _series30j() {
-    var vide = { series: { rmssd: [], fc: [], sommeil: [], ta_sys: [], poids_kg: [] }, derniere: null };
+    var vide = { series: { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [] }, derniere: null };
     var raw;
     try { raw = localStorage.getItem(STORAGE_KEY); } catch (ex) { return vide; }
     var data = raw ? JSON.parse(raw) : { entries: [] };
@@ -38,7 +38,7 @@ window.ScoreSNA = (function() {
     });
     recent.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
 
-    var series = { rmssd: [], fc: [], sommeil: [], ta_sys: [], poids_kg: [] };
+    var series = { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [] };
 
     recent.forEach(function(e) {
       // Sommeil : qualite_sommeil (1-10), normalise sur [0-100]
@@ -55,6 +55,7 @@ window.ScoreSNA = (function() {
           if (typeof m.rmssd  === 'number' && m.rmssd  > 0) series.rmssd.push(m.rmssd);
           if (typeof m.fc     === 'number' && m.fc     > 0) series.fc.push(m.fc);
           if (typeof m.ta_sys === 'number' && m.ta_sys > 0) series.ta_sys.push(m.ta_sys);
+          if (typeof m.ta_dia === 'number' && m.ta_dia > 0) series.ta_dia.push(m.ta_dia);
           if (typeof m.poids  === 'number' && m.poids  > 0) series.poids_kg.push(m.poids);
         }
       }
@@ -88,6 +89,7 @@ window.ScoreSNA = (function() {
       { cle: 'fc',       valeur: mesures.fc,                       inverse: true  },
       { cle: 'sommeil',  valeur: som !== null ? som * 10 : null,   inverse: false },
       { cle: 'ta_sys',   valeur: mesures.ta_sys,                   inverse: true  },
+      { cle: 'ta_dia',   valeur: mesures.ta_dia,                   inverse: true  },
       { cle: 'poids_kg', valeur: mesures.poids,                    inverse: true  }
     ];
 
@@ -128,7 +130,7 @@ window.ScoreSNA = (function() {
     var circ = Math.PI * rayon;
     var offset = circ - (score / 100) * circ;
 
-    var noms = { rmssd: 'VFC (RMSSD)', fc: 'FC repos', sommeil: 'Sommeil', ta_sys: 'TA systolique', poids_kg: 'Poids' };
+    var noms = { rmssd: 'VFC (RMSSD)', fc: 'FC repos', sommeil: 'Sommeil', ta_sys: 'TA systolique', ta_dia: 'TA diastolique', poids_kg: 'Poids' };
     var detailHTML = Object.keys(detail).map(function(k) {
       var v = detail[k];
       var col = v >= 65 ? '#2d6a4f' : v >= 40 ? '#f59e0b' : '#dc2626';
@@ -162,7 +164,7 @@ window.ScoreSNA = (function() {
     if (!res) return null;
     var score = res.score, couleur = res.couleur, detail = res.detail;
     var lib = { vert: 'Bonne recuperation', orange: 'Recuperation moderee', rouge: 'Recuperation faible' };
-    var noms = { rmssd: 'VFC RMSSD', fc: 'FC repos', sommeil: 'Sommeil', ta_sys: 'TA systolique', poids_kg: 'Poids' };
+    var noms = { rmssd: 'VFC RMSSD', fc: 'FC repos', sommeil: 'Sommeil', ta_sys: 'TA systolique', ta_dia: 'TA diastolique', poids_kg: 'Poids' };
     var lignes = Object.keys(detail).map(function(k) {
       return (noms[k] || k) + ' : ' + detail[k] + '/100';
     });
