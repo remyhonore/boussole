@@ -1117,49 +1117,71 @@ function genererPDFConsultation(motifItems, noteLibre) {
     doc.text('Niveau de gris = score composite (energie / sommeil / confort / clarte)', marginL, y);
     y += 5;
 
-    var pastW    = 10;
-    var pastH    = 10;
-    var pastR    = 2;
-    var pastGap  = 2;
-    var pastStep = pastW + pastGap;
-    var totalCalW = 14 * pastW + 13 * pastGap;
-    var startCalX = marginL + (contentW - totalCalW) / 2;
+    var cellW     = 11;
+    var cellH     = 13;
+    var cellR     = 1;
+    var cellGap   = 1;
+    var cellStep  = cellW + cellGap;
+    var totalCalW = 14 * cellW + 13 * cellGap;
+    var useTwo    = totalCalW > contentW;
+    var perRow    = useTwo ? 7 : 14;
+    var rowCalW   = perRow * cellW + (perRow - 1) * cellGap;
+    var startCalX = marginL + (contentW - rowCalW) / 2;
 
     var entryMap14 = {};
     rawEntries.forEach(function(e) { entryMap14[e.date] = e; });
 
     for (var ci = 13; ci >= 0; ci--) {
+      var cellIdx = 13 - ci;
+      var cellRow = Math.floor(cellIdx / perRow);
+      var cellCol = cellIdx % perRow;
       var cd    = new Date(aujourd_hui14);
       cd.setDate(cd.getDate() - ci);
       var cdStr = _localDateStr(cd);
-      var px    = startCalX + (13 - ci) * pastStep;
+      var px    = startCalX + cellCol * cellStep;
+      var py    = y + cellRow * (cellH + cellGap);
 
       var entry14 = entryMap14[cdStr];
-      if (!entry14) {
-        doc.setFillColor(204, 204, 204);
-      } else {
+      var score14Val = null;
+      if (entry14) {
         var vals14 = [entry14.energie, entry14.qualite_sommeil, entry14.douleurs, entry14.clarte_mentale]
           .filter(function(v) { return v !== null && v !== undefined; });
-        if (vals14.length === 0) {
-          doc.setFillColor(204, 204, 204);
-        } else {
-          var score14 = vals14.reduce(function(a, b) { return a + b; }, 0) / vals14.length;
-          if      (score14 >= 7) { doc.setFillColor(200, 200, 200); }
-          else if (score14 >= 4) { doc.setFillColor(140, 140, 140); }
-          else                   { doc.setFillColor(80,  80,  80);  }
+        if (vals14.length > 0) {
+          score14Val = vals14.reduce(function(a, b) { return a + b; }, 0) / vals14.length;
         }
       }
-      doc.roundedRect(px, y, pastW, pastH, pastR, pastR, 'F');
+
+      if (score14Val === null) {
+        doc.setFillColor(245, 245, 245);
+      } else if (score14Val >= 7) {
+        doc.setFillColor(220, 220, 220);
+      } else if (score14Val >= 4) {
+        doc.setFillColor(160, 160, 160);
+      } else {
+        doc.setFillColor(80, 80, 80);
+      }
+      doc.roundedRect(px, py, cellW, cellH, cellR, cellR, 'F');
 
       var cdm = (cd.getDate() < 10 ? '0' : '') + cd.getDate();
       var cmm = (cd.getMonth() + 1 < 10 ? '0' : '') + (cd.getMonth() + 1);
-      doc.setFontSize(6);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-      doc.text(cdm + '/' + cmm, px + pastW / 2, y + pastH + 4, { align: 'center' });
+      if (score14Val !== null) {
+        doc.setTextColor(score14Val < 4 ? 255 : 26, score14Val < 4 ? 255 : 26, score14Val < 4 ? 255 : 26);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text(score14Val.toFixed(1), px + cellW / 2, py + 5, { align: 'center' });
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'normal');
+        doc.text(cdm + '/' + cmm, px + cellW / 2, py + 10, { align: 'center' });
+      } else {
+        doc.setTextColor(180, 180, 180);
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'normal');
+        doc.text(cdm + '/' + cmm, px + cellW / 2, py + 7.5, { align: 'center' });
+      }
     }
 
-    y += pastH + 8;
+    var numRows = useTwo ? 2 : 1;
+    y += numRows * cellH + (numRows - 1) * cellGap + 6;
     drawSep(y);
     y += 5;
   }
@@ -1421,8 +1443,9 @@ function genererPDFConsultation(motifItems, noteLibre) {
   const pdfUrl = doc.output('bloburl');
 
   // Nom de fichier dynamique
-  const _nom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
-  const _prenom = (localStorage.getItem('boussole_prenom') || '').trim();
+  const _normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const _nom    = _normalize((localStorage.getItem('boussole_nom')    || '').trim()).toUpperCase();
+  const _prenom = _normalize((localStorage.getItem('boussole_prenom') || '').trim());
   const _now    = new Date();
   const _dd     = String(_now.getDate()).padStart(2, '0');
   const _mm     = String(_now.getMonth() + 1).padStart(2, '0');
