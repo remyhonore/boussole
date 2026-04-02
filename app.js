@@ -787,6 +787,9 @@ function refreshSummary() {
   // 3. Problème principal
   html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
 
+  // 3b. Carte Pacing Repos 14j
+  html += buildBlocRepos();
+
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
@@ -1097,6 +1100,7 @@ function refreshSummary() {
       }
     });
     if (window.ScoreSNA) window.ScoreSNA.renderJauge('jauge-sna');
+    renderSparkRepos();
   }, 300);
 }
 
@@ -1340,6 +1344,116 @@ function computeStabilityScore() {
   return { stdDev30, stdDevFirst, stdDevSecond, count, trend };
 }
 window.computeStabilityScore = computeStabilityScore;
+
+/**
+ * === PACING REPOS — carte tendance 14j (Feature Pacing-Repos) ===
+ * Affiche deux sparklines Chart.js (sommeil nocturne + repos diurne)
+ * Condition : au moins 3 jours renseignés sur au moins une des deux séries.
+ */
+function buildBlocRepos() {
+  var days = 14;
+  var today = new Date();
+  var dataSommeil = [];
+  var dataRepos   = [];
+  var labels      = [];
+
+  for (var i = days - 1; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var dateStr = d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+    labels.push(String(d.getDate()) + '/' + String(d.getMonth() + 1).padStart(2, '0'));
+    var raw = localStorage.getItem('boussole_mesures_' + dateStr);
+    var mesures = raw ? JSON.parse(raw) : {};
+    dataSommeil.push(mesures.sommeil_duree  !== undefined ? mesures.sommeil_duree  : null);
+    dataRepos.push(  mesures.repos_diurne   !== undefined ? mesures.repos_diurne   : null);
+  }
+
+  var sommeilDef = dataSommeil.filter(function(v) { return v !== null; });
+  var reposDef   = dataRepos.filter(function(v)   { return v !== null; });
+
+  if (sommeilDef.length < 3 && reposDef.length < 3) return '';
+
+  var avgSommeil = sommeilDef.length > 0
+    ? (sommeilDef.reduce(function(a, b) { return a + b; }, 0) / sommeilDef.length).toFixed(1) : null;
+  var avgRepos = reposDef.length > 0
+    ? (reposDef.reduce(function(a, b)   { return a + b; }, 0) / reposDef.length).toFixed(1)   : null;
+
+  var ts = Date.now();
+  var idSommeil = 'spark-sommeil-' + ts;
+  var idRepos   = 'spark-repos-'   + (ts + 1);
+
+  // Stocker les data en global pour le rendu post-innerHTML
+  window._sparkReposData = { labels: labels, dataSommeil: dataSommeil, dataRepos: dataRepos,
+    idSommeil: idSommeil, idRepos: idRepos };
+
+  var html =
+    '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:12px;">' +
+      '<p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#6b7280;text-transform:uppercase;margin:0 0 10px;">TEMPS DE REPOS — 14 JOURS</p>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+        '<div>' +
+          '<p style="font-size:11px;color:#3B82F6;font-weight:600;margin:0 0 4px;">🌙 Sommeil nocturne</p>' +
+          '<canvas id="' + idSommeil + '" height="60" style="width:100%;height:60px;"></canvas>' +
+          (avgSommeil !== null
+            ? '<p style="font-size:12px;color:#6b7280;margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgSommeil + 'h</strong></p>'
+            : '<p style="font-size:11px;color:#d1d5db;margin:4px 0 0;text-align:center;">Non renseigné</p>') +
+        '</div>' +
+        '<div>' +
+          '<p style="font-size:11px;color:#2d6a4f;font-weight:600;margin:0 0 4px;">🛋 Repos diurne</p>' +
+          '<canvas id="' + idRepos + '" height="60" style="width:100%;height:60px;"></canvas>' +
+          (avgRepos !== null
+            ? '<p style="font-size:12px;color:#6b7280;margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgRepos + 'h</strong></p>'
+            : '<p style="font-size:11px;color:#d1d5db;margin:4px 0 0;text-align:center;">Non renseigné</p>') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  return html;
+}
+
+/**
+ * Rendu des sparklines Pacing-Repos après injection HTML dans le DOM.
+ * Appelé dans le setTimeout de refreshSummary, après le rendu du chart 30j.
+ */
+function renderSparkRepos() {
+  var d = window._sparkReposData;
+  if (!d || typeof Chart === 'undefined') return;
+
+  var commonOpts = {
+    type: 'bar',
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false, min: 0, max: 12 }
+      }
+    }
+  };
+
+  var cSommeil = document.getElementById(d.idSommeil);
+  if (cSommeil) {
+    new Chart(cSommeil, Object.assign({}, commonOpts, {
+      data: {
+        labels: d.labels,
+        datasets: [{ data: d.dataSommeil, backgroundColor: '#3B82F6', borderRadius: 2 }]
+      }
+    }));
+  }
+
+  var cRepos = document.getElementById(d.idRepos);
+  if (cRepos) {
+    new Chart(cRepos, Object.assign({}, commonOpts, {
+      data: {
+        labels: d.labels,
+        datasets: [{ data: d.dataRepos, backgroundColor: '#2d6a4f', borderRadius: 2 }]
+      }
+    }));
+  }
+}
 
 /**
  * Génère le bloc HTML de score de stabilité (partagé Résumé + Montrer au médecin).
@@ -2174,6 +2288,9 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
 
       if (fc && fc.value) mesures.fc = parseInt(fc.value);
       if (sommeilDureeEl && sommeilDureeEl.value) mesures.sommeil_duree = parseFloat(sommeilDureeEl.value);
+
+      var reposDiurneEl = document.getElementById('mesures-repos-diurne');
+      if (reposDiurneEl && reposDiurneEl.value !== '') mesures.repos_diurne = parseFloat(reposDiurneEl.value);
       if (rmssd && rmssd.value) mesures.rmssd = parseInt(rmssd.value);
       if (taSys && taSys.value) mesures.ta_sys = parseInt(taSys.value);
       if (taDia && taDia.value) mesures.ta_dia = parseInt(taDia.value);
@@ -2211,6 +2328,8 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
       var mesures = JSON.parse(data);
       if (mesures.fc) document.getElementById('input-fc').value = mesures.fc;
       if (mesures.sommeil_duree) document.getElementById('mesures-sommeil').value = mesures.sommeil_duree;
+      var inputRepos = document.getElementById('mesures-repos-diurne');
+      if (inputRepos) inputRepos.value = (mesures.repos_diurne !== undefined) ? mesures.repos_diurne : '';
       if (mesures.rmssd) document.getElementById('input-rmssd').value = mesures.rmssd;
       if (mesures.ta_sys) document.getElementById('input-ta-sys').value = mesures.ta_sys;
       if (mesures.ta_dia) document.getElementById('input-ta-dia').value = mesures.ta_dia;
