@@ -176,6 +176,19 @@
     .fiche-section-texte { font-size:13px; color:#374151; margin:0; line-height:1.5; }
     .fiche-lien { display:inline-block; font-size:12px; color:#2d6a4f; font-weight:600; text-decoration:none; border-bottom:1px solid #2d6a4f; padding-bottom:1px; }
     .fiche-lien:hover { color:#1e4d38; }
+
+    /* Feature D — Profil foyers dominants */
+    .modal-profil-overlay{display:none;position:fixed;inset:0;background:rgba(6,23,45,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;}
+    .modal-profil-overlay.active{display:flex;}
+    .modal-profil{background:#fff;border-radius:16px;padding:24px 20px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;}
+    .profil-card{border:2px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;}
+    .profil-card.selected{border-color:#2d6a4f;background:rgba(45,106,79,.07);}
+    .profil-card-emoji{font-size:24px;flex-shrink:0;line-height:1.2;}
+    .profil-card-label{font-size:14px;font-weight:700;color:#06172D;margin:0 0 2px;}
+    .profil-card-desc{font-size:12px;color:#6b7280;margin:0;}
+    .btn-confirmer-profil{width:100%;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
+    .btn-confirmer-profil:disabled{background:#9ca3af;cursor:not-allowed;}
+    .profil-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(45,106,79,.1);color:#2d6a4f;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;}
   </style>
 
   <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
@@ -624,6 +637,13 @@
       <div class="card">
         <h2 class="card-title">Paramètres</h2>
 
+        <!-- Feature D — Profil foyers -->
+        <div style="margin-bottom:16px;padding:14px;background:rgba(45,106,79,.06);border-radius:10px;border:1.5px solid rgba(45,106,79,.18);">
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 8px;">Ton profil</p>
+          <div id="profil-actif-display" style="margin-bottom:10px;"></div>
+          <button onclick="ouvrirModaleProfil()" style="padding:7px 14px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Changer de profil</button>
+        </div>
+
         <div class="settings-group">
           <p class="settings-label">Mes informations (pour le PDF consultation)</p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
@@ -797,7 +817,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.93 — </span>
+    <span>Boussole v8.94 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1296,6 +1316,17 @@
     </div>
   </div>
 
+  <!-- Modale Feature D — Profil foyers -->
+  <div class="modal-profil-overlay" id="modal-profil">
+    <div class="modal-profil">
+      <h2 style="font-size:20px;font-weight:800;color:#06172D;margin:0 0 4px;">Quel est ton profil ?</h2>
+      <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">Choisis le foyer dominant de tes symptômes. Tu pourras le modifier dans Paramètres.</p>
+      <div id="profil-cards-container"></div>
+      <button class="btn-confirmer-profil" id="btn-confirmer-profil" disabled onclick="confirmerProfil()">Confirmer mon profil</button>
+      <button onclick="fermerModaleProfil()" style="width:100%;padding:10px;background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;margin-top:8px;">Passer cette étape</button>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="storage.js" defer></script>
   <script src="calc.js" defer></script>
@@ -1308,6 +1339,7 @@
   <script src="correlations.js" defer></script>
   <script src="score_sna.js" defer></script>
   <script src="share_profile.js" defer></script>
+  <script src="profil_data.js" defer></script>
   <script src="app.js" defer></script>
 
   <script>

@@ -40,6 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   switchPanel('today');
 
+  // Feature D — Modale profil si onboardé mais pas encore de profil défini
+  if (localStorage.getItem('boussole_onboarded') && !localStorage.getItem('boussole_profil')) {
+    setTimeout(() => ouvrirModaleProfil(), 900);
+  }
+  // Feature D — Afficher profil actif dans Paramètres
+  renderProfilActifDisplay();
+
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
     switchPanel('today');
@@ -773,7 +780,21 @@ function refreshSummary() {
   const noteConsultation7j = localStorage.getItem('boussole_note_consultation') || '';
   const noteLC7j = noteConsultation7j.toLowerCase();
 
+  // Feature D — Profil actif
+  const profilActif = window.getProfilActif ? window.getProfilActif() : null;
+
   let html = '';
+
+  // Feature D — Tip profil en tête du résumé
+  if (profilActif) {
+    html += `<div style="border-radius:10px;padding:12px 14px;margin-bottom:12px;background:rgba(45,106,79,.07);border:1.5px solid rgba(45,106,79,.2);display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:20px;line-height:1.2;">${profilActif.emoji}</span>
+      <div>
+        <p style="margin:0;font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;">${profilActif.label}</p>
+        <p style="margin:4px 0 0;font-size:13px;color:#374151;line-height:1.4;">${profilActif.tip}</p>
+      </div>
+    </div>`;
+  }
 
   // 1. Synthèse fonctionnelle 7j
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
@@ -3328,4 +3349,66 @@ function toggleFicheInline(id) {
     chevron.innerHTML = '&#x203A;';
     btn.setAttribute('aria-expanded', 'false');
   }
+}
+
+// ============================================================
+// Feature D — Profil foyers dominants
+// ============================================================
+
+function ouvrirModaleProfil() {
+  const overlay = document.getElementById('modal-profil');
+  if (!overlay) return;
+  const container = document.getElementById('profil-cards-container');
+  if (container && window.PROFILS_DATA) {
+    const profilActuel = localStorage.getItem('boussole_profil');
+    container.innerHTML = Object.values(window.PROFILS_DATA).map(p => `
+      <div class="profil-card${profilActuel === p.id ? ' selected' : ''}" data-id="${p.id}" onclick="selectionnerProfil('${p.id}')">
+        <div class="profil-card-emoji">${p.emoji}</div>
+        <div class="profil-card-text">
+          <p class="profil-card-label">${p.label}</p>
+          <p class="profil-card-desc">${p.description}</p>
+        </div>
+      </div>`).join('');
+    const btn = document.getElementById('btn-confirmer-profil');
+    if (btn) btn.disabled = !profilActuel;
+    if (profilActuel && btn) btn.dataset.selected = profilActuel;
+  }
+  overlay.classList.add('active');
+}
+
+function fermerModaleProfil() {
+  document.getElementById('modal-profil')?.classList.remove('active');
+  renderProfilActifDisplay();
+}
+
+function selectionnerProfil(id) {
+  document.querySelectorAll('.profil-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.profil-card[data-id="${id}"]`)?.classList.add('selected');
+  const btn = document.getElementById('btn-confirmer-profil');
+  if (btn) {
+    btn.disabled = false;
+    btn.dataset.selected = id;
+  }
+}
+
+function confirmerProfil() {
+  const btn = document.getElementById('btn-confirmer-profil');
+  const id = btn?.dataset.selected
+    || document.querySelector('.profil-card.selected')?.dataset.id;
+  if (id && window.setProfilActif) {
+    window.setProfilActif(id);
+    fermerModaleProfil();
+    if (document.getElementById('panel-resume')?.classList.contains('active')) {
+      refreshSummary();
+    }
+  }
+}
+
+function renderProfilActifDisplay() {
+  const el = document.getElementById('profil-actif-display');
+  if (!el) return;
+  const p = window.getProfilActif ? window.getProfilActif() : null;
+  el.innerHTML = p
+    ? `<span class="profil-badge">${p.emoji} ${p.label}</span>`
+    : '<span style="font-size:13px;color:#9ca3af;font-style:italic;">Aucun profil défini</span>';
 }
