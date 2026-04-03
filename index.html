@@ -574,10 +574,17 @@
         </button>
         <button
           onclick="ouvrirModaleConsultation('presentation')"
-          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
+          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
           aria-label="Afficher le résumé en plein écran pour votre médecin"
         >
           &#x1F4F1; Montrer au médecin
+        </button>
+        <button
+          onclick="ouvrirModaleMsgMedecin()"
+          style="width:100%;background:#fff;border:1.5px solid rgba(110,135,125,.4);color:#06172D;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
+          aria-label="Envoyer un message à mon médecin"
+        >
+          &#x2709;&#xFE0F; Message à mon médecin
         </button>
       </div>
 
@@ -821,7 +828,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.04 — </span>
+    <span>Boussole v9.05 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1102,6 +1109,66 @@
     </div>
   </div>
 
+  <!-- Modale Message Médecin -->
+  <div id="modal-msg-medecin" role="dialog" aria-modal="true" aria-labelledby="msg-medecin-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:92vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <h2 id="msg-medecin-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;">✉️ Message à mon médecin</h2>
+        <button onclick="fermerModaleMsgMedecin()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">×</button>
+      </div>
+      <p style="font-size:13px;color:rgba(6,23,45,.5);margin:0 0 16px;">Message court (SMS / email) rédigé par l'IA à partir de vos notes.</p>
+
+      <!-- Nom du médecin -->
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Nom du médecin (optionnel)</label>
+        <input type="text" id="msg-medecin-nom-dr" placeholder="Dr Dupont" style="width:100%;padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
+      </div>
+
+      <!-- Période -->
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Période</label>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="msg-period" value="7j" checked style="accent-color:#2d6a4f;"> 7 derniers jours
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="msg-period" value="14j" style="accent-color:#2d6a4f;"> 14 derniers jours
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="msg-period" value="depuis-consult" style="accent-color:#2d6a4f;"> Depuis la dernière consultation
+          </label>
+        </div>
+      </div>
+
+      <!-- Motif du message -->
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Motif du message</label>
+        <textarea id="msg-medecin-motif" maxlength="300" rows="3" placeholder="Ex: effets indésirables suite à l'augmentation du Quviviq à 50mg — dois-je continuer ?" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"></textarea>
+        <p style="font-size:11px;color:rgba(6,23,45,.38);margin:3px 0 0;">Ce motif sera intégré dans le message généré.</p>
+      </div>
+
+      <button onclick="genererMsgMedecin()" id="btn-generer-msg" style="width:100%;background:#06172D;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">
+        Générer le message
+      </button>
+
+      <!-- Zone résultat -->
+      <div id="msg-medecin-result" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.04em;">Message généré</span>
+          <div style="display:flex;gap:8px;">
+            <button onclick="copierMsgMedecin()" style="padding:5px 12px;background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Copier</button>
+            <button onclick="partagerMsgMedecin()" id="btn-partager-msg" style="padding:5px 12px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Partager</button>
+          </div>
+        </div>
+        <textarea id="msg-medecin-texte" rows="12" style="width:100%;padding:12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;"></textarea>
+        <p style="font-size:11px;color:rgba(6,23,45,.38);margin:6px 0 0;">Vous pouvez modifier le texte avant de le copier ou partager.</p>
+      </div>
+
+      <!-- Erreur -->
+      <div id="msg-medecin-error" style="display:none;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:8px;padding:10px 14px;font-size:13px;color:#333;margin-top:8px;"></div>
+    </div>
+  </div>
+
   <!-- Modale Consultation -->
   <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
@@ -1379,6 +1446,140 @@
   <script>
     // ---- Modale consultation ----
     var _consultationMode = 'presentation'; // 'pdf' | 'presentation'
+
+    // ============================================================
+    // MESSAGE MÉDECIN
+    // ============================================================
+    function ouvrirModaleMsgMedecin() {
+      document.getElementById('modal-msg-medecin').style.display = 'flex';
+      document.getElementById('msg-medecin-result').style.display = 'none';
+      document.getElementById('msg-medecin-error').style.display = 'none';
+      document.getElementById('msg-medecin-texte').value = '';
+      document.getElementById('btn-generer-msg').textContent = 'Générer le message';
+      document.getElementById('btn-generer-msg').disabled = false;
+    }
+
+    function fermerModaleMsgMedecin() {
+      document.getElementById('modal-msg-medecin').style.display = 'none';
+    }
+
+    async function genererMsgMedecin() {
+      const btn = document.getElementById('btn-generer-msg');
+      const errEl = document.getElementById('msg-medecin-error');
+      const resultEl = document.getElementById('msg-medecin-result');
+      errEl.style.display = 'none';
+      resultEl.style.display = 'none';
+      btn.textContent = 'Génération en cours…';
+      btn.disabled = true;
+
+      // Période
+      const periodVal = (document.querySelector('input[name="msg-period"]:checked') || {value:'7j'}).value;
+      const today = new Date().toISOString().split('T')[0];
+      let dateFrom = today;
+      if (periodVal === '7j') {
+        const d = new Date(); d.setDate(d.getDate() - 6); dateFrom = d.toISOString().split('T')[0];
+      } else if (periodVal === '14j') {
+        const d = new Date(); d.setDate(d.getDate() - 13); dateFrom = d.toISOString().split('T')[0];
+      } else if (periodVal === 'depuis-consult') {
+        const pcKeys = Object.keys(localStorage).filter(k => k.startsWith('boussole_post_consultation_')).sort();
+        if (pcKeys.length > 0) dateFrom = pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
+        else { const d = new Date(); d.setDate(d.getDate() - 13); dateFrom = d.toISOString().split('T')[0]; }
+      }
+
+      // Construire le contexte
+      const nomDr = document.getElementById('msg-medecin-nom-dr').value.trim();
+      const motif = document.getElementById('msg-medecin-motif').value.trim();
+      const prenom = localStorage.getItem('boussole_prenom') || '';
+
+      const data = typeof loadEntries === 'function' ? loadEntries() : { entries: [] };
+      const entries = (data.entries || [])
+        .filter(e => e.date >= dateFrom && e.date <= today)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      let ctx = 'CONTEXTE DU MESSAGE\n';
+      if (nomDr) ctx += 'Médecin destinataire : Dr ' + nomDr + '\n';
+      if (prenom) ctx += 'Prénom du patient : ' + prenom + '\n';
+      if (motif) ctx += 'Motif du message : ' + motif + '\n';
+      ctx += 'Période : du ' + dateFrom + ' au ' + today + '\n\n';
+
+      if (entries.length > 0) {
+        ctx += 'NOTES ET SCORES QUOTIDIENS :\n';
+        entries.forEach(e => {
+          let parts = [e.date];
+          if (e.energie != null) parts.push('Énergie ' + e.energie + '/10');
+          if (e.qualite_sommeil != null) parts.push('Sommeil ' + e.qualite_sommeil + '/10');
+          if (e.douleurs != null) parts.push('Confort ' + e.douleurs + '/10');
+          if (e.clarte_mentale != null) parts.push('Clarté ' + e.clarte_mentale + '/10');
+          if (e.note) parts.push('Note : "' + e.note + '"');
+          ctx += parts.join(' — ') + '\n';
+        });
+        ctx += '\n';
+      }
+
+      // Événements récents
+      const events = typeof window.getRecentEvents === 'function' ? window.getRecentEvents(30) : [];
+      const evFiltered = events.filter(ev => ev.date >= dateFrom);
+      if (evFiltered.length > 0) {
+        ctx += 'ÉVÉNEMENTS NOTABLES :\n';
+        evFiltered.forEach(ev => {
+          ctx += ev.date + ' : ' + ev.description + '\n';
+        });
+        ctx += '\n';
+      }
+
+      // Essais
+      const essais = JSON.parse(localStorage.getItem('boussole_essais') || '[]');
+      const essaisActifs = essais.filter(es => !es.dateFin || es.dateFin >= dateFrom);
+      if (essaisActifs.length > 0) {
+        ctx += 'ESSAIS EN COURS :\n';
+        essaisActifs.forEach(es => {
+          ctx += '- ' + es.nom + (es.dose ? ' ' + es.dose : '') + (es.observation ? ' — ' + es.observation : '') + '\n';
+        });
+      }
+
+      if (ctx.length > 4000) ctx = ctx.slice(0, 4000) + '\n[contexte tronqué]';
+
+      try {
+        const resp = await fetch('/api/message-medecin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: ctx, max_tokens: 600 })
+        });
+        const json = await resp.json();
+        if (!resp.ok || json.error) throw new Error(json.error ? (json.error.message || JSON.stringify(json.error)) : 'Erreur serveur');
+        const textBlock = (json.content || []).find(b => b.type === 'text');
+        if (!textBlock) throw new Error('Réponse vide');
+        document.getElementById('msg-medecin-texte').value = textBlock.text;
+        resultEl.style.display = 'block';
+        // Afficher/masquer bouton Partager selon support Web Share API
+        document.getElementById('btn-partager-msg').style.display = navigator.share ? 'inline-block' : 'none';
+      } catch(e) {
+        errEl.textContent = 'Erreur : ' + e.message;
+        errEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'Régénérer';
+        btn.disabled = false;
+      }
+    }
+
+    function copierMsgMedecin() {
+      const txt = document.getElementById('msg-medecin-texte').value;
+      navigator.clipboard.writeText(txt).then(() => {
+        const btn = document.querySelector('#modal-msg-medecin button[onclick="copierMsgMedecin()"]');
+        if (btn) { btn.textContent = 'Copié ✓'; setTimeout(() => btn.textContent = 'Copier', 2000); }
+      }).catch(() => {
+        document.getElementById('msg-medecin-texte').select();
+        document.execCommand('copy');
+      });
+    }
+
+    function partagerMsgMedecin() {
+      const txt = document.getElementById('msg-medecin-texte').value;
+      if (navigator.share) {
+        navigator.share({ text: txt }).catch(() => {});
+      }
+    }
+
     function ouvrirModaleConsultation(mode) {
       _consultationMode = mode || 'presentation';
       const modal = document.getElementById('consultation-modal');
