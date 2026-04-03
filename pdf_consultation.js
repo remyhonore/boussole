@@ -68,10 +68,185 @@ function _dateLocale(dateStr) {
 }
 
 // ============================================
+// NARRATIVE — Collecte contexte + Appel API
+// ============================================
+
+/**
+ * Collecte toutes les donnees sur la periode et les serialise en texte
+ * structure lisible par le system prompt narratif.
+ * @param {string} dateFrom  YYYY-MM-DD
+ * @param {string} dateTo    YYYY-MM-DD
+ * @returns {string}
+ */
+function _buildNarrativeContext(dateFrom, dateTo) {
+  var lines = [];
+  lines.push('DONNEES PATIENT -- du ' + _dateLocale(dateFrom) + ' au ' + _dateLocale(dateTo));
+  lines.push('');
+
+  // --- Scores quotidiens ---
+  var data = loadEntries();
+  var entries = (data.entries || [])
+    .filter(function(e) { return e.date >= dateFrom && e.date <= dateTo; })
+    .sort(function(a, b) { return a.date.localeCompare(b.date); });
+
+  lines.push('=== SCORES QUOTIDIENS (' + entries.length + ' jours) ===');
+  if (entries.length === 0) {
+    lines.push('Aucune saisie sur cette periode.');
+  } else {
+    var sumE = 0, sumS = 0, sumC = 0, sumCl = 0, cntE = 0, cntS = 0, cntC = 0, cntCl = 0;
+    entries.forEach(function(e) {
+      var parts = [_dateLocale(e.date)];
+      if (e.energie          !== null && e.energie          !== undefined) { parts.push('Energie: '         + e.energie          + '/10'); sumE  += e.energie;          cntE++; }
+      if (e.qualite_sommeil  !== null && e.qualite_sommeil  !== undefined) { parts.push('Sommeil: '         + e.qualite_sommeil  + '/10'); sumS  += e.qualite_sommeil;  cntS++; }
+      if (e.douleurs         !== null && e.douleurs         !== undefined) { parts.push('Confort physique: '+ e.douleurs         + '/10'); sumC  += e.douleurs;         cntC++; }
+      if (e.clarte_mentale   !== null && e.clarte_mentale   !== undefined) { parts.push('Clarte mentale: '  + e.clarte_mentale   + '/10'); sumCl += e.clarte_mentale;   cntCl++; }
+      if (e.note) parts.push('Note: "' + e.note + '"');
+      lines.push(parts.join(' - '));
+    });
+    var moyParts = [];
+    if (cntE  > 0) moyParts.push('Energie ' + (sumE  / cntE ).toFixed(1));
+    if (cntS  > 0) moyParts.push('Sommeil ' + (sumS  / cntS ).toFixed(1));
+    if (cntC  > 0) moyParts.push('Confort '  + (sumC  / cntC ).toFixed(1));
+    if (cntCl > 0) moyParts.push('Clarte '   + (sumCl / cntCl).toFixed(1));
+    if (moyParts.length) lines.push('Moyenne periode : ' + moyParts.join(' - '));
+    var nBas = entries.filter(function(e) {
+      var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return v !== null && v !== undefined; });
+      return vals.length > 0 && (vals.reduce(function(a, b) { return a + b; }, 0) / vals.length) < 4;
+    }).length;
+    lines.push('Jours avec score composite < 4 : ' + nBas + '/' + entries.length);
+  }
+  lines.push('');
+
+  // --- Evenements notables ---
+  lines.push('=== EVENEMENTS NOTABLES ===');
+  var typeLabels = {
+    'reaction-medicament': 'Reaction medicament',
+    'symptome-inhabituel': 'Symptome inhabituel',
+    'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle',
+    'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle',
+    'autre': 'Autre'
+  };
+  var evKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
+  var evFiltered = evKeys.map(function(k) {
+    try { return JSON.parse(localStorage.getItem(k)); } catch(ex) { return null; }
+  }).filter(function(e) { return e && e.date && e.date >= dateFrom && e.date <= dateTo; })
+    .sort(function(a, b) { return a.date.localeCompare(b.date); });
+  if (evFiltered.length === 0) {
+    lines.push('Aucun evenement notable declare sur cette periode.');
+  } else {
+    evFiltered.forEach(function(e) {
+      var label = typeLabels[e.type] || e.type || '';
+      lines.push(_dateLocale(e.date) + ' [' + label + '] : "' + (e.description || '') + '"');
+    });
+  }
+  lines.push('');
+
+  // --- Essais en cours ---
+  lines.push('=== ESSAIS EN COURS OU DEBUTS SUR LA PERIODE ===');
+  var essais = [];
+  try { essais = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
+  var essaisFiltered = essais.filter(function(e) {
+    return e.date_debut && e.date_debut >= dateFrom && e.date_debut <= dateTo;
+  });
+  if (essaisFiltered.length === 0) {
+    lines.push('Aucun essai commence sur cette periode.');
+  } else {
+    essaisFiltered.forEach(function(e) {
+      var diffJ = Math.max(0, Math.floor((new Date(dateTo + 'T12:00:00') - new Date(e.date_debut + 'T12:00:00')) / 86400000));
+      var statut = e.arret === 'Oui' ? 'Arrete' : 'En cours';
+      var txt = (e.nom || '') + ' (' + (e.type || '') + ' - ' + statut + ')';
+      if (e.objectif) txt += ' -- "' + e.objectif + '"';
+      txt += ' -- depuis ' + _dateLocale(e.date_debut) + ' (' + diffJ + ' jours)';
+      if (e.effet) txt += ' -- Effet declare : ' + e.effet;
+      lines.push(txt);
+    });
+  }
+  lines.push('');
+
+  // --- Derniere consultation ---
+  lines.push('=== DERNIERE CONSULTATION (avant cette periode) ===');
+  var pcKeys = Object.keys(localStorage)
+    .filter(function(k) { return k.startsWith('boussole_post_consultation_'); })
+    .sort().reverse();
+  var lastPC = null;
+  for (var i = 0; i < pcKeys.length; i++) {
+    var datePC = pcKeys[i].replace('boussole_post_consultation_', '');
+    if (datePC < dateFrom) {
+      try { lastPC = JSON.parse(localStorage.getItem(pcKeys[i])); break; } catch(ex) {}
+    }
+  }
+  if (!lastPC) {
+    lines.push('Aucune consultation enregistree avant cette periode.');
+  } else {
+    var rdvFmt = lastPC.date_rdv ? _dateLocale(lastPC.date_rdv) : '(date inconnue)';
+    lines.push('Date du RDV : ' + rdvFmt);
+    if (lastPC.decisions)        lines.push('Decisions prises : ' + lastPC.decisions);
+    if (lastPC.examens)          lines.push('Examens prescrits : ' + lastPC.examens);
+    if (lastPC.traitement_teste) lines.push('A tester : ' + lastPC.traitement_teste);
+    if (lastPC.variable_suivie)  lines.push('Variable a surveiller : ' + lastPC.variable_suivie);
+    if (lastPC.signaux_stop)     lines.push('Signaux d\'arret : ' + lastPC.signaux_stop);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Appelle l'API Anthropic et retourne le texte narratif brut.
+ * @param {string} context  Texte structure produit par _buildNarrativeContext
+ * @returns {Promise<string|null>}
+ */
+async function _generateNarrativeSection(context) {
+  var SYSTEM = 'Tu es un assistant de synthese pour patients atteints de maladies chroniques.\n\n' +
+    'ROLE STRICT : tu es une secretaire factuelle. Tu transformes des donnees de suivi en compte-rendu narratif ' +
+    'destine a etre lu par un medecin lors d\'une consultation.\n\n' +
+    'REGLES ABSOLUES :\n' +
+    '1. Rapporte UNIQUEMENT ce que les donnees contiennent. Pas un mot de plus.\n' +
+    '2. N\'ajoute aucun terme medical absent des donnees sources.\n' +
+    '3. Si la patiente a ecrit un mot entre guillemets, conserve ce mot entre guillemets.\n' +
+    '4. N\'emets aucune hypothese, aucune interpretation, aucun lien de causalite.\n' +
+    '5. Utilise "la patiente rapporte / decrit / indique / mentionne". Jamais "presente".\n' +
+    '6. Pour les scores : decris la tendance et les valeurs extremes sans les interpreter.\n' +
+    '7. Si une section n\'a pas de donnees, ecris "Aucune information rapportee sur cette periode."\n' +
+    '8. Reponds en texte brut, sans markdown, sans JSON, sans guillemets de structure.\n' +
+    '9. Respecte exactement la structure suivante avec ces en-tetes :\n\n' +
+    'EVOLUTION SUR LA PERIODE\n' +
+    '[paragraphe sur les scores et tendances]\n\n' +
+    'EVENEMENTS SIGNALES\n' +
+    '[paragraphe sur les evenements notables]\n\n' +
+    'ESSAIS ET TRAITEMENTS\n' +
+    '[paragraphe sur les essais et observations associees]\n\n' +
+    'SUIVI DU PLAN PRECEDENT\n' +
+    '[paragraphe sur ce qui avait ete prevu a la derniere consultation]\n\n' +
+    'AVERTISSEMENT\n' +
+    'Document genere automatiquement a partir des donnees auto-evaluees de la patiente. ' +
+    'Les scores sont des auto-evaluations subjectives. ' +
+    'Ce document ne constitue pas un avis medical.';
+
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: context }]
+      })
+    });
+    var data = await resp.json();
+    var text = (data.content || []).find(function(b) { return b.type === 'text'; });
+    return text ? text.text : null;
+  } catch(e) {
+    console.warn('[Boussole] Narrative generation failed:', e);
+    return null;
+  }
+}
+
+// ============================================
 // GENERATION PDF
 // ============================================
 
-function genererPDFConsultation(motifItems, noteLibre) {
+async function genererPDFConsultation(motifItems, noteLibre) {
   if (typeof window.jspdf === 'undefined') {
     alert('jsPDF non disponible - verifiez votre connexion internet.');
     return;
@@ -1450,6 +1625,107 @@ function genererPDFConsultation(motifItems, noteLibre) {
   // ============================================================
   // FOOTER (toutes les pages)
   // ============================================================
+  // ============================================================
+  // PAGE NARRATIVE — Synthese en langage naturel (API Anthropic)
+  // ============================================================
+  try {
+    const narrativeDateFrom = cutoffStr;
+    const narrativeDateTo   = aujourd_hui;
+    const narrativeCtx      = _buildNarrativeContext(narrativeDateFrom, narrativeDateTo);
+    const narrativeText     = await _generateNarrativeSection(narrativeCtx);
+
+    if (narrativeText) {
+      doc.addPage();
+      let ny = 15;
+
+      // En-tete page narrative
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny);
+      ny += 4;
+      doc.setDrawColor(SEP[0], SEP[1], SEP[2]);
+      doc.setLineWidth(0.5);
+      doc.line(marginL, ny, marginL + contentW, ny);
+      ny += 6;
+
+      // Nom patient + date (reprise en-tete)
+      if (nomPrenom) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+        doc.text(nomPrenom, marginL, ny);
+        ny += 5;
+      }
+
+      // Periode
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      doc.text('Periode : ' + _dateLocale(narrativeDateFrom) + ' -> ' + _dateLocale(narrativeDateTo), marginL, ny);
+      ny += 6;
+
+      // Rendu du texte narratif par sections
+      var SECTION_HEADERS = [
+        'EVOLUTION SUR LA PERIODE',
+        'EVENEMENTS SIGNALES',
+        'ESSAIS ET TRAITEMENTS',
+        'SUIVI DU PLAN PRECEDENT',
+        'AVERTISSEMENT'
+      ];
+
+      var rawLines = narrativeText.split('\n');
+      rawLines.forEach(function(rawLine) {
+        // Substitutions Latin-1
+        var line = rawLine
+          .replace(/\u00e9/g, 'e').replace(/\u00e8/g, 'e').replace(/\u00ea/g, 'e').replace(/\u00eb/g, 'e')
+          .replace(/\u00e0/g, 'a').replace(/\u00e2/g, 'a').replace(/\u00e4/g, 'a')
+          .replace(/\u00e7/g, 'c').replace(/\u00ee/g, 'i').replace(/\u00ef/g, 'i')
+          .replace(/\u00f4/g, 'o').replace(/\u00f6/g, 'o')
+          .replace(/\u00f9/g, 'u').replace(/\u00fb/g, 'u').replace(/\u00fc/g, 'u')
+          .replace(/\u00e6/g, 'ae').replace(/\u0153/g, 'oe')
+          .replace(/\u2019/g, '\'').replace(/\u2018/g, '\'')
+          .replace(/\u201c/g, '"').replace(/\u201d/g, '"')
+          .replace(/\u2013/g, '-').replace(/\u2014/g, '--')
+          .replace(/\u2026/g, '...');
+
+        var trimmed = line.trim();
+        if (!trimmed) { ny += 3; return; }
+
+        // Detecter en-tete de section
+        var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1
+          || SECTION_HEADERS.some(function(h) { return trimmed.toUpperCase().startsWith(h); });
+
+        checkPage(10);
+
+        if (isHeader) {
+          ny += 2;
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+          doc.text(trimmed, marginL, ny);
+          ny += 2;
+          doc.setDrawColor(TAUPE_LIGHT[0], TAUPE_LIGHT[1], TAUPE_LIGHT[2]);
+          doc.setLineWidth(0.3);
+          doc.line(marginL, ny, marginL + contentW, ny);
+          ny += 4;
+        } else {
+          doc.setFontSize(8.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(DARK_WARM[0], DARK_WARM[1], DARK_WARM[2]);
+          var wrapped = doc.splitTextToSize(trimmed, contentW);
+          wrapped.forEach(function(wl) {
+            checkPage(5);
+            doc.text(wl, marginL, ny);
+            ny += 4.5;
+          });
+        }
+      });
+    }
+  } catch(narrativeErr) {
+    console.warn('[Boussole] Page narrative ignoree :', narrativeErr);
+  }
+
   drawFooters();
 
   doc.autoPrint();
