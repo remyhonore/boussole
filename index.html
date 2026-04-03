@@ -159,6 +159,23 @@
       color: #374151;
     }
     .hub-empty { color: #9ca3af; font-size: 0.88rem; text-align: center; padding: 16px 0; }
+
+    /* Feature S — Mini-fiches contextuelles */
+    .bloc-fiches { border-radius:10px; padding:14px; margin-bottom:12px; background:#fff; border:1.5px solid #e5e7eb; }
+    .fiche-inline { border:1px solid #e5e7eb; border-radius:8px; margin-bottom:8px; overflow:hidden; }
+    .fiche-inline:last-child { margin-bottom:0; }
+    .fiche-header { width:100%; display:flex; justify-content:space-between; align-items:center; background:#f8f6f0; border:none; padding:10px 12px; cursor:pointer; text-align:left; }
+    .fiche-header:hover { background:#f0ede5; }
+    .fiche-titre { font-size:13px; font-weight:600; color:#06172D; flex:1; }
+    .fiche-chevron { font-size:18px; color:#2d6a4f; font-weight:700; margin-left:8px; transition:transform .2s; }
+    .fiche-body { padding:12px 14px; }
+    .fiche-intro { font-size:13px; color:#374151; margin:0 0 10px; line-height:1.5; }
+    .fiche-section { margin-bottom:10px; }
+    .fiche-section:last-of-type { margin-bottom:12px; }
+    .fiche-section-titre { font-size:12px; color:#2d6a4f; display:block; margin-bottom:3px; }
+    .fiche-section-texte { font-size:13px; color:#374151; margin:0; line-height:1.5; }
+    .fiche-lien { display:inline-block; font-size:12px; color:#2d6a4f; font-weight:600; text-decoration:none; border-bottom:1px solid #2d6a4f; padding-bottom:1px; }
+    .fiche-lien:hover { color:#1e4d38; }
   </style>
 
   <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
@@ -780,7 +797,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.92 — </span>
+    <span>Boussole v8.93 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1283,6 +1300,7 @@
   <script src="storage.js" defer></script>
   <script src="calc.js" defer></script>
   <script src="daytype.js" defer></script>
+  <script src="fiches_data.js" defer></script>
   <script src="pdf.js" defer></script>
   <script src="pdf_consultation.js" defer></script>
   <script src="pem_detector.js" defer></script>

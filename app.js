@@ -790,6 +790,10 @@ function refreshSummary() {
   // 3b. Carte Pacing Repos 14j
   html += buildBlocRepos();
 
+  // 3c. Mini-fiches contextuelles (Feature S)
+  const fichesPatterns = detectFichesPatterns(recent7j);
+  html += buildBlocFiches(fichesPatterns);
+
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
@@ -3230,4 +3234,98 @@ function filterHubHistory(filter) {
     b.classList.toggle('active', b.dataset.filter === filter);
   });
   renderHubHistory(filter);
+}
+
+// ============================================================
+// FEATURE S — Mini-fiches contextuelles inline
+// ============================================================
+
+function detectFichesPatterns(entries7j) {
+  const patterns = [];
+  if (!entries7j || entries7j.length < 3) return patterns;
+
+  const sorted = entries7j.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+
+  // Pattern 1 : crash post-effort
+  // Énergie basse (<=4) le lendemain d'un score énergie élevé (>=7)
+  let crashCount = 0;
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
+    if (prev.energie >= 7 && curr.energie <= 4) crashCount++;
+  }
+  if (crashCount >= 2) patterns.push('crash-post-effort');
+
+  // Pattern 2 : score énergie chroniquement bas (dysautonomie)
+  const energieMoy = sorted.reduce((s, e) => s + (e.energie || 0), 0) / sorted.length;
+  if (energieMoy <= 4 && patterns.indexOf('crash-post-effort') === -1) {
+    patterns.push('dysautonomie-score-bas');
+  }
+
+  // Pattern 3 : qualité sommeil mauvaise + énergie basse au réveil (fatigue matinale)
+  const sommeilBas = sorted.filter(e => (e.qualite_sommeil || 0) <= 3).length;
+  if (sommeilBas >= 4) patterns.push('fatigue-matinale');
+
+  // Pattern 4 : clarté mentale basse fréquente (brouillard)
+  const clarteBas = sorted.filter(e => (e.clarte_mentale || 0) <= 3).length;
+  if (clarteBas >= 4) patterns.push('brouillard-mental');
+
+  // Max 2 fiches affichées simultanément
+  return patterns.slice(0, 2);
+}
+
+function buildBlocFiches(patterns) {
+  if (!patterns || !patterns.length) return '';
+  if (typeof FICHES_DATA === 'undefined') return '';
+
+  const fiches = patterns.map(p => FICHES_DATA[p]).filter(Boolean);
+  if (!fiches.length) return '';
+
+  return '<div class="bloc-fiches" id="bloc-fiches">' +
+    '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Comprendre ce que tu vis</p>' +
+    fiches.map(renderFicheInline).join('') +
+    '</div>';
+}
+
+function renderFicheInline(fiche) {
+  const sections = fiche.sections.map(function(s) {
+    return '<div class="fiche-section">' +
+      '<strong class="fiche-section-titre">' + s.titre + '</strong>' +
+      '<p class="fiche-section-texte">' + s.contenu + '</p>' +
+      '</div>';
+  }).join('');
+
+  const lien = fiche.lien_vitrine
+    ? '<a class="fiche-lien" href="' + fiche.lien_vitrine + '" target="_blank" rel="noopener">' + fiche.lien_label + ' &rarr;</a>'
+    : '';
+
+  return '<div class="fiche-inline" id="fiche-' + fiche.id + '">' +
+    '<button class="fiche-header" onclick="toggleFicheInline(\'' + fiche.id + '\')" aria-expanded="false">' +
+      '<span class="fiche-titre">' + fiche.titre + '</span>' +
+      '<span class="fiche-chevron" aria-hidden="true">&#x203A;</span>' +
+    '</button>' +
+    '<div class="fiche-body" hidden>' +
+      '<p class="fiche-intro">' + fiche.intro + '</p>' +
+      sections +
+      lien +
+    '</div>' +
+  '</div>';
+}
+
+function toggleFicheInline(id) {
+  var el = document.getElementById('fiche-' + id);
+  if (!el) return;
+  var body = el.querySelector('.fiche-body');
+  var chevron = el.querySelector('.fiche-chevron');
+  var btn = el.querySelector('.fiche-header');
+  var isHidden = body.hasAttribute('hidden');
+  if (isHidden) {
+    body.removeAttribute('hidden');
+    chevron.innerHTML = '&#x2304;';
+    btn.setAttribute('aria-expanded', 'true');
+  } else {
+    body.setAttribute('hidden', '');
+    chevron.innerHTML = '&#x203A;';
+    btn.setAttribute('aria-expanded', 'false');
+  }
 }
