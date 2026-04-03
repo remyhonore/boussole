@@ -507,7 +507,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // 2. MOTIF DE CONSULTATION
   // ============================================================
-  checkPage(20);
+  // checkPage_p1(20);
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -548,7 +548,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // 3. TRAITEMENT EN COURS
   // ============================================================
-  checkPage(30);
+  // checkPage_p1(30);
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -598,7 +598,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const rightH = padV + labelH + rightItems.length * lineH + padV;
   const traitH = Math.max(leftH, rightH, 20);
 
-  checkPage(traitH + 5);
+  // checkPage_p1(traitH + 5);
 
   // Col gauche — medicaments
   doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
@@ -645,7 +645,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // 4. PROBLEME PRINCIPAL — BLOC DOMINANT
   // ============================================================
-  checkPage(40);
+  // checkPage_p1(40);
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -688,7 +688,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     const inlineH   = 5 + 12 + Math.max(0, retentParts.length - 1) * 5;
     const blocDomH  = 10 + titreLines.length * 8 + 6 + inlineH + 10;
 
-    checkPage(blocDomH + 5);
+    // checkPage_p1(blocDomH + 5);
 
     // Fond + bordure gauche
     doc.setFillColor(WARM_BG[0], WARM_BG[1], WARM_BG[2]);
@@ -758,7 +758,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // 5. SYNTHESE FONCTIONNELLE
   // ============================================================
-  checkPage(50);
+  // checkPage_p1(50);
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -774,7 +774,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const colComW   = tabW * 0.26;
   const rowH2     = 7.5;
 
-  checkPage(rowH2 + metriques.length * rowH2 + 4);
+  // checkPage_p1(rowH2 + metriques.length * rowH2 + 4);
 
   // En-tete — fond blanc, labels MUTED
   doc.setFillColor(255, 255, 255);
@@ -833,7 +833,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   if (typeof window.computeStabilityScore === 'function') {
     var stabData = window.computeStabilityScore();
     if (stabData !== null) {
-      checkPage(rowH2);
+      // checkPage_p1(rowH2);
       var stabIdx = metriques.length;
       var stabBg = stabIdx % 2 === 0 ? [255, 255, 255] : LIGHT_BG;
       doc.setFillColor(stabBg[0], stabBg[1], stabBg[2]);
@@ -889,7 +889,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     || (pointAttention !== null && pointAttention.label === 'Sommeil');
 
   if (triggerSommeil) {
-    checkPage(25);
+    // checkPage_p1(25);
 
     const somBlocH = 22;
     doc.setFillColor(LIGHT_BG[0], LIGHT_BG[1], LIGHT_BG[2]);
@@ -974,7 +974,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (hasFc)           mesBlockH += 12;
     mesBlockH += 8;
 
-    checkPage(mesBlockH + 10);
+    // checkPage_p1(mesBlockH + 10);
 
     doc.setFontSize(9);
     tc(MUTED, false);
@@ -1074,7 +1074,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (sna) {
       var margin  = marginL;
       var contentWidth = contentW;
-      checkPage(20 + sna.lignes.length * 5);
+      // checkPage_p1(20 + sna.lignes.length * 5);
       doc.setFillColor(240, 247, 243);
       doc.roundedRect(margin, y, contentWidth, 14 + sna.lignes.length * 5, 3, 3, 'F');
       y += 5;
@@ -1120,7 +1120,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
     const pemEvents7j = window.detectPEMEvents(days7jPEM, mesures7jMapPEM);
     if (pemEvents7j.length > 0) {
-      checkPage(25);
+      // checkPage_p1(25);
 
       doc.setFontSize(9);
       tc(MUTED, false);
@@ -1180,7 +1180,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     const daysWithCycle7j = Object.values(cyclePhases7j).reduce(function(sum, arr) { return sum + arr.length; }, 0);
 
     if (cycleAnalysis7j !== null && daysWithCycle7j >= 3) {
-      checkPage(30);
+      // checkPage_p1(30);
 
       doc.setFontSize(9);
       tc(MUTED, false);
@@ -1242,7 +1242,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       const cyclePhases30j   = window.collectCycleData(days30jCycle, mesures30jCycle, 30);
       const cycleAnalysis30j = window.analyzeCycleCorrelation(cyclePhases30j);
       if (cycleAnalysis30j !== null && cycleAnalysis30j.significant) {
-        checkPage(10);
+        // checkPage_p1(10);
         const phaseMinLabel = cyclePhaseLabels[cycleAnalysis30j.phaseMin] || cycleAnalysis30j.phaseMin;
         const phaseMaxLabel = cyclePhaseLabels[cycleAnalysis30j.phaseMax] || cycleAnalysis30j.phaseMax;
         const deltaStr      = (Math.round(cycleAnalysis30j.delta * 10) / 10).toFixed(1);
@@ -1261,7 +1261,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // TYPE DE JOURNEES — repartition Vert / Orange / Rouge
   // ============================================================
-  checkPage(22);
+  // checkPage_p1(22);
 
   const VOR_VERT   = [100, 100, 100];
   const VOR_ORANGE = [150, 150, 150];
@@ -1304,7 +1304,9 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   var entries14j = rawEntries.filter(function(e) { return e.date >= cutoff14Str; });
 
   if (entries14j.length >= 3) {
-    checkPage(35);
+    // Calendrier fixé en page 1 — pas de checkPage
+    // Adaptation automatique de la taille si peu d'espace restant
+    var _calCompact = y > 215;
 
     var NAVY_CAL = [26, 26, 26];
 
@@ -1318,10 +1320,10 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
     doc.text('Niveau de gris = score composite (energie / sommeil / confort / clarte)', marginL, y);
-    y += 5;
+    y += _calCompact ? 3 : 5;
 
-    var cellW     = 11;
-    var cellH     = 13;
+    var cellW     = _calCompact ? 10 : 11;
+    var cellH     = _calCompact ? 11 : 13;
     var cellR     = 1;
     var cellGap   = 1;
     var cellStep  = cellW + cellGap;
