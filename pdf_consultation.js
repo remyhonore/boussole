@@ -225,20 +225,28 @@ async function _generateNarrativeSection(context) {
   try {
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: SYSTEM,
         messages: [{ role: 'user', content: context }]
       })
     });
     var data = await resp.json();
+    if (data.error) {
+      console.warn('[Boussole] Narrative API error:', data.error);
+      return '__ERROR__:' + (data.error.message || data.error.type || 'erreur inconnue');
+    }
     var text = (data.content || []).find(function(b) { return b.type === 'text'; });
-    return text ? text.text : null;
+    return text ? text.text : '__ERROR__:reponse vide';
   } catch(e) {
     console.warn('[Boussole] Narrative generation failed:', e);
-    return null;
+    return '__ERROR__:' + (e.message || 'erreur reseau');
   }
 }
 
@@ -1634,7 +1642,38 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     const narrativeCtx      = _buildNarrativeContext(narrativeDateFrom, narrativeDateTo);
     const narrativeText     = await _generateNarrativeSection(narrativeCtx);
 
-    if (narrativeText) {
+    if (narrativeText && narrativeText.startsWith('__ERROR__:')) {
+      // Page d'erreur explicite dans le PDF
+      doc.addPage();
+      let ny = 15;
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(180, 40, 40);
+      doc.text('SYNTHESE NARRATIVE - ERREUR DE GENERATION', marginL, ny);
+      ny += 4;
+      doc.setDrawColor(SEP[0], SEP[1], SEP[2]);
+      doc.setLineWidth(0.5);
+      doc.line(marginL, ny, marginL + contentW, ny);
+      ny += 8;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+      doc.text('La synthese narrative n\'a pas pu etre generee.', marginL, ny);
+      ny += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      var errMsg = narrativeText.replace('__ERROR__:', '');
+      var errLines = doc.splitTextToSize('Raison : ' + errMsg, contentW);
+      doc.text(errLines, marginL, ny);
+      ny += errLines.length * 5 + 6;
+      doc.setFontSize(9);
+      doc.text('Solutions possibles :', marginL, ny);
+      ny += 5;
+      doc.text('1. Verifier la connexion internet', marginL + 4, ny); ny += 5;
+      doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
+      doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
+    } else if (narrativeText) {
       doc.addPage();
       let ny = 15;
 
@@ -1724,6 +1763,15 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     }
   } catch(narrativeErr) {
     console.warn('[Boussole] Page narrative ignoree :', narrativeErr);
+    // Page d'erreur catch dans le PDF
+    try {
+      doc.addPage();
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 40, 40);
+      doc.text('SYNTHESE NARRATIVE - ERREUR INATTENDUE', 10, 15);
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 80, 80);
+      var em = doc.splitTextToSize('Erreur : ' + (narrativeErr.message || String(narrativeErr)), 175);
+      doc.text(em, 10, 25);
+    } catch(e2) { /* ignore */ }
   }
 
   drawFooters();
