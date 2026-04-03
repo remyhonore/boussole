@@ -259,6 +259,14 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     return;
   }
 
+  // --- Générer la narrative EN PREMIER (avant le PDF) pour l'insérer en page 2 ---
+  const _narrativeDateFrom = narrativeDateFromOverride || (function() {
+    var d = new Date(); d.setDate(d.getDate() - 6); return d.toISOString().split('T')[0];
+  })();
+  const _narrativeDateTo = narrativeDateToOverride || new Date().toISOString().split('T')[0];
+  const _narrativeCtx = _buildNarrativeContext(_narrativeDateFrom, _narrativeDateTo);
+  const _narrativeResult = await _generateNarrativeSection(_narrativeCtx);
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
@@ -1505,6 +1513,80 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
+  // PAGE 2 — SYNTHESE NARRATIVE (generee avant le PDF, inseree ici)
+  // ============================================================
+  doc.addPage();
+  y = 15;
+  (function() {
+    var ny = y;
+    var narrativeText = _narrativeResult;
+    if (narrativeText && narrativeText.startsWith('__ERROR__:')) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 40, 40);
+      doc.text('SYNTHESE NARRATIVE - ERREUR DE GENERATION', marginL, ny); ny += 4;
+      drawSep(ny); ny += 8;
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+      doc.text('La synthese narrative n\'a pas pu etre generee.', marginL, ny); ny += 7;
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      var errMsg = narrativeText.replace('__ERROR__:', '');
+      var errLines = doc.splitTextToSize('Raison : ' + errMsg, contentW);
+      doc.text(errLines, marginL, ny); ny += errLines.length * 5 + 6;
+      doc.setFontSize(9);
+      doc.text('Solutions possibles :', marginL, ny); ny += 5;
+      doc.text('1. Verifier la connexion internet', marginL + 4, ny); ny += 5;
+      doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
+      doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
+    } else if (narrativeText) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny); ny += 4;
+      drawSep(ny); ny += 6;
+      if (nomPrenom) {
+        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+        doc.text(nomPrenom, marginL, ny); ny += 5;
+      }
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      doc.text('Periode : ' + _dateLocale(_narrativeDateFrom) + ' -> ' + _dateLocale(_narrativeDateTo), marginL, ny); ny += 6;
+      var SECTION_HEADERS = ['EVOLUTION SUR LA PERIODE','EVENEMENTS SIGNALES','ESSAIS ET TRAITEMENTS','SUIVI DU PLAN PRECEDENT','AVERTISSEMENT'];
+      var rawLines = narrativeText.split('\n');
+      rawLines.forEach(function(rawLine) {
+        var line = rawLine
+          .replace(/\u00e9/g,'e').replace(/\u00e8/g,'e').replace(/\u00ea/g,'e').replace(/\u00eb/g,'e')
+          .replace(/\u00e0/g,'a').replace(/\u00e2/g,'a').replace(/\u00e4/g,'a')
+          .replace(/\u00e7/g,'c').replace(/\u00ee/g,'i').replace(/\u00ef/g,'i')
+          .replace(/\u00f4/g,'o').replace(/\u00f6/g,'o')
+          .replace(/\u00f9/g,'u').replace(/\u00fb/g,'u').replace(/\u00fc/g,'u')
+          .replace(/\u00e6/g,'ae').replace(/\u0153/g,'oe')
+          .replace(/\u2019/g,'\'').replace(/\u2018/g,'\'')
+          .replace(/\u201c/g,'"').replace(/\u201d/g,'"')
+          .replace(/\u2013/g,'-').replace(/\u2014/g,'--')
+          .replace(/\u2026/g,'...');
+        var trimmed = line.trim();
+        if (!trimmed) { ny += 3; return; }
+        if (ny > 270) return; // limite maxi page 2
+        var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1 || SECTION_HEADERS.some(function(h){ return trimmed.toUpperCase().startsWith(h); });
+        if (isHeader) {
+          ny += 2;
+          doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+          doc.text(trimmed, marginL, ny); ny += 4;
+        } else {
+          doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(DARK_WARM[0], DARK_WARM[1], DARK_WARM[2]);
+          var wrapped = doc.splitTextToSize(trimmed, contentW);
+          wrapped.forEach(function(wl) { if (ny <= 270) { doc.text(wl, marginL, ny); ny += 4.5; } });
+        }
+      });
+    } else {
+      doc.setFontSize(9); doc.setFont('helvetica', 'italic'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      doc.text('Synthese narrative non disponible pour cette periode.', marginL, ny);
+    }
+    y = ny;
+  })();
+
+  // ============================================================
+  // PAGE 3+ — CALENDRIER, EVENEMENTS, PLAN POST-CONSULTATION
+  // ============================================================
+  doc.addPage();
+  y = 15;
+
+  // ============================================================
   // 9b. ÉVÉNEMENTS NOTABLES (30 derniers jours)
   // ============================================================
   const recentEvents = window.getRecentEvents ? window.getRecentEvents(30) : [];
@@ -1629,152 +1711,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     y += 5;
   }
 
-  // ============================================================
-  // FOOTER (toutes les pages)
-  // ============================================================
-  // ============================================================
-  // PAGE NARRATIVE — Synthese en langage naturel (API Anthropic)
-  // ============================================================
-  try {
-    const narrativeDateFrom = narrativeDateFromOverride || cutoffStr;
-    const narrativeDateTo   = narrativeDateToOverride   || aujourd_hui;
-    const narrativeCtx      = _buildNarrativeContext(narrativeDateFrom, narrativeDateTo);
-    const narrativeText     = await _generateNarrativeSection(narrativeCtx);
-
-    if (narrativeText && narrativeText.startsWith('__ERROR__:')) {
-      // Page d'erreur explicite dans le PDF
-      doc.addPage();
-      let ny = 15;
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(180, 40, 40);
-      doc.text('SYNTHESE NARRATIVE - ERREUR DE GENERATION', marginL, ny);
-      ny += 4;
-      doc.setDrawColor(SEP[0], SEP[1], SEP[2]);
-      doc.setLineWidth(0.5);
-      doc.line(marginL, ny, marginL + contentW, ny);
-      ny += 8;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-      doc.text('La synthese narrative n\'a pas pu etre generee.', marginL, ny);
-      ny += 7;
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      var errMsg = narrativeText.replace('__ERROR__:', '');
-      var errLines = doc.splitTextToSize('Raison : ' + errMsg, contentW);
-      doc.text(errLines, marginL, ny);
-      ny += errLines.length * 5 + 6;
-      doc.setFontSize(9);
-      doc.text('Solutions possibles :', marginL, ny);
-      ny += 5;
-      doc.text('1. Verifier la connexion internet', marginL + 4, ny); ny += 5;
-      doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
-      doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
-    } else if (narrativeText) {
-      doc.addPage();
-      let ny = 15;
-
-      // En-tete page narrative
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny);
-      ny += 4;
-      doc.setDrawColor(SEP[0], SEP[1], SEP[2]);
-      doc.setLineWidth(0.5);
-      doc.line(marginL, ny, marginL + contentW, ny);
-      ny += 6;
-
-      // Nom patient + date (reprise en-tete)
-      if (nomPrenom) {
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-        doc.text(nomPrenom, marginL, ny);
-        ny += 5;
-      }
-
-      // Periode
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      doc.text('Periode : ' + _dateLocale(narrativeDateFrom) + ' -> ' + _dateLocale(narrativeDateTo), marginL, ny);
-      ny += 6;
-
-      // Rendu du texte narratif par sections
-      var SECTION_HEADERS = [
-        'EVOLUTION SUR LA PERIODE',
-        'EVENEMENTS SIGNALES',
-        'ESSAIS ET TRAITEMENTS',
-        'SUIVI DU PLAN PRECEDENT',
-        'AVERTISSEMENT'
-      ];
-
-      var rawLines = narrativeText.split('\n');
-      rawLines.forEach(function(rawLine) {
-        // Substitutions Latin-1
-        var line = rawLine
-          .replace(/\u00e9/g, 'e').replace(/\u00e8/g, 'e').replace(/\u00ea/g, 'e').replace(/\u00eb/g, 'e')
-          .replace(/\u00e0/g, 'a').replace(/\u00e2/g, 'a').replace(/\u00e4/g, 'a')
-          .replace(/\u00e7/g, 'c').replace(/\u00ee/g, 'i').replace(/\u00ef/g, 'i')
-          .replace(/\u00f4/g, 'o').replace(/\u00f6/g, 'o')
-          .replace(/\u00f9/g, 'u').replace(/\u00fb/g, 'u').replace(/\u00fc/g, 'u')
-          .replace(/\u00e6/g, 'ae').replace(/\u0153/g, 'oe')
-          .replace(/\u2019/g, '\'').replace(/\u2018/g, '\'')
-          .replace(/\u201c/g, '"').replace(/\u201d/g, '"')
-          .replace(/\u2013/g, '-').replace(/\u2014/g, '--')
-          .replace(/\u2026/g, '...');
-
-        var trimmed = line.trim();
-        if (!trimmed) { ny += 3; return; }
-
-        // Detecter en-tete de section
-        var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1
-          || SECTION_HEADERS.some(function(h) { return trimmed.toUpperCase().startsWith(h); });
-
-        checkPage(10);
-
-        if (isHeader) {
-          ny += 2;
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-          doc.text(trimmed, marginL, ny);
-          ny += 2;
-          doc.setDrawColor(TAUPE_LIGHT[0], TAUPE_LIGHT[1], TAUPE_LIGHT[2]);
-          doc.setLineWidth(0.3);
-          doc.line(marginL, ny, marginL + contentW, ny);
-          ny += 4;
-        } else {
-          doc.setFontSize(8.5);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(DARK_WARM[0], DARK_WARM[1], DARK_WARM[2]);
-          var wrapped = doc.splitTextToSize(trimmed, contentW);
-          wrapped.forEach(function(wl) {
-            checkPage(5);
-            doc.text(wl, marginL, ny);
-            ny += 4.5;
-          });
-        }
-      });
-    }
-  } catch(narrativeErr) {
-    console.warn('[Boussole] Page narrative ignoree :', narrativeErr);
-    // Page d'erreur catch dans le PDF
-    try {
-      doc.addPage();
-      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 40, 40);
-      doc.text('SYNTHESE NARRATIVE - ERREUR INATTENDUE', 10, 15);
-      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 80, 80);
-      var em = doc.splitTextToSize('Erreur : ' + (narrativeErr.message || String(narrativeErr)), 175);
-      doc.text(em, 10, 25);
-    } catch(e2) { /* ignore */ }
-  }
-
   drawFooters();
-
   doc.autoPrint();
   const pdfUrl = doc.output('bloburl');
 
