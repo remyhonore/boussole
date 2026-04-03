@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   switchPanel('today');
 
+  // Feature D — listeners modale profil
+  document.getElementById('btn-changer-profil')?.addEventListener('click', ouvrirModaleProfil);
+  document.getElementById('btn-confirmer-profil')?.addEventListener('click', confirmerProfil);
+  document.getElementById('btn-passer-profil')?.addEventListener('click', fermerModaleProfil);
+
   // Feature D — Modale profil si onboardé mais pas encore de profil défini
   if (localStorage.getItem('boussole_onboarded') && !localStorage.getItem('boussole_profil')) {
     setTimeout(() => ouvrirModaleProfil(), 900);
