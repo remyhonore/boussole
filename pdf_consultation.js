@@ -246,7 +246,7 @@ async function _generateNarrativeSection(context) {
 // GENERATION PDF
 // ============================================
 
-async function genererPDFConsultation(motifItems, noteLibre) {
+async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOverride, narrativeDateToOverride) {
   if (typeof window.jspdf === 'undefined') {
     alert('jsPDF non disponible - verifiez votre connexion internet.');
     return;
@@ -1629,8 +1629,8 @@ async function genererPDFConsultation(motifItems, noteLibre) {
   // PAGE NARRATIVE — Synthese en langage naturel (API Anthropic)
   // ============================================================
   try {
-    const narrativeDateFrom = cutoffStr;
-    const narrativeDateTo   = aujourd_hui;
+    const narrativeDateFrom = narrativeDateFromOverride || cutoffStr;
+    const narrativeDateTo   = narrativeDateToOverride   || aujourd_hui;
     const narrativeCtx      = _buildNarrativeContext(narrativeDateFrom, narrativeDateTo);
     const narrativeText     = await _generateNarrativeSection(narrativeCtx);
 

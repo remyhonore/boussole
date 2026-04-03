@@ -817,7 +817,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v8.96 — </span>
+    <span>Boussole v8.97 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1136,6 +1136,36 @@
           Autre (préciser ci-dessous)
         </label>
       </div>
+      <!-- Sélecteur de période narrative -->
+      <div id="narrative-period-selector" style="display:none;margin-bottom:16px;padding:12px;background:#f0f7f4;border-radius:10px;border:1.5px solid rgba(45,106,79,.25);">
+        <p style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;">Période couverte par la synthèse narrative</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="narrative-period" value="7j" checked style="accent-color:#2d6a4f;"> 7 derniers jours
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="narrative-period" value="30j" style="accent-color:#2d6a4f;"> 30 derniers jours
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> Depuis la dernière consultation
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
+            <input type="radio" name="narrative-period" value="custom" style="accent-color:#2d6a4f;"> Période personnalisée
+          </label>
+          <div id="narrative-custom-dates" style="display:none;margin-top:4px;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(45,106,79,.2);">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Du</label>
+                <input type="date" id="narrative-date-from" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Au</label>
+                <input type="date" id="narrative-date-to" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">Précisions / autres informations</p>
       <textarea
         id="consultation-note"
@@ -1356,6 +1386,24 @@
       if (btnValider) {
         btnValider.textContent = _consultationMode === 'pdf' ? 'Générer le PDF' : 'Afficher le tableau de bord';
       }
+      // Afficher le sélecteur de période uniquement en mode PDF
+      const periodSel = document.getElementById('narrative-period-selector');
+      if (periodSel) periodSel.style.display = _consultationMode === 'pdf' ? 'block' : 'none';
+      // Initialiser les dates par défaut
+      const today = new Date().toISOString().split('T')[0];
+      const d7 = new Date(); d7.setDate(d7.getDate() - 6);
+      const from7 = d7.toISOString().split('T')[0];
+      const dfEl = document.getElementById('narrative-date-from');
+      const dtEl = document.getElementById('narrative-date-to');
+      if (dfEl) dfEl.value = from7;
+      if (dtEl) dtEl.value = today;
+      // Listener radio → afficher/masquer datepickers
+      document.querySelectorAll('input[name="narrative-period"]').forEach(function(r) {
+        r.onchange = function() {
+          const custom = document.getElementById('narrative-custom-dates');
+          if (custom) custom.style.display = this.value === 'custom' ? 'block' : 'none';
+        };
+      });
       document.getElementById('consultation-note').focus();
     }
     function fermerModaleConsultation() {
@@ -1368,7 +1416,26 @@
       localStorage.setItem('boussole_note_consultation', motifsFinal);
       fermerModaleConsultation();
       if (_consultationMode === 'pdf') {
-        genererPDFConsultation(cochees, texteLibre);
+        // Calculer la période narrative selon le choix de l'utilisatrice
+        const periodVal = (document.querySelector('input[name="narrative-period"]:checked') || {value:'7j'}).value;
+        const today = new Date().toISOString().split('T')[0];
+        let dateFrom = today;
+        if (periodVal === '7j') {
+          const d = new Date(); d.setDate(d.getDate() - 6); dateFrom = d.toISOString().split('T')[0];
+        } else if (periodVal === '30j') {
+          const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = d.toISOString().split('T')[0];
+        } else if (periodVal === 'depuis-derniere-consult') {
+          // Chercher la date de la dernière consultation enregistrée
+          const pcKeys = Object.keys(localStorage).filter(k => k.startsWith('boussole_post_consultation_')).sort();
+          if (pcKeys.length > 0) {
+            dateFrom = pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
+          } else {
+            const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = d.toISOString().split('T')[0];
+          }
+        } else if (periodVal === 'custom') {
+          dateFrom = document.getElementById('narrative-date-from').value || today;
+        }
+        genererPDFConsultation(cochees, texteLibre, dateFrom, today);
       } else {
         if (typeof window._ouvrirModePresentation === 'function') {
           window._ouvrirModePresentation();
