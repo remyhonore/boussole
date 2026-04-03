@@ -81,6 +81,9 @@ function _dateLocale(dateStr) {
 function _buildNarrativeContext(dateFrom, dateTo) {
   var lines = [];
   lines.push('DONNEES PATIENT -- du ' + _dateLocale(dateFrom) + ' au ' + _dateLocale(dateTo));
+  var genre = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var pronoms = genre === 'femme' ? 'la patiente / elle' : genre === 'homme' ? 'le patient / il' : 'le patient / il';
+  lines.push('Genre declare : ' + (genre === 'femme' ? 'femme' : genre === 'homme' ? 'homme' : 'non precise') + ' -- utiliser les pronoms : ' + pronoms);
   lines.push('');
 
   // --- Scores quotidiens ---
@@ -204,7 +207,7 @@ async function _generateNarrativeSection(context) {
     '2. N\'ajoute aucun terme medical absent des donnees sources.\n' +
     '3. Si la patiente a ecrit un mot entre guillemets, conserve ce mot entre guillemets.\n' +
     '4. N\'emets aucune hypothese, aucune interpretation, aucun lien de causalite.\n' +
-    '5. Utilise "la patiente rapporte / decrit / indique / mentionne". Jamais "presente".\n' +
+    '5. Utilise les pronoms indiques dans les donnees (le patient / la patiente). Jamais "presente".\n' +
     '6. Pour les scores : decris la tendance et les valeurs extremes sans les interpreter.\n' +
     '7. Si une section n\'a pas de donnees, ecris "Aucune information rapportee sur cette periode."\n' +
     '8. Reponds en texte brut, sans markdown, sans JSON, sans guillemets de structure.\n' +
