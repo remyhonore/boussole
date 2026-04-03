@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
     switchPanel('today');
+    // Feature D — enchaîner modale profil si pas encore défini
+    if (!localStorage.getItem('boussole_profil')) {
+      setTimeout(() => ouvrirModaleProfil(), 600);
+    }
   });
 
   // Charger le dataset de référence si mode debug
@@ -768,16 +772,28 @@ function refreshSummary() {
   const dataConfort7j = recent7j.map(e => e.douleurs);
   const dataClarte7j  = recent7j.map(e => e.clarte_mentale);
 
-  const metriques7j = [
-    { label: 'Énergie',          emoji: '💪', moy: _avgVals(dataEnergie7j), vals: dataEnergie7j },
-    { label: 'Sommeil',          emoji: '🌙', moy: _avgVals(dataSommeil7j), vals: dataSommeil7j },
-    { label: 'Confort physique', emoji: '❤️', moy: _avgVals(dataConfort7j), vals: dataConfort7j },
-    { label: 'Clarté mentale',   emoji: '🧠', moy: _avgVals(dataClarte7j),  vals: dataClarte7j  }
+  const _metriques7jBase = [
+    { key: 'energie',   label: 'Énergie',          emoji: '💪', moy: _avgVals(dataEnergie7j), vals: dataEnergie7j },
+    { key: 'sommeil',   label: 'Sommeil',          emoji: '🌙', moy: _avgVals(dataSommeil7j), vals: dataSommeil7j },
+    { key: 'douleur',   label: 'Confort physique', emoji: '❤️', moy: _avgVals(dataConfort7j), vals: dataConfort7j },
+    { key: 'cognition', label: 'Clarté mentale',   emoji: '🧠', moy: _avgVals(dataClarte7j),  vals: dataClarte7j  }
   ].map(m => Object.assign({}, m, {
     tendance: _tendance7j(m.vals),
     joursBas: _joursBasCount(m.vals),
     nbJours:  m.vals.filter(x => x !== null && x !== undefined).length
   }));
+
+  // Feature D — Réordonner selon profil actif (métriques prioritaires en premier)
+  const _profilD = window.getProfilActif ? window.getProfilActif() : null;
+  const metriques7j = _profilD
+    ? [..._metriques7jBase].sort((a, b) => {
+        const pa = _profilD.metriques_prioritaires.indexOf(a.key);
+        const pb = _profilD.metriques_prioritaires.indexOf(b.key);
+        const ra = pa === -1 ? 99 : pa;
+        const rb = pb === -1 ? 99 : pb;
+        return ra - rb;
+      })
+    : _metriques7jBase;
 
   const mSorted7j = metriques7j.filter(m => m.moy !== null).slice().sort((a, b) => a.moy - b.moy);
   const pointAttention7j = mSorted7j.length > 0 && mSorted7j[0].moy < 7 ? mSorted7j[0] : null;

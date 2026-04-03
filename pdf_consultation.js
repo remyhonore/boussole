@@ -301,6 +301,19 @@ function genererPDFConsultation(motifItems, noteLibre) {
   drawSep(y);
   y += 5;
 
+  // Feature D — Profil foyers (si défini)
+  const _profilPDF = (window.getProfilActif && window.getProfilActif()) || null;
+  if (_profilPDF) {
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('Profil declare :', marginL, y);
+    tc(ANTHRACITE, true);
+    doc.text(_profilPDF.label, marginL + 24, y);
+    y += 5;
+    drawSep(y);
+    y += 5;
+  }
+
   // ============================================================
   // 2. MOTIF DE CONSULTATION
   // ============================================================
