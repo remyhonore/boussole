@@ -223,24 +223,20 @@ async function _generateNarrativeSection(context) {
     'Ce document ne constitue pas un avis medical.';
 
   try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    var resp = await fetch('/api/narrative', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
         system: SYSTEM,
-        messages: [{ role: 'user', content: context }]
+        messages: [{ role: 'user', content: context }],
+        max_tokens: 1000
       })
     });
     var data = await resp.json();
-    if (data.error) {
-      console.warn('[Boussole] Narrative API error:', data.error);
-      return '__ERROR__:' + (data.error.message || data.error.type || 'erreur inconnue');
+    if (!resp.ok || data.error) {
+      var errMsg = data.error ? (data.error.message || JSON.stringify(data.error)) : 'HTTP ' + resp.status;
+      console.warn('[Boussole] Narrative API error:', errMsg);
+      return '__ERROR__:' + errMsg;
     }
     var text = (data.content || []).find(function(b) { return b.type === 'text'; });
     return text ? text.text : '__ERROR__:reponse vide';
