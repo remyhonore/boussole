@@ -190,7 +190,14 @@ function _buildNarrativeContext(dateFrom, dateTo) {
     if (lastPC.signaux_stop)     lines.push('Signaux d\'arret : ' + lastPC.signaux_stop);
   }
 
-  return lines.join('\n');
+  var fullContext = lines.join('\n');
+  // Limite à 6000 caractères pour éviter un contexte trop long (notes 200 chars × 30j + événements)
+  // Si dépassé, tronquer les sections les moins importantes (PLAN POST-CONSULTATION en dernier)
+  var MAX_CONTEXT = 6000;
+  if (fullContext.length > MAX_CONTEXT) {
+    fullContext = fullContext.slice(0, MAX_CONTEXT) + '\n\n[Contexte tronque a ' + MAX_CONTEXT + ' caracteres pour respecter les limites de traitement]';
+  }
+  return fullContext;
 }
 
 /**
