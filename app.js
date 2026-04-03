@@ -227,7 +227,7 @@ function initTodayPanel() {
   
   if (noteTextarea && noteCount) {
     noteTextarea.addEventListener('input', () => {
-      noteCount.textContent = `${noteTextarea.value.length}/200`;
+      noteCount.textContent = `${noteTextarea.value.length}/1000`;
     });
   }
   
@@ -277,7 +277,7 @@ function loadTodayData() {
     }
     if (entry.note) {
       document.getElementById('note').value = entry.note;
-      document.getElementById('note-count').textContent = `${entry.note.length}/200`;
+      document.getElementById('note-count').textContent = `${entry.note.length}/1000`;
     }
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssdInputEl = document.getElementById('rmssd-input');
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // if (rmssdInputEl && entry.rmssd != null) rmssdInputEl.value = entry.rmssd;
@@ -395,7 +395,7 @@ function changerDateSaisie(dateStr) {
   const noteCount = document.getElementById('note-count');
   if (noteEl) {
     noteEl.value = (entry && entry.note) ? entry.note : '';
-    if (noteCount) noteCount.textContent = `${noteEl.value.length}/200`;
+    if (noteCount) noteCount.textContent = `${noteEl.value.length}/1000`;
   }
 
   const btnSave = document.getElementById('btn-save');

@@ -444,14 +444,26 @@
               <span>Note du jour</span>
               <span style="font-size:10px;font-weight:600;background:rgba(45,106,79,.12);color:#2d6a4f;border-radius:6px;padding:2px 6px;letter-spacing:.03em;">→ PDF médecin</span>
             </span>
-            <span class="textarea-count" id="note-count">0/200</span>
+            <span class="textarea-count" id="note-count">0/1000</span>
           </label>
-          <textarea
-            id="note"
-            maxlength="200"
-            placeholder="Ex: Mal de tête après 2h d'écran, mieux après sieste"
-            aria-label="Note du jour, reprise dans la synthèse PDF, 200 caractères maximum"
-          ></textarea>
+          <div style="position:relative;">
+            <textarea
+              id="note"
+              maxlength="1000"
+              rows="3"
+              placeholder="Ex: Mal de tête après 2h d'écran, mieux après sieste"
+              aria-label="Note du jour, reprise dans la synthèse PDF, 1000 caractères maximum"
+              style="padding-right:44px;"
+            ></textarea>
+            <button
+              id="btn-micro-note"
+              type="button"
+              onclick="toggleDicteeNote()"
+              title="Dicter ma note"
+              aria-label="Dicter ma note"
+              style="position:absolute;top:8px;right:8px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s;"
+            >🎙️</button>
+          </div>
           <p style="font-size:11px;color:rgba(6,23,45,.38);margin:3px 0 0;line-height:1.4;">Vos mots exacts apparaissent entre guillemets dans la synthèse pour votre médecin.</p>
         </div>
 
@@ -828,7 +840,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.05 — </span>
+    <span>Boussole v9.06 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1446,6 +1458,92 @@
   <script>
     // ---- Modale consultation ----
     var _consultationMode = 'presentation'; // 'pdf' | 'presentation'
+
+    // ============================================================
+    // DICTÉE VOCALE — Note du jour
+    // ============================================================
+    var _dicteeRecognition = null;
+    var _dicteeActive = false;
+
+    function toggleDicteeNote() {
+      var btn = document.getElementById('btn-micro-note');
+      var textarea = document.getElementById('note');
+
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        btn.title = 'Dictée non disponible sur ce navigateur';
+        btn.textContent = '🚫';
+        setTimeout(function() { btn.textContent = '🎙️'; btn.title = 'Dicter ma note'; }, 2000);
+        return;
+      }
+
+      if (_dicteeActive && _dicteeRecognition) {
+        _dicteeRecognition.stop();
+        return;
+      }
+
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      _dicteeRecognition = new SR();
+      _dicteeRecognition.lang = 'fr-FR';
+      _dicteeRecognition.continuous = true;
+      _dicteeRecognition.interimResults = true;
+      _dicteeRecognition.maxAlternatives = 1;
+
+      var _baseText = textarea.value;
+      var _interim = '';
+
+      _dicteeRecognition.onstart = function() {
+        _dicteeActive = true;
+        btn.style.background = 'rgba(220,50,50,.12)';
+        btn.style.borderColor = '#DC2626';
+        btn.title = 'Dicter en cours — cliquer pour arrêter';
+        btn.textContent = '⏹️';
+      };
+
+      _dicteeRecognition.onresult = function(e) {
+        _interim = '';
+        var final = '';
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) final += e.results[i][0].transcript;
+          else _interim += e.results[i][0].transcript;
+        }
+        if (final) {
+          _baseText = (_baseText + ((_baseText && !_baseText.endsWith(' ')) ? ' ' : '') + final).slice(0, 1000);
+        }
+        textarea.value = (_baseText + (_interim ? ' ' + _interim : '')).slice(0, 1000);
+        // Mettre à jour le compteur
+        var counter = document.getElementById('note-count');
+        if (counter) counter.textContent = textarea.value.length + '/1000';
+      };
+
+      _dicteeRecognition.onerror = function(e) {
+        if (e.error !== 'aborted') {
+          btn.textContent = '⚠️';
+          setTimeout(function() { btn.textContent = '🎙️'; }, 2000);
+        }
+        _stopDictee();
+      };
+
+      _dicteeRecognition.onend = function() {
+        textarea.value = _baseText.trim().slice(0, 1000);
+        var counter = document.getElementById('note-count');
+        if (counter) counter.textContent = textarea.value.length + '/1000';
+        _stopDictee();
+      };
+
+      _dicteeRecognition.start();
+    }
+
+    function _stopDictee() {
+      _dicteeActive = false;
+      var btn = document.getElementById('btn-micro-note');
+      if (btn) {
+        btn.style.background = 'none';
+        btn.style.borderColor = 'rgba(110,135,125,.4)';
+        btn.textContent = '🎙️';
+        btn.title = 'Dicter ma note';
+      }
+      _dicteeRecognition = null;
+    }
 
     // ============================================================
     // MESSAGE MÉDECIN
