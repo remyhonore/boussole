@@ -2,6 +2,21 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [9.77] - 2026-04-04
+
+### Ajouté
+- **Graphiques temporels interactifs** (`charts.js`) : sélecteur 7/14/30/90j, overlay traitements + événements crash/PEM
+- **Questionnaires PRO** (`questionnaires.js`) : PHQ-9 (dépression), GAD-7 (anxiété), PCFS (statut fonctionnel)
+- **Year in Pixels** : calendrier annuel 365 cases colorées, 5 filtres (score, énergie, sommeil, confort, clarté)
+- **Pacing dans le PDF médecin** : budget, coût moyen, jours dépassement, top 3 activités
+- **Activités personnalisables** : formulaire création inline + suppression dans le picker enveloppe énergie
+- Bouton "Reprendre dernières valeurs" pour Mes mesures
+
+### Corrigé
+- Fix critique : `</div>` en trop fermait le `.container` — 3 onglets sur 4 étirés sur desktop Chrome
+- Fix : `pacing-alert-today` affiché vide (barre verte sans contenu)
+- Mes mesures ouvert par défaut, label simplifié, refonte CSS
+
 ## [9.34] - 2026-04-04
 
 ### Corrigé
