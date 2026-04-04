@@ -124,6 +124,12 @@ function switchPanel(panelId) {
     renderJournalNotes();
   }
 
+  if (panelId === 'settings') {
+    if (typeof window.Traitements !== 'undefined' && typeof window.Traitements.renderResumeParametres === 'function') {
+      window.Traitements.renderResumeParametres();
+    }
+  }
+
   // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
   if (panelId === 'today') {
     loadTodayData();

@@ -160,6 +160,96 @@ window.Traitements = (function () {
     if(w2)w2.style.display=v?'block':'none';
   }
 
+  /**
+   * Parser regex pour saisie rapide en ligne libre
+   * Formats reconnus :
+   *   "Brintellix 20mg 1/j matin"
+   *   "Magnésium bisglycinate 300 mg 2x/j soir"
+   *   "Nicotine 7mg transdermique"
+   *   "Créatine 3g"
+   */
+  function parseTraitement(input) {
+    if (!input || !input.trim()) return null;
+    var s = input.trim();
+    var result = { nom: '', dose: null, unite: 'mg', frequence: '', moment: '', categorie: 'medicament' };
+
+    // Extraire dose + unité : "20mg", "300 mg", "3g", "7 µg", "5000 UI", "2 cp"
+    var doseMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(mg|µg|g|ml|ui|cp|gouttes|%)/i);
+    if (doseMatch) {
+      result.dose = parseFloat(doseMatch[1].replace(',', '.'));
+      var u = doseMatch[2].toLowerCase();
+      if (u === 'ui') u = 'UI';
+      result.unite = u;
+      s = s.replace(doseMatch[0], ' ').trim();
+    }
+
+    // Extraire fréquence : "1/j", "2x/j", "3x/jour", "1x/j", "si besoin", "hebdo"
+    var freqMatch = s.match(/(\d+x?\/j(?:our)?|si\s+besoin|hebdo(?:madaire)?|sem)/i);
+    if (freqMatch) {
+      var f = freqMatch[1].toLowerCase();
+      if (/^1x?\/j/.test(f)) result.frequence = '1x/j';
+      else if (/^2x?\/j/.test(f)) result.frequence = '2x/j';
+      else if (/^3x?\/j/.test(f)) result.frequence = '3x/j';
+      else if (/si\s+besoin/.test(f)) result.frequence = 'si besoin';
+      else if (/hebdo|sem/.test(f)) result.frequence = 'sem';
+      else result.frequence = freqMatch[1];
+      s = s.replace(freqMatch[0], ' ').trim();
+    }
+
+    // Extraire moment : matin, midi, soir, coucher, au coucher, le matin
+    var momentMatch = s.match(/(?:le\s+|au\s+)?(matin|midi|soir|coucher)/i);
+    if (momentMatch) {
+      result.moment = momentMatch[1].toLowerCase();
+      s = s.replace(momentMatch[0], ' ').trim();
+    }
+
+    // Extraire mots-clés complément
+    var compKeywords = /\b(magnésium|magnesium|vitamine|zinc|fer|omega|oméga|créatine|creatine|choline|taurine|tyrosine|whey|probiotique|curcumine|ashwagandha|rhodiola|coq10|nad|nmn|bisglycinate|malate|citrate|glycinate|collagène|spiruline|chlorelle|psyllium|inuline|berbérine|berberine|melatonine|mélatonine)\b/i;
+    if (compKeywords.test(input)) {
+      result.categorie = 'complement';
+    }
+
+    // Le reste = nom (nettoyer espaces multiples)
+    result.nom = s.replace(/\s{2,}/g, ' ').trim();
+
+    // Si le nom est vide mais on avait une dose, reprendre l'input original comme nom
+    if (!result.nom && result.dose !== null) {
+      result.nom = input.trim().replace(/\s{2,}/g, ' ');
+    }
+
+    return result.nom ? result : null;
+  }
+
+  function appliquerParsing() {
+    var input = document.getElementById('trt-saisie-rapide');
+    if (!input || !input.value.trim()) return;
+    var parsed = parseTraitement(input.value);
+    if (!parsed) return;
+
+    // Remplir les champs de la modale
+    var setVal = function(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; };
+    setVal('trt-nom', parsed.nom);
+    if (parsed.dose) setVal('trt-dose', parsed.dose);
+    setVal('trt-unite', parsed.unite);
+    if (parsed.frequence) setVal('trt-frequence', parsed.frequence);
+    if (parsed.moment) setVal('trt-moment', parsed.moment);
+
+    // Catégorie via chips
+    document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c) {
+      c.classList.toggle('trt-chip--active', c.dataset.val === parsed.categorie);
+    });
+
+    // Feedback visuel
+    input.value = '';
+    input.placeholder = '✓ Champs pré-remplis — vérifie et ajuste si besoin';
+    setTimeout(function() { input.placeholder = 'Ex : Brintellix 20mg 1/j matin'; }, 3000);
+
+    // Focus sur le premier champ vide important
+    if (!parsed.dose) { var d = document.getElementById('trt-dose'); if (d) d.focus(); }
+    else if (!parsed.frequence) { var f = document.getElementById('trt-frequence'); if (f) f.focus(); }
+    else { var n = document.getElementById('trt-nom'); if (n) n.focus(); }
+  }
+
   function ouvrirModale(id) {
     var modal=document.getElementById('modal-traitement');
     if(!modal)return;
@@ -215,13 +305,13 @@ window.Traitements = (function () {
       prescripteur:_getVal('trt-prescripteur'),objectif:_getVal('trt-objectif'),
       paliers:paliers,effets_indesirables:_getVal('trt-effets'),
       effet_global:_getVal('trt-effet-global'),notes:_getVal('trt-notes')});
-    fermerModale(); renderListe();
+    fermerModale(); renderListe(); renderResumeParametres();
   }
   function confirmerSuppression(id){
     var t=charger().find(function(x){return x.id===id;});
     if(!t)return;
     if(!confirm('Supprimer "'+t.nom+'" ?\nCette action est irréversible.'))return;
-    supprimer(id); renderListe();
+    supprimer(id); renderListe(); renderResumeParametres();
   }
 
   function exportPourPDF(){
@@ -283,9 +373,42 @@ window.Traitements = (function () {
     return h;
   }
 
+  function renderResumeParametres() {
+    var container = document.getElementById('param-traitements-resume');
+    if (!container) return;
+    var liste = charger();
+    var actifs = liste.filter(function(t) { return t.statut === 'actif'; });
+    if (!actifs.length) {
+      container.innerHTML = '<p style="font-size:13px;color:#9ca3af;font-style:italic;margin:0;">Aucun traitement enregistré.</p>';
+      return;
+    }
+    var meds = actifs.filter(function(t) { return t.categorie === 'medicament'; });
+    var comps = actifs.filter(function(t) { return t.categorie !== 'medicament'; });
+    function ligne(t) {
+      var s = '<span style="font-size:13px;color:#06172D;">' + t.nom;
+      if (t.dose) s += ' <strong>' + t.dose + (t.unite ? ' ' + t.unite : '') + '</strong>';
+      if (t.frequence) s += ' · ' + t.frequence;
+      s += '</span>';
+      return s;
+    }
+    var html = '';
+    if (meds.length) {
+      html += '<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">💊 Médicaments (' + meds.length + ')</div>';
+      html += meds.map(function(t) { return '<div style="padding:2px 0;">' + ligne(t) + '</div>'; }).join('');
+      html += '</div>';
+    }
+    if (comps.length) {
+      html += '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">🌿 Compléments (' + comps.length + ')</div>';
+      html += comps.map(function(t) { return '<div style="padding:2px 0;">' + ligne(t) + '</div>'; }).join('');
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
   function init(){
     migrerEssais();
     renderListe();
+    renderResumeParametres();
     document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(chip){
       chip.addEventListener('click',function(){
         document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c){c.classList.remove('trt-chip--active');});
@@ -310,5 +433,7 @@ window.Traitements = (function () {
   return{init:init,charger:charger,ouvrirModale:ouvrirModale,fermerModale:fermerModale,
     sauvegarderDepuisModale:sauvegarderDepuisModale,confirmerSuppression:confirmerSuppression,
     ajouterPalier:ajouterPalier,renderListe:renderListe,exportPourPDF:exportPourPDF,
-    blocHTML:blocHTML,_supprimerPalier:_supprimerPalier,_renderPaliers:_renderPaliers};
+    blocHTML:blocHTML,_supprimerPalier:_supprimerPalier,_renderPaliers:_renderPaliers,
+    parseTraitement:parseTraitement,appliquerParsing:appliquerParsing,
+    renderResumeParametres:renderResumeParametres};
 })();

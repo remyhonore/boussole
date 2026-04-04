@@ -818,28 +818,19 @@
 
         <div class="settings-group" style="margin-top:16px;">
           <p class="settings-label">Traitement actuel</p>
-          <p class="settings-desc">Ces informations apparaîtront dans ton PDF de consultation.</p>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-            <div>
-              <label for="param-medicaments" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Médicaments (ordonnance)</label>
-              <textarea id="param-medicaments" rows="2" maxlength="300"
-                placeholder="Ex : Brintellix 20mg/j · Quviviq 25mg/j"
-                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
-              <span id="counter-medicaments" style="font-size:11px;color:rgba(6,23,45,.58);display:block;text-align:right;">0/300</span>
-            </div>
-            <div>
-              <label for="param-complements" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Compléments nutritionnels</label>
-              <textarea id="param-complements" rows="2" maxlength="300"
-                placeholder="Ex : Magnésium 300mg · Choline · Créatine 3g"
-                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
-              <span id="counter-complements" style="font-size:11px;color:rgba(6,23,45,.58);display:block;text-align:right;">0/300</span>
-            </div>
-            <div>
-              <label for="param-allergies" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Allergies / contre-indications</label>
-              <input type="text" id="param-allergies" maxlength="150"
-                placeholder="Ex : pénicilline, AINS"
-                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
-            </div>
+          <p class="settings-desc">Géré depuis le panel Suivi. Les données structurées alimentent automatiquement ton PDF de consultation.</p>
+          <div id="param-traitements-resume" style="margin-top:8px;"></div>
+          <div style="margin-top:10px;display:flex;gap:8px;">
+            <button onclick="switchPanel('tracking');setTimeout(function(){var el=document.getElementById('accord-traitements');if(el){el.open=true;el.scrollIntoView({behavior:'smooth',block:'start'})}},200)" style="flex:1;padding:9px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">💊 Gérer mes traitements</button>
+          </div>
+        </div>
+        <div class="settings-group" style="margin-top:12px;">
+          <div>
+            <label for="param-allergies" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Allergies / contre-indications</label>
+            <input type="text" id="param-allergies" maxlength="150"
+              placeholder="Ex : pénicilline, AINS"
+              style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+          </div>
           </div>
         </div>
 
@@ -948,7 +939,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.29 — </span>
+    <span>Boussole v9.30 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1519,6 +1510,20 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h3 id="trt-modal-title" style="margin:0;font-size:16px;font-weight:700;color:#06172D;">Nouveau traitement</h3>
         <button onclick="Traitements.fermerModale()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">×</button>
+      </div>
+
+      <!-- Saisie rapide avec parsing intelligent -->
+      <div style="margin-bottom:14px;background:#f8faf9;border-radius:10px;padding:10px 12px;">
+        <label for="trt-saisie-rapide" style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Saisie rapide</label>
+        <div style="display:flex;gap:8px;">
+          <input id="trt-saisie-rapide" type="text" maxlength="200"
+            placeholder="Ex : Brintellix 20mg 1/j matin"
+            style="flex:1;padding:9px 12px;border:1.5px solid rgba(45,106,79,.35);border-radius:8px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;"
+            aria-label="Saisie rapide du traitement"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();Traitements.appliquerParsing();}">
+          <button onclick="Traitements.appliquerParsing()" style="padding:9px 14px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Remplir</button>
+        </div>
+        <p style="font-size:11px;color:rgba(6,23,45,.45);margin:5px 0 0;">Tape le nom, la dose et la fréquence — les champs se rempliront automatiquement.</p>
       </div>
 
       <!-- Section 1 : Infos rapides (toujours visible) -->
@@ -2220,8 +2225,6 @@
         { id: 'param-ddn',          key: 'boussole_ddn'          },
         { id: 'param-tel',          key: 'boussole_tel'          },
         { id: 'param-email',        key: 'boussole_param_email'  },
-        { id: 'param-medicaments',  key: 'boussole_medicaments'  },
-        { id: 'param-complements',  key: 'boussole_complements'  },
         { id: 'param-allergies',    key: 'boussole_allergies'    }
       ];
       function initParamFields() {
