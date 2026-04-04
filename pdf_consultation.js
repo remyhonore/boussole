@@ -1721,7 +1721,6 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   drawFooters();
-  doc.autoPrint();
   const pdfUrl = doc.output('bloburl');
 
   // Nom de fichier dynamique
@@ -1737,13 +1736,22 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     ? 'PreConsultation_' + _nom + '_' + _prenom + '_' + _dateStr + '.pdf'
     : 'PreConsultation_' + _dateStr + '.pdf';
 
-  const _a = document.createElement('a');
-  _a.href = pdfUrl;
-  _a.download = _filename;
-  _a.target = '_blank';
-  document.body.appendChild(_a);
-  _a.click();
-  document.body.removeChild(_a);
+  // Ouvrir dans un nouvel onglet (Chrome affiche le PDF avec barre d'outils)
+  // avec fallback téléchargement si popup bloquée
+  const _win = window.open(pdfUrl, '_blank');
+  if (!_win) {
+    // Popup bloquée — fallback téléchargement
+    const _a = document.createElement('a');
+    _a.href = pdfUrl;
+    _a.download = _filename;
+    _a.target = '_blank';
+    document.body.appendChild(_a);
+    _a.click();
+    document.body.removeChild(_a);
+  } else {
+    // Nommer le document (visible dans l'onglet)
+    try { _win.document.title = _filename; } catch(e) {}
+  }
 }
 
 // Export global
