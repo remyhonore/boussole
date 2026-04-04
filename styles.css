@@ -1286,6 +1286,61 @@ html.dark #card-essais > div[style*="border-left"] {
   padding: 14px 16px;
 }
 
+/* === Journal notes (Feature V) === */
+.journal-note-entry {
+  background: #fff;
+  border: 1px solid rgba(6,23,45,0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.journal-note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.journal-note-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2d6a4f;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.journal-note-actions {
+  display: flex;
+  gap: 6px;
+}
+.journal-note-btn-edit,
+.journal-note-btn-del {
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.journal-note-btn-edit {
+  background: rgba(45,106,79,.1);
+  color: #2d6a4f;
+}
+.journal-note-btn-del {
+  background: rgba(220,38,38,.08);
+  color: #dc2626;
+}
+.journal-note-text {
+  font-size: 13px;
+  color: #06172D;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+html.dark .journal-note-entry {
+  background: #1b2838;
+  border-color: rgba(255,255,255,0.08);
+}
+html.dark .journal-note-text { color: #e8e4de; }
+
 html.dark .journal-accord {
   background: #1b2838;
   border-color: rgba(255,255,255,0.08);

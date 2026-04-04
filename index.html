@@ -617,6 +617,7 @@
     <div class="panel" id="panel-tbsante" role="tabpanel" aria-labelledby="tab-tbsante">
 
       <div class="card" style="margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(6,23,45,.45);margin:0 0 10px;">Consulter mon médecin</p>
         <button
           onclick="ouvrirModaleConsultation('pdf')"
           style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
@@ -640,7 +641,7 @@
         </button>
       </div>
 
-      <div class="hub-history-section">
+      <div class="hub-history-section" style="display:none;" aria-hidden="true">
         <button id="btn-hub-history" onclick="toggleHubHistory()">
           📓 Mon historique clinique
         </button>
@@ -657,7 +658,14 @@
 
       <div id="journal-accordeons">
 
-        <details class="journal-accord" id="accord-events" open>
+        <details class="journal-accord" id="accord-journal" open>
+          <summary class="journal-accord-title">&#x1F4D3; Mon journal</summary>
+          <div class="journal-accord-body">
+            <div id="journal-notes-list"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-events">
           <summary class="journal-accord-title">▶ Événements notables</summary>
           <div class="journal-accord-body">
             <div id="events-summary-container"></div>

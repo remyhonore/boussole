@@ -118,6 +118,7 @@ function switchPanel(panelId) {
 
   if (panelId === 'tbsante') {
     renderAccordeons();
+    renderJournalNotes();
   }
 
   // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
@@ -3280,6 +3281,85 @@ function filterHubHistory(filter) {
     b.classList.toggle('active', b.dataset.filter === filter);
   });
   renderHubHistory(filter);
+}
+
+// ============================================================
+// FEATURE V — Journal : lecture / édition / suppression des notes
+// ============================================================
+
+function renderJournalNotes() {
+  var container = document.getElementById('journal-notes-list');
+  if (!container) return;
+
+  var data = loadEntries();
+  var withNotes = data.entries.filter(function(e) { return e.note && e.note.trim() !== ''; });
+
+  if (withNotes.length === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:#6b7280;text-align:center;padding:16px 0;">Aucune note enregistrée pour l’instant.</p>';
+    return;
+  }
+
+  container.innerHTML = withNotes.map(function(e) {
+    var dateLabel = formatDateFr(e.date);
+    var extrait = e.note.length > 120 ? e.note.substring(0, 120) + '…' : e.note;
+    var safeDate = e.date.replace(/-/g, '_');
+    return [
+      '<div class="journal-note-entry" id="journal-note-' + safeDate + '">',
+        '<div class="journal-note-header">',
+          '<span class="journal-note-date">' + dateLabel + '</span>',
+          '<div class="journal-note-actions">',
+            '<button class="journal-note-btn-edit" onclick="editNoteInline(\'' + e.date + '\')">Modifier</button>',
+            '<button class="journal-note-btn-del" onclick="deleteNoteJournal(\'' + e.date + '\')">Supprimer</button>',
+          '</div>',
+        '</div>',
+        '<div class="journal-note-text" id="journal-note-text-' + safeDate + '">' + extrait.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</div>',
+        '<div class="journal-note-edit-zone" id="journal-note-edit-' + safeDate + '" style="display:none;">',
+          '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + e.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
+          '<div style="display:flex;gap:8px;margin-top:8px;">',
+            '<button onclick="saveNoteEdit(\'' + e.date + '\')"
+              style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
+            '<button onclick="cancelNoteEdit(\'' + e.date + '\')"
+              style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
+          '</div>',
+        '</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+}
+
+function editNoteInline(date) {
+  var safeDate = date.replace(/-/g, '_');
+  document.getElementById('journal-note-text-' + safeDate).style.display = 'none';
+  document.getElementById('journal-note-edit-' + safeDate).style.display = 'block';
+  var ta = document.getElementById('journal-note-textarea-' + safeDate);
+  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+
+function cancelNoteEdit(date) {
+  var safeDate = date.replace(/-/g, '_');
+  document.getElementById('journal-note-text-' + safeDate).style.display = 'block';
+  document.getElementById('journal-note-edit-' + safeDate).style.display = 'none';
+}
+
+function saveNoteEdit(date) {
+  var safeDate = date.replace(/-/g, '_');
+  var ta = document.getElementById('journal-note-textarea-' + safeDate);
+  if (!ta) return;
+  var newNote = ta.value.trim();
+  var entry = getEntry(date);
+  if (!entry) return;
+  entry.note = newNote;
+  saveEntry(date, entry);
+  renderJournalNotes();
+}
+
+function deleteNoteJournal(date) {
+  if (!confirm('Supprimer la note du ' + formatDateFr(date) + ' ?')) return;
+  var entry = getEntry(date);
+  if (!entry) return;
+  entry.note = null;
+  saveEntry(date, entry);
+  renderJournalNotes();
 }
 
 // ============================================================
