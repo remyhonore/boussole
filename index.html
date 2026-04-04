@@ -489,11 +489,6 @@
         </div>
       </div>
 
-      <!-- Signaler un événement — toujours visible (indépendant du toggle Pacing) -->
-      <div style="text-align:center; margin:14px 0;">
-        <button onclick="document.getElementById('modal-event').style.display='flex'" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:9px 18px;font-size:14px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;font-weight:600;">▶ Signaler un événement</button>
-      </div>
-
       <!-- ===== CARD 2 : Pacing (conditionnel) ===== -->
       <div id="section-pacing-wrapper" class="card" style="margin-top:16px;">
         <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
@@ -502,13 +497,13 @@
       <!-- Feature P : Pacing — Stabilité du jour -->
       <div id="morning-pace-card"></div>
 
-      <!-- Signaler un événement (repositionné sous Pacing) -->
-      <div style="text-align:center; margin-bottom:12px;">
-        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
-      </div>
-
       <!-- Feature B : Pacing — Enveloppe énergie -->
       <div id="energy-envelope-card"></div>
+      </div>
+
+      <!-- Signaler un événement — toujours visible, indépendant du toggle Pacing -->
+      <div style="text-align:center; margin:12px 0;">
+        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:9px 18px;font-size:14px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;font-weight:600;">▶ Signaler un événement</button>
       </div>
 
       <!-- ===== CARD 3 : Mes mesures (conditionnel) ===== -->
@@ -951,7 +946,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.66 — </span>
+    <span>Boussole v9.67 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

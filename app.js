@@ -379,12 +379,10 @@ function loadTodayData() {
   var pacingWrapper = document.getElementById('section-pacing-wrapper');
   var mpCard = document.getElementById('morning-pace-card');
   var eeCard = document.getElementById('energy-envelope-card');
-  var evtBtn = document.getElementById('btn-mark-event');
   var pacingAlert = document.getElementById('pacing-alert-today');
   if (pacingWrapper) pacingWrapper.style.display = pacingVisible ? '' : 'none';
   if (mpCard) mpCard.style.display = pacingVisible ? '' : 'none';
   if (eeCard) eeCard.style.display = pacingVisible ? '' : 'none';
-  if (evtBtn) evtBtn.parentElement.style.display = pacingVisible ? '' : 'none';
   if (pacingAlert) pacingAlert.style.display = pacingVisible ? '' : 'none';
 
   if (pacingVisible) {
