@@ -31,6 +31,10 @@ window.ImportMES = (function() {
     var sexeMatch = text.match(/Sexe\s+(Masculin|F[ée]minin)/i);
     if (sexeMatch) result.patient.sexe = sexeMatch[1].toLowerCase().startsWith('f') ? 'femme' : 'homme';
 
+    // --- INS-NIR (N° Sécurité sociale) ---
+    var insMatch = text.match(/INS-NIR\s*:\s*(\d{13,15})/i);
+    if (insMatch) result.patient.ins_nir = insMatch[1].trim();
+
     // --- Médecin traitant ---
     var medMatch = text.match(/Participant\(s\)\s+([A-ZÀ-Ü\s]+?)(?:\n|M[ée]decin)/i);
     if (medMatch) result.medecin.nom = medMatch[1].trim();
@@ -152,7 +156,17 @@ window.ImportMES = (function() {
         var el3 = document.getElementById('param-ddn');
         if (el3) el3.value = pts[2]+'/'+pts[1]+'/'+pts[0];
       }
-      if (p.sexe) localStorage.setItem('boussole_genre', p.sexe);
+      if (p.sexe) {
+        localStorage.setItem('boussole_genre', p.sexe);
+        // Cocher le radio button correspondant
+        var radio = document.querySelector('input[name="profil-genre"][value="' + p.sexe + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (p.ins_nir) {
+        localStorage.setItem('boussole_ins_nir', p.ins_nir);
+        var elNir = document.getElementById('param-secu');
+        if (elNir) elNir.value = p.ins_nir;
+      }
       imported.patient = true;
     }
 
@@ -371,7 +385,9 @@ window.ImportMES = (function() {
     if (data.patient.prenom || data.patient.nom) {
       h += '<p style="margin:0 0 4px;font-size:13px;"><label><input type="checkbox" id="chk-import-patient" checked style="margin-right:6px;">Patient : <strong>' +
         (data.patient.prenom||'') + ' ' + (data.patient.nom||'') + '</strong>' +
-        (data.patient.ddn ? ' — ne(e) le ' + data.patient.ddn : '') + '</label></p>';
+        (data.patient.ddn ? ' — ne(e) le ' + data.patient.ddn : '') +
+        (data.patient.sexe ? ' — ' + data.patient.sexe : '') +
+        (data.patient.ins_nir ? ' — N° ' + data.patient.ins_nir : '') + '</label></p>';
     }
 
     // Médecin
