@@ -3316,10 +3316,8 @@ function renderJournalNotes() {
         '<div class="journal-note-edit-zone" id="journal-note-edit-' + safeDate + '" style="display:none;">',
           '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + e.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
           '<div style="display:flex;gap:8px;margin-top:8px;">',
-            '<button onclick="saveNoteEdit(\'' + e.date + '\')"
-              style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
-            '<button onclick="cancelNoteEdit(\'' + e.date + '\')"
-              style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
+            '<button onclick="saveNoteEdit(\'' + e.date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
+            '<button onclick="cancelNoteEdit(\'' + e.date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
           '</div>',
         '</div>',
       '</div>'
