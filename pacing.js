@@ -15,48 +15,58 @@ window.MorningPace = (function() {
   };
 
   // --- Calcul du score de stabilité matinal (1-5) ---
+  // Blend subjectif (60%) + biométrie (40%) pour éviter la dissociation
+  // entre ressenti et mesures objectives
   function calculer() {
+    // 1. Score de récupération (biométrie, 0-100)
     var scoreRecup = null;
     if (window.ScoreSNA && typeof window.ScoreSNA.calculer === 'function') {
       var sna = window.ScoreSNA.calculer();
       if (sna && typeof sna.score === 'number') scoreRecup = sna.score;
     }
 
-    // Fallback : score composite d'hier si pas de score récup
+    // 2. Score subjectif récent (0-10 → normalisé 0-100)
+    var subjectif = null;
     var hierScore = null;
-    if (scoreRecup === null) {
-      var entries = [];
-      try {
-        var raw = localStorage.getItem('boussole_v1_data');
-        if (raw) entries = (JSON.parse(raw).entries || []);
-      } catch (e) {}
-      if (entries.length > 0) {
-        entries.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
-        var last = entries[entries.length - 1];
-        var vals = [last.energie, last.qualite_sommeil, last.douleurs, last.clarte_mentale].filter(function(v) { return typeof v === 'number'; });
-        if (vals.length > 0) hierScore = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
+    var entries = [];
+    try {
+      var raw = localStorage.getItem('boussole_v1_data');
+      if (raw) entries = (JSON.parse(raw).entries || []);
+    } catch (e) {}
+    if (entries.length > 0) {
+      entries.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+      var last = entries[entries.length - 1];
+      var vals = [last.energie, last.qualite_sommeil, last.douleurs, last.clarte_mentale].filter(function(v) { return typeof v === 'number'; });
+      if (vals.length > 0) {
+        hierScore = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
+        subjectif = hierScore * 10; // 0-10 → 0-100
       }
     }
 
     // Pas assez de données
-    if (scoreRecup === null && hierScore === null) return null;
+    if (scoreRecup === null && subjectif === null) return null;
 
-    // Mapping score récup (0-100) → stabilité (1-5)
-    var niveau;
-    if (scoreRecup !== null) {
-      if (scoreRecup < 25) niveau = 1;
-      else if (scoreRecup < 40) niveau = 2;
-      else if (scoreRecup < 60) niveau = 3;
-      else if (scoreRecup < 78) niveau = 4;
-      else niveau = 5;
+    // 3. Blend : subjectif prime (le ressenti fait foi)
+    var blended;
+    var source;
+    if (scoreRecup !== null && subjectif !== null) {
+      blended = subjectif * 0.6 + scoreRecup * 0.4;
+      source = 'blend';
+    } else if (subjectif !== null) {
+      blended = subjectif;
+      source = 'composite';
     } else {
-      // Mapping score composite hier (0-10) → stabilité (1-5)
-      if (hierScore < 3) niveau = 1;
-      else if (hierScore < 4.5) niveau = 2;
-      else if (hierScore < 6) niveau = 3;
-      else if (hierScore < 8) niveau = 4;
-      else niveau = 5;
+      blended = scoreRecup;
+      source = 'recup';
     }
+
+    // 4. Mapping score blendé (0-100) → stabilité (1-5)
+    var niveau;
+    if (blended < 25) niveau = 1;
+    else if (blended < 40) niveau = 2;
+    else if (blended < 60) niveau = 3;
+    else if (blended < 78) niveau = 4;
+    else niveau = 5;
 
     // Ajustement feedback : si l'utilisateur a souvent dit 👎, baisser d'un cran
     var feedbacks = _getFeedbacks();
@@ -70,9 +80,10 @@ window.MorningPace = (function() {
 
     return {
       niveau: niveau,
-      source: scoreRecup !== null ? 'recup' : 'composite',
+      source: source,
       scoreRecup: scoreRecup,
-      hierScore: hierScore
+      hierScore: hierScore,
+      blended: Math.round(blended)
     };
   }
 
@@ -112,9 +123,11 @@ window.MorningPace = (function() {
     }
 
     var info = LABELS[res.niveau];
-    var sourceNote = res.source === 'recup'
-      ? 'Basé sur ton score de récupération (' + res.scoreRecup + '/100)'
-      : 'Basé sur ton dernier bilan (' + (res.hierScore ? res.hierScore.toFixed(1) : '?') + '/10)';
+    var sourceNote = res.source === 'blend'
+      ? 'Ressenti (' + (res.hierScore ? res.hierScore.toFixed(1) : '?') + '/10) + récupération (' + (res.scoreRecup || '?') + '/100)'
+      : res.source === 'recup'
+        ? 'Basé sur ton score de récupération (' + res.scoreRecup + '/100)'
+        : 'Basé sur ton dernier bilan (' + (res.hierScore ? res.hierScore.toFixed(1) : '?') + '/10)';
 
     // Barre de niveau 1-5
     var dots = '';
