@@ -598,10 +598,10 @@ h2.summary-section {
 
 /* === INDICATOR CARDS === */
 .indicator-card {
-  border-radius: 16px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(6,23,45,.07);
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 5px rgba(6,23,45,.06);
 }
 
 .indicator-card .field {
@@ -617,12 +617,12 @@ h2.summary-section {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
 }
 
 .indicator-score {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--indicator-color);
   line-height: 1;
