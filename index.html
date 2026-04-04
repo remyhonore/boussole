@@ -659,11 +659,11 @@
       <div id="journal-accordeons">
 
         <details class="journal-accord" id="accord-journal">
-          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>&#x1F4D3; Mon journal</span>
-            <button onclick="event.preventDefault();generateJournalPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; Voir mon journal en PDF</button>
-          </summary>
+          <summary class="journal-accord-title">&#x1F4D3; Mon journal</summary>
           <div class="journal-accord-body">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+              <button onclick="generateJournalPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
+            </div>
             <!-- Formulaire d'ajout de note inline -->
             <div id="journal-add-zone" style="display:none;background:#f8faf9;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;padding:14px;margin-bottom:12px;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
@@ -687,11 +687,11 @@
         </details>
 
         <details class="journal-accord" id="accord-events">
-          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>▶ Événements notables</span>
-            <button onclick="event.preventDefault();generateEventsPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
-          </summary>
+          <summary class="journal-accord-title">▶ Événements notables</summary>
           <div class="journal-accord-body">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+              <button onclick="generateEventsPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
+            </div>
             <div style="margin-bottom:10px;">
               <button onclick="document.getElementById('modal-event').style.display='flex'" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Signaler un événement</button>
             </div>
@@ -700,11 +700,11 @@
         </details>
 
         <details class="journal-accord" id="accord-essais">
-          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>&#x1F9EA; Mes essais</span>
-            <button onclick="event.preventDefault();generateEssaisPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
-          </summary>
+          <summary class="journal-accord-title">&#x1F9EA; Mes essais</summary>
           <div class="journal-accord-body">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+              <button onclick="generateEssaisPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
+            </div>
             <div style="margin-bottom:10px;">
               <button onclick="openModalEssai()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter un essai</button>
             </div>
@@ -713,11 +713,11 @@
         </details>
 
         <details class="journal-accord" id="accord-consultations">
-          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>&#x1F4CB; Mes consultations</span>
-            <button onclick="event.preventDefault();exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
-          </summary>
+          <summary class="journal-accord-title">&#x1F4CB; Mes consultations</summary>
           <div class="journal-accord-body">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+              <button onclick="exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
+            </div>
             <div style="margin-bottom:12px;">
               <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer une consultation</button>
             </div>
