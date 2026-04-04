@@ -264,10 +264,15 @@
       <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
       <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
 
-      <!-- Feature P : Score de stabilité matinal (Morning Pace) -->
+      <!-- Feature P : Pacing — Stabilité du jour -->
       <div id="morning-pace-card"></div>
 
-      <!-- Feature B : Enveloppe énergétique déclarative -->
+      <!-- Signaler un événement (repositionné sous Pacing) -->
+      <div style="text-align:center; margin-bottom:12px;">
+        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement (crash, PEM...)</button>
+      </div>
+
+      <!-- Feature B : Pacing — Enveloppe énergie -->
       <div id="energy-envelope-card"></div>
 
       <div class="card">
@@ -306,10 +311,6 @@
             <span>Très difficile</span>
             <span>Excellent</span>
           </div>
-        </div>
-
-        <div style="text-align:right; margin:-4px 0 12px;">
-          <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
         </div>
 
         <hr style="border:none; border-top:1px solid rgba(110,135,125,.2);
@@ -868,7 +869,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.53 — </span>
+    <span>Boussole v9.54 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1419,6 +1420,7 @@
       <label for="event-type" style="display:none;">Type d'événement</label>
       <select id="event-type" aria-label="Type d'événement">
         <option value="">Type (optionnel)</option>
+        <option value="crash-pem">Crash / PEM</option>
         <option value="reaction-medicament">Réaction médicament</option>
         <option value="symptome-inhabituel">Symptôme inhabituel</option>
         <option value="bonne-journee-exceptionnelle">Bonne journée exceptionnelle</option>

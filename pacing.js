@@ -14,6 +14,29 @@ window.MorningPace = (function() {
     5: { emoji: '🟢', label: 'Bonne stabilité', tip: 'Bonne récupération. Profite de cette journée en restant attentif(ve).', color: '#2d6a4f' }
   };
 
+  // Vérifie si un événement crash/PEM a été signalé dans les 48 dernières heures
+  function _hasCrashEvent48h() {
+    var cutoff = new Date();
+    cutoff.setHours(cutoff.getHours() - 48);
+    var cutoffStr = cutoff.toISOString().split('T')[0];
+    var crashTypes = ['crash-pem', 'mauvaise-journee-exceptionnelle', 'reaction-medicament', 'symptome-inhabituel'];
+    try {
+      var keys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
+      for (var i = 0; i < keys.length; i++) {
+        var parts = keys[i].replace('boussole_event_', '').split('_');
+        var dateEvt = parts[0];
+        if (dateEvt >= cutoffStr) {
+          var raw = localStorage.getItem(keys[i]);
+          if (raw) {
+            var evt = JSON.parse(raw);
+            if (crashTypes.indexOf(evt.type) !== -1) return true;
+          }
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
   // --- Calcul du score de stabilité matinal (1-5) ---
   // Blend subjectif (60%) + biométrie (40%) pour éviter la dissociation
   // entre ressenti et mesures objectives
@@ -68,6 +91,12 @@ window.MorningPace = (function() {
     else if (blended < 78) niveau = 4;
     else niveau = 5;
 
+    // 5. Ajustement événements crash récents (48h)
+    var crashRecent = _hasCrashEvent48h();
+    if (crashRecent) {
+      niveau = Math.max(1, niveau - 2); // crash = descendre de 2 niveaux
+    }
+
     // Ajustement feedback : si l'utilisateur a souvent dit 👎, baisser d'un cran
     var feedbacks = _getFeedbacks();
     var recent = feedbacks.slice(-14); // 14 derniers jours
@@ -83,7 +112,8 @@ window.MorningPace = (function() {
       source: source,
       scoreRecup: scoreRecup,
       hierScore: hierScore,
-      blended: Math.round(blended)
+      blended: Math.round(blended),
+      crashRecent: crashRecent
     };
   }
 
@@ -154,9 +184,10 @@ window.MorningPace = (function() {
     container.innerHTML =
       '<div style="border-radius:12px;padding:14px 16px;margin-bottom:12px;background:linear-gradient(135deg,rgba(45,106,79,.06),rgba(45,106,79,.02));border:1.5px solid rgba(45,106,79,.18);">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-          '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Stabilité du jour</div>' +
+          '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Pacing — Stabilité du jour</div>' +
           '<span style="font-size:22px;">' + info.emoji + '</span>' +
         '</div>' +
+        (res.crashRecent ? '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#991b1b;">⚠️ Crash/PEM signalé récemment — niveau abaissé</div>' : '') +
         '<div style="font-size:15px;font-weight:700;color:' + info.color + ';margin-bottom:4px;">' + info.label + '</div>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.72);line-height:1.4;margin:0 0 10px;">' + info.tip + '</p>' +
         '<div style="display:flex;align-items:center;margin-bottom:8px;">' + dots + '</div>' +
@@ -368,7 +399,7 @@ window.EnergyEnvelope = (function() {
     container.innerHTML =
       '<div style="border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
-          '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Enveloppe énergie</div>' +
+          '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Pacing — Enveloppe énergie</div>' +
           '<span style="font-size:12px;color:#9ca3af;">Budget : ' + budget + ' pts</span>' +
         '</div>' +
         // Jauge
