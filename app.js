@@ -94,6 +94,7 @@ function switchPanel(panelId) {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.remove('active');
     btn.removeAttribute('aria-current');
+    btn.setAttribute('aria-selected', 'false');
   });
   document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
 
@@ -104,6 +105,7 @@ function switchPanel(panelId) {
   if (navBtn) {
     navBtn.classList.add('active');
     navBtn.setAttribute('aria-current', 'page');
+    navBtn.setAttribute('aria-selected', 'true');
   }
   if (panel) panel.classList.add('active');
 

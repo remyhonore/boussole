@@ -228,17 +228,29 @@
     </header>
 
     <!-- Navigation -->
-    <nav class="nav" role="navigation" aria-label="Navigation principale">
-      <button class="nav-btn active" data-panel="today" aria-label="Aller à la page Aujourd'hui" aria-current="page">
+    <nav class="nav" role="tablist" aria-label="Navigation principale">
+      <button class="nav-btn active" data-panel="today"
+        role="tab" id="tab-today"
+        aria-selected="true" aria-controls="panel-today"
+        aria-label="Aller à la page Aujourd'hui" aria-current="page">
         Aujourd'hui
       </button>
-      <button class="nav-btn" data-panel="resume" aria-label="Aller à la page Résumé">
+      <button class="nav-btn" data-panel="resume"
+        role="tab" id="tab-resume"
+        aria-selected="false" aria-controls="panel-resume"
+        aria-label="Aller à la page Résumé">
         Résumé
       </button>
-      <button class="nav-btn" data-panel="tbsante" aria-label="Aller au suivi santé">
+      <button class="nav-btn" data-panel="tbsante"
+        role="tab" id="tab-tbsante"
+        aria-selected="false" aria-controls="panel-tbsante"
+        aria-label="Aller au suivi santé">
         Suivi
       </button>
-      <button class="nav-btn" data-panel="params" aria-label="Aller aux Paramètres">
+      <button class="nav-btn" data-panel="params"
+        role="tab" id="tab-params"
+        aria-selected="false" aria-controls="panel-params"
+        aria-label="Aller aux Paramètres">
         Paramètres
       </button>
     </nav>
@@ -249,7 +261,7 @@
     <!-- Panel Onboarding (affiché uniquement au premier lancement) -->
     <div class="panel" id="panel-onboarding">
       <div class="card" style="text-align:center; padding:32px 24px;">
-        <h2 style="font-size:28px; font-weight:800; color:#2d6a4f; margin:0 0 4px;">myBoussole</h2>
+        <p style="font-size:28px; font-weight:800; color:#2d6a4f; margin:0 0 4px;" aria-hidden="true">myBoussole</p>
         <p style="font-size:15px; color:rgba(6,23,45,.55); margin:0 0 24px;">Ton journal de bien-être</p>
         <p style="font-size:16px; font-weight:600; color:#06172D; line-height:1.5; margin:0 0 28px;">
           En 30 secondes par jour, tu vas avoir quelque chose de concret à montrer à ton médecin.
@@ -286,7 +298,7 @@
     </div>
 
     <!-- Panel Aujourd'hui -->
-    <div class="panel" id="panel-today">
+    <div class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
 
       <div id="welcome-banner" style="display:none;">
         <div class="card" style="text-align:center; margin-bottom:16px; background:linear-gradient(135deg,#f0f7f4,#e8f5f0);">
@@ -307,7 +319,8 @@
         <!-- Saisie rétroactive (Feature S) -->
         <div id="retro-date-selector" style="margin-bottom:16px;background:#f8f9fa;border-radius:10px;padding:10px 14px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;">
           <span style="font-size:13px;color:#6b7280;">Saisir pour :</span>
-          <select id="retro-date-select" onchange="changerDateSaisie(this.value)" style="font-size:13px;color:#06172D;border:none;background:transparent;font-weight:600;cursor:pointer;outline:none;">
+          <label for="retro-date-select" style="display:none;">Saisir pour la date</label>
+        <select id="retro-date-select" aria-label="Saisir pour la date" onchange="changerDateSaisie(this.value)" style="font-size:13px;color:#06172D;border:none;background:transparent;font-weight:600;cursor:pointer;outline:none;">
             <!-- options générées dynamiquement par JS -->
           </select>
         </div>
@@ -328,7 +341,8 @@
           <input type="range" id="humeur-range" min="0" max="10" value="5" step="1"
             data-touched="false"
             style="width:100%; accent-color:#2d6a4f; cursor:pointer; height:6px;"
-            aria-label="Humeur de 0 à 10">
+            aria-label="Humeur de 0 à 10"
+            aria-valuemin="0" aria-valuemax="10" aria-valuenow="5">
           <div style="display:flex; justify-content:space-between;
           font-size:11px; color:rgba(6,23,45,.35); margin-top:6px;">
             <span>Très difficile</span>
@@ -550,11 +564,11 @@
               <input type="number" id="input-rmssd" placeholder="ex : 42" min="1" max="300" inputmode="numeric">
             </div>
             <div class="mesures-field mesures-field-ta">
-              <label>Tension (mmHg)</label>
+              <label id="label-tension">Tension (mmHg)</label>
               <div class="ta-inputs">
-                <input type="number" id="input-ta-sys" placeholder="120" min="60" max="250" inputmode="numeric">
+                <input type="number" id="input-ta-sys" placeholder="120" min="60" max="250" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension systolique">
                 <span class="ta-separator">/</span>
-                <input type="number" id="input-ta-dia" placeholder="80" min="30" max="150" inputmode="numeric">
+                <input type="number" id="input-ta-dia" placeholder="80" min="30" max="150" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension diastolique">
               </div>
             </div>
             <div class="mesures-field">
@@ -582,7 +596,7 @@
     </div>
 
     <!-- Panel Résumé -->
-    <div class="panel" id="panel-resume">
+    <div class="panel" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume">
 
       <div id="summary-content">
         <!-- Contenu généré dynamiquement -->
@@ -594,7 +608,7 @@
     </div>
 
     <!-- Panel TB Santé -->
-    <div class="panel" id="panel-tbsante">
+    <div class="panel" id="panel-tbsante" role="tabpanel" aria-labelledby="tab-tbsante">
 
       <div class="card" style="margin-bottom:16px;">
         <button
@@ -676,7 +690,7 @@
     </div>
 
     <!-- Panel Paramètres (ADR-2026-025) -->
-    <div class="panel" id="panel-params">
+    <div class="panel" id="panel-params" role="tabpanel" aria-labelledby="tab-params">
       <div class="card">
         <h2 class="card-title">Paramètres</h2>
 
@@ -690,8 +704,10 @@
         <div class="settings-group">
           <p class="settings-label">Mes informations (pour le PDF consultation)</p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <label for="param-prenom" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Prénom</label>
             <input type="text" id="param-prenom" placeholder="Prénom" autocomplete="given-name"
               style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+            <label for="param-nom" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Nom</label>
             <input type="text" id="param-nom" placeholder="Nom" autocomplete="family-name"
               style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
             <div>
@@ -700,6 +716,7 @@
                 inputmode="numeric" placeholder="jj/mm/aaaa" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
                 style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
             </div>
+            <label for="param-tel" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Téléphone</label>
             <input type="tel" id="param-tel" placeholder="Ex : 06 12 34 56 78" autocomplete="tel"
               style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
             <div>
@@ -860,7 +877,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.16 — </span>
+    <span>Boussole v9.17 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1159,6 +1176,7 @@
         <textarea
           id="dictee-preview"
           rows="5"
+          aria-label="Zone de prévisualisation de la dictée vocale"
           placeholder="Parle — tes mots apparaîtront ici en temps réel…"
           style="width:100%;padding:12px 14px;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;"
         ></textarea>
@@ -1208,7 +1226,7 @@
       <!-- Nom du médecin -->
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Nom du médecin (optionnel)</label>
-        <input type="text" id="msg-medecin-nom-dr" placeholder="Dr Dupont" style="width:100%;padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
+        <input type="text" id="msg-medecin-nom-dr" aria-label="Nom du médecin" placeholder="Dr Dupont" style="width:100%;padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
       </div>
 
       <!-- Période -->
@@ -1230,7 +1248,7 @@
       <!-- Motif du message -->
       <div style="margin-bottom:16px;">
         <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Motif du message</label>
-        <textarea id="msg-medecin-motif" maxlength="300" rows="3" placeholder="Ex: effets indésirables suite à l'augmentation du Quviviq à 50mg — dois-je continuer ?" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"></textarea>
+        <textarea id="msg-medecin-motif" aria-label="Motif du message au médecin" maxlength="300" rows="3" placeholder="Ex: effets indésirables suite à l'augmentation du Quviviq à 50mg — dois-je continuer ?" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"></textarea>
         <p style="font-size:11px;color:rgba(6,23,45,.38);margin:3px 0 0;">Ce motif sera intégré dans le message généré.</p>
       </div>
 
@@ -1247,7 +1265,7 @@
             <button onclick="partagerMsgMedecin()" id="btn-partager-msg" style="padding:5px 12px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Partager</button>
           </div>
         </div>
-        <textarea id="msg-medecin-texte" rows="12" style="width:100%;padding:12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;"></textarea>
+        <textarea id="msg-medecin-texte" aria-label="Message généré pour le médecin" rows="12" style="width:100%;padding:12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;"></textarea>
         <p style="font-size:11px;color:rgba(6,23,45,.38);margin:6px 0 0;">Tu peux modifier le texte avant de le copier ou partager.</p>
       </div>
 
@@ -1314,11 +1332,11 @@
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
               <div style="flex:1;min-width:120px;">
                 <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Du</label>
-                <input type="date" id="narrative-date-from" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
+                <input type="date" id="narrative-date-from" aria-label="Date de début de la période" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
               </div>
               <div style="flex:1;min-width:120px;">
                 <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Au</label>
-                <input type="date" id="narrative-date-to" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
+                <input type="date" id="narrative-date-to" aria-label="Date de fin de la période" style="width:100%;padding:6px 8px;border:1px solid rgba(110,135,125,.35);border-radius:6px;font-size:13px;font-family:inherit;color:#06172D;">
               </div>
             </div>
           </div>
@@ -1405,7 +1423,8 @@
     <div class="modal-card">
       <h3>▶ Événement notable</h3>
       <p class="modal-hint">Ce que tu veux te rappeler pour ton prochain RDV.</p>
-      <select id="event-type">
+      <label for="event-type" style="display:none;">Type d'événement</label>
+      <select id="event-type" aria-label="Type d'événement">
         <option value="">Type (optionnel)</option>
         <option value="reaction-medicament">Réaction médicament</option>
         <option value="symptome-inhabituel">Symptôme inhabituel</option>
@@ -1413,7 +1432,8 @@
         <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
         <option value="autre">Autre</option>
       </select>
-      <textarea id="event-desc" maxlength="300" placeholder="Décrivez l'événement... (300 car max)" rows="4"></textarea>
+      <label for="event-desc" style="display:none;">Description de l'événement</label>
+      <textarea id="event-desc" aria-label="Description de l'événement" maxlength="300" placeholder="Décrivez l'événement... (300 car max)" rows="4"></textarea>
       <span id="event-desc-count">0/300</span>
       <div class="modal-actions">
         <button id="btn-event-save" style="background:#2d6a4f;color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Enregistrer</button>
@@ -1430,13 +1450,14 @@
       <div>
         <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Nom <span style="color:#dc2626;">*</span></label>
         <input id="essai-nom" type="text" maxlength="100" placeholder="Ex: Magnésium bisglycinate"
+          aria-label="Nom de l'essai"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Type</label>
-          <select id="essai-type" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+          <select id="essai-type" aria-label="Type d'essai" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="">—</option>
             <option value="Médicament">Médicament</option>
             <option value="Complément">Complément</option>
@@ -1446,21 +1467,21 @@
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Date de début</label>
-          <input id="essai-date" type="date"
+          <input id="essai-date" type="date" aria-label="Date de début de l'essai"
             style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
         </div>
       </div>
 
       <div>
         <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Objectif</label>
-        <textarea id="essai-objectif" maxlength="100" rows="2" placeholder="Ce que j'espérais obtenir"
+        <textarea id="essai-objectif" aria-label="Objectif de l'essai" maxlength="100" rows="2" placeholder="Ce que j'espérais obtenir"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet initial</label>
-          <select id="essai-effet" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+          <select id="essai-effet" aria-label="Effet initial de l'essai" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="">—</option>
             <option value="Positif">Positif</option>
             <option value="Neutre">Neutre</option>
@@ -1469,21 +1490,21 @@
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Aggravation secondaire</label>
-          <select id="essai-aggravation" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+          <select id="essai-aggravation" aria-label="Aggravation secondaire" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
             <option value="Oui">Oui</option>
           </select>
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet paradoxal</label>
-          <select id="essai-paradoxal" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
+          <select id="essai-paradoxal" aria-label="Effet paradoxal" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
             <option value="Oui">Oui</option>
           </select>
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Arrêt</label>
-          <select id="essai-arret" onchange="document.getElementById('essai-raison-arret-wrap').style.display=this.value==='Oui'?'block':'none'"
+          <select id="essai-arret" aria-label="Arrêt de l'essai" onchange="document.getElementById('essai-raison-arret-wrap').style.display=this.value==='Oui'?'block':'none'"
             style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
             <option value="Oui">Oui</option>
@@ -1493,7 +1514,7 @@
 
       <div id="essai-raison-arret-wrap" style="display:none;">
         <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Raison d'arrêt</label>
-        <textarea id="essai-raison-arret" maxlength="100" rows="2" placeholder="Pourquoi cet arrêt ?"
+        <textarea id="essai-raison-arret" aria-label="Raison d'arrêt de l'essai" maxlength="100" rows="2" placeholder="Pourquoi cet arrêt ?"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
       </div>
 
