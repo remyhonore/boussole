@@ -1541,6 +1541,86 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
+  // 8b. PACING — RESUME SUR LA PERIODE (conditionnel)
+  // ============================================================
+  (function() {
+    // Compter jours de depassement et budget moyen sur la periode
+    var pacingDays = 0, totalBudget = 0, depassements = 0, totalActivites = 0;
+    var cutPacing = new Date();
+    cutPacing.setDate(cutPacing.getDate() - 29);
+    var cutPacingStr = cutPacing.toISOString().split('T')[0];
+
+    for (var pi = 0; pi < localStorage.length; pi++) {
+      var pk = localStorage.key(pi);
+      if (!pk || !pk.startsWith('boussole_pacing_log_')) continue;
+      var pDate = pk.replace('boussole_pacing_log_', '');
+      if (pDate < cutPacingStr) continue;
+      try {
+        var pLog = JSON.parse(localStorage.getItem(pk));
+        if (!Array.isArray(pLog) || !pLog.length) continue;
+        pacingDays++;
+        var dayTotal = pLog.reduce(function(s, a) { return s + (a.cout || 0); }, 0);
+        totalActivites += pLog.length;
+        totalBudget += dayTotal;
+        if (dayTotal > 80) depassements++;
+      } catch(e) {}
+    }
+
+    if (pacingDays >= 3) {
+      checkPage(28);
+      doc.setFontSize(9);
+      tc(MUTED, false);
+      doc.text('PACING - GESTION DE L\'ENVELOPPE ENERGETIQUE (30 jours)', marginL, y);
+      y += 5;
+      doc.setFontSize(8);
+      tc(ANTHRACITE, false);
+      var avgBudget = Math.round(totalBudget / pacingDays);
+      var pctDepas = Math.round(depassements / pacingDays * 100);
+      doc.text('Jours traces : ' + pacingDays + '/30 - Budget moyen : ' + avgBudget + '/100 pts - Depassements (>80%) : ' + depassements + ' j. (' + pctDepas + '%)', marginL, y);
+      y += 4;
+      if (pctDepas > 50) {
+        tc([220, 60, 60], false);
+        doc.text('/!\\ Depassement frequent — risque de crash post-effort (PEM)', marginL, y);
+      } else if (pctDepas > 25) {
+        tc([224, 123, 42], false);
+        doc.text('Depassements reguliers — vigilance sur la gestion de l\'enveloppe', marginL, y);
+      } else {
+        tc([45, 106, 79], false);
+        doc.text('Bonne adherence au pacing — enveloppe energetique respectee', marginL, y);
+      }
+      tc(ANTHRACITE, false);
+      y += 6;
+      drawSep(y);
+      y += 5;
+    }
+  })();
+
+  // ============================================================
+  // 8c. QUESTIONNAIRES PRO (conditionnel)
+  // ============================================================
+  if (window.Questionnaires && typeof window.Questionnaires.exportPourPDF === 'function') {
+    var qResults = window.Questionnaires.exportPourPDF();
+    if (qResults.length > 0) {
+      checkPage(20);
+      doc.setFontSize(9);
+      tc(MUTED, false);
+      doc.text('QUESTIONNAIRES PRO VALIDES', marginL, y);
+      y += 5;
+      doc.setFontSize(8);
+      qResults.forEach(function(q) {
+        tc(ANTHRACITE, false);
+        var dateParts = q.date.split('-');
+        var dateFmt = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
+        doc.text(q.scale + ' : ' + q.score + '/' + q.max + ' (' + q.label + ') - ' + dateFmt, marginL, y);
+        y += 4;
+      });
+      y += 2;
+      drawSep(y);
+      y += 5;
+    }
+  }
+
+  // ============================================================
   // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
   // ============================================================
 
