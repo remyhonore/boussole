@@ -35,7 +35,13 @@ const PALETTE_BW = {
   ALERT_ORANGE:[120, 120, 120],
   ALERT_GREEN: [100, 100, 100],
   SNA_BG:      [245, 245, 245],
-  SNA_TEXT:     [80,  80,  80]
+  SNA_TEXT:     [80,  80,  80],
+  CAL_VERT:    [220, 220, 220],
+  CAL_ORANGE:  [160, 160, 160],
+  CAL_ROUGE:   [80,  80,  80],
+  CAL_VIDE:    [245, 245, 245],
+  SECTION_LABEL: [153, 153, 153],
+  HEADER_ACCENT: [26, 26, 26]
 };
 
 const PALETTE_COLOR = {
@@ -55,7 +61,13 @@ const PALETTE_COLOR = {
   ALERT_ORANGE:[224, 123, 42],
   ALERT_GREEN: [45,  106, 79],
   SNA_BG:      [240, 247, 243],
-  SNA_TEXT:     [45,  106, 79]
+  SNA_TEXT:     [45,  106, 79],
+  CAL_VERT:    [45,  106, 79],
+  CAL_ORANGE:  [217, 119, 6],
+  CAL_ROUGE:   [220, 38,  38],
+  CAL_VIDE:    [240, 238, 230],
+  SECTION_LABEL: [45, 106, 79],
+  HEADER_ACCENT: [6, 23, 45]
 };
 
 // Variables actives (seront definies dans genererPDFConsultation selon le mode)
@@ -612,7 +624,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   // Gauche
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('NOTE DE PRE-CONSULTATION', marginL, y);
 
   y += 6;
@@ -669,7 +681,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(20);
 
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('MOTIF DE CONSULTATION', marginL, y);
   y += 4;
   doc.setFontSize(8);
@@ -710,7 +722,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(30);
 
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('TRAITEMENT EN COURS', marginL, y);
   y += 5;
 
@@ -813,7 +825,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(40);
 
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('PROBLEME PRINCIPAL', marginL, y);
   y += 5;
 
@@ -954,7 +966,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(50);
 
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('SYNTHESE FONCTIONNELLE - 7 JOURS', marginL, y);
   y += 5;
 
@@ -1093,7 +1105,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.setLineWidth(0.1);
 
     doc.setFontSize(9);
-    tc(MUTED, false);
+    tc(_pal.SECTION_LABEL, false);
     doc.text('DETAIL SOMMEIL - DONN\xc9ES D\xc9CLARATIVES', marginL + 5, y + 7);
 
     const somMoyStr  = moySommeil !== null
@@ -1170,7 +1182,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     // checkPage_p1(mesBlockH + 10);
 
     doc.setFontSize(9);
-    tc(MUTED, false);
+    tc(_pal.SECTION_LABEL, false);
     doc.text('DONN\xc9ES OBJECTIVES D\xc9CLARATIVES', marginL, y);
     y += 5;
 
@@ -1321,7 +1333,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       // checkPage_p1(25);
 
       doc.setFontSize(9);
-      tc(MUTED, false);
+      tc(_pal.SECTION_LABEL, false);
       doc.text('\xc9PISODES DE CRASH', marginL, y);
       y += 5;
 
@@ -1386,7 +1398,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
     checkPage(30);
     doc.setFontSize(9);
-    tc(MUTED, false);
+    tc(_pal.SECTION_LABEL, false);
     doc.text('R\xc9SUM\xc9 PACING \xc9NERG\xc9TIQUE', marginL, y);
     y += 5;
     doc.setFontSize(8);
@@ -1438,7 +1450,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       // checkPage_p1(30);
 
       doc.setFontSize(9);
-      tc(MUTED, false);
+      tc(_pal.SECTION_LABEL, false);
       doc.text('CYCLE ET BIEN-\xcaTRE', marginL, y);
       y += 5;
 
@@ -1523,7 +1535,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const VOR_ROUGE  = _pal.VOR_ROUGE;
 
   doc.setFontSize(9);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('TYPE DE JOURN\xc9ES - 7 JOURS', marginL, y);
   y += 5;
 
@@ -1612,20 +1624,21 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       }
 
       if (score14Val === null) {
-        doc.setFillColor(245, 245, 245);
+        doc.setFillColor(_pal.CAL_VIDE[0], _pal.CAL_VIDE[1], _pal.CAL_VIDE[2]);
       } else if (score14Val >= 7) {
-        doc.setFillColor(220, 220, 220);
+        doc.setFillColor(_pal.CAL_VERT[0], _pal.CAL_VERT[1], _pal.CAL_VERT[2]);
       } else if (score14Val >= 4) {
-        doc.setFillColor(160, 160, 160);
+        doc.setFillColor(_pal.CAL_ORANGE[0], _pal.CAL_ORANGE[1], _pal.CAL_ORANGE[2]);
       } else {
-        doc.setFillColor(80, 80, 80);
+        doc.setFillColor(_pal.CAL_ROUGE[0], _pal.CAL_ROUGE[1], _pal.CAL_ROUGE[2]);
       }
       doc.roundedRect(px, py, cellW, cellH, cellR, cellR, 'F');
 
       var cdm = (cd.getDate() < 10 ? '0' : '') + cd.getDate();
       var cmm = (cd.getMonth() + 1 < 10 ? '0' : '') + (cd.getMonth() + 1);
       if (score14Val !== null) {
-        doc.setTextColor(score14Val < 4 ? 255 : 26, score14Val < 4 ? 255 : 26, score14Val < 4 ? 255 : 26);
+        var _calTextWhite = (colorMode === 'color') ? true : (score14Val < 4);
+        doc.setTextColor(_calTextWhite ? 255 : 26, _calTextWhite ? 255 : 26, _calTextWhite ? 255 : 26);
         doc.setFontSize(7);
         doc.setFont('helvetica', 'bold');
         doc.text(score14Val.toFixed(1), px + cellW / 2, py + 5, { align: 'center' });
@@ -1709,7 +1722,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (qResults.length > 0) {
       checkPage(20);
       doc.setFontSize(9);
-      tc(MUTED, false);
+      tc(_pal.SECTION_LABEL, false);
       doc.text('QUESTIONNAIRES PRO VALIDES', marginL, y);
       y += 5;
       doc.setFontSize(8);
