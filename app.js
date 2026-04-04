@@ -2275,9 +2275,10 @@ window._ouvrirModePresentation = function() {
   ].filter(Boolean);
   window._boussoleShareText = shareLines.join('\n');
 
-  const partagerBtn = '<div style="display:flex;gap:10px;margin-top:24px;justify-content:center;">' +
+  const partagerBtn = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;justify-content:center;">' +
     '<button onclick="window.print()" style="padding:12px 24px;background:#fff;color:#2d6a4f;border:1.5px solid #2d6a4f;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">🖨️ Imprimer</button>' +
     (navigator.share || navigator.clipboard ? '<button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button>' : '') +
+    '<button onclick="window.generateShareProfile()" style="padding:12px 24px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">🌟 Mon profil Boussole</button>' +
     '</div>';
 
   // ============================================================
