@@ -2516,6 +2516,31 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
   }
 
   // Chargement mesures pour la date courante
+
+  // Bouton reprendre dernières valeurs (mesures)
+  var btnQuickMesures = document.getElementById('btn-quick-mesures');
+  if (btnQuickMesures) {
+    btnQuickMesures.addEventListener('click', function() {
+      // Trouver la date la plus récente avec des mesures
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.startsWith('boussole_mesures_')) keys.push(k.replace('boussole_mesures_', ''));
+      }
+      keys.sort().reverse();
+      var lastDate = keys.length > 0 ? keys[0] : null;
+      if (lastDate && typeof window.loadMesures === 'function') {
+        window.loadMesures(lastDate);
+        var status = document.getElementById('mesures-status');
+        if (status) {
+          status.textContent = 'Valeurs du ' + lastDate.split('-').reverse().join('/') + ' reprises';
+          status.style.color = '#2d6a4f';
+          status.style.display = 'block';
+          setTimeout(function() { status.style.display = 'none'; }, 2500);
+        }
+      }
+    });
+  }
   window.loadMesures = function(dateKey) {
     var data = localStorage.getItem('boussole_mesures_' + dateKey);
     if (!data) return;
