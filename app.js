@@ -732,7 +732,7 @@ function _renderHistoriqueTab(content) {
   keys.sort().reverse();
 
   if (keys.length === 0) {
-    content.innerHTML = '<p style="color:#9ca3af;font-size:14px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
+    content.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:14px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
     return;
   }
 
@@ -827,7 +827,7 @@ function refreshSummary() {
       <span style="font-size:20px;line-height:1.2;">${profilActif.emoji}</span>
       <div>
         <p style="margin:0;font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;">${profilActif.label}</p>
-        <p style="margin:4px 0 0;font-size:13px;color:#374151;line-height:1.4;">${profilActif.tip}</p>
+        <p style="margin:4px 0 0;font-size:13px;color:rgba(6,23,45,.72);line-height:1.4;">${profilActif.tip}</p>
       </div>
     </div>`;
   }
@@ -836,7 +836,7 @@ function refreshSummary() {
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
 
   // 2. Graphique évolution 30j
-  html += '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
+  html += '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
     '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Évolution 30 jours</p>' +
     '<canvas id="resume-chart-30j" height="180"></canvas>' +
   '</div>';
@@ -879,7 +879,7 @@ function refreshSummary() {
         <span class="cal-day-num">${d.getDate()}</span>
       </div>`;
     }
-    html += `<p style="font-size:11px;color:#6b7280;margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
+    html += `<p style="font-size:11px;color:rgba(6,23,45,.55);margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
     html += `<div class="cal-grid">${calCells}</div>`;
   }
   if (summary.joursRenseignes < 5) {
@@ -895,9 +895,9 @@ function refreshSummary() {
     html += '<div style="margin-bottom:10px;">' +
       '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
         '<span style="font-size:12px;color:#06172D;">🟢 Hauts (&gt;= 7)</span>' +
-        '<span style="font-size:12px;font-weight:700;color:#2d9e6e;">' + dist.vert + ' j.</span>' +
+        '<span style="font-size:12px;font-weight:700;color:var(--color-score);">' + dist.vert + ' j.</span>' +
       '</div>' +
-      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
         '<div style="background:#2d9e6e;border-radius:4px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
@@ -906,7 +906,7 @@ function refreshSummary() {
         '<span style="font-size:12px;color:#06172D;">🟠 Moyens (4–6)</span>' +
         '<span style="font-size:12px;font-weight:700;color:#d97706;">' + dist.orange + ' j.</span>' +
       '</div>' +
-      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
         '<div style="background:#d97706;border-radius:4px;height:8px;width:' + Math.round(dist.orange / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
@@ -915,7 +915,7 @@ function refreshSummary() {
         '<span style="font-size:12px;color:#06172D;">🔴 Bas (&lt; 4)</span>' +
         '<span style="font-size:12px;font-weight:700;color:#dc2626;">' + dist.rouge + ' j.</span>' +
       '</div>' +
-      '<div style="background:#e5e7eb;border-radius:4px;height:8px;">' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
         '<div style="background:#dc2626;border-radius:4px;height:8px;width:' + Math.round(dist.rouge / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
@@ -1145,7 +1145,7 @@ function refreshSummary() {
       data: {
         labels: chartLabels,
         datasets: [
-          { label: 'Énergie',          data: cEnergie, borderColor: '#2d9e6e', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+          { label: 'Énergie',          data: cEnergie, borderColor: 'var(--color-score)', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
           { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
           { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
           { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
@@ -1253,7 +1253,7 @@ function renderEventsSummary() {
     const borderColor = e.color || '#6E877D';
     return '<div style="border-left:3px solid ' + borderColor + ';border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">' +
       '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
-      (e.description ? '<div style="font-size:13px;color:#6b7280;">' + e.description + '</div>' : '') +
+      (e.description ? '<div style="font-size:13px;color:rgba(6,23,45,.55);">' + e.description + '</div>' : '') +
       '<div style="display:flex;gap:8px;margin-top:8px;">' +
         '<button onclick="openEventModal(\'' + kEsc + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>' +
         '<button onclick="deleteEvent(\'' + kEsc + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>' +
@@ -1450,22 +1450,22 @@ function buildBlocRepos() {
     idSommeil: idSommeil, idRepos: idRepos };
 
   var html =
-    '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:12px;">' +
-      '<p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#6b7280;text-transform:uppercase;margin:0 0 10px;">TEMPS DE REPOS — 14 JOURS</p>' +
+    '<div style="background:#fff;border:1.5px solid rgba(6,23,45,.12);border-radius:10px;padding:14px;margin-bottom:12px;">' +
+      '<p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.55);text-transform:uppercase;margin:0 0 10px;">TEMPS DE REPOS — 14 JOURS</p>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
         '<div>' +
           '<p style="font-size:11px;color:#3B82F6;font-weight:600;margin:0 0 4px;">🌙 Sommeil nocturne</p>' +
           '<canvas id="' + idSommeil + '" height="60" style="width:100%;height:60px;"></canvas>' +
           (avgSommeil !== null
-            ? '<p style="font-size:12px;color:#6b7280;margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgSommeil + 'h</strong></p>'
-            : '<p style="font-size:11px;color:#d1d5db;margin:4px 0 0;text-align:center;">Non renseigné</p>') +
+            ? '<p style="font-size:12px;color:rgba(6,23,45,.55);margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgSommeil + 'h</strong></p>'
+            : '<p style="font-size:11px;color:rgba(6,23,45,.18);margin:4px 0 0;text-align:center;">Non renseigné</p>') +
         '</div>' +
         '<div>' +
           '<p style="font-size:11px;color:#2d6a4f;font-weight:600;margin:0 0 4px;">🛋 Repos diurne</p>' +
           '<canvas id="' + idRepos + '" height="60" style="width:100%;height:60px;"></canvas>' +
           (avgRepos !== null
-            ? '<p style="font-size:12px;color:#6b7280;margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgRepos + 'h</strong></p>'
-            : '<p style="font-size:11px;color:#d1d5db;margin:4px 0 0;text-align:center;">Non renseigné</p>') +
+            ? '<p style="font-size:12px;color:rgba(6,23,45,.55);margin:4px 0 0;text-align:center;">Moy. : <strong>' + avgRepos + 'h</strong></p>'
+            : '<p style="font-size:11px;color:rgba(6,23,45,.18);margin:4px 0 0;text-align:center;">Non renseigné</p>') +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1544,7 +1544,7 @@ function buildBlocStabilite(mode) {
   // mode === 'medecin'
   const SS = 'border-radius:10px;padding:14px;margin-bottom:12px;';
   const ST = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
-  return '<div style="' + SS + 'background:#fff;border:1px solid #e5e7eb;">' +
+  return '<div style="' + SS + 'background:#fff;border:1px solid rgba(6,23,45,.12);">' +
     '<p style="' + ST + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
     '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
     '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
@@ -1601,10 +1601,10 @@ function _impactLabel(moy) {
   if (moy === null) return { txt: '—', color: '#999' };
   if (moy < 4) return { txt: 'Altéré', color: '#dc2626' };
   if (moy < 7) return { txt: 'Modéré', color: '#d97706' };
-  return { txt: 'Correct', color: '#2d9e6e' };
+  return { txt: 'Correct', color: 'var(--color-score)' };
 }
 function _tendanceHtml(t) {
-  if (t === 'hausse') return '<span style="color:#2d9e6e;">↑ Hausse</span>';
+  if (t === 'hausse') return '<span style="color:var(--color-score);">↑ Hausse</span>';
   if (t === 'baisse') return '<span style="color:#dc2626;">↓ Baisse</span>';
   return '<span style="color:#999;">→ Stable</span>';
 }
@@ -1616,22 +1616,22 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     const isProb = !!(pointAttention && m.label === pointAttention.label);
     return (
       '<div style="background:' + (isProb ? '#FEF2F2' : '#F8F9FA') + ';border-radius:12px;padding:10px;text-align:center;border:' +
-        (isProb ? '1.5px solid #fca5a5' : '1px solid #e5e7eb') + ';">' +
+        (isProb ? '1.5px solid #fca5a5' : '1px solid rgba(6,23,45,.12)') + ';">' +
         '<div style="font-size:18px;">' + m.emoji + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
         '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' +
           (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
-        '<div style="font-size:10px;color:#6b7280;margin-top:2px;">' + tend + '</div>' +
+        '<div style="font-size:10px;color:rgba(6,23,45,.55);margin-top:2px;">' + tend + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
-        '<div style="font-size:10px;color:#6b7280;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
+        '<div style="font-size:10px;color:rgba(6,23,45,.55);margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
       '</div>'
     );
   }).join('');
   return (
-    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
+    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
-      '<p style="font-size:10px;color:#6b7280;font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
+      '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
     '</div>'
   );
 }
@@ -1875,26 +1875,26 @@ window._ouvrirModePresentation = function() {
       const fcMoy = Math.round(avg(fcVals));
       const fcMin = Math.min.apply(null, fcVals);
       const fcMax = Math.max.apply(null, fcVals);
-      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">❤️ FC repos : <strong>' + fcMoy + ' bpm</strong> moy. (min ' + fcMin + ' – max ' + fcMax + ')</div>');
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(6,23,45,.12);">❤️ FC repos : <strong>' + fcMoy + ' bpm</strong> moy. (min ' + fcMin + ' – max ' + fcMax + ')</div>');
     }
     if (taVals.length >= 3) {
       const taSys = Math.round(avg(taVals.map(d => d.ta_sys)));
       const taDia = Math.round(avg(taVals.map(d => d.ta_dia)));
-      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">🩺 Tension : <strong>' + taSys + '/' + taDia + ' mmHg</strong> moy.</div>');
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(6,23,45,.12);">🩺 Tension : <strong>' + taSys + '/' + taDia + ' mmHg</strong> moy.</div>');
     }
     if (rmssdVals.length >= 3) {
       const rMoy = Math.round(avg(rmssdVals));
-      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid #e5e7eb;">📊 VFC/RMSSD : <strong>' + rMoy + ' ms</strong> moy.</div>');
+      rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(6,23,45,.12);">📊 VFC/RMSSD : <strong>' + rMoy + ' ms</strong> moy.</div>');
     }
     if (poidsVals.length >= 3) {
       const pMoy = avg(poidsVals).toFixed(1);
       rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;">⚖️ Poids : <strong>' + pMoy + ' kg</strong> moy.</div>');
     }
     donneesObjectivesHtml =
-      '<div style="' + SECTION_STYLE + 'background:#F9FAFB;border:1.5px solid #d1d5db;">' +
-        '<p style="' + SECTION_TITLE + 'color:#6b7280;">Données objectives déclaratives</p>' +
+      '<div style="' + SECTION_STYLE + 'background:#F9FAFB;border:1.5px solid rgba(6,23,45,.18);">' +
+        '<p style="' + SECTION_TITLE + 'color:rgba(6,23,45,.55);">Données objectives déclaratives</p>' +
         rows.join('') +
-        '<div style="font-size:10px;color:#9ca3af;font-style:italic;margin-top:6px;">Mesures déclaratives — pas de valeur diagnostique</div>' +
+        '<div style="font-size:10px;color:rgba(6,23,45,.42);font-style:italic;margin-top:6px;">Mesures déclaratives — pas de valeur diagnostique</div>' +
       '</div>';
   }
 
@@ -2040,7 +2040,7 @@ window._ouvrirModePresentation = function() {
       '<div style="' + SECTION_STYLE + 'background:#F0FDF4;border:1.5px solid #2d6a4f;">' +
         '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Questions à poser au médecin</p>' +
         questionsQ.slice(0, 5).map(q => '<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(45,106,79,.1);">→ ' + q + '</div>').join('') +
-        '<div style="font-size:10px;color:#9ca3af;font-style:italic;margin-top:8px;">Suggestions basées sur vos données · Pas un avis médical</div>' +
+        '<div style="font-size:10px;color:rgba(6,23,45,.42);font-style:italic;margin-top:8px;">Suggestions basées sur vos données · Pas un avis médical</div>' +
       '</div>';
   }
 
@@ -2048,7 +2048,7 @@ window._ouvrirModePresentation = function() {
   // GRAPHIQUE 30J
   // ============================================================
   const graphique30jHtml =
-    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
+    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="' + SECTION_TITLE + 'color:#06172D;">Évolution 30 jours</p>' +
       '<canvas id="mode-presentation-chart" height="180"></canvas>' +
     '</div>';
@@ -2100,14 +2100,14 @@ window._ouvrirModePresentation = function() {
       '</div>';
   }
   const calendrier14jHtml =
-    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid #e5e7eb;">' +
+    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="' + SECTION_TITLE + 'color:#06172D;">Calendrier 14 jours</p>' +
       '<div class="cal-grid">' + calCells14mp + '</div>' +
       '<div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2d6a4f;display:inline-block;"></span> Haut (\u22657)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Moyen (4-6)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Bas (&lt;4)</span>' +
-        '<span style="font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D1D5DB;display:inline-block;"></span> Non renseigné</span>' +
+        '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2d6a4f;display:inline-block;"></span> Haut (\u22657)</span>' +
+        '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Moyen (4-6)</span>' +
+        '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Bas (&lt;4)</span>' +
+        '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D1D5DB;display:inline-block;"></span> Non renseigné</span>' +
       '</div>' +
     '</div>';
 
@@ -2147,7 +2147,7 @@ window._ouvrirModePresentation = function() {
         '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.nom || '') + '</td>' +
         '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.type || '') + '</td>' +
         '<td style="padding:5px 8px;font-size:13px;color:#06172D;border-bottom:1px solid #f0f0f0;">' + (e.effet || '') + '</td>' +
-        '<td style="padding:5px 8px;font-size:13px;color:#6b7280;border-bottom:1px solid #f0f0f0;">' + duree + '</td>' +
+        '<td style="padding:5px 8px;font-size:13px;color:rgba(6,23,45,.55);border-bottom:1px solid #f0f0f0;">' + duree + '</td>' +
         '</tr>';
     }).join('');
     essaisRecentsHtml =
@@ -2220,7 +2220,7 @@ window._ouvrirModePresentation = function() {
         data: {
           labels: chartLabels,
           datasets: [
-            { label: 'Énergie',          data: cEnergie, borderColor: '#2d9e6e', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+            { label: 'Énergie',          data: cEnergie, borderColor: 'var(--color-score)', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
@@ -2634,7 +2634,7 @@ function refreshPostConsultationHistorique() {
     html += '<span>' + headerText + '</span>';
     html += '<span id="' + cardId + '-chevron" style="font-size:12px;color:rgba(6,23,45,.45);">' + (isOpen ? '\u25bc' : '\u25b6') + '</span>';
     html += '</div>';
-    html += '<div id="' + cardId + '" style="display:' + (isOpen ? 'block' : 'none') + ';margin-top:10px;font-size:13px;color:#333;line-height:1.8;">';
+    html += '<div id="' + cardId + '" style="display:' + (isOpen ? 'block' : 'none') + ';margin-top:10px;font-size:13px;color:rgba(6,23,45,.78);line-height:1.8;">';
 
     if (fiche.decisions) html += '<div><strong>D\u00e9cisions\u00a0:</strong> ' + fiche.decisions + '</div>';
     if (fiche.examens) html += '<div><strong>Examens\u00a0:</strong> ' + fiche.examens + '</div>';
@@ -3115,7 +3115,7 @@ function renderEssaisList() {
     }
     html += '</div>';
     if (e.objectif) {
-      html += '<div style="font-size:13px;color:#374151;margin-bottom:2px;">' + e.objectif + '</div>';
+      html += '<div style="font-size:13px;color:rgba(6,23,45,.72);margin-bottom:2px;">' + e.objectif + '</div>';
     }
     html += '<div class="essai-duree">Depuis ' + formatDateFr(e.date_debut) + ' · ' + dureeStr + '</div>';
     html += '<div style="display:flex;gap:8px;margin-top:8px;">';
@@ -3350,7 +3350,7 @@ function renderJournalNotes(showAll) {
             '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + entry.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
             '<div style="display:flex;gap:8px;margin-top:8px;">',
               '<button onclick="saveNoteEdit(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
-              '<button onclick="cancelNoteEdit(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
+              '<button onclick="cancelNoteEdit(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:rgba(6,23,45,.55);border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
             '</div>',
           '</div>',
         '</div>'
@@ -3363,7 +3363,7 @@ function renderJournalNotes(showAll) {
         if (entry.humeur != null) parts.push('Humeur ' + entry.humeur);
         if (entry.energie != null) parts.push('\u00c9nergie ' + entry.energie);
         if (entry.qualite_sommeil != null) parts.push('Sommeil ' + entry.qualite_sommeil);
-        if (parts.length > 0) scores = '<span style="font-size:11px;color:#9ca3af;margin-left:8px;">' + parts.join(' · ') + '</span>';
+        if (parts.length > 0) scores = '<span style="font-size:11px;color:rgba(6,23,45,.42);margin-left:8px;">' + parts.join(' · ') + '</span>';
       }
       var editZoneId = 'journal-empty-edit-' + safeDate;
       var textareaId = 'journal-empty-textarea-' + safeDate;
@@ -3373,12 +3373,12 @@ function renderJournalNotes(showAll) {
             '<span class="journal-note-date" style="opacity:.55;">' + dateLabel + scores + '</span>',
             '<button onclick="toggleEmptyNoteEdit(\'' + date + '\')" style="background:none;border:1px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">+ Note</button>',
           '</div>',
-          '<div class="journal-note-text" style="font-size:12px;color:#d1d5db;font-style:italic;">Aucune note ce jour</div>',
+          '<div class="journal-note-text" style="font-size:12px;color:rgba(6,23,45,.18);font-style:italic;">Aucune note ce jour</div>',
           '<div id="' + editZoneId + '" style="display:none;margin-top:8px;">',
             '<textarea id="' + textareaId + '" rows="3" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Note du ' + dateLabel + '"></textarea>',
             '<div style="display:flex;gap:8px;margin-top:6px;">',
               '<button onclick="saveEmptyNote(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:600;cursor:pointer;">Enregistrer</button>',
-              '<button onclick="cancelEmptyNote(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.15);color:#9ca3af;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;">Annuler</button>',
+              '<button onclick="cancelEmptyNote(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.15);color:rgba(6,23,45,.42);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;">Annuler</button>',
             '</div>',
           '</div>',
         '</div>'
@@ -3914,5 +3914,5 @@ function renderProfilActifDisplay() {
   const p = window.getProfilActif ? window.getProfilActif() : null;
   el.innerHTML = p
     ? `<span class="profil-badge">${p.emoji} ${p.label}</span>`
-    : '<span style="font-size:13px;color:#9ca3af;font-style:italic;">Aucun profil défini</span>';
+    : '<span style="font-size:13px;color:rgba(6,23,45,.42);font-style:italic;">Aucun profil défini</span>';
 }

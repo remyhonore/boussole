@@ -44,7 +44,7 @@
     }
     .cal-day-label {
       font-size: 9px;
-      color: var(--color-text-muted, #6b7280);
+      color: var(--color-text-muted, rgba(6,23,45,.55));
       font-weight: 600;
     }
     .cal-dot {
@@ -54,7 +54,7 @@
     }
     .cal-day-num {
       font-size: 9px;
-      color: var(--color-text-muted, #6b7280);
+      color: var(--color-text-muted, rgba(6,23,45,.55));
     }
     .cal-dot-vert   { background: #2d6a4f; }
     .cal-dot-orange { background: #D97706; }
@@ -90,19 +90,19 @@
     /* Feature U hub supprimée (dead code) */
 
     /* Feature S — Mini-fiches contextuelles */
-    .bloc-fiches { border-radius:10px; padding:14px; margin-bottom:12px; background:#fff; border:1.5px solid #e5e7eb; }
-    .fiche-inline { border:1px solid #e5e7eb; border-radius:8px; margin-bottom:8px; overflow:hidden; }
+    .bloc-fiches { border-radius:10px; padding:14px; margin-bottom:12px; background:#fff; border:1.5px solid rgba(6,23,45,.12); }
+    .fiche-inline { border:1px solid rgba(6,23,45,.12); border-radius:8px; margin-bottom:8px; overflow:hidden; }
     .fiche-inline:last-child { margin-bottom:0; }
-    .fiche-header { width:100%; display:flex; justify-content:space-between; align-items:center; background:#f8f6f0; border:none; padding:10px 12px; cursor:pointer; text-align:left; }
+    .fiche-header { width:100%; display:flex; justify-content:space-between; align-items:center; background:#F8F6F0; border:none; padding:10px 12px; cursor:pointer; text-align:left; }
     .fiche-header:hover { background:#f0ede5; }
     .fiche-titre { font-size:13px; font-weight:600; color:#06172D; flex:1; }
     .fiche-chevron { font-size:18px; color:#2d6a4f; font-weight:700; margin-left:8px; transition:transform .2s; }
     .fiche-body { padding:12px 14px; }
-    .fiche-intro { font-size:13px; color:#374151; margin:0 0 10px; line-height:1.5; }
+    .fiche-intro { font-size:13px; color:rgba(6,23,45,.72); margin:0 0 10px; line-height:1.5; }
     .fiche-section { margin-bottom:10px; }
     .fiche-section:last-of-type { margin-bottom:12px; }
     .fiche-section-titre { font-size:12px; color:#2d6a4f; display:block; margin-bottom:3px; }
-    .fiche-section-texte { font-size:13px; color:#374151; margin:0; line-height:1.5; }
+    .fiche-section-texte { font-size:13px; color:rgba(6,23,45,.72); margin:0; line-height:1.5; }
     .fiche-lien { display:inline-block; font-size:12px; color:#2d6a4f; font-weight:600; text-decoration:none; border-bottom:1px solid #2d6a4f; padding-bottom:1px; }
     .fiche-lien:hover { color:#1e4d38; }
 
@@ -110,17 +110,17 @@
     .modal-profil-overlay{display:none;position:fixed;inset:0;background:rgba(6,23,45,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;}
     .modal-profil-overlay.active{display:flex;}
     .modal-profil{background:#fff;border-radius:16px;padding:24px 20px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;}
-    .profil-card{border:2px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;}
+    .profil-card{border:2px solid rgba(6,23,45,.12);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;}
     .profil-card.selected{border-color:#2d6a4f;background:rgba(45,106,79,.07);}
     .profil-card-emoji{font-size:24px;flex-shrink:0;line-height:1.2;}
     .profil-card-label{font-size:14px;font-weight:700;color:#06172D;margin:0 0 2px;}
-    .profil-card-desc{font-size:12px;color:#6b7280;margin:0;}
+    .profil-card-desc{font-size:12px;color:rgba(6,23,45,.55);margin:0;}
     .btn-confirmer-profil{width:100%;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
     .btn-confirmer-profil:disabled{background:#9ca3af;cursor:not-allowed;}
     .profil-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(45,106,79,.1);color:#2d6a4f;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;}
 
     /* Feature T-Med — Traitements codifiés */
-    .trt-chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;border:1.5px solid #d1d5db;background:#f9fafb;font-size:13px;cursor:pointer;color:#374151;transition:all .15s;font-family:inherit;}
+    .trt-chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;border:1.5px solid rgba(6,23,45,.18);background:rgba(6,23,45,.03);font-size:13px;cursor:pointer;color:rgba(6,23,45,.72);transition:all .15s;font-family:inherit;}
     .trt-chip:hover{border-color:#2d6a4f;color:#2d6a4f;}
     .trt-chip--active{background:#2d6a4f;color:#fff;border-color:#2d6a4f;font-weight:600;}
     .trt-chip--actif.trt-chip--active{background:#2d6a4f;border-color:#2d6a4f;}
@@ -250,7 +250,7 @@
         <div class="card" style="text-align:center; margin-bottom:16px; background:linear-gradient(135deg,#f0f7f4,#e8f5f0);">
           <div style="font-size:40px; margin-bottom:8px;">🧭</div>
           <h2 style="font-size:18px; font-weight:700; color:#06172D; margin:0 0 8px;">Bienvenue sur myBoussole</h2>
-          <p style="font-size:14px; color:#374151; margin:0 0 4px;">Ton journal de bien-être — sans compte, sans cloud.</p>
+          <p style="font-size:14px; color:rgba(6,23,45,.72); margin:0 0 4px;">Ton journal de bien-être — sans compte, sans cloud.</p>
           <p style="font-size:13px; color:#6B7280; margin:0 0 16px;">Tes données restent uniquement sur ton appareil.</p>
           <div style="font-size:12px; color:#9CA3AF; padding:8px; background:rgba(255,255,255,0.6); border-radius:8px;">
             🔒 Données stockées uniquement sur ton appareil · Zéro serveur · Zéro compte
@@ -264,8 +264,8 @@
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
         <!-- Saisie rétroactive (Feature S) -->
-        <div id="retro-date-selector" style="margin-bottom:16px;background:#f8f9fa;border-radius:10px;padding:10px 14px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:13px;color:#6b7280;">Saisir pour :</span>
+        <div id="retro-date-selector" style="margin-bottom:16px;background:rgba(6,23,45,.04);border-radius:10px;padding:10px 14px;border:1px solid rgba(6,23,45,.12);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;color:rgba(6,23,45,.55);">Saisir pour :</span>
           <label for="retro-date-select" style="display:none;">Saisir pour la date</label>
         <select id="retro-date-select" aria-label="Saisir pour la date" onchange="changerDateSaisie(this.value)" style="font-size:13px;color:#06172D;border:none;background:transparent;font-weight:600;cursor:pointer;outline:none;">
             <!-- options générées dynamiquement par JS -->
@@ -482,7 +482,7 @@
 
 
       <!-- Alerte dégradation prolongée (Feature Q) -->
-      <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:#333;" role="alert"></div>
+      <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:rgba(6,23,45,.78);" role="alert"></div>
 
       <!-- Section Mes mesures (ADR-2026-021) -->
       <div id="section-mesures" class="mesures-section">
@@ -552,7 +552,7 @@
       </div>
 
       <button onclick="window.generateShareProfile()" id="btn-share-profile" style="display:block; margin:24px auto 8px; padding:14px 32px; background:#2d6a4f; color:white; border:none; border-radius:12px; font-size:16px; cursor:pointer; font-weight:600;">🌟 Mon profil Boussole</button>
-      <p style="text-align:center; color:#6b7280; font-size:13px; margin:0 0 24px;">Partage ton profil bien-être (données anonymes)</p>
+      <p style="text-align:center; color:rgba(6,23,45,.55); font-size:13px; margin:0 0 24px;">Partage ton profil bien-être (données anonymes)</p>
 
     </div>
 
@@ -607,7 +607,7 @@
               </div>
               <div style="display:flex;gap:8px;margin-top:10px;">
                 <button onclick="saveNoteAdd()" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enregistrer</button>
-                <button onclick="cancelNoteAdd()" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>
+                <button onclick="cancelNoteAdd()" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:rgba(6,23,45,.55);border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>
               </div>
             </div>
             <div style="margin-bottom:10px;">
@@ -834,7 +834,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.38 — </span>
+    <span>Boussole v9.39 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -846,12 +846,12 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.38</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.39</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.90</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 21 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Clarté mentale : libellé mis à jour → "Ma mémoire et ma concentration..."</li>
           <li>PDF consultation en niveaux de gris (impression optimisée noir &amp; blanc)</li>
           <li>Calendrier 14j : cases avec score chiffré, 3 niveaux de gris</li>
@@ -860,45 +860,45 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.72</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Événements notables : chaque événement affiché en carte individuelle avec bordure gauche colorée (style accordéon)</li>
         </ul>
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.71</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Événements notables : boutons Modifier / Supprimer harmonisés avec le style des essais</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.69</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature U : hub-history-section dans card blanche (cohérence visuelle avec les accordéons)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.68</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature U : Hub suivi unifié — chronologie Événements + Essais + Consultations sur 30 jours dans le panel Suivi</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.67</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Stabilité : phrases reformulées en tutoiement, sous-label simplifié</li>
           <li>Résumé &amp; Montrer au médecin : bloc Stabilité unifié — même pourcentage, même écart-type dans les deux vues</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.65</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Suivi : date des événements en format long (17 mars 2026)</li>
           <li>Suivi : icône 📌 doublon supprimée dans la card événement</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.64</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Résumé : plainte sommeil fusionnée dans le bloc Problème principal</li>
           <li>Résumé : bloc Stabilité reformulé sans jargon (écart-type supprimé)</li>
           <li>Suivi : titre H3 doublon supprimé dans l'accordéon Événements</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.63</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Résumé : "VOS NOTES" renommé en "TES NOTES" (tutoiement)</li>
           <li>Suivi : format date des événements notables en français (17 mars 2026)</li>
           <li>Suivi : séparateur " · " entre date et titre de l'événement</li>
@@ -906,7 +906,7 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.62</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Résumé : suppression bloc TENDANCES redondant</li>
           <li>Résumé : Détail sommeil repositionné après Problème principal</li>
           <li>Résumé : TYPE DE JOURNÉES en barres proportionnelles</li>
@@ -915,135 +915,135 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.60</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Audit global : corrections tutoiement, titres et changelog</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.59</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Titre header : style "my" en italique</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.58</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Renommage header Boussole → myBoussole</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.57</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Tutoiement unifié dans Résumé et Suivi</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.56</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Label onglet TB Santé renommé en Suivi</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.54</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Écran de bienvenue J1 conditionnel (welcome banner) dans le panel Aujourd'hui</li>
           <li>Fix : résumé mobile — vérification des IDs panel-resume / summary-content</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.53</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>ADR-2026-030 : Refonte navigation — Accueil supprimé, nouvel onglet Suivi avec journal de bord (Événements, Essais, Consultations, Historique)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.52</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature M : Journal essais/intolérances (suivi des essais thérapeutiques)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.30</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Import/Export données JSON (sauvegarde et restauration)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.29</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Export PDF journal consultations</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.28</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Journal historique fiches post-consultation</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.27</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Indicateur fiche post-consultation enregistrée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.26</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature J : mode post-consultation (formulaire structuré + PDF)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature P : score de stabilité 30j (écart-type, comparaison quinzaines)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Feature Q : bannière alerte dégradation prolongée (5j score &lt; 5) avec lien consultation</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.23</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Fix cohérence couleurs pastilles 14j — calcul score unifié résumé/médecin/PDF</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.22</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Fix calendrier 14j PDF + mode médecin (noms clés corrigés)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.21</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Calendrier 14j dans PDF consultation et mode médecin</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.20</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Clarification TENDANCES (moyennes 30j) + label 14 derniers jours</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.19</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Fix pastilles 14j + recalibrage tendances dans le Résumé</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.18</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Pastilles 14j repositionnées dans la carte Résumé 30 jours</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.17</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Calendrier 14 jours avec pastilles colorées dans le Résumé</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.16</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Fix régression : TYPE DE JOURNÉES restauré dans le Résumé</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.15</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Fix régression : section TYPE DE JOURNÉES restaurée dans PDF consultation</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.14</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Questions suggérées pour le médecin générées automatiquement dans le PDF consultation</li>
           <li>6 règles cliniques : PEM, cycle hormonal, FC repos, score bas, variabilité, dissociation humeur/score</li>
           <li>Section conditionnelle — absente si aucune règle déclenchée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.13</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 15 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>PDF consultation repensé pour le médecin remplaçant</li>
           <li>Hiérarchie clinique : traitement, problème principal, synthèse fonctionnelle</li>
           <li>Vocabulaire médical (impact, modérément altéré, dégradation fonctionnelle)</li>
@@ -1051,7 +1051,7 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.7</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 11 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Smiley dynamique sur chaque indicateur (Énergie, Sommeil, Confort, Clarté)</li>
           <li>Le smiley change en temps réel selon la valeur du curseur</li>
           <li>5 niveaux d'expression : de 😫 (0-2) à 😊 (9-10)</li>
@@ -1059,7 +1059,7 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v3.4</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Détection automatique des épisodes de crash post-effort (PEM)</li>
           <li>3 niveaux de confiance : probable, confirmé (FC), renforcé (FC + VFC)</li>
           <li>Section crash dans le Résumé avec historique</li>
@@ -1068,28 +1068,28 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v3.1</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Section "Mes mesures" : FC repos, tension, VFC/RMSSD, poids</li>
           <li>Données objectives intégrées dans les rapports PDF</li>
           <li>Page Confidentialité ajoutée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v2.3</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Mode "Préparer ma consultation" : PDF 1 page pour ton prochain rendez-vous</li>
           <li>3 points à aborder générés automatiquement</li>
           <li>Note libre pour préparer tes questions</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v2.0</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 08 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Harmonisation visuelle complète avec myboussole.fr</li>
           <li>Nouvelle palette sage/navy — dégradé radial organique</li>
           <li>Ombres douces, radius 18px, typographie alignée vitrine</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v1.8</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 08 mars 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>PDF enrichi : score global coloré, tableau synthèse par métrique, pastilles type de journées</li>
           <li>Variabilité élevée signalée en rouge pour ton professionnel de santé</li>
           <li>Phrase résumé automatique générée dans le rapport</li>
@@ -1098,7 +1098,7 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v1.1</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 février 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>4ème indicateur : <strong>Clarté mentale</strong></li>
           <li>Labels positifs : Confort physique, Sommeil</li>
           <li>Questions journalières sous chaque curseur</li>
@@ -1106,7 +1106,7 @@
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v1.0</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 février 2026</span></p>
-        <ul style="margin:0 0 20px 18px;font-size:14px;line-height:1.8;color:#333;">
+        <ul style="margin:0 0 20px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Lancement MVP : Énergie, Sommeil, Confort physique</li>
           <li>Résumé 14 jours avec tendances</li>
           <li>Export PDF 1 page</li>
@@ -1157,8 +1157,8 @@
 
       <!-- Boutons selon état -->
       <div id="dictee-btns-idle" style="display:flex;gap:10px;">
-        <button onclick="fermerModaleDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Annuler</button>
-        <button onclick="effacerDictee()" id="btn-dictee-effacer" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Effacer</button>
+        <button onclick="fermerModaleDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:rgba(6,23,45,.55);cursor:pointer;">Annuler</button>
+        <button onclick="effacerDictee()" id="btn-dictee-effacer" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:rgba(6,23,45,.55);cursor:pointer;">Effacer</button>
         <button onclick="demarrerDictee()" style="flex:2;padding:11px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">🎙️ Démarrer</button>
       </div>
 
@@ -1167,7 +1167,7 @@
       </div>
 
       <div id="dictee-btns-done" style="display:none;gap:10px;">
-        <button onclick="recommencerDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Recommencer</button>
+        <button onclick="recommencerDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:rgba(6,23,45,.55);cursor:pointer;">Recommencer</button>
         <button onclick="validerDictee()" style="flex:2;padding:11px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">✓ Valider</button>
       </div>
     </div>
@@ -1229,7 +1229,7 @@
       </div>
 
       <!-- Erreur -->
-      <div id="msg-medecin-error" style="display:none;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:8px;padding:10px 14px;font-size:13px;color:#333;margin-top:8px;"></div>
+      <div id="msg-medecin-error" style="display:none;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(6,23,45,.78);margin-top:8px;"></div>
     </div>
   </div>
 
@@ -1242,31 +1242,31 @@
       </div>
       <p style="font-size:13px;font-weight:600;color:#06172D;margin:0 0 10px;">Motifs fréquents</p>
       <div id="consultation-motifs-rapides" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Renouvellement d'ordonnance" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Renouvellement d'ordonnance
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Réévaluation du traitement" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Réévaluation du traitement
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Résultats d'examens" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Résultats d'examens
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Demande d'examens complémentaires" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Demande d'examens complémentaires
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Courrier d'adressage spécialiste" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Courrier d'adressage spécialiste
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Bilan de suivi (fatigue chronique / Covid long)" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Bilan de suivi (fatigue chronique / Covid long)
         </label>
-        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:#f8f9fa;border-radius:8px;border:1px solid #e5e7eb;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#06172D;cursor:pointer;padding:8px 10px;background:rgba(6,23,45,.04);border-radius:8px;border:1px solid rgba(6,23,45,.12);">
           <input type="checkbox" value="Autre (préciser ci-dessous)" style="width:16px;height:16px;accent-color:#2d6a4f;cursor:pointer;">
           Autre (préciser ci-dessous)
         </label>
@@ -1590,7 +1590,7 @@
       <h3 id="essai-modal-title">Nouvel essai</h3>
 
       <div>
-        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Nom <span style="color:#dc2626;">*</span></label>
+        <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Nom <span style="color:#dc2626;">*</span></label>
         <input id="essai-nom" type="text" maxlength="100" placeholder="Ex: Magnésium bisglycinate"
           aria-label="Nom de l'essai"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
@@ -1598,7 +1598,7 @@
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Type</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Type</label>
           <select id="essai-type" aria-label="Type d'essai" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="">—</option>
             <option value="Médicament">Médicament</option>
@@ -1608,21 +1608,21 @@
           </select>
         </div>
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Date de début</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Date de début</label>
           <input id="essai-date" type="date" aria-label="Date de début de l'essai"
             style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;box-sizing:border-box;">
         </div>
       </div>
 
       <div>
-        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Objectif</label>
+        <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Objectif</label>
         <textarea id="essai-objectif" aria-label="Objectif de l'essai" maxlength="100" rows="2" placeholder="Ce que j'espérais obtenir"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet initial</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Effet initial</label>
           <select id="essai-effet" aria-label="Effet initial de l'essai" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="">—</option>
             <option value="Positif">Positif</option>
@@ -1631,21 +1631,21 @@
           </select>
         </div>
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Aggravation secondaire</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Aggravation secondaire</label>
           <select id="essai-aggravation" aria-label="Aggravation secondaire" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
             <option value="Oui">Oui</option>
           </select>
         </div>
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Effet paradoxal</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Effet paradoxal</label>
           <select id="essai-paradoxal" aria-label="Effet paradoxal" style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
             <option value="Oui">Oui</option>
           </select>
         </div>
         <div>
-          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Arrêt</label>
+          <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Arrêt</label>
           <select id="essai-arret" aria-label="Arrêt de l'essai" onchange="document.getElementById('essai-raison-arret-wrap').style.display=this.value==='Oui'?'block':'none'"
             style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:15px;color:#06172D;background:#fafaf8;">
             <option value="Non">Non</option>
@@ -1655,7 +1655,7 @@
       </div>
 
       <div id="essai-raison-arret-wrap" style="display:none;">
-        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Raison d'arrêt</label>
+        <label style="font-size:13px;font-weight:600;color:rgba(6,23,45,.72);display:block;margin-bottom:4px;">Raison d'arrêt</label>
         <textarea id="essai-raison-arret" aria-label="Raison d'arrêt de l'essai" maxlength="100" rows="2" placeholder="Pourquoi cet arrêt ?"
           style="width:100%;padding:10px 12px;border:1px solid rgba(6,23,45,0.15);border-radius:8px;font-family:inherit;font-size:14px;color:#06172D;background:#fafaf8;resize:vertical;"></textarea>
       </div>
@@ -1671,10 +1671,10 @@
   <div class="modal-profil-overlay" id="modal-profil">
     <div class="modal-profil">
       <h2 style="font-size:20px;font-weight:800;color:#06172D;margin:0 0 4px;">Quel est ton profil ?</h2>
-      <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">Choisis le foyer dominant de tes symptômes. Tu pourras le modifier dans Paramètres.</p>
+      <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">Choisis le foyer dominant de tes symptômes. Tu pourras le modifier dans Paramètres.</p>
       <div id="profil-cards-container"></div>
       <button class="btn-confirmer-profil" id="btn-confirmer-profil" disabled>Confirmer mon profil</button>
-      <button id="btn-passer-profil" style="width:100%;padding:10px;background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;margin-top:8px;">Passer cette étape</button>
+      <button id="btn-passer-profil" style="width:100%;padding:10px;background:none;border:none;color:rgba(6,23,45,.42);font-size:13px;cursor:pointer;margin-top:8px;">Passer cette étape</button>
     </div>
   </div>
 
