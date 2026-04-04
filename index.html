@@ -932,7 +932,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.63 — </span>
+    <span>Boussole v9.64 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -2303,20 +2303,23 @@
       }
 
       document.getElementById('btn-save-params')?.addEventListener('click', () => {
-        const fields = ['param-prenom','param-nom','param-ddn','param-secu','param-taille',
-                        'param-poids','param-tel','param-email','param-medecin','param-medecin-tel'];
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) localStorage.setItem('boussole_' + id, el.value);
+        // Sauvegarder avec les clés du mapping (cohérent avec l'init)
+        fields.forEach(f => {
+          const el = document.getElementById(f.id);
+          if (el) localStorage.setItem(f.key, el.value);
         });
         // Traitement actuel — clés explicites
         ['medicaments','complements','allergies'].forEach(function(k) {
           const el = document.getElementById('param-' + k);
           if (el) localStorage.setItem('boussole_' + k, el.value);
         });
+        // Genre
+        const genreRadio = document.querySelector('input[name="profil-genre"]:checked');
+        if (genreRadio) localStorage.setItem('boussole_genre', genreRadio.value);
+
         const conf = document.getElementById('params-save-confirmation');
         if (conf) {
-          conf.textContent = 'Enregistre ✓';
+          conf.textContent = 'Enregistré ✓';
           setTimeout(() => { conf.textContent = ''; }, 2500);
         }
       });

@@ -149,12 +149,20 @@ window.ImportMES = (function() {
     // Patient → Paramètres
     if (options.patient && parsed.patient) {
       var p = parsed.patient;
-      if (p.prenom) { var el = document.getElementById('param-prenom'); if (el) el.value = p.prenom; }
-      if (p.nom) { var el2 = document.getElementById('param-nom'); if (el2) el2.value = p.nom; }
+      if (p.prenom) {
+        var el = document.getElementById('param-prenom'); if (el) el.value = p.prenom;
+        localStorage.setItem('boussole_prenom', p.prenom);
+      }
+      if (p.nom) {
+        var el2 = document.getElementById('param-nom'); if (el2) el2.value = p.nom;
+        localStorage.setItem('boussole_nom', p.nom);
+      }
       if (p.ddn) {
         var pts = p.ddn.split('-');
+        var ddn_display = pts[2]+'/'+pts[1]+'/'+pts[0];
         var el3 = document.getElementById('param-ddn');
-        if (el3) el3.value = pts[2]+'/'+pts[1]+'/'+pts[0];
+        if (el3) el3.value = ddn_display;
+        localStorage.setItem('boussole_ddn', ddn_display);
       }
       if (p.sexe) {
         localStorage.setItem('boussole_genre', p.sexe);
