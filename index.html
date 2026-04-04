@@ -921,7 +921,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.23 — </span>
+    <span>Boussole v9.24 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1939,12 +1939,12 @@
       if (_consultationMode === 'pdf') {
         // Calculer la période narrative selon le choix de l'utilisatrice
         const periodVal = (document.querySelector('input[name="narrative-period"]:checked') || {value:'7j'}).value;
-        const today = new Date().toISOString().split('T')[0];
+        const today = _localDateStr ? _localDateStr(new Date()) : new Date().toISOString().split('T')[0];
         let dateFrom = today;
         if (periodVal === '7j') {
-          const d = new Date(); d.setDate(d.getDate() - 6); dateFrom = d.toISOString().split('T')[0];
+          const d = new Date(); d.setDate(d.getDate() - 6); dateFrom = _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
         } else if (periodVal === '30j') {
-          const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = d.toISOString().split('T')[0];
+          const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
         } else if (periodVal === 'depuis-derniere-consult') {
           // Chercher la date de la dernière consultation enregistrée
           const pcKeys = Object.keys(localStorage).filter(k => k.startsWith('boussole_post_consultation_')).sort();

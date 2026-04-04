@@ -274,9 +274,9 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   // --- Générer la narrative EN PREMIER (avant le PDF) pour l'insérer en page 2 ---
   const _narrativeDateFrom = narrativeDateFromOverride || (function() {
-    var d = new Date(); d.setDate(d.getDate() - 6); return d.toISOString().split('T')[0];
+    var d = new Date(); d.setDate(d.getDate() - 29); return _localDateStr(d);
   })();
-  const _narrativeDateTo = narrativeDateToOverride || new Date().toISOString().split('T')[0];
+  const _narrativeDateTo = narrativeDateToOverride || _localDateStr(new Date());
   const _narrativeCtx = _buildNarrativeContext(_narrativeDateFrom, _narrativeDateTo);
   const _narrativeResult = await _generateNarrativeSection(_narrativeCtx);
 
