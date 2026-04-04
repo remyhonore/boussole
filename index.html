@@ -267,6 +267,11 @@
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
+        <!-- Signaler un événement (toujours visible, indépendant du toggle Pacing) -->
+        <div style="text-align:center;margin-bottom:14px;">
+          <button onclick="document.getElementById('modal-event').style.display='flex'" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:8px 16px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;font-weight:600;">📝 Signaler un événement</button>
+        </div>
+
         <!-- Saisie rétroactive (Feature S) -->
         <div id="retro-date-selector" style="margin-bottom:16px;background:rgba(6,23,45,.04);border-radius:12px;padding:10px 14px;border:1px solid rgba(6,23,45,.12);display:flex;align-items:center;justify-content:space-between;">
           <span style="font-size:13px;color:rgba(6,23,45,.55);">Saisir pour :</span>
@@ -484,8 +489,13 @@
         </div>
       </div>
 
+      <!-- Signaler un événement — toujours visible (indépendant du toggle Pacing) -->
+      <div style="text-align:center; margin:14px 0;">
+        <button onclick="document.getElementById('modal-event').style.display='flex'" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:9px 18px;font-size:14px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;font-weight:600;">▶ Signaler un événement</button>
+      </div>
+
       <!-- ===== CARD 2 : Pacing (conditionnel) ===== -->
-      <div id="section-pacing-wrapper">
+      <div id="section-pacing-wrapper" class="card" style="margin-top:16px;">
         <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
       <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
 
@@ -502,6 +512,7 @@
       </div>
 
       <!-- ===== CARD 3 : Mes mesures (conditionnel) ===== -->
+      <div class="card" style="margin-top:16px;">
       <!-- Section Mes mesures — repositionnée sous Pacing (ADR-2026-021) -->
       <div id="section-mesures" class="mesures-section">
         <div class="mesures-header" id="toggle-mesures">
@@ -559,6 +570,7 @@
           <p id="mesures-status" class="mesures-status" style="display:none;"></p>
         </div>
       </div>
+      </div><!-- /card mesures -->
 
       <!-- Alerte dégradation prolongée (Feature Q) -->
       <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:rgba(6,23,45,.78);" role="alert"></div>
@@ -939,7 +951,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.65 — </span>
+    <span>Boussole v9.66 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
