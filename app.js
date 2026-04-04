@@ -3350,6 +3350,50 @@ function cancelNoteEdit(date) {
   document.getElementById('journal-note-edit-' + safeDate).style.display = 'none';
 }
 
+function toggleNoteAdd() {
+  var zone = document.getElementById('journal-add-zone');
+  var btn = document.getElementById('btn-journal-add');
+  if (!zone) return;
+  var opening = zone.style.display === 'none';
+  zone.style.display = opening ? 'block' : 'none';
+  btn.textContent = opening ? 'Annuler' : '+ Ajouter une note';
+  if (opening) {
+    // Pré-remplir la date à aujourd'hui
+    var today = new Date().toISOString().split('T')[0];
+    var dateInput = document.getElementById('journal-add-date');
+    if (dateInput) dateInput.value = today;
+    var ta = document.getElementById('journal-add-text');
+    if (ta) { ta.value = ''; ta.focus(); }
+    document.getElementById('journal-add-count').textContent = '0/1000';
+    // Compteur caractères
+    if (ta) ta.oninput = function() {
+      document.getElementById('journal-add-count').textContent = this.value.length + '/1000';
+    };
+  }
+}
+
+function saveNoteAdd() {
+  var date = (document.getElementById('journal-add-date') || {}).value;
+  var note = ((document.getElementById('journal-add-text') || {}).value || '').trim();
+  if (!date) { alert('Choisis une date.'); return; }
+  if (!note) { alert('La note est vide.'); return; }
+  // Récupérer ou créer l'entrée
+  var existing = getEntry(date);
+  var entry = existing || { energie: null, qualite_sommeil: null, douleurs: null, clarte_mentale: null, humeur: null, rmssd: null };
+  entry.note = note;
+  saveEntry(date, entry);
+  // Fermer le formulaire
+  document.getElementById('journal-add-zone').style.display = 'none';
+  document.getElementById('btn-journal-add').textContent = '+ Ajouter une note';
+  // Rafraîchir la liste en mode showAll pour voir la note même ancienne
+  renderJournalNotes(true);
+}
+
+function cancelNoteAdd() {
+  document.getElementById('journal-add-zone').style.display = 'none';
+  document.getElementById('btn-journal-add').textContent = '+ Ajouter une note';
+}
+
 function saveNoteEdit(date) {
   var safeDate = date.replace(/-/g, '_');
   var ta = document.getElementById('journal-note-textarea-' + safeDate);

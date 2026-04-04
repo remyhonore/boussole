@@ -664,6 +664,24 @@
             <button onclick="event.preventDefault();generateJournalPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; Voir mon journal en PDF</button>
           </summary>
           <div class="journal-accord-body">
+            <!-- Formulaire d'ajout de note inline -->
+            <div id="journal-add-zone" style="display:none;background:#f8faf9;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;padding:14px;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <label for="journal-add-date" style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">Date</label>
+                <input type="date" id="journal-add-date" style="padding:6px 10px;border:1.5px solid rgba(45,106,79,.3);border-radius:8px;font-size:13px;font-family:inherit;color:#06172D;" aria-label="Date de la note">
+              </div>
+              <textarea id="journal-add-text" rows="4" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#fff;" aria-label="Contenu de la note"></textarea>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                <span id="journal-add-count" style="font-size:11px;color:rgba(6,23,45,.45);">0/1000</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <button onclick="saveNoteAdd()" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enregistrer</button>
+                <button onclick="cancelNoteAdd()" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>
+              </div>
+            </div>
+            <div style="margin-bottom:10px;">
+              <button onclick="toggleNoteAdd()" id="btn-journal-add" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter une note</button>
+            </div>
             <div id="journal-notes-list"></div>
           </div>
         </details>
@@ -896,7 +914,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.18 — </span>
+    <span>Boussole v9.19 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
