@@ -269,7 +269,7 @@
 
       <!-- Signaler un événement (repositionné sous Pacing) -->
       <div style="text-align:center; margin-bottom:12px;">
-        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement (crash, PEM...)</button>
+        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
       </div>
 
       <!-- Feature B : Pacing — Enveloppe énergie -->
@@ -869,7 +869,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.55 — </span>
+    <span>Boussole v9.56 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1420,12 +1420,25 @@
       <label for="event-type" style="display:none;">Type d'événement</label>
       <select id="event-type" aria-label="Type d'événement">
         <option value="">Type (optionnel)</option>
-        <option value="crash-pem">Crash / PEM</option>
-        <option value="reaction-medicament">Réaction médicament</option>
-        <option value="symptome-inhabituel">Symptôme inhabituel</option>
-        <option value="bonne-journee-exceptionnelle">Bonne journée exceptionnelle</option>
-        <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
-        <option value="autre">Autre</option>
+        <optgroup label="Pacing / Énergie">
+          <option value="crash-pem">Crash / PEM (malaise post-effort)</option>
+          <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
+          <option value="bonne-journee-exceptionnelle">Bonne journée exceptionnelle</option>
+        </optgroup>
+        <optgroup label="Dysautonomie">
+          <option value="presyncope">Pré-syncope / malaise</option>
+          <option value="syncope">Syncope (perte de connaissance)</option>
+          <option value="vertiges">Vertiges / étourdissements</option>
+          <option value="palpitations">Palpitations</option>
+        </optgroup>
+        <optgroup label="Traitements">
+          <option value="reaction-medicament">Réaction médicament</option>
+          <option value="effet-paradoxal">Effet paradoxal</option>
+        </optgroup>
+        <optgroup label="Autre">
+          <option value="symptome-inhabituel">Symptôme inhabituel</option>
+          <option value="autre">Autre</option>
+        </optgroup>
       </select>
       <div style="display:flex;gap:8px;margin-top:8px;">
         <div style="flex:1;">

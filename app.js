@@ -1262,11 +1262,23 @@ function renderEventsSummary() {
   });
   if (recent.length === 0) { container.innerHTML = ''; return; }
   const labels = {
+    'crash-pem': 'Crash / PEM',
     'reaction-medicament': 'Réaction médicament',
+    'effet-paradoxal': 'Effet paradoxal',
     'symptome-inhabituel': 'Symptôme inhabituel',
+    'presyncope': 'Pré-syncope / malaise',
+    'syncope': 'Syncope',
+    'vertiges': 'Vertiges / étourdissements',
+    'palpitations': 'Palpitations',
     'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle',
     'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle',
     'autre': 'Autre'
+  };
+  const eventColors = {
+    'crash-pem': '#dc2626', 'mauvaise-journee-exceptionnelle': '#dc2626',
+    'presyncope': '#e07b2a', 'syncope': '#dc2626', 'vertiges': '#e07b2a', 'palpitations': '#e07b2a',
+    'reaction-medicament': '#f59e0b', 'effet-paradoxal': '#f59e0b',
+    'bonne-journee-exceptionnelle': '#2d6a4f'
   };
   function _formatDateLong(dateStr) {
     const mois = ['janvier','février','mars','avril','mai','juin',
@@ -1283,9 +1295,10 @@ function renderEventsSummary() {
     const label = labels[e.type] || e.type || '';
     const dateFr = _formatDateLong(e.date);
     const kEsc = k.replace(/'/g, "\\'");
-    const borderColor = e.color || '#6E877D';
+    const borderColor = eventColors[e.type] || e.color || '#6E877D';
+    const heureStr = e.heure ? ' à ' + e.heure : '';
     return '<div style="border-left:3px solid ' + borderColor + ';border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">' +
-      '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + ' · ' + label + '</div>' +
+      '<div style="font-weight:600;margin-bottom:4px;">' + dateFr + heureStr + ' · ' + label + '</div>' +
       (e.description ? '<div style="font-size:13px;color:rgba(6,23,45,.55);">' + e.description + '</div>' : '') +
       '<div style="display:flex;gap:8px;margin-top:8px;">' +
         '<button onclick="openEventModal(\'' + kEsc + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>' +
@@ -3334,11 +3347,12 @@ function collectHubEntries() {
 
   // Feature T — Événements (boussole_event_*)
   var eventTypeLabels = {
-    'reaction-medicament': 'Réaction médicament',
-    'symptome-inhabituel': 'Symptôme inhabituel',
+    'crash-pem': 'Crash / PEM', 'reaction-medicament': 'Réaction médicament',
+    'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Symptôme inhabituel',
+    'presyncope': 'Pré-syncope / malaise', 'syncope': 'Syncope',
+    'vertiges': 'Vertiges', 'palpitations': 'Palpitations',
     'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle',
-    'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle',
-    'autre': 'Autre'
+    'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle', 'autre': 'Autre'
   };
   Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); }).forEach(function(k) {
     try {
@@ -3663,8 +3677,9 @@ function generateEventsPDF() {
     try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; }
   }).filter(Boolean);
   if (events.length === 0) { alert('Aucun événement enregistré.'); return; }
-  var labels = { 'reaction-medicament': 'Réaction médicament', 'symptome-inhabituel': 'Symptôme inhabituel',
-    'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle', 'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle', 'autre': 'Autre' };
+  var labels = { 'crash-pem': 'Crash / PEM', 'reaction-medicament': 'Reaction medicament', 'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Symptome inhabituel',
+    'presyncope': 'Pre-syncope / malaise', 'syncope': 'Syncope', 'vertiges': 'Vertiges', 'palpitations': 'Palpitations',
+    'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle', 'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle', 'autre': 'Autre' };
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ unit: 'mm', format: 'a4' });
   var mL = 18, mR = 18, mT = 20, pageW = 210, pageH = 297, contentW = pageW - mL - mR;

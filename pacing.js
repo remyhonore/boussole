@@ -19,7 +19,7 @@ window.MorningPace = (function() {
     var cutoff = new Date();
     cutoff.setHours(cutoff.getHours() - 48);
     var cutoffStr = cutoff.toISOString().split('T')[0];
-    var crashTypes = ['crash-pem', 'mauvaise-journee-exceptionnelle', 'reaction-medicament', 'symptome-inhabituel'];
+    var crashTypes = ['crash-pem', 'mauvaise-journee-exceptionnelle', 'reaction-medicament', 'symptome-inhabituel', 'presyncope', 'syncope', 'effet-paradoxal'];
     try {
       var keys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
       for (var i = 0; i < keys.length; i++) {
