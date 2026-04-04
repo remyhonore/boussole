@@ -1,86 +1,59 @@
 # Changelog
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
-## [1.0.0-phase1] - 2026-02-10
+## [9.34] - 2026-04-04
+
+### Corrigé
+- Service Worker : ajout des assets manquants dans ASSETS_TO_CACHE (`traitements.js`, `onboarding.js`, `score_sna.js`, `daytype.js`)
+- Documentation : réécriture complète CLAUDE.md, README.md, CHANGELOG.md pour refléter l'architecture réelle
+
+## [9.33] - 2026-04-04
 
 ### Ajouté
-- Écran "Aujourd'hui" avec 3 curseurs fixes (Énergie, Qualité sommeil, Douleurs physiques)
-- Écran "Résumé" avec structure 5 blocs :
-  1. Tendances + moyennes
-  2. Variations importantes
-  3. Points marquants (meilleur jour, jour le plus bas, trous)
-  4. Notes du patient (3 dernières)
-  5. Prudence
-- Génération PDF 1 page avec aperçu avant téléchargement
-- Moteur calc_v1 avec tendances et détection variations
-- Tests automatisés avec dataset de référence
-- Règle "données insuffisantes" (< 5 jours)
-- Système de stockage local avec fallback mémoire
-- Bouton "Reprendre dernières valeurs"
-- Bouton "Annuler" (30s après enregistrement)
-- Note optionnelle (200 caractères max)
+- **Feature T-MED** : gestion structurée des traitements
+  - Saisie rapide intelligente (parser regex : "Brintellix 20mg 1/j matin")
+  - 4 catégories : 💊 Médicament · 🌿 Complément · ⚡ Stratégie · 🚫 Allergie
+  - Historique des paliers de dose avec dates
+  - Migration automatique depuis l'ancien système `boussole_essais`
+  - Export PDF automatique (actifs, pauses, arrêts < 90j, allergies)
+  - Bloc HTML résumé dans le panel Paramètres
 
-### Décisions de design
+## [8.92] - 2026-03-04
 
-**Vocabulaire :**
-- "Douleurs physiques" (au lieu de "Confort" ou "Inconfort")
-- Échelle claire : 0 = aucune douleur, 10 = insupportables
-- "Qualité du sommeil" (au lieu de "Sommeil" ou "Sommeil réparateur")
+### Ajouté
+- **Pacing-Repos** : champ `repos_diurne` dans Mes Mesures
+- Sparkline 14 jours repos diurne dans Résumé (`buildBlocRepos`)
 
-**Seuils calc_v1 (à valider avec données réelles) :**
-- Delta ≥ ±1.0 pour tendance amélioration/baisse
-- Écart-type > 2.0 pour tendance fluctuant
-- Variation notable : écart ≥ 3.0 points score global
-- Données insuffisantes : < 5 jours
-- Groupes de comparaison : 5 premiers vs 5 derniers jours
+## Jalons majeurs (résumé v1.0 → v8.x)
 
-**Architecture :**
-- Période fixe 14 jours (pas de sélecteur en Phase 1)
-- 1 seule saisie par jour (éditer = remplacer)
-- Minimum 1 curseur pour enregistrer
-- Curseurs non touchés = valeur null (pas sauvegardé)
+### v8.x — Mars 2026
+- Mes Mesures : FC repos, TA, SpO2, température, poids, RMSSD
+- Score SNA composite
+- Détection PEM (malaise post-effort)
+- Corrélations inter-métriques
+- Suivi cycle menstruel
 
-### Non inclus (Phase 2+)
-- Fiches pratiques
-- Sélection de période (7/14/30 jours)
-- Curseurs optionnels
-- Saisies multiples par jour
-- Coordonnées médecin/pharmacie
-- Contexte cycle menstruel
-- Dark mode
-- Multilingue
+### v5.x–v7.x — Mars 2026
+- PDF consultation 1 page + mode narratif IA
+- Fiches pratiques hors-ligne
+- Profil patient partageable
+- Onboarding guidé
+- Palette couleurs unifiée (#2d6a4f primaire)
 
-### Tests
-- ✅ Tests automatisés avec Jest
-- ✅ Dataset de référence embarqué
-- ✅ Assertions exactes (moyennes, tendances, variations)
-- ✅ Tests de reproductibilité
-- ✅ Tests de robustesse (données partielles, vides)
+### v2.x–v4.x — Février 2026
+- 4ème curseur (clarté mentale)
+- Notes de version (changelog modal)
+- Newsletter Brevo (email gate)
+- Service Worker + PWA installable
+- PDF enrichi multi-pages avec Chart.js
 
-### Critères de succès Phase 1
-- Patient : saisie < 30s
-- Médecin : lecture PDF < 90s
-- Technique : tous les tests passent
-- PDF : 1 page exactement
-- Validation : 1 patient + 1 médecin OK
+### v1.0 — 2026-02-10
+- MVP Phase 1 : 3 curseurs, résumé 14 jours, PDF 1 page
+- Moteur calc_v1 (tendances, variations, points marquants)
+- Tests Jest automatisés
+- Stockage localStorage avec fallback mémoire
 
 ---
 
-## [À venir] - Phase 2
-
-### Prévu
-- Fiches pratiques (5 guides visuels hors ligne)
-- Système de favoris
-- 3ᵉ onglet "Fiches"
-
-### Conditionnel (si validé par utilisateurs)
-- Sélection de période
-- Curseurs optionnels
-- Export JSON/CSV
-- Graphiques de tendances
-
----
-
-**Format :** Ce changelog suit [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)  
-**Versioning :** Ce projet suit [Semantic Versioning](https://semver.org/)
+**Format :** [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)

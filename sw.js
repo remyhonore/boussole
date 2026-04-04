@@ -3,24 +3,28 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v9.33';
+const CACHE_NAME = 'boussole-v9.34';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
   '/calc.js',
+  '/daytype.js',
+  '/storage.js',
   '/pdf.js',
   '/pdf_consultation.js',
+  '/traitements.js',
+  '/onboarding.js',
+  '/score_sna.js',
   '/fiches_data.js',
   '/profil_data.js',
-  '/storage.js',
-  '/styles.css',
-  '/manifest.json',
-  '/favicon.svg',
-  '/confidentialite.html',
   '/pem_detector.js',
   '/cycle_tracker.js',
   '/correlations.js',
   '/share_profile.js',
+  '/styles.css',
+  '/manifest.json',
+  '/favicon.svg',
+  '/confidentialite.html',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
