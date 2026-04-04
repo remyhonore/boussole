@@ -692,6 +692,22 @@
       <div class="card">
         <h2 class="card-title">Paramètres</h2>
 
+        <!-- Import Mon Espace Santé — en premier pour auto-remplissage -->
+        <div class="settings-group" style="margin-bottom:16px;padding:16px;background:rgba(45,106,79,.05);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2d6a4f;margin:0 0 6px;">🏥 Mon Espace Santé</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 10px;line-height:1.4;">
+            Importe ta Synthèse médicale depuis <a href="https://www.monespacesante.fr" target="_blank" style="color:#2d6a4f;font-weight:600;">monespacesante.fr</a> pour pré-remplir tes informations, traitements et antécédents.
+          </p>
+          <button onclick="ImportMES.ouvrirModale()"
+            style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;box-sizing:border-box;">
+            📋 Importer une Synthèse médicale (.pdf)
+          </button>
+          <p style="font-size:11px;color:rgba(6,23,45,.35);margin:6px 0 0;">🔒 Le fichier est lu uniquement sur ton appareil. Rien n'est transmis.</p>
+          <div id="dossier-medical-content" style="margin-top:12px;">
+            <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0;">Aucune donnée importée.</p>
+          </div>
+        </div>
+
         <!-- Feature D — Profil foyers -->
         <div style="margin-bottom:16px;padding:14px;background:rgba(45,106,79,.06);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
           <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 8px;">Ton profil</p>
@@ -745,6 +761,12 @@
                 style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
               <p style="font-size:12px;color:rgba(6,23,45,.6);margin:4px 0 0;">🔒 Utilisé uniquement sur ton appareil · Jamais transmis</p>
             </div>
+            <div>
+              <label for="param-medecin" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Médecin traitant</label>
+              <input type="text" id="param-medecin" placeholder="Dr Dupont" autocomplete="off"
+                style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
+              <p style="font-size:12px;color:rgba(6,23,45,.5);margin:4px 0 0;">Pré-rempli via l'import Mon Espace Santé</p>
+            </div>
           </div>
         </div>
 
@@ -768,25 +790,6 @@
         </div>
 
         <div class="settings-group" style="margin-top:16px;">
-          <p class="settings-label">Mon Espace Sante</p>
-          <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;line-height:1.4;">
-            Importe ta Synthese medicale depuis <a href="https://www.monespacesante.fr" target="_blank" style="color:#2d6a4f;font-weight:600;">monespacesante.fr</a> pour pre-remplir tes traitements et informations.
-          </p>
-          <button onclick="ImportMES.ouvrirModale()"
-            style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;box-sizing:border-box;">
-            🏥 Importer une Synthese medicale (.pdf)
-          </button>
-          <p style="font-size:11px;color:rgba(6,23,45,.35);margin:6px 0 0;">🔒 Le fichier est lu uniquement sur ton appareil.</p>
-        </div>
-
-        <div class="settings-group" style="margin-top:16px;">
-          <p class="settings-label">Mon dossier medical</p>
-          <div id="dossier-medical-content">
-            <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0;">Aucune donnee importee. Utilise le bouton ci-dessus pour importer ta Synthese medicale.</p>
-          </div>
-        </div>
-
-        <div class="settings-group">
           <p class="settings-label">Profil</p>
           <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
           <div class="settings-radios">
@@ -891,7 +894,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.58 — </span>
+    <span>Boussole v9.59 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1937,6 +1940,18 @@
       document.getElementById('msg-medecin-texte').value = '';
       document.getElementById('btn-generer-msg').textContent = 'Générer le message';
       document.getElementById('btn-generer-msg').disabled = false;
+      // Pré-remplir le nom du médecin depuis Paramètres ou import MES
+      const nomDrField = document.getElementById('msg-medecin-nom-dr');
+      if (nomDrField && !nomDrField.value) {
+        const nomManuel = localStorage.getItem('boussole_medecin_nom');
+        if (nomManuel) { nomDrField.value = nomManuel; }
+        else {
+          try {
+            const med = JSON.parse(localStorage.getItem('boussole_medecin_traitant'));
+            if (med && med.nom) nomDrField.value = 'Dr ' + med.nom;
+          } catch(e) {}
+        }
+      }
     }
 
     function fermerModaleMsgMedecin() {
@@ -2205,13 +2220,21 @@
         { id: 'param-nom',          key: 'boussole_nom'          },
         { id: 'param-ddn',          key: 'boussole_ddn'          },
         { id: 'param-tel',          key: 'boussole_tel'          },
-        { id: 'param-email',        key: 'boussole_param_email'  }
+        { id: 'param-email',        key: 'boussole_param_email'  },
+        { id: 'param-medecin',      key: 'boussole_medecin_nom'  }
       ];
       function initParamFields() {
         fields.forEach(function (f) {
           const el = document.getElementById(f.id);
           if (!el) return;
-          const saved = localStorage.getItem(f.key);
+          let saved = localStorage.getItem(f.key);
+          // Fallback médecin : charger depuis l'import MES si pas de valeur manuelle
+          if (!saved && f.id === 'param-medecin') {
+            try {
+              const med = JSON.parse(localStorage.getItem('boussole_medecin_traitant'));
+              if (med && med.nom) { saved = 'Dr ' + med.nom; localStorage.setItem(f.key, saved); }
+            } catch(e) {}
+          }
           if (saved) el.value = saved;
           el.addEventListener('input', function () {
             localStorage.setItem(f.key, el.value);
@@ -2229,7 +2252,7 @@
 
       document.getElementById('btn-save-params')?.addEventListener('click', () => {
         const fields = ['param-prenom','param-nom','param-ddn','param-taille',
-                        'param-poids','param-tel','param-email'];
+                        'param-poids','param-tel','param-email','param-medecin'];
         fields.forEach(id => {
           const el = document.getElementById(id);
           if (el) localStorage.setItem('boussole_' + id, el.value);

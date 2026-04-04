@@ -152,9 +152,13 @@ window.ImportMES = (function() {
       imported.patient = true;
     }
 
-    // Médecin traitant → localStorage
+    // Médecin traitant → localStorage + champ Paramètres
     if (options.medecin && parsed.medecin && parsed.medecin.nom) {
       localStorage.setItem('boussole_medecin_traitant', JSON.stringify(parsed.medecin));
+      var nomDr = 'Dr ' + parsed.medecin.nom;
+      localStorage.setItem('boussole_medecin_nom', nomDr);
+      var elMed = document.getElementById('param-medecin');
+      if (elMed) elMed.value = nomDr;
       imported.medecin = true;
     }
 
