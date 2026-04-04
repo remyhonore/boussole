@@ -3287,7 +3287,7 @@ function filterHubHistory(filter) {
 // FEATURE V — Journal : lecture / édition / suppression des notes
 // ============================================================
 
-function renderJournalNotes() {
+function renderJournalNotes(showAll) {
   var container = document.getElementById('journal-notes-list');
   if (!container) return;
 
@@ -3299,7 +3299,14 @@ function renderJournalNotes() {
     return;
   }
 
-  container.innerHTML = withNotes.map(function(e) {
+  // Filtre 14 jours par defaut
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 14);
+  var cutoffStr = cutoff.toISOString().split('T')[0];
+  var visible = showAll ? withNotes : withNotes.filter(function(e) { return e.date >= cutoffStr; });
+  var hidden = showAll ? 0 : withNotes.length - visible.length;
+
+  container.innerHTML = visible.map(function(e) {
     var dateLabel = formatDateFr(e.date);
     var extrait = e.note.length > 120 ? e.note.substring(0, 120) + '…' : e.note;
     var safeDate = e.date.replace(/-/g, '_');
@@ -3323,6 +3330,10 @@ function renderJournalNotes() {
       '</div>'
     ].join('');
   }).join('');
+
+  if (hidden > 0) {
+    container.innerHTML += '<p style="text-align:center;margin-top:8px;"><button onclick="renderJournalNotes(true)" style="background:none;border:none;color:#2d6a4f;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit;">Voir ' + hidden + ' note' + (hidden > 1 ? 's' : '') + ' plus ancienne' + (hidden > 1 ? 's' : '') + '</button></p>';
+  }
 }
 
 function editNoteInline(date) {
