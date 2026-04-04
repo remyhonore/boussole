@@ -14,7 +14,7 @@ window.ImportMES = (function() {
     };
 
     // --- Patient ---
-    var prenomMatch = text.match(/Pr[ée]nom\s+([A-ZÀ-Ü\s]+?)(?:\n|Nom)/i);
+    var prenomMatch = text.match(/Pr[ée]nom\s+([A-ZÀ-Üa-zà-ü-]+)/i);
     if (prenomMatch) result.patient.prenom = _titleCase(prenomMatch[1].trim());
 
     var nomMatch = text.match(/Nom de famille\s+([A-ZÀ-Ü]+)/i);
@@ -41,7 +41,11 @@ window.ImportMES = (function() {
       result.medecin.depuis = medDebutMatch[3] + '-' + (moisMap2[medDebutMatch[2].toLowerCase()]||'01') + '-' + medDebutMatch[1].padStart(2,'0');
     }
     var orgMatch = text.match(/Organisation\s+(CABINET[^\n]+|CENTRE[^\n]+|MAISON[^\n]+)/i);
-    if (orgMatch) result.medecin.organisation = orgMatch[1].trim();
+    if (orgMatch) {
+      // Nettoyer : couper avant les identifiants CDA (séquences numériques longues)
+      var orgClean = orgMatch[1].replace(/\s*\d{6,}.*$/, '').trim();
+      result.medecin.organisation = orgClean;
+    }
     var auteurMatch = text.match(/Auteur\s+M\s+([A-ZÀ-Ü\s]+?)(?:\n|\d)/i);
     if (auteurMatch && !result.medecin.nom) result.medecin.nom = auteurMatch[1].trim();
 
