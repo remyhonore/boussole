@@ -389,7 +389,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // Ouvrir une fenêtre IMMÉDIATEMENT (avant tout await) — seul moyen d'éviter le blocage popup Chrome
   const _pdfWin = window.open('', '_blank');
   if (_pdfWin) {
-    _pdfWin.document.write('<html><head><title>Génération du PDF...</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:18px;">⏳ Génération du PDF en cours…</p></body></html>');
+    _pdfWin.document.write('<html><head><title>Génération du PDF...</title></head><body style="font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:24px;font-weight:700;margin:0 0 12px;">Génération du PDF en cours…</p><p style="color:#6b7280;font-size:16px;margin:0;">Veuillez patienter, cela peut prendre quelques secondes.</p></body></html>');
   }
 
   // --- Générer la narrative EN PREMIER (avant le PDF) pour l'insérer en page 2 ---
@@ -1764,8 +1764,8 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
       doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
     } else if (narrativeText) {
-      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny); ny += 4;
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
+      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny); ny += 6;
       drawSep(ny); ny += 6;
       if (nomPrenom) {
         doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
@@ -1813,7 +1813,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
         if (resumeLines.length > 0) {
           // Cadre résumé exécutif
-          var resumeH = 8 + resumeLines.length * 6 + 6;
+          var resumeH = 10 + resumeLines.length * 7 + 8;
           doc.setFillColor(245, 245, 245);
           doc.roundedRect(marginL, ny - 3, contentW, resumeH, 2, 2, 'F');
           doc.setDrawColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]); doc.setLineWidth(2);
@@ -1845,14 +1845,14 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
           .replace(/\u2026/g,'...');
         var trimmed = line.trim();
         if (!trimmed) { ny += 3; return; }
-        if (ny > 270) return; // limite maxi page 2
+        if (ny > 268) { doc.addPage(); ny = 15; } // saut de page si debordement
         var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1 || SECTION_HEADERS.some(function(h){ return trimmed.toUpperCase().startsWith(h); });
         if (isHeader) {
           ny += 2;
-          doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
-          doc.text(trimmed, marginL, ny); ny += 4;
+          doc.setFontSize(10.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
+          doc.text(trimmed, marginL, ny); ny += 6;
         } else {
-          doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(26, 26, 26);
+          doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(26, 26, 26);
           var wrapped = doc.splitTextToSize(trimmed, contentW);
           wrapped.forEach(function(wl) { if (ny <= 270) { doc.text(wl, marginL, ny); ny += 4.5; } });
         }

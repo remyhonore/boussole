@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v9.80';
+const CACHE_NAME = 'boussole-v9.81';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
