@@ -961,19 +961,19 @@ function refreshSummary() {
   if (summary.pointsMarquants.meilleurJour) {
     hasAnyPoint = true;
     const mj = summary.pointsMarquants.meilleurJour;
-    html += `<li>✅ Meilleur jour : ${formatDateFr(mj.date)} (score ${mj.score.toFixed(1)}/10)</li>`;
+    html += `<li><span role="img" aria-label="positif">✅</span> Meilleur jour : ${formatDateFr(mj.date)} (score ${mj.score.toFixed(1)}/10)</li>`;
   }
   
   if (summary.pointsMarquants.jourLePlusBas) {
     hasAnyPoint = true;
     const jb = summary.pointsMarquants.jourLePlusBas;
-    html += `<li>⚠️ Jour le plus bas : ${formatDateFr(jb.date)} (score ${jb.score.toFixed(1)}/10)</li>`;
+    html += `<li><span role="img" aria-label="attention">⚠️</span> Jour le plus bas : ${formatDateFr(jb.date)} (score ${jb.score.toFixed(1)}/10)</li>`;
   }
   
   if (summary.pointsMarquants.gap) {
     hasAnyPoint = true;
     const gap = summary.pointsMarquants.gap;
-    html += `<li>⏸️ Jours non renseignés : ${formatDateFr(gap.start)}–${formatDateFr(gap.end)} (${gap.count} jours)</li>`;
+    html += `<li><span role="img" aria-label="en pause">⏸️</span> Jours non renseignés : ${formatDateFr(gap.start)}–${formatDateFr(gap.end)} (${gap.count} jours)</li>`;
   }
   
   html += `</ul>`;

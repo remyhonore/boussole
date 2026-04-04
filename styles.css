@@ -322,7 +322,7 @@ textarea:focus-visible {
 }
 
 .rmssd-hint {
-  font-size: 0.85rem;
+  font-size: 14px;
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-sm);
 }
@@ -656,7 +656,7 @@ h2.summary-section {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.95rem;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -676,7 +676,7 @@ h2.summary-section {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.8rem;
+  font-size: 28px;
   line-height: 1;
   pointer-events: none;
   cursor: pointer;
@@ -1589,4 +1589,22 @@ button[aria-label="Dicter"] {
 button[aria-label="Dicter la note"]:hover,
 button[aria-label="Dicter"]:hover {
   background: rgba(45,106,79,.08) !important;
+}
+
+/* === Résumé : normalisation cartes (audit P3) === */
+#summary-content > div {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card);
+  background: var(--color-card);
+}
+
+/* Score vert unifié — forcer partout */
+#summary-content .score-value,
+#summary-content [style*="color:var(--color-score)"] {
+  color: var(--color-score) !important;
+}
+
+/* Accessibilité : emoji sémantiques dans Points marquants */
+#summary-content [role="img"] {
+  font-style: normal;
 }
