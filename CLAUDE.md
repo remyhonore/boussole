@@ -63,6 +63,7 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 | `boussole_pace_feedback` | Feedbacks stabilité matinale `[{ date, match: bool }]` (90j max) |
 | `boussole_pacing_catalogue` | Activités personnalisées pour l'enveloppe énergie |
 | `boussole_pacing_log_YYYY-MM-DD` | Log d'activités du jour `[{ id, nom, cout, emoji, heure }]` |
+| `boussole_sections` | Sections actives `{ pacing: bool, mesures: bool }` (défaut : tout ON) |
 | `version_seen` | Version modale changelog vue |
 | `newsletter_done` | Email gate newsletter |
 | `brevo_subscribed` | Statut abonnement Brevo |

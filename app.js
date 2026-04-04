@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-confirmer-profil')?.addEventListener('click', confirmerProfil);
   document.getElementById('btn-passer-profil')?.addEventListener('click', fermerModaleProfil);
 
+  // Sections actives — initialiser les toggles
+  initSectionsToggles();
+
   // Feature D — Modale profil si onboardé mais pas encore de profil défini
   if (localStorage.getItem('boussole_onboarded') && !localStorage.getItem('boussole_profil')) {
     setTimeout(() => ouvrirModaleProfil(), 900);
@@ -77,6 +80,35 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * === NAVIGATION ===
  */
+// --- Sections actives (Paramètres) ---
+window.getSectionsPref = function() {
+  try {
+    var raw = localStorage.getItem('boussole_sections');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { pacing: true, mesures: true }; // défaut : tout activé
+};
+
+window.saveSectionsPref = function() {
+  var pacing = document.getElementById('toggle-section-pacing');
+  var mesures = document.getElementById('toggle-section-mesures');
+  var prefs = {
+    pacing: pacing ? pacing.checked : true,
+    mesures: mesures ? mesures.checked : true
+  };
+  try { localStorage.setItem('boussole_sections', JSON.stringify(prefs)); } catch (e) {}
+  // Appliquer immédiatement
+  loadTodayData();
+};
+
+function initSectionsToggles() {
+  var prefs = window.getSectionsPref();
+  var tp = document.getElementById('toggle-section-pacing');
+  var tm = document.getElementById('toggle-section-mesures');
+  if (tp) tp.checked = prefs.pacing;
+  if (tm) tm.checked = prefs.mesures;
+}
+
 function initNavigation() {
   const navButtons = document.querySelectorAll('.nav-btn');
   
@@ -339,15 +371,32 @@ function loadTodayData() {
   refreshPacingAlert();
   refreshDegradationAlert();
 
-  // Feature P — Score de stabilité matinal (Morning Pace)
-  if (window.MorningPace && typeof window.MorningPace.render === 'function') {
-    window.MorningPace.render('morning-pace-card');
+  // Sections actives — visibilité conditionnelle
+  var secPrefs = window.getSectionsPref();
+
+  // Pacing sections
+  var pacingVisible = secPrefs.pacing;
+  var mpCard = document.getElementById('morning-pace-card');
+  var eeCard = document.getElementById('energy-envelope-card');
+  var evtBtn = document.getElementById('btn-mark-event');
+  var pacingAlert = document.getElementById('pacing-alert-today');
+  if (mpCard) mpCard.style.display = pacingVisible ? '' : 'none';
+  if (eeCard) eeCard.style.display = pacingVisible ? '' : 'none';
+  if (evtBtn) evtBtn.parentElement.style.display = pacingVisible ? '' : 'none';
+  if (pacingAlert) pacingAlert.style.display = pacingVisible ? '' : 'none';
+
+  if (pacingVisible) {
+    if (window.MorningPace && typeof window.MorningPace.render === 'function') {
+      window.MorningPace.render('morning-pace-card');
+    }
+    if (window.EnergyEnvelope && typeof window.EnergyEnvelope.render === 'function') {
+      window.EnergyEnvelope.render('energy-envelope-card');
+    }
   }
 
-  // Feature B — Enveloppe énergétique
-  if (window.EnergyEnvelope && typeof window.EnergyEnvelope.render === 'function') {
-    window.EnergyEnvelope.render('energy-envelope-card');
-  }
+  // Mes mesures
+  var mesuresSection = document.getElementById('section-mesures');
+  if (mesuresSection) mesuresSection.style.display = secPrefs.mesures ? '' : 'none';
 
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {

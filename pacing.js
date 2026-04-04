@@ -398,7 +398,7 @@ window.EnergyEnvelope = (function() {
       '<div style="border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
         '<div onclick="var b=this.nextElementSibling;var c=this.querySelector(\'.ee-chevron\');if(b.style.display===\'none\'){b.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{b.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;">' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<span class="ee-chevron" style="font-size:10px;color:#6b7280;transition:transform 0.2s;">&#9654;</span>' +
+            '<span class="ee-chevron" style="font-size:10px;color:#6b7280;transition:transform 0.2s;transform:rotate(90deg);">&#9654;</span>' +
             '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Pacing — Enveloppe énergie</span>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
@@ -406,7 +406,7 @@ window.EnergyEnvelope = (function() {
             '<span style="font-size:12px;color:#9ca3af;">Budget : ' + budget + ' pts</span>' +
           '</div>' +
         '</div>' +
-        '<div style="display:none;margin-top:12px;">' +
+        '<div style="display:block;margin-top:12px;">' +
         // Jauge
         '<div style="position:relative;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;margin-bottom:6px;">' +
           '<div style="position:absolute;left:0;top:0;height:100%;width:' + Math.min(pct, 100) + '%;background:' + gaugeColor + ';border-radius:9px;transition:width 0.4s ease;"></div>' +

@@ -699,6 +699,28 @@
           <button id="btn-changer-profil" style="padding:7px 14px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Changer de profil</button>
         </div>
 
+        <!-- Sections actives (Feature P/B) -->
+        <div class="settings-group" style="margin-bottom:16px;">
+          <p class="settings-label">Sections actives</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 10px;">Choisis les sections affichées dans l'onglet Aujourd'hui.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
+              <div>
+                <span style="font-size:14px;font-weight:600;color:#06172D;">Pacing</span>
+                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">Stabilité du jour, enveloppe énergie, signalement d'événements</span>
+              </div>
+              <input type="checkbox" id="toggle-section-pacing" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
+              <div>
+                <span style="font-size:14px;font-weight:600;color:#06172D;">Mes mesures</span>
+                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">FC repos, tension, VFC/RMSSD, poids, cycle</span>
+              </div>
+              <input type="checkbox" id="toggle-section-mesures" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
+            </label>
+          </div>
+        </div>
+
         <div class="settings-group">
           <p class="settings-label">Mes informations (pour le PDF consultation)</p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
@@ -869,7 +891,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.57 — </span>
+    <span>Boussole v9.58 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
