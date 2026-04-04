@@ -3495,7 +3495,20 @@ function generateJournalPDF() {
     doc.text('Page ' + p + ' / ' + totalPages, pageW / 2, pageH - 10, { align: 'center' });
   }
 
-  doc.save('myBoussole-journal-' + new Date().toISOString().split('T')[0] + '.pdf');
+  // Ouvrir un nouvel onglet immediatement (evite le blocage popup)
+  var pdfWin = window.open('', '_blank');
+  if (pdfWin) {
+    pdfWin.document.write('<html><head><title>Mon journal - myBoussole</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:16px;">Generation du PDF...</p></body></html>');
+  }
+
+  var blob = doc.output('blob');
+  var objectUrl = URL.createObjectURL(blob);
+  if (pdfWin) {
+    pdfWin.location.href = objectUrl;
+  } else {
+    // Fallback si popup bloque
+    doc.save('myBoussole-journal-' + new Date().toISOString().split('T')[0] + '.pdf');
+  }
 }
 
 // ============================================================

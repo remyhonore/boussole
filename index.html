@@ -659,11 +659,11 @@
       <div id="journal-accordeons">
 
         <details class="journal-accord" id="accord-journal" open>
-          <summary class="journal-accord-title">&#x1F4D3; Mon journal</summary>
+          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>&#x1F4D3; Mon journal</span>
+            <button onclick="event.preventDefault();generateJournalPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; Voir mon journal en PDF</button>
+          </summary>
           <div class="journal-accord-body">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
-              <button onclick="generateJournalPDF()" style="background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Exporter en PDF</button>
-            </div>
             <div id="journal-notes-list"></div>
           </div>
         </details>
