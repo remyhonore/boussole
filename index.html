@@ -573,6 +573,8 @@
     <!-- Panel Résumé -->
     <div class="panel" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume">
 
+      <button onclick="ouvrirModePresentation()" style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:16px;" aria-label="Voir mon profil en plein écran">Voir mon profil</button>
+
       <div id="summary-content">
         <!-- Contenu généré dynamiquement -->
       </div>
@@ -594,13 +596,7 @@
         >
           &#x1F4CB; Préparer ma consultation
         </button>
-        <button
-          onclick="ouvrirModaleConsultation('presentation')"
-          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
-          aria-label="Afficher le résumé en plein écran pour ton médecin"
-        >
-          &#x1F4F1; Montrer au médecin
-        </button>
+        
         <button
           onclick="ouvrirModaleMsgMedecin()"
           style="width:100%;background:#fff;border:1.5px solid var(--color-primary);color:var(--color-primary);border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
@@ -942,7 +938,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.81 — </span>
+    <span>Boussole v9.82 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

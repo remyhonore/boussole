@@ -1952,7 +1952,7 @@ window._ouvrirModePresentation = function() {
 
   const enTeteHtml =
     '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:12px;text-align:center;">' +
-      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em;">Montrer au médecin</p>' +
+      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em;">Mon profil</p>' +
       '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
       (patientLine ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientLine + '</p>' : '') +
     '</div>';
