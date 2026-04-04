@@ -823,7 +823,7 @@ function refreshSummary() {
 
   // Feature D — Tip profil en tête du résumé
   if (profilActif) {
-    html += `<div style="border-radius:10px;padding:12px 14px;margin-bottom:12px;background:rgba(45,106,79,.07);border:1.5px solid rgba(45,106,79,.2);display:flex;align-items:flex-start;gap:10px;">
+    html += `<div style="border-radius:12px;padding:12px 14px;margin-bottom:12px;background:rgba(45,106,79,.07);border:1.5px solid rgba(45,106,79,.2);display:flex;align-items:flex-start;gap:10px;">
       <span style="font-size:20px;line-height:1.2;">${profilActif.emoji}</span>
       <div>
         <p style="margin:0;font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;">${profilActif.label}</p>
@@ -836,7 +836,7 @@ function refreshSummary() {
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
 
   // 2. Graphique évolution 30j
-  html += '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+  html += '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
     '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Évolution 30 jours</p>' +
     '<canvas id="resume-chart-30j" height="180"></canvas>' +
   '</div>';
@@ -897,8 +897,8 @@ function refreshSummary() {
         '<span style="font-size:12px;color:#06172D;">🟢 Hauts (&gt;= 7)</span>' +
         '<span style="font-size:12px;font-weight:700;color:var(--color-score);">' + dist.vert + ' j.</span>' +
       '</div>' +
-      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
-        '<div style="background:#2d9e6e;border-radius:4px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:8px;height:8px;">' +
+        '<div style="background:#2d9e6e;border-radius:8px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
     html += '<div style="margin-bottom:10px;">' +
@@ -906,8 +906,8 @@ function refreshSummary() {
         '<span style="font-size:12px;color:#06172D;">🟠 Moyens (4–6)</span>' +
         '<span style="font-size:12px;font-weight:700;color:#d97706;">' + dist.orange + ' j.</span>' +
       '</div>' +
-      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
-        '<div style="background:#d97706;border-radius:4px;height:8px;width:' + Math.round(dist.orange / dist.total * 100) + '%;"></div>' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:8px;height:8px;">' +
+        '<div style="background:#d97706;border-radius:8px;height:8px;width:' + Math.round(dist.orange / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
     html += '<div style="margin-bottom:10px;">' +
@@ -915,8 +915,8 @@ function refreshSummary() {
         '<span style="font-size:12px;color:#06172D;">🔴 Bas (&lt; 4)</span>' +
         '<span style="font-size:12px;font-weight:700;color:#dc2626;">' + dist.rouge + ' j.</span>' +
       '</div>' +
-      '<div style="background:rgba(6,23,45,.12);border-radius:4px;height:8px;">' +
-        '<div style="background:#dc2626;border-radius:4px;height:8px;width:' + Math.round(dist.rouge / dist.total * 100) + '%;"></div>' +
+      '<div style="background:rgba(6,23,45,.12);border-radius:8px;height:8px;">' +
+        '<div style="background:#dc2626;border-radius:8px;height:8px;width:' + Math.round(dist.rouge / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
     html += `</div>`;
@@ -1256,7 +1256,7 @@ function renderEventsSummary() {
       (e.description ? '<div style="font-size:13px;color:rgba(6,23,45,.55);">' + e.description + '</div>' : '') +
       '<div style="display:flex;gap:8px;margin-top:8px;">' +
         '<button onclick="openEventModal(\'' + kEsc + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>' +
-        '<button onclick="deleteEvent(\'' + kEsc + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>' +
+        '<button onclick="deleteEvent(\'' + kEsc + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>' +
       '</div>' +
       '</div>';
   }).join('');
@@ -1450,7 +1450,7 @@ function buildBlocRepos() {
     idSommeil: idSommeil, idRepos: idRepos };
 
   var html =
-    '<div style="background:#fff;border:1.5px solid rgba(6,23,45,.12);border-radius:10px;padding:14px;margin-bottom:12px;">' +
+    '<div style="background:#fff;border:1.5px solid rgba(6,23,45,.12);border-radius:12px;padding:14px;margin-bottom:12px;">' +
       '<p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.55);text-transform:uppercase;margin:0 0 10px;">TEMPS DE REPOS — 14 JOURS</p>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
         '<div>' +
@@ -1542,7 +1542,7 @@ function buildBlocStabilite(mode) {
       '</div>';
   }
   // mode === 'medecin'
-  const SS = 'border-radius:10px;padding:14px;margin-bottom:12px;';
+  const SS = 'border-radius:12px;padding:14px;margin-bottom:12px;';
   const ST = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
   return '<div style="' + SS + 'background:#fff;border:1px solid rgba(6,23,45,.12);">' +
     '<p style="' + ST + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
@@ -1628,7 +1628,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     );
   }).join('');
   return (
-    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
       '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
@@ -1663,7 +1663,7 @@ function buildProblemePrincipal(pointAttention, metriques, noteLC, avgSommeil) {
     ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #fca5a5;font-size:12px;color:#d97706;">Plainte déclarée : ' + _detectPlainteSommeil(noteLC, avgSommeil !== undefined ? avgSommeil : null) + '</div>'
     : '';
   return (
-    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#FEE2E2;border-left:4px solid #dc2626;">' +
+    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#FEE2E2;border-left:4px solid #dc2626;">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#d97706;">PROBLÈME PRINCIPAL</p>' +
       '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
@@ -1701,7 +1701,7 @@ function buildDetailSommeil(dataSommeil, avgSommeil, noteLC, pointAttention) {
   else if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'réveils nocturnes';
   else if (avgSommeil !== null && avgSommeil < 5)                              plainteTxt = 'insomnie de maintien';
   return (
-    '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#EFF6FF;border:1.5px solid #3B82F6;">' +
+    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#EFF6FF;border:1.5px solid #3B82F6;">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
       '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
         '<div style="text-align:center;min-width:70px;">' +
@@ -1789,7 +1789,7 @@ window._ouvrirModePresentation = function() {
   const now = new Date();
   const dateJourLong = now.getDate() + ' ' + monthsFr[now.getMonth()] + ' ' + now.getFullYear();
 
-  const SECTION_STYLE = 'border-radius:10px;padding:14px;margin-bottom:12px;';
+  const SECTION_STYLE = 'border-radius:12px;padding:14px;margin-bottom:12px;';
   const SECTION_TITLE = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
 
   // ============================================================
@@ -1815,7 +1815,7 @@ window._ouvrirModePresentation = function() {
         const medL  = (txMed  ? txMed.split('\n').map(l=>l.trim()).filter(Boolean) : []);
         const compL = (txComp ? txComp.split('\n').map(l=>l.trim()).filter(Boolean) : []);
         const allerH = (txAll && txAll.toUpperCase() !== 'RAS')
-          ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:6px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
+          ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:8px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
           : '';
         return '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
           '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
@@ -2629,7 +2629,7 @@ function refreshPostConsultationHistorique() {
     var isOpen = idx === 0;
     var cardId = 'pc-card-' + idx;
 
-    html += '<div style="background:#fff;border-left:3px solid #6E877D;border-radius:10px;padding:12px;margin-bottom:8px;">';
+    html += '<div style="background:#fff;border-left:3px solid #6E877D;border-radius:12px;padding:12px;margin-bottom:8px;">';
     html += '<div class="pc-card-header" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#06172D;">';
     html += '<span>' + headerText + '</span>';
     html += '<span id="' + cardId + '-chevron" style="font-size:12px;color:rgba(6,23,45,.45);">' + (isOpen ? '\u25bc' : '\u25b6') + '</span>';
@@ -2653,7 +2653,7 @@ function refreshPostConsultationHistorique() {
 
     html += '<div style="margin-top:8px;display:flex;gap:8px;">';
     html += '<button onclick="openPostConsultationFromDate(\'' + dateRdv + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>';
-    html += '<button onclick="deletePostConsultation(\'' + dateRdv + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
+    html += '<button onclick="deletePostConsultation(\'' + dateRdv + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -3120,7 +3120,7 @@ function renderEssaisList() {
     html += '<div class="essai-duree">Depuis ' + formatDateFr(e.date_debut) + ' · ' + dureeStr + '</div>';
     html += '<div style="display:flex;gap:8px;margin-top:8px;">';
     html += '<button onclick="openModalEssai(\'' + e.id + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Modifier</button>';
-    html += '<button onclick="deleteEssai(\'' + e.id + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
+    html += '<button onclick="deleteEssai(\'' + e.id + '\')" style="background:transparent;border:1px solid #dc2626;color:#dc2626;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Supprimer</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -3347,7 +3347,7 @@ function renderJournalNotes(showAll) {
           '</div>',
           '<div class="journal-note-text" id="journal-note-text-' + safeDate + '">' + extrait.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</div>',
           '<div class="journal-note-edit-zone" id="journal-note-edit-' + safeDate + '" style="display:none;">',
-            '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + entry.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
+            '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + entry.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
             '<div style="display:flex;gap:8px;margin-top:8px;">',
               '<button onclick="saveNoteEdit(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
               '<button onclick="cancelNoteEdit(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:rgba(6,23,45,.55);border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
@@ -3371,11 +3371,11 @@ function renderJournalNotes(showAll) {
         '<div class="journal-note-entry journal-note-empty" id="journal-note-' + safeDate + '">',
           '<div class="journal-note-header">',
             '<span class="journal-note-date" style="opacity:.55;">' + dateLabel + scores + '</span>',
-            '<button onclick="toggleEmptyNoteEdit(\'' + date + '\')" style="background:none;border:1px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">+ Note</button>',
+            '<button onclick="toggleEmptyNoteEdit(\'' + date + '\')" style="background:none;border:1px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">+ Note</button>',
           '</div>',
           '<div class="journal-note-text" style="font-size:12px;color:rgba(6,23,45,.18);font-style:italic;">Aucune note ce jour</div>',
           '<div id="' + editZoneId + '" style="display:none;margin-top:8px;">',
-            '<textarea id="' + textareaId + '" rows="3" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Note du ' + dateLabel + '"></textarea>',
+            '<textarea id="' + textareaId + '" rows="3" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Note du ' + dateLabel + '"></textarea>',
             '<div style="display:flex;gap:8px;margin-top:6px;">',
               '<button onclick="saveEmptyNote(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:600;cursor:pointer;">Enregistrer</button>',
               '<button onclick="cancelEmptyNote(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.15);color:rgba(6,23,45,.42);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;">Annuler</button>',

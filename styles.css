@@ -637,7 +637,7 @@ h2.summary-section {
 
 /* === INDICATOR CARDS === */
 .indicator-card {
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 10px 14px;
   margin-bottom: 6px;
   box-shadow: 0 1px 5px rgba(6,23,45,.06);
@@ -1188,7 +1188,7 @@ html.dark .mesures-header-sub { color: #8aab9e; }
 
 .modal-card {
   background: #fff;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 24px;
   width: min(400px, 92vw);
   box-shadow: 0 20px 60px rgba(0,0,0,0.25);
@@ -1246,7 +1246,7 @@ html.dark .mesures-header-sub { color: #8aab9e; }
   font-weight: 600;
   cursor: pointer;
   padding: 5px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   transition: background 0.15s, color 0.15s;
 }
 
@@ -1272,14 +1272,14 @@ html.dark .modal-card textarea {
 .essai-badge-type {
   background: #f0fdf4;
   color: #166534;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 11px;
   padding: 2px 8px;
   font-weight: 500;
 }
 
 .essai-badge-effet {
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 11px;
   padding: 2px 8px;
   font-weight: 500;
