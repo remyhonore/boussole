@@ -860,7 +860,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.13 — </span>
+    <span>Boussole v9.14 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1141,27 +1141,58 @@
     </div>
   </div>
 
-  <!-- Modale Dictée Vocale -->
+  <!-- Modale Dictée Vocale v2 -->
   <div id="modal-dictee" role="dialog" aria-modal="true" aria-labelledby="dictee-title" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(6,23,45,0.65);align-items:center;justify-content:center;padding:24px;">
-    <div style="background:#fff;border-radius:24px;max-width:360px;width:100%;padding:32px 24px;box-shadow:0 32px 80px rgba(6,23,45,.3);text-align:center;">
-      <h2 id="dictee-title" style="font-size:17px;font-weight:700;margin:0 0 4px;color:#06172D;">Dictée vocale</h2>
-      <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 28px;">Parle — tes mots s'ajoutent à la note du jour.</p>
+    <div style="background:#fff;border-radius:24px;max-width:380px;width:100%;padding:28px 24px 24px;box-shadow:0 32px 80px rgba(6,23,45,.3);">
 
-      <!-- Indicateur micro -->
-      <div id="dictee-orbe" style="width:80px;height:80px;border-radius:50%;background:rgba(45,106,79,.1);border:2px solid rgba(45,106,79,.25);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;transition:all .2s;">🎙️</div>
-
-      <!-- Statut -->
-      <p id="dictee-statut" style="font-size:13px;font-weight:600;color:#2d6a4f;margin:0 0 16px;min-height:20px;">Prêt à écouter</p>
-
-      <!-- Transcription live -->
-      <div id="dictee-preview" style="min-height:60px;background:#f8faf9;border:1.5px solid rgba(45,106,79,.2);border-radius:12px;padding:12px 14px;font-size:13px;color:#06172D;line-height:1.6;text-align:left;margin-bottom:20px;word-break:break-word;"></div>
-
-      <!-- Boutons -->
-      <div style="display:flex;gap:10px;">
-        <button onclick="fermerModaleDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#2d6a4f;cursor:pointer;">Annuler</button>
-        <button id="btn-dictee-action" onclick="toggleDicteeModal()" style="flex:2;padding:11px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Démarrer</button>
+      <!-- En-tête -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <h2 id="dictee-title" style="font-size:16px;font-weight:700;margin:0 0 2px;color:#06172D;">🎙️ Dictée vocale</h2>
+          <p id="dictee-statut" style="font-size:12px;color:#2d6a4f;margin:0;font-weight:600;">Prêt à écouter</p>
+        </div>
+        <button onclick="fermerModaleDictee()" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);line-height:1;padding:4px;" aria-label="Fermer">×</button>
       </div>
-      <p style="font-size:11px;color:rgba(6,23,45,.35);margin:12px 0 0;">Le texte s'ajoute à ta note existante.</p>
+
+      <!-- Zone de texte live — éditable -->
+      <div style="position:relative;margin-bottom:12px;">
+        <textarea
+          id="dictee-preview"
+          rows="5"
+          placeholder="Parle — tes mots apparaîtront ici en temps réel…"
+          style="width:100%;padding:12px 14px;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;"
+        ></textarea>
+        <!-- Indicateur d'écoute inline -->
+        <div id="dictee-wave" style="display:none;position:absolute;bottom:10px;right:10px;display:none;align-items:center;gap:2px;">
+          <span style="display:inline-block;width:3px;height:12px;background:#2d6a4f;border-radius:2px;animation:wave1 .8s ease-in-out infinite;"></span>
+          <span style="display:inline-block;width:3px;height:18px;background:#2d6a4f;border-radius:2px;animation:wave2 .8s ease-in-out infinite;"></span>
+          <span style="display:inline-block;width:3px;height:10px;background:#2d6a4f;border-radius:2px;animation:wave1 .8s ease-in-out infinite;"></span>
+        </div>
+      </div>
+
+      <style>
+        @keyframes wave1 { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.6)} }
+        @keyframes wave2 { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(.5)} }
+      </style>
+
+      <!-- Compteur -->
+      <p style="font-size:11px;color:rgba(6,23,45,.35);text-align:right;margin:0 0 16px;" id="dictee-count">0/1000</p>
+
+      <!-- Boutons selon état -->
+      <div id="dictee-btns-idle" style="display:flex;gap:10px;">
+        <button onclick="fermerModaleDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Annuler</button>
+        <button onclick="effacerDictee()" id="btn-dictee-effacer" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Effacer</button>
+        <button onclick="demarrerDictee()" style="flex:2;padding:11px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">🎙️ Démarrer</button>
+      </div>
+
+      <div id="dictee-btns-recording" style="display:none;gap:10px;">
+        <button onclick="arreterDictee()" style="width:100%;padding:13px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.01em;">⏹ Terminer la dictée</button>
+      </div>
+
+      <div id="dictee-btns-done" style="display:none;gap:10px;">
+        <button onclick="recommencerDictee()" style="flex:1;padding:11px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Recommencer</button>
+        <button onclick="validerDictee()" style="flex:2;padding:11px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">✓ Valider</button>
+      </div>
     </div>
   </div>
 
@@ -1504,134 +1535,142 @@
     var _consultationMode = 'presentation'; // 'pdf' | 'presentation'
 
     // ============================================================
-    // DICTÉE VOCALE — Modale dédiée
+    // DICTÉE VOCALE v2 — Modale avec flux Démarrer/Terminer/Valider
     // ============================================================
     var _dicteeRecognition = null;
     var _dicteeActive = false;
     var _dicteeBase = '';
 
+    function _dicteeSetState(state) {
+      // Barres d'onde
+      var wave = document.getElementById('dictee-wave');
+      var statut = document.getElementById('dictee-statut');
+      var idle = document.getElementById('dictee-btns-idle');
+      var rec  = document.getElementById('dictee-btns-recording');
+      var done = document.getElementById('dictee-btns-done');
+      idle.style.display = 'none'; rec.style.display = 'none'; done.style.display = 'none';
+      if (state === 'idle') {
+        idle.style.display = 'flex';
+        if (wave) wave.style.display = 'none';
+        statut.textContent = 'Prêt à écouter';
+        statut.style.color = '#2d6a4f';
+      } else if (state === 'recording') {
+        rec.style.display = 'flex';
+        if (wave) { wave.style.display = 'flex'; }
+        statut.textContent = '🎙️ Écoute en cours…';
+        statut.style.color = '#2d6a4f';
+      } else if (state === 'done') {
+        done.style.display = 'flex';
+        if (wave) wave.style.display = 'none';
+        statut.textContent = '✓ Dictée terminée — vérifie et valide';
+        statut.style.color = '#2d6a4f';
+      }
+    }
+
+    function _dicteeUpdateCount() {
+      var preview = document.getElementById('dictee-preview');
+      var count = document.getElementById('dictee-count');
+      if (preview && count) count.textContent = preview.value.length + '/1000';
+    }
+
     function ouvrirModaleDictee() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert('La dictée vocale n\'est pas disponible sur ce navigateur.\nUtilisez Chrome ou Safari.');
+        alert('La dictée vocale n\'est pas disponible sur ce navigateur.\nUtilise Chrome ou Safari.');
         return;
       }
       _dicteeBase = document.getElementById('note').value;
-      document.getElementById('dictee-preview').textContent = _dicteeBase || '';
-      _setDicteeStatut('idle');
+      document.getElementById('dictee-preview').value = _dicteeBase;
+      _dicteeUpdateCount();
+      _dicteeSetState('idle');
       document.getElementById('modal-dictee').style.display = 'flex';
     }
 
     function fermerModaleDictee() {
-      if (_dicteeActive && _dicteeRecognition) {
-        _dicteeRecognition.stop();
-      }
-      // Valider le texte dans la note
-      var preview = document.getElementById('dictee-preview').textContent.trim();
-      if (preview) {
-        var noteEl = document.getElementById('note');
-        noteEl.value = preview.slice(0, 1000);
-        var counter = document.getElementById('note-count');
-        if (counter) counter.textContent = noteEl.value.length + '/1000';
-      }
+      if (_dicteeActive && _dicteeRecognition) _dicteeRecognition.stop();
       document.getElementById('modal-dictee').style.display = 'none';
       _dicteeActive = false;
       _dicteeRecognition = null;
     }
 
-    function _setDicteeStatut(state) {
-      var orbe = document.getElementById('dictee-orbe');
-      var statut = document.getElementById('dictee-statut');
-      var btn = document.getElementById('btn-dictee-action');
-      if (state === 'idle') {
-        orbe.style.background = 'rgba(45,106,79,.1)';
-        orbe.style.border = '2px solid rgba(45,106,79,.25)';
-        orbe.style.animation = 'none';
-        orbe.textContent = '🎙️';
-        statut.textContent = 'Prêt à écouter';
-        statut.style.color = '#2d6a4f';
-        btn.textContent = 'Démarrer';
-        btn.style.background = '#2d6a4f';
-      } else if (state === 'recording') {
-        orbe.style.background = 'rgba(220,50,50,.12)';
-        orbe.style.border = '2px solid #DC2626';
-        orbe.style.animation = 'pulse-invite 1s infinite';
-        orbe.textContent = '🔴';
-        statut.textContent = 'Écoute en cours…';
-        statut.style.color = '#DC2626';
-        btn.textContent = 'Terminer';
-        btn.style.background = '#DC2626';
-      } else if (state === 'done') {
-        orbe.style.background = 'rgba(45,106,79,.15)';
-        orbe.style.border = '2px solid #2d6a4f';
-        orbe.style.animation = 'none';
-        orbe.textContent = '✅';
-        statut.textContent = 'Note mise à jour';
-        statut.style.color = '#2d6a4f';
-        btn.textContent = 'Continuer';
-        btn.style.background = '#2d6a4f';
-      }
-    }
-
-    function toggleDicteeModal() {
-      if (_dicteeActive) {
-        _dicteeRecognition.stop();
-        return;
-      }
-
+    function demarrerDictee() {
       var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       _dicteeRecognition = new SR();
       _dicteeRecognition.lang = 'fr-FR';
       _dicteeRecognition.continuous = true;
       _dicteeRecognition.interimResults = true;
       _dicteeRecognition.maxAlternatives = 1;
-
-      var _interim = '';
+      _dicteeBase = document.getElementById('dictee-preview').value;
 
       _dicteeRecognition.onstart = function() {
         _dicteeActive = true;
-        _setDicteeStatut('recording');
+        _dicteeSetState('recording');
       };
 
       _dicteeRecognition.onresult = function(e) {
-        _interim = '';
-        var final = '';
+        var final = '', interim = '';
         for (var i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
-          else _interim += e.results[i][0].transcript;
+          else interim += e.results[i][0].transcript;
         }
         if (final) {
           _dicteeBase = (_dicteeBase + ((_dicteeBase && !_dicteeBase.endsWith(' ')) ? ' ' : '') + final.trim()).slice(0, 1000);
         }
         var preview = document.getElementById('dictee-preview');
-        preview.textContent = (_dicteeBase + (_interim ? ' ' + _interim : '')).slice(0, 1000);
+        preview.value = (_dicteeBase + (interim ? ' ' + interim : '')).slice(0, 1000);
+        _dicteeUpdateCount();
       };
 
       _dicteeRecognition.onerror = function(e) {
         if (e.error === 'not-allowed') {
-          document.getElementById('dictee-statut').textContent = 'Accès micro refusé — vérifiez les permissions';
-          document.getElementById('dictee-statut').style.color = '#DC2626';
+          document.getElementById('dictee-statut').textContent = 'Accès micro refusé — vérifie les permissions';
         }
         _dicteeActive = false;
-        _setDicteeStatut('idle');
+        _dicteeSetState('idle');
         _dicteeRecognition = null;
       };
 
       _dicteeRecognition.onend = function() {
         _dicteeActive = false;
-        // Mettre à jour la note principale discrètement
-        var noteEl = document.getElementById('note');
-        noteEl.value = _dicteeBase.trim().slice(0, 1000);
-        var counter = document.getElementById('note-count');
-        if (counter) counter.textContent = noteEl.value.length + '/1000';
-        document.getElementById('dictee-preview').textContent = noteEl.value;
-        _setDicteeStatut('done');
+        var preview = document.getElementById('dictee-preview');
+        _dicteeBase = preview.value.trim().slice(0, 1000);
+        preview.value = _dicteeBase;
+        _dicteeUpdateCount();
+        _dicteeSetState('done');
         _dicteeRecognition = null;
       };
 
       _dicteeRecognition.start();
     }
 
+    function arreterDictee() {
+      if (_dicteeRecognition) _dicteeRecognition.stop();
+    }
+
+    function validerDictee() {
+      var texte = document.getElementById('dictee-preview').value.trim().slice(0, 1000);
+      var noteEl = document.getElementById('note');
+      noteEl.value = texte;
+      var counter = document.getElementById('note-count');
+      if (counter) counter.textContent = texte.length + '/1000';
+      fermerModaleDictee();
+    }
+
+    function effacerDictee() {
+      _dicteeBase = '';
+      document.getElementById('dictee-preview').value = '';
+      _dicteeUpdateCount();
+    }
+
+    function recommencerDictee() {
+      _dicteeBase = '';
+      document.getElementById('dictee-preview').value = '';
+      _dicteeUpdateCount();
+      _dicteeSetState('idle');
+    }
+
     // ============================================================
+    // MESSAGE MÉDECIN
+
     // MESSAGE MÉDECIN
     // ============================================================
     function ouvrirModaleMsgMedecin() {
