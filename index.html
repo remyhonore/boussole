@@ -371,6 +371,7 @@
                 min="0"
                 max="10"
                 value="0"
+                step="1"
                 aria-label="Niveau d'énergie de 0 à 10"
                 aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
@@ -397,6 +398,7 @@
                 min="0"
                 max="10"
                 value="0"
+                step="1"
                 aria-label="Qualité du sommeil de 0 à 10"
                 aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
@@ -423,6 +425,7 @@
                 min="0"
                 max="10"
                 value="0"
+                step="1"
                 aria-label="Niveau de confort physique de 0 à 10"
                 aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
@@ -449,6 +452,7 @@
                 min="0"
                 max="10"
                 value="0"
+                step="1"
                 aria-label="Niveau de clarté mentale de 0 à 10"
                 aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
@@ -579,7 +583,7 @@
         <button
           onclick="ouvrirModaleConsultation('presentation')"
           style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
-          aria-label="Afficher le résumé en plein écran pour votre médecin"
+          aria-label="Afficher le résumé en plein écran pour ton médecin"
         >
           &#x1F4F1; Montrer au médecin
         </button>
@@ -861,7 +865,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.48 — </span>
+    <span>Boussole v9.49 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1405,9 +1409,9 @@
   </div>
 
   <!-- Modale Événement -->
-  <div id="modal-event" class="modal-overlay" style="display:none">
+  <div id="modal-event" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="event-modal-title">
     <div class="modal-card">
-      <h3>▶ Événement notable</h3>
+      <h3 id="event-modal-title">▶ Événement notable</h3>
       <p class="modal-hint">Ce que tu veux te rappeler pour ton prochain RDV.</p>
       <label for="event-type" style="display:none;">Type d'événement</label>
       <select id="event-type" aria-label="Type d'événement">
@@ -1695,9 +1699,9 @@
   </div>
 
   <!-- Modale Feature D — Profil foyers -->
-  <div class="modal-profil-overlay" id="modal-profil">
+  <div class="modal-profil-overlay" id="modal-profil" role="dialog" aria-modal="true" aria-labelledby="profil-modal-title">
     <div class="modal-profil">
-      <h2 style="font-size:20px;font-weight:800;color:#06172D;margin:0 0 4px;">Quel est ton profil ?</h2>
+      <h2 id="profil-modal-title" style="font-size:20px;font-weight:800;color:#06172D;margin:0 0 4px;">Quel est ton profil ?</h2>
       <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">Choisis le foyer dominant de tes symptômes. Tu pourras le modifier dans Paramètres.</p>
       <div id="profil-cards-container"></div>
       <button class="btn-confirmer-profil" id="btn-confirmer-profil" disabled>Confirmer mon profil</button>
