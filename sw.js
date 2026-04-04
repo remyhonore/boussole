@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v9.42';
+const CACHE_NAME = 'boussole-v9.43';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
@@ -33,7 +33,14 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      // Cache local assets obligatoires, CDN en best-effort
+      const localAssets = ASSETS_TO_CACHE.filter(u => !u.startsWith('http'));
+      const cdnAssets = ASSETS_TO_CACHE.filter(u => u.startsWith('http'));
+      return cache.addAll(localAssets).then(() => {
+        return Promise.allSettled(
+          cdnAssets.map(url => cache.add(url).catch(() => console.warn('SW: CDN cache skip', url)))
+        );
+      });
     })
   );
   self.skipWaiting();
@@ -77,10 +84,18 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
 
-  // index.html toujours depuis le réseau
+  // index.html : network-first avec fallback cache
   const { request } = event;
   if (request.url.endsWith('/') || request.url.endsWith('/index.html')) {
-    event.respondWith(fetch(request));
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(c => c.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
     return;
   }
 
