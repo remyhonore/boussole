@@ -3361,6 +3361,144 @@ function deleteNoteJournal(date) {
 }
 
 // ============================================================
+// FEATURE V2 — Export PDF carnet de notes (sans IA)
+// ============================================================
+
+function _journalCleanStr(str) {
+  return (str || '')
+    .replace(/[\u{1F300}-\u{1FFFF}]/gu, '')
+    .replace(/[^\x00-\x7F\u00C0-\u024F]/g, function(c) {
+      var map = {
+        '\u00e9':'e','\u00e8':'e','\u00ea':'e','\u00eb':'e',
+        '\u00e0':'a','\u00e2':'a','\u00e4':'a','\u00e7':'c',
+        '\u00ee':'i','\u00ef':'i','\u00f4':'o','\u00f6':'o',
+        '\u00f9':'u','\u00fb':'u','\u00fc':'u',
+        '\u00e6':'ae','\u0153':'oe',
+        '\u2019':"'",'\u2018':"'",'\u201c':'"','\u201d':'"',
+        '\u2013':'-','\u2014':'--','\u2026':'...'
+      };
+      return map[c] || '';
+    })
+    .trim();
+}
+
+function generateJournalPDF() {
+  if (!window.jspdf) {
+    alert('jsPDF non disponible - verifiez votre connexion.');
+    return;
+  }
+  var data = loadEntries();
+  var withNotes = (data.entries || []).filter(function(e) { return e.note && e.note.trim() !== ''; });
+  if (withNotes.length === 0) {
+    alert('Aucune note a exporter.');
+    return;
+  }
+
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var mL = 18, mR = 18, mT = 20, pageW = 210, pageH = 297;
+  var contentW = pageW - mL - mR;
+  var y = mT;
+
+  // --- helpers ---
+  function checkPage(needed) {
+    if (y + needed > pageH - 18) { doc.addPage(); y = mT; drawPageHeader(); }
+  }
+
+  function drawPageHeader() {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(120, 140, 130);
+    doc.text('myBoussole - Carnet de notes', mL, 12);
+    var dateStr = new Date().toLocaleDateString('fr-FR');
+    doc.text(dateStr, pageW - mR, 12, { align: 'right' });
+    doc.setDrawColor(210, 220, 215);
+    doc.line(mL, 14, pageW - mR, 14);
+    doc.setTextColor(6, 23, 45);
+  }
+
+  // --- page 1 : titre ---
+  drawPageHeader();
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(45, 106, 79);
+  doc.text('Mon journal', mL, y + 10);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 120, 110);
+  doc.text(_journalCleanStr(withNotes.length + ' note' + (withNotes.length > 1 ? 's' : '') + ' - exporte le ' + new Date().toLocaleDateString('fr-FR')), mL, y + 19);
+  doc.setDrawColor(45, 106, 79);
+  doc.setLineWidth(0.5);
+  doc.line(mL, y + 24, pageW - mR, y + 24);
+  y += 32;
+
+  // --- entrees ---
+  withNotes.forEach(function(e, idx) {
+    var dateLabel = formatDateFr(e.date);
+
+    // separateur entre entrees
+    if (idx > 0) {
+      checkPage(8);
+      doc.setDrawColor(220, 230, 225);
+      doc.setLineWidth(0.2);
+      doc.line(mL, y, pageW - mR, y);
+      y += 6;
+    }
+
+    // date
+    checkPage(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(45, 106, 79);
+    doc.text(_journalCleanStr(dateLabel), mL, y);
+    y += 1;
+
+    // scores sur une ligne si disponibles
+    var scores = [];
+    if (e.humeur != null)         scores.push('Humeur ' + e.humeur + '/10');
+    if (e.energie != null)        scores.push('Energie ' + e.energie + '/10');
+    if (e.qualite_sommeil != null) scores.push('Sommeil ' + e.qualite_sommeil + '/10');
+    if (e.douleurs != null)       scores.push('Confort ' + e.douleurs + '/10');
+    if (e.clarte_mentale != null) scores.push('Clarte ' + e.clarte_mentale + '/10');
+    if (scores.length > 0) {
+      checkPage(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 140, 130);
+      doc.text(scores.join('  |  '), mL, y + 5);
+      y += 8;
+    } else {
+      y += 4;
+    }
+
+    // note complete
+    var noteClean = _journalCleanStr(e.note);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(6, 23, 45);
+    var lines = doc.splitTextToSize(noteClean, contentW);
+    lines.forEach(function(line) {
+      checkPage(6);
+      doc.text(line, mL, y + 5);
+      y += 5.5;
+    });
+    y += 3;
+  });
+
+  // --- pied de page numerotation ---
+  var totalPages = doc.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(160, 170, 165);
+    doc.text('Page ' + p + ' / ' + totalPages, pageW / 2, pageH - 10, { align: 'center' });
+  }
+
+  doc.save('myBoussole-journal-' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+// ============================================================
 // FEATURE S — Mini-fiches contextuelles inline
 // ============================================================
 
