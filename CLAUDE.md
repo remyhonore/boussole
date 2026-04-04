@@ -30,7 +30,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `import_mes.js` | Import Synthèse Médicale Mon Espace Santé (parser PDF CDA → patient + traitements + antécédents) |
 | `onboarding.js` | Parcours de première utilisation |
 | `score_sna.js` | Score composite SNA (système nerveux autonome) |
-| `pacing.js` | Feature P (stabilité matinale) + Feature B (enveloppe énergie, budget, catalogue activités) |
+| `pacing.js` | Feature P (stabilité matinale) + B (enveloppe énergie) + E bis (corrélations activités→crash) |
 | `pem_detector.js` | Détection malaise post-effort (PEM) |
 | `cycle_tracker.js` | Suivi cycle menstruel |
 | `correlations.js` | Analyse corrélations entre métriques |

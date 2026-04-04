@@ -388,3 +388,171 @@ window.EnergyEnvelope = (function() {
   };
 
 })();
+
+
+// === Feature E bis : Corrélations activités → crash (J+1/J+2) ===
+// Analyse le lien entre dépassement de budget énergétique et dégradation du score les jours suivants
+
+window.PacingCorrelations = (function() {
+  'use strict';
+
+  var LOG_PREFIX = 'boussole_pacing_log_';
+
+  function _getScore(entries, date) {
+    var e = entries.find(function(x) { return x.date === date; });
+    if (!e) return null;
+    var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return typeof v === 'number'; });
+    return vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+  }
+
+  function _getClarte(entries, date) {
+    var e = entries.find(function(x) { return x.date === date; });
+    return e && typeof e.clarte_mentale === 'number' ? e.clarte_mentale : null;
+  }
+
+  function _getEnergie(entries, date) {
+    var e = entries.find(function(x) { return x.date === date; });
+    return e && typeof e.energie === 'number' ? e.energie : null;
+  }
+
+  function _addDays(dateStr, n) {
+    var d = new Date(dateStr + 'T12:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().split('T')[0];
+  }
+
+  function analyser() {
+    // Charger les entrées
+    var entries = [];
+    try {
+      var raw = localStorage.getItem('boussole_v1_data');
+      if (raw) entries = JSON.parse(raw).entries || [];
+    } catch (e) {}
+    if (entries.length < 7) return null;
+
+    // Charger les logs d'activité des 30 derniers jours
+    var today = new Date();
+    var jours = [];
+    for (var i = 0; i < 30; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      var dateStr = d.toISOString().split('T')[0];
+      var logRaw = null;
+      try { logRaw = localStorage.getItem(LOG_PREFIX + dateStr); } catch (e) {}
+      if (logRaw) {
+        var log = JSON.parse(logRaw);
+        if (log.length > 0) {
+          var totalCout = log.reduce(function(s, a) { return s + (a.cout > 0 ? a.cout : 0); }, 0);
+          var coutCognitif = log.filter(function(a) { return a.id && (a.id.indexOf('ecran') >= 0 || a.id.indexOf('reunion') >= 0 || a.id.indexOf('lecture') >= 0 || a.id.indexOf('conversation') >= 0 || a.id.indexOf('admin') >= 0 || a.id.indexOf('social') >= 0); }).reduce(function(s, a) { return s + (a.cout > 0 ? a.cout : 0); }, 0);
+          var budget = window.EnergyEnvelope ? window.EnergyEnvelope.getBudget() : 80;
+          var pct = budget > 0 ? (totalCout / budget) * 100 : 0;
+          jours.push({ date: dateStr, totalCout: totalCout, coutCognitif: coutCognitif, pct: pct, nbActivites: log.length });
+        }
+      }
+    }
+
+    if (jours.length < 5) return null;
+
+    var insights = [];
+
+    // Insight 1 : Budget dépassé (>80%) vs score J+1 et J+2
+    var jourOver80 = jours.filter(function(j) { return j.pct >= 80; });
+    var jourUnder60 = jours.filter(function(j) { return j.pct < 60; });
+
+    if (jourOver80.length >= 3 && jourUnder60.length >= 3) {
+      var scoresJ1over = jourOver80.map(function(j) { return _getScore(entries, _addDays(j.date, 1)); }).filter(function(s) { return s !== null; });
+      var scoresJ1under = jourUnder60.map(function(j) { return _getScore(entries, _addDays(j.date, 1)); }).filter(function(s) { return s !== null; });
+
+      if (scoresJ1over.length >= 2 && scoresJ1under.length >= 2) {
+        var moyOver = scoresJ1over.reduce(function(a, b) { return a + b; }, 0) / scoresJ1over.length;
+        var moyUnder = scoresJ1under.reduce(function(a, b) { return a + b; }, 0) / scoresJ1under.length;
+        var diff = moyOver - moyUnder;
+
+        if (Math.abs(diff) >= 0.5) {
+          insights.push({
+            type: 'budget_crash',
+            emoji: '⚡',
+            text: 'Les jours où tu dépasses 80% de ton budget, ton score du lendemain est en moyenne ' +
+              (diff < 0 ? 'plus bas de ' + Math.abs(diff).toFixed(1) + ' pts' : 'plus haut de ' + diff.toFixed(1) + ' pts') +
+              ' vs les jours calmes (<60%).',
+            impact: diff,
+            n: scoresJ1over.length + scoresJ1under.length
+          });
+        }
+      }
+    }
+
+    // Insight 2 : Effort cognitif élevé → clarté mentale J+1
+    var joursCogHaut = jours.filter(function(j) { return j.coutCognitif >= 20; });
+    var joursCogBas = jours.filter(function(j) { return j.coutCognitif < 10; });
+
+    if (joursCogHaut.length >= 3 && joursCogBas.length >= 3) {
+      var clarteJ1haut = joursCogHaut.map(function(j) { return _getClarte(entries, _addDays(j.date, 1)); }).filter(function(s) { return s !== null; });
+      var clarteJ1bas = joursCogBas.map(function(j) { return _getClarte(entries, _addDays(j.date, 1)); }).filter(function(s) { return s !== null; });
+
+      if (clarteJ1haut.length >= 2 && clarteJ1bas.length >= 2) {
+        var moyCH = clarteJ1haut.reduce(function(a, b) { return a + b; }, 0) / clarteJ1haut.length;
+        var moyCB = clarteJ1bas.reduce(function(a, b) { return a + b; }, 0) / clarteJ1bas.length;
+        var diffC = moyCH - moyCB;
+
+        if (Math.abs(diffC) >= 0.5) {
+          insights.push({
+            type: 'cognitif_clarte',
+            emoji: '🧠',
+            text: 'Les jours avec effort cognitif élevé (>20 pts), ta clarté mentale le lendemain est ' +
+              (diffC < 0 ? 'plus basse de ' + Math.abs(diffC).toFixed(1) + ' pts' : 'plus haute de ' + diffC.toFixed(1) + ' pts') + '.',
+            impact: diffC,
+            n: clarteJ1haut.length + clarteJ1bas.length
+          });
+        }
+      }
+    }
+
+    // Insight 3 : Score J+2 après dépassement (crash retardé)
+    if (jourOver80.length >= 3 && jourUnder60.length >= 3) {
+      var scoresJ2over = jourOver80.map(function(j) { return _getScore(entries, _addDays(j.date, 2)); }).filter(function(s) { return s !== null; });
+      var scoresJ2under = jourUnder60.map(function(j) { return _getScore(entries, _addDays(j.date, 2)); }).filter(function(s) { return s !== null; });
+      if (scoresJ2over.length >= 2 && scoresJ2under.length >= 2) {
+        var moyJ2o = scoresJ2over.reduce(function(a, b) { return a + b; }, 0) / scoresJ2over.length;
+        var moyJ2u = scoresJ2under.reduce(function(a, b) { return a + b; }, 0) / scoresJ2under.length;
+        var diffJ2 = moyJ2o - moyJ2u;
+
+        if (diffJ2 < -0.5) {
+          insights.push({
+            type: 'crash_retarde',
+            emoji: '⏳',
+            text: 'Effet retardé à J+2 : après dépassement de budget, ton score chute de ' + Math.abs(diffJ2).toFixed(1) + ' pts 2 jours plus tard.',
+            impact: diffJ2,
+            n: scoresJ2over.length + scoresJ2under.length
+          });
+        }
+      }
+    }
+
+    return insights.length > 0 ? { insights: insights, nbJoursAnalyses: jours.length } : null;
+  }
+
+  // --- Rendu HTML ---
+  function render() {
+    var res = analyser();
+    if (!res) return '';
+
+    var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Corrélations activités</p>';
+
+    res.insights.forEach(function(ins) {
+      var color = ins.impact < -0.5 ? '#dc2626' : ins.impact > 0.5 ? '#2d6a4f' : '#6b7280';
+      html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
+      html += '<span style="font-size:16px;">' + ins.emoji + '</span>';
+      html += '<p style="margin:0;font-size:13px;color:' + color + ';line-height:1.4;">' + ins.text + '</p>';
+      html += '</div>';
+    });
+
+    html += '<p style="font-size:11px;color:rgba(6,23,45,.4);margin:8px 0 0;font-style:italic;">Basé sur ' + res.nbJoursAnalyses + ' jours d\'activités. Observation personnelle, pas une preuve scientifique.</p>';
+    html += '</div>';
+    return html;
+  }
+
+  return { analyser: analyser, render: render };
+
+})();

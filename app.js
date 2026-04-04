@@ -870,6 +870,11 @@ function refreshSummary() {
   // 6. Feature E — Corrélations traitements × score
   html += buildBlocCorrelations();
 
+  // 6b. Feature E bis — Corrélations activités → crash
+  if (window.PacingCorrelations && typeof window.PacingCorrelations.render === 'function') {
+    html += window.PacingCorrelations.render();
+  }
+
   // 7. Calendrier 14j (résumé 30 jours)
   html += `<div class="card">`;
   html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
