@@ -68,6 +68,10 @@ self.addEventListener('fetch', event => {
   // Ignorer les requêtes non-GET
   if (event.request.method !== 'GET') return;
 
+  // Ignorer les schemes non supportés par le cache (chrome-extension, etc.)
+  const url = new URL(event.request.url);
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+
   // index.html toujours depuis le réseau
   const { request } = event;
   if (request.url.endsWith('/') || request.url.endsWith('/index.html')) {
