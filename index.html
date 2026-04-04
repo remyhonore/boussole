@@ -264,6 +264,9 @@
       <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
       <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
 
+      <!-- Feature P : Score de stabilité matinal (Morning Pace) -->
+      <div id="morning-pace-card"></div>
+
       <div class="card">
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
@@ -858,7 +861,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.47 — </span>
+    <span>Boussole v9.48 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1713,6 +1716,7 @@
   <script src="cycle_tracker.js" defer></script>
   <script src="correlations.js" defer></script>
   <script src="score_sna.js" defer></script>
+  <script src="pacing.js" defer></script>
   <script src="share_profile.js" defer></script>
   <script src="profil_data.js" defer></script>
   <script src="traitements.js" defer></script>

@@ -339,6 +339,11 @@ function loadTodayData() {
   refreshPacingAlert();
   refreshDegradationAlert();
 
+  // Feature P — Score de stabilité matinal (Morning Pace)
+  if (window.MorningPace && typeof window.MorningPace.render === 'function') {
+    window.MorningPace.render('morning-pace-card');
+  }
+
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
     ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
