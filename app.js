@@ -218,6 +218,7 @@ function initTodayPanel() {
     if (slider && valueDisplay) {
       slider.addEventListener('input', () => {
         valueDisplay.textContent = slider.value;
+        slider.setAttribute('aria-valuenow', slider.value);
         updateSmiley(id, parseInt(slider.value));
       });
     }
@@ -238,6 +239,7 @@ function initTodayPanel() {
   if (humeurRangeInput) {
     humeurRangeInput.addEventListener('input', function() {
       this.dataset.touched = 'true';
+      this.setAttribute('aria-valuenow', this.value);
       const el = document.getElementById('humeur-smiley-display');
       if (el) el.textContent = getHumeurSmiley(parseInt(this.value));
     });
@@ -1608,9 +1610,9 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
         '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
         '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' +
           (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
-        '<div style="font-size:10px;color:#999;margin-top:2px;">' + tend + '</div>' +
+        '<div style="font-size:10px;color:#6b7280;margin-top:2px;">' + tend + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
-        '<div style="font-size:10px;color:#aaa;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
+        '<div style="font-size:10px;color:#6b7280;margin-top:2px;">' + m.joursBas + '/' + m.nbJours + ' j. bas</div>' +
       '</div>'
     );
   }).join('');
@@ -1618,7 +1620,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     '<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid #e5e7eb;">' +
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
-      '<p style="font-size:10px;color:#9ca3af;font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
+      '<p style="font-size:10px;color:#6b7280;font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
     '</div>'
   );
 }

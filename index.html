@@ -206,7 +206,7 @@
   <!-- jsPDF pour génération PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body><a href="#panel-today" class="skip-link">Aller au contenu principal</a>
+<body><a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
   <!-- Banner installation PWA (affiché par JS si non installée et non dismissed) -->
   <div id="banner-install" style="display:none; position:relative; background:#2d6a4f; color:#fff; padding:12px 40px 12px 16px; font-size:14px; line-height:1.4;">
@@ -257,6 +257,8 @@
 
     <!-- Message de status global -->
     <div id="status-message" class="status" style="display: none;"></div>
+
+    <main id="main-content">
 
     <!-- Panel Onboarding (affiché uniquement au premier lancement) -->
     <div class="panel" id="panel-onboarding">
@@ -417,6 +419,7 @@
                 max="10"
                 value="0"
                 aria-label="Niveau d'énergie de 0 à 10"
+                aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
             </div>
             <div class="range-labels">
@@ -442,6 +445,7 @@
                 max="10"
                 value="0"
                 aria-label="Qualité du sommeil de 0 à 10"
+                aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
             </div>
             <div class="range-labels">
@@ -467,6 +471,7 @@
                 max="10"
                 value="0"
                 aria-label="Niveau de confort physique de 0 à 10"
+                aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
             </div>
             <div class="range-labels">
@@ -492,6 +497,7 @@
                 max="10"
                 value="0"
                 aria-label="Niveau de clarté mentale de 0 à 10"
+                aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"
               >
             </div>
             <div class="range-labels">
@@ -756,14 +762,14 @@
               <textarea id="param-medicaments" rows="2" maxlength="300"
                 placeholder="Ex : Brintellix 20mg/j · Quviviq 25mg/j"
                 style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
-              <span id="counter-medicaments" style="font-size:11px;color:rgba(6,23,45,.45);">0/300</span>
+              <span id="counter-medicaments" style="font-size:11px;color:rgba(6,23,45,.58);">0/300</span>
             </div>
             <div>
               <label for="param-complements" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Compléments nutritionnels</label>
               <textarea id="param-complements" rows="2" maxlength="300"
                 placeholder="Ex : Magnésium 300mg · Choline · Créatine 3g"
                 style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;resize:vertical;"></textarea>
-              <span id="counter-complements" style="font-size:11px;color:rgba(6,23,45,.45);">0/300</span>
+              <span id="counter-complements" style="font-size:11px;color:rgba(6,23,45,.58);">0/300</span>
             </div>
             <div>
               <label for="param-allergies" style="font-size:13px;color:rgba(6,23,45,.58);display:block;margin-bottom:4px;">Allergies / contre-indications</label>
@@ -874,6 +880,8 @@
     >&#x2715;</button>
     <div id="mode-presentation-content"></div>
   </div>
+
+    </main><!-- /#main-content -->
 
   <!-- Footer version -->
   <footer class="app-footer">
