@@ -34,6 +34,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `pem_detector.js` | Détection malaise post-effort (PEM) |
 | `cycle_tracker.js` | Suivi cycle menstruel |
 | `correlations.js` | Analyse corrélations entre métriques |
+| `charts.js` | Graphiques temporels interactifs in-app (7/14/30/90j, overlays traitements + événements) |
 | `share_profile.js` | Partage profil patient |
 | `fiches_data.js` | Données des fiches pratiques |
 | `profil_data.js` | Données profil utilisateur |
@@ -43,7 +44,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 
 ```
 storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_consultation.js
-→ pem_detector.js → cycle_tracker.js → correlations.js → score_sna.js → pacing.js
+→ pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js
 → share_profile.js → profil_data.js → traitements.js → import_mes.js → app.js
 ```
 

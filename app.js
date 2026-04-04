@@ -897,11 +897,10 @@ function refreshSummary() {
   // 1. Synthèse fonctionnelle 7j
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
 
-  // 2. Graphique évolution 30j
-  html += '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
-    '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Évolution 30 jours</p>' +
-    '<canvas id="resume-chart-30j" height="180"></canvas>' +
-  '</div>';
+  // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
+  if (window.BoussoleCharts) {
+    html += window.BoussoleCharts.buildHTML();
+  }
 
   // 3. Problème principal
   html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
@@ -1190,46 +1189,9 @@ function refreshSummary() {
   
   container.innerHTML = html;
 
-  // Chart.js — graphique 30j dans le résumé
+  // Charts.js — graphique temporel interactif + SNA + repos
   setTimeout(function() {
-    if (window._resumeChart) { window._resumeChart.destroy(); window._resumeChart = null; }
-    const canvas = document.getElementById('resume-chart-30j');
-    if (!canvas || typeof Chart === 'undefined') return;
-    const entryMapChart = {};
-    data.entries.forEach(function(e) { entryMapChart[e.date] = e; });
-    const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
-    const chartLabels = [], cEnergie = [], cSommeil = [], cConfort = [], cClarte = [];
-    for (let i = 29; i >= 0; i--) {
-      const cd = new Date(todayD);
-      cd.setDate(cd.getDate() - i);
-      const ds = localDateStr(cd);
-      chartLabels.push(String(cd.getDate()) + '/' + String(cd.getMonth() + 1).padStart(2, '0'));
-      const e = entryMapChart[ds];
-      cEnergie.push(e ? e.energie        : null);
-      cSommeil.push(e ? e.qualite_sommeil : null);
-      cConfort.push(e ? e.douleurs        : null);
-      cClarte.push( e ? e.clarte_mentale  : null);
-    }
-    window._resumeChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [
-          { label: 'Énergie',          data: cEnergie, borderColor: 'var(--color-score)', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
-          { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
-        scales: {
-          x: { ticks: { font: { size: 9 }, maxRotation: 45 } },
-          y: { min: 0, max: 10, ticks: { stepSize: 2 } }
-        }
-      }
-    });
+    if (window.BoussoleCharts) window.BoussoleCharts.render(30);
     if (window.ScoreSNA) window.ScoreSNA.renderJauge('jauge-sna');
     renderSparkRepos();
   }, 300);
