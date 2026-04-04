@@ -921,7 +921,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.24 — </span>
+    <span>Boussole v9.25 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1598,6 +1598,7 @@
   <script>
     // ---- Modale consultation ----
     var _consultationMode = 'presentation'; // 'pdf' | 'presentation'
+    var _narrativeDateFromCache = null; // Stocke la date calculée à l'ouverture de la modale
 
     // ============================================================
     // DICTÉE VOCALE v2 — Modale avec flux Démarrer/Terminer/Valider
@@ -1910,6 +1911,11 @@
         var customDates = document.getElementById('narrative-custom-dates');
         if (customDates) customDates.style.display = 'none';
       })();
+      // Initialiser le cache date selon la radio cochée par défaut
+      (function() {
+        var checkedRadio = document.querySelector('input[name="narrative-period"]:checked');
+        _narrativeDateFromCache = _computeNarrativeDateFrom(checkedRadio ? checkedRadio.value : 'depuis-derniere-consult');
+      })();
       // Initialiser les dates par défaut
       const today = new Date().toISOString().split('T')[0];
       const d7 = new Date(); d7.setDate(d7.getDate() - 6);
@@ -1918,14 +1924,45 @@
       const dtEl = document.getElementById('narrative-date-to');
       if (dfEl) dfEl.value = from7;
       if (dtEl) dtEl.value = today;
-      // Listener radio → afficher/masquer datepickers
+      // Listener radio → afficher/masquer datepickers + mettre à jour le cache date
       document.querySelectorAll('input[name="narrative-period"]').forEach(function(r) {
         r.onchange = function() {
           const custom = document.getElementById('narrative-custom-dates');
           if (custom) custom.style.display = this.value === 'custom' ? 'block' : 'none';
+          // Mettre à jour le cache date à chaque changement de radio
+          _narrativeDateFromCache = _computeNarrativeDateFrom(this.value);
         };
       });
       document.getElementById('consultation-note').focus();
+    }
+
+    // Calcule la dateFrom selon la valeur de la radio — appelé à l'ouverture ET à chaque changement
+    function _computeNarrativeDateFrom(periodVal) {
+      var localToday = _localDateStr ? _localDateStr(new Date()) : new Date().toISOString().split('T')[0];
+      if (periodVal === '7j') {
+        var d = new Date(); d.setDate(d.getDate() - 6);
+        return _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
+      } else if (periodVal === '30j') {
+        var d = new Date(); d.setDate(d.getDate() - 29);
+        return _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
+      } else if (periodVal === 'depuis-derniere-consult') {
+        var pcKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_post_consultation_'); }).sort();
+        if (pcKeys.length > 0) {
+          return pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
+        } else {
+          var d = new Date(); d.setDate(d.getDate() - 29);
+          return _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
+        }
+      } else if (periodVal === 'custom') {
+        return document.getElementById('narrative-date-from').value || localToday;
+      }
+      // Fallback : depuis dernière consultation ou 30j
+      var pcKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_post_consultation_'); }).sort();
+      if (pcKeys.length > 0) {
+        return pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
+      }
+      var d = new Date(); d.setDate(d.getDate() - 29);
+      return _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
     }
     function fermerModaleConsultation() {
       document.getElementById('consultation-modal').style.display = 'none';
@@ -1937,24 +1974,14 @@
       localStorage.setItem('boussole_note_consultation', motifsFinal);
       fermerModaleConsultation();
       if (_consultationMode === 'pdf') {
-        // Calculer la période narrative selon le choix de l'utilisatrice
-        const periodVal = (document.querySelector('input[name="narrative-period"]:checked') || {value:'7j'}).value;
-        const today = _localDateStr ? _localDateStr(new Date()) : new Date().toISOString().split('T')[0];
-        let dateFrom = today;
-        if (periodVal === '7j') {
-          const d = new Date(); d.setDate(d.getDate() - 6); dateFrom = _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
-        } else if (periodVal === '30j') {
-          const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = _localDateStr ? _localDateStr(d) : d.toISOString().split('T')[0];
-        } else if (periodVal === 'depuis-derniere-consult') {
-          // Chercher la date de la dernière consultation enregistrée
-          const pcKeys = Object.keys(localStorage).filter(k => k.startsWith('boussole_post_consultation_')).sort();
-          if (pcKeys.length > 0) {
-            dateFrom = pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
-          } else {
-            const d = new Date(); d.setDate(d.getDate() - 29); dateFrom = d.toISOString().split('T')[0];
-          }
-        } else if (periodVal === 'custom') {
-          dateFrom = document.getElementById('narrative-date-from').value || today;
+        // Utiliser le cache date calculé à l'ouverture / au dernier changement de radio
+        // Fallback robuste si le cache est vide
+        var today = _localDateStr ? _localDateStr(new Date()) : new Date().toISOString().split('T')[0];
+        var dateFrom = _narrativeDateFromCache || _computeNarrativeDateFrom('depuis-derniere-consult');
+        // Pour custom : relire le champ au dernier moment
+        var checkedNow = document.querySelector('input[name="narrative-period"]:checked');
+        if (checkedNow && checkedNow.value === 'custom') {
+          dateFrom = document.getElementById('narrative-date-from').value || dateFrom;
         }
         genererPDFConsultation(cochees, texteLibre, dateFrom, today);
       } else {
