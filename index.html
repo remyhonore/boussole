@@ -267,11 +267,6 @@
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
-        <!-- Signaler un événement (toujours visible, indépendant du toggle Pacing) -->
-        <div style="text-align:center;margin-bottom:14px;">
-          <button onclick="document.getElementById('modal-event').style.display='flex'" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:8px 16px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;font-weight:600;">📝 Signaler un événement</button>
-        </div>
-
         <!-- Saisie rétroactive (Feature S) -->
         <div id="retro-date-selector" style="margin-bottom:16px;background:rgba(6,23,45,.04);border-radius:12px;padding:10px 14px;border:1px solid rgba(6,23,45,.12);display:flex;align-items:center;justify-content:space-between;">
           <span style="font-size:13px;color:rgba(6,23,45,.55);">Saisir pour :</span>
@@ -509,16 +504,16 @@
       <!-- ===== CARD 3 : Mes mesures (conditionnel) ===== -->
       <div class="card" style="margin-top:16px;">
       <!-- Section Mes mesures — repositionnée sous Pacing (ADR-2026-021) -->
-      <div id="section-mesures" class="mesures-section">
+      <div id="section-mesures" class="mesures-section mesures-open">
         <div class="mesures-header" id="toggle-mesures">
-          <span class="mesures-chevron">&#9654;</span>
+          <span class="mesures-chevron open">&#9654;</span>
           <div class="mesures-header-text">
-            <span class="mesures-title">Mes mesures (optionnel)</span>
-            <span class="mesures-header-sub">FC repos · Tension · Poids · RMSSD</span>
+            <span class="mesures-title">Mes mesures</span>
+            <span class="mesures-header-sub">FC repos · Tension · Poids · RMSSD · Sommeil</span>
           </div>
         </div>
         <p class="mesures-subtitle" style="display:none;">Fréquence cardiaque, tension, poids… tes données restent sur ton appareil.</p>
-        <div class="mesures-body" style="display:none;">
+        <div class="mesures-body">
           <div class="mesures-grid">
             <div class="mesures-field">
               <label for="input-fc">FC repos (bpm)</label>
@@ -946,7 +941,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.68 — </span>
+    <span>Boussole v9.69 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

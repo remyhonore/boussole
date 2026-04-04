@@ -711,24 +711,26 @@ h2.summary-section {
 
 /* === Section Mes mesures (ADR-2026-021) === */
 .mesures-section {
-  margin-top: 24px;
-  border-top: 1px solid #e0e0e0;
-  padding-top: 16px;
-  border-left: 3px solid rgba(110, 135, 125, 0.4);
-  padding-left: 12px;
+  margin-top: 8px;
+  padding: 0;
 }
 
 .mesures-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  padding: 10px 0;
+  padding: 10px 12px;
   user-select: none;
+  border-radius: 10px;
+  transition: background .15s ease;
+}
+.mesures-header:hover {
+  background: rgba(45,106,79,.05);
 }
 
 .mesures-chevron {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   transition: transform 0.2s ease;
   color: #2d6a4f;
@@ -766,12 +768,11 @@ h2.summary-section {
 }
 
 .mesures-body {
-  background: var(--color-card);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  box-shadow: 0 2px 12px rgba(6,23,45,0.08);
-  margin-top: 8px;
-  border: 1px solid rgba(110, 135, 125, 0.25);
+  background: rgba(45,106,79,.03);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 6px;
+  border: 1px solid rgba(45,106,79,.12);
 }
 
 .mesures-grid {
@@ -1064,7 +1065,8 @@ html.dark select {
 html.dark .theme-toggle:hover { background: rgba(255,255,255,.1); }
 
 /* Mes mesures section */
-html.dark .mesures-section { background: #162230; }
+html.dark .mesures-section { background: transparent; }
+html.dark .mesures-body { background: rgba(45,106,79,.08); border-color: rgba(45,106,79,.2); }
 html.dark .mesures-field input { background: #1b2838; color: #e8e4de; border-color: rgba(255,255,255,.12); }
 html.dark .btn-save-mesures { background: #8aab9e; color: #0d1b2a; }
 
