@@ -896,7 +896,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.17 — </span>
+    <span>Boussole v9.18 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1336,13 +1336,13 @@
         <p style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;">Période couverte par la synthèse narrative</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
-            <input type="radio" name="narrative-period" value="7j" checked style="accent-color:#2d6a4f;"> 7 derniers jours
+            <input type="radio" name="narrative-period" value="7j" style="accent-color:#2d6a4f;"> 7 derniers jours
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
-            <input type="radio" name="narrative-period" value="30j" style="accent-color:#2d6a4f;"> 30 derniers jours
+            <input type="radio" name="narrative-period" value="30j" checked style="accent-color:#2d6a4f;"> 30 derniers jours
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
-            <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> Depuis la dernière consultation
+            <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> <span id="label-depuis-consult">Depuis la dernière consultation</span>
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
             <input type="radio" name="narrative-period" value="custom" style="accent-color:#2d6a4f;"> Période personnalisée
@@ -1857,6 +1857,25 @@
       // Afficher le sélecteur de période uniquement en mode PDF
       const periodSel = document.getElementById('narrative-period-selector');
       if (periodSel) periodSel.style.display = _consultationMode === 'pdf' ? 'block' : 'none';
+      // Sélectionner 30j par défaut à chaque ouverture
+      const radio30j = document.querySelector('input[name="narrative-period"][value="30j"]');
+      if (radio30j) radio30j.checked = true;
+      document.getElementById('narrative-custom-dates') && (document.getElementById('narrative-custom-dates').style.display = 'none');
+      // Injecter la date de la dernière consultation dans le label
+      (function() {
+        var pcKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_post_consultation_'); }).sort();
+        var labelEl = document.getElementById('label-depuis-consult');
+        if (labelEl) {
+          if (pcKeys.length > 0) {
+            var lastDate = pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
+            var parts = lastDate.split('-');
+            var dateLabel = parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : lastDate;
+            labelEl.textContent = 'Depuis la dernière consultation (' + dateLabel + ')';
+          } else {
+            labelEl.textContent = 'Depuis la dernière consultation (aucune enregistrée)';
+          }
+        }
+      })();
       // Initialiser les dates par défaut
       const today = new Date().toISOString().split('T')[0];
       const d7 = new Date(); d7.setDate(d7.getDate() - 6);
