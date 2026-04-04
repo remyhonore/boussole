@@ -455,7 +455,8 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       return s;
     }
     var trtMeds  = _trtActifs.filter(function(t){return t.categorie==='medicament';});
-    var trtComps = _trtActifs.filter(function(t){return t.categorie!=='medicament';});
+    var trtComps = _trtActifs.filter(function(t){return t.categorie==='complement'||t.categorie==='strategie';});
+    var trtAllergies = _trtData ? _trtData.raw.filter(function(t){return t.categorie==='allergie';}) : [];
     medLines  = trtMeds.map(_trtLigne);
     compLines = trtComps.map(_trtLigne);
     // Ajouter les pauses
@@ -683,10 +684,16 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       wrapped.forEach(function(wl) { leftItems.push({ text: wl, italic: false, color: ANTHRACITE, bold: false }); });
     });
   }
-  if (txAll && txAll.toUpperCase() !== 'RAS') {
+  var _allergiesStr = '';
+  if (trtAllergies && trtAllergies.length) {
+    _allergiesStr = trtAllergies.map(function(t){return t.nom+(t.notes?' ('+t.notes+')':'');}).join(', ');
+  } else if (txAll) {
+    _allergiesStr = txAll;
+  }
+  if (_allergiesStr && _allergiesStr.toUpperCase() !== 'RAS') {
     doc.setFontSize(11.5);
     doc.setFont('helvetica', 'bold');
-    const wrapped = doc.splitTextToSize('Allergies : ' + txAll, colTW - 8);
+    const wrapped = doc.splitTextToSize('Allergies : ' + _allergiesStr, colTW - 8);
     wrapped.forEach(function(wl) { leftItems.push({ text: wl, italic: false, color: DARK_WARM, bold: true }); });
   }
 

@@ -816,21 +816,6 @@
           <div id="import-feedback" style="display:none;margin-top:8px;font-size:13px;text-align:center;"></div>
         </div>
 
-        <div class="settings-group" style="margin-top:16px;">
-          <p class="settings-label">Traitement actuel</p>
-          <p class="settings-desc">Géré depuis le panel Suivi. Les données structurées alimentent automatiquement ton PDF de consultation.</p>
-          <div id="param-traitements-resume" style="margin-top:8px;"></div>
-          <div style="margin-top:10px;display:flex;gap:8px;">
-            <button onclick="switchPanel('tbsante');setTimeout(function(){var el=document.getElementById('accord-traitements');if(el){el.open=true;el.scrollIntoView({behavior:'smooth',block:'start'})}},200)" style="flex:1;padding:9px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">💊 Gérer mes traitements</button>
-          </div>
-        </div>
-        <div class="settings-group" style="margin-top:12px;">
-          <label for="param-allergies" style="font-size:13px;color:rgba(6,23,45,.68);font-weight:500;display:block;margin-bottom:4px;">Allergies / contre-indications</label>
-          <input type="text" id="param-allergies" maxlength="150"
-            placeholder="Ex : pénicilline, AINS"
-            style="padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;">
-        </div>
-
         <div class="settings-group">
           <p class="settings-label">Profil</p>
           <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
@@ -936,7 +921,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.32 — </span>
+    <span>Boussole v9.33 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1530,6 +1515,7 @@
           <button class="trt-chip trt-chip--active" data-val="medicament">💊 Médicament</button>
           <button class="trt-chip" data-val="complement">🌿 Complément</button>
           <button class="trt-chip" data-val="strategie">⚡ Stratégie</button>
+          <button class="trt-chip" data-val="allergie">🚫 Allergie</button>
         </div>
       </div>
 
@@ -2221,8 +2207,7 @@
         { id: 'param-nom',          key: 'boussole_nom'          },
         { id: 'param-ddn',          key: 'boussole_ddn'          },
         { id: 'param-tel',          key: 'boussole_tel'          },
-        { id: 'param-email',        key: 'boussole_param_email'  },
-        { id: 'param-allergies',    key: 'boussole_allergies'    }
+        { id: 'param-email',        key: 'boussole_param_email'  }
       ];
       function initParamFields() {
         fields.forEach(function (f) {

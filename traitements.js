@@ -48,7 +48,7 @@ window.Traitements = (function () {
 
   function _labelStatut(s){return{actif:'En cours',pause:'Pause',arrete:'Arrêté'}[s]||s;}
   function _couleurStatut(s){return{actif:'#2d6a4f',pause:'#f59e0b',arrete:'#dc2626'}[s]||'#6b7280';}
-  function _labelCategorie(c){return{medicament:'💊 Médicament',complement:'🌿 Complément',strategie:'⚡ Stratégie'}[c]||c;}
+  function _labelCategorie(c){return{medicament:'💊 Médicament',complement:'🌿 Complément',strategie:'⚡ Stratégie',allergie:'🚫 Allergie'}[c]||c;}
   function _dosageStr(t){
     var s='';
     if(t.dose)s+=t.dose;
@@ -297,7 +297,13 @@ window.Traitements = (function () {
     var ordonnance=document.getElementById('trt-ordonnance')?document.getElementById('trt-ordonnance').checked:false;
     var paliers=(window._traitementPaliers||[]).slice();
     if(!paliers.length&&dose&&dateDebut){paliers=[{dose:dose,unite:unite||'mg',date_debut:dateDebut,date_fin:null}];}
-    else if(paliers.length>0&&dose){var d=paliers[paliers.length-1];if(!d.date_fin){d.dose=dose;d.unite=unite||d.unite;}}
+    else if(paliers.length>0){
+      // Synchroniser le premier palier avec la date de début si modifiée
+      if(dateDebut&&paliers[0].date_debut!==dateDebut)paliers[0].date_debut=dateDebut;
+      // Synchroniser le dernier palier actif avec la dose courante
+      var last=paliers[paliers.length-1];
+      if(dose&&!last.date_fin){last.dose=dose;last.unite=unite||last.unite;}
+    }
     upsert({id:editId||null,categorie:categorie,nom:nom,dci:_getVal('trt-dci'),
       dose:dose,unite:unite,frequence:_getVal('trt-frequence'),moment:_getVal('trt-moment'),
       date_debut:dateDebut,statut:statut,date_statut:_getVal('trt-date-statut')||dateDebut,
@@ -340,7 +346,8 @@ window.Traitements = (function () {
     var data=exportPourPDF();
     if(!data)return'';
     var meds=data.raw.filter(function(t){return t.categorie==='medicament'&&t.statut==='actif';});
-    var comps=data.raw.filter(function(t){return t.categorie!=='medicament'&&t.statut==='actif';});
+    var comps=data.raw.filter(function(t){return(t.categorie==='complement'||t.categorie==='strategie')&&t.statut==='actif';});
+    var allergies=data.raw.filter(function(t){return t.categorie==='allergie';});
     var pauses=data.raw.filter(function(t){return t.statut==='pause';});
     var cutoff90=_localDateStr(new Date(Date.now()-90*86400000));
     var arr90=data.raw.filter(function(t){return t.statut==='arrete'&&(t.date_statut||'')>=cutoff90;});
@@ -361,6 +368,10 @@ window.Traitements = (function () {
     h+='</div><div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">🌿 Compléments</div>';
     h+=comps.length?comps.map(lh).join(''):'<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>';
     h+='</div></div>';
+    if(allergies.length){
+      h+='<div style="margin-top:8px;padding:6px 10px;background:#fef2f2;border-radius:6px;font-size:12px;color:#991b1b;">🚫 Allergies / CI : ';
+      h+=allergies.map(function(t){return t.nom+(t.notes?' ('+t.notes+')':'');}).join(', ')+'</div>';
+    }
     if(pauses.length){
       h+='<div style="margin-top:8px;padding:6px 10px;background:#fffbeb;border-radius:6px;font-size:12px;color:#92400e;">⏸ En pause : ';
       h+=pauses.map(function(t){return t.nom+(t.raison_statut?' ('+t.raison_statut+')':'');}).join(', ')+'</div>';
@@ -383,7 +394,8 @@ window.Traitements = (function () {
       return;
     }
     var meds = actifs.filter(function(t) { return t.categorie === 'medicament'; });
-    var comps = actifs.filter(function(t) { return t.categorie !== 'medicament'; });
+    var comps = actifs.filter(function(t) { return t.categorie === 'complement' || t.categorie === 'strategie'; });
+    var allergies = liste.filter(function(t) { return t.categorie === 'allergie'; });
     function ligne(t) {
       var s = '<span style="font-size:13px;color:#06172D;">' + t.nom;
       if (t.dose) s += ' <strong>' + t.dose + (t.unite ? ' ' + t.unite : '') + '</strong>';
@@ -402,6 +414,11 @@ window.Traitements = (function () {
       html += comps.map(function(t) { return '<div style="padding:2px 0;">' + ligne(t) + '</div>'; }).join('');
       html += '</div>';
     }
+    if (allergies.length) {
+      html += '<div style="margin-top:8px;"><div style="font-size:11px;font-weight:600;color:#991b1b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">🚫 Allergies / CI (' + allergies.length + ')</div>';
+      html += allergies.map(function(t) { return '<div style="padding:2px 0;"><span style="font-size:13px;color:#06172D;">' + t.nom + (t.notes ? ' <em style="color:#6b7280;">(' + t.notes + ')</em>' : '') + '</span></div>'; }).join('');
+      html += '</div>';
+    }
     container.innerHTML = html;
   }
 
@@ -414,10 +431,11 @@ window.Traitements = (function () {
         document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c){c.classList.remove('trt-chip--active');});
         chip.classList.add('trt-chip--active');
         var iS=chip.dataset.val==='strategie';
+        var iA=chip.dataset.val==='allergie';
         var pw=document.getElementById('trt-prescripteur-wrap');
         var ow=document.getElementById('trt-ordonnance-wrap');
-        if(pw)pw.style.display=iS?'none':'block';
-        if(ow)ow.style.display=iS?'none':'flex';
+        if(pw)pw.style.display=(iS||iA)?'none':'block';
+        if(ow)ow.style.display=(iS||iA)?'none':'flex';
       });
     });
     document.querySelectorAll('#trt-chips-statut .trt-chip').forEach(function(chip){
