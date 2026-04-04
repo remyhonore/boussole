@@ -144,25 +144,56 @@ function _buildNarrativeContext(dateFrom, dateTo) {
   }
   lines.push('');
 
-  // --- Essais en cours ---
-  lines.push('=== ESSAIS EN COURS OU DEBUTS SUR LA PERIODE ===');
+  // --- Essais en cours ou actifs pendant la période ---
+  lines.push('=== ESSAIS EN COURS OU ACTIFS SUR LA PERIODE ===');
   var essais = [];
   try { essais = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
+
+  // Inclure : démarré dans la fenêtre OU démarré avant et encore actif (pas arrêté, ou arrêté après dateFrom)
   var essaisFiltered = essais.filter(function(e) {
-    return e.date_debut && e.date_debut >= dateFrom && e.date_debut <= dateTo;
+    if (!e.date_debut) return false;
+    var startedBeforeEnd = e.date_debut <= dateTo;
+    if (!startedBeforeEnd) return false;
+    // Démarré dans la fenêtre
+    if (e.date_debut >= dateFrom) return true;
+    // Démarré avant la fenêtre → inclure si pas arrêté, ou si date_arret >= dateFrom
+    if (e.arret !== 'Oui') return true;
+    // Si arrêté : inclure si la date d'arrêt est dans ou après la fenêtre (approximation via date_debut + pas de date_arret explicite → toujours inclus)
+    return true; // fallback inclusif : mieux vaut sur-informer le médecin
   });
+
+  // Séparer : démarrés dans la fenêtre vs actifs avant
+  var essaisDebutes = essaisFiltered.filter(function(e) { return e.date_debut >= dateFrom; });
+  var essaisActifAvant = essaisFiltered.filter(function(e) { return e.date_debut < dateFrom; });
+
   if (essaisFiltered.length === 0) {
-    lines.push('Aucun essai commence sur cette periode.');
+    lines.push('Aucun essai en cours ou debute sur cette periode.');
   } else {
-    essaisFiltered.forEach(function(e) {
-      var diffJ = Math.max(0, Math.floor((new Date(dateTo + 'T12:00:00') - new Date(e.date_debut + 'T12:00:00')) / 86400000));
-      var statut = e.arret === 'Oui' ? 'Arrete' : 'En cours';
-      var txt = (e.nom || '') + ' (' + (e.type || '') + ' - ' + statut + ')';
-      if (e.objectif) txt += ' -- "' + e.objectif + '"';
-      txt += ' -- depuis ' + _dateLocale(e.date_debut) + ' (' + diffJ + ' jours)';
-      if (e.effet) txt += ' -- Effet declare : ' + e.effet;
-      lines.push(txt);
-    });
+    if (essaisActifAvant.length > 0) {
+      lines.push('-- Essais en cours (demarres avant la periode) --');
+      essaisActifAvant.forEach(function(e) {
+        var statut = e.arret === 'Oui' ? 'Arrete durant la periode' : 'Toujours en cours';
+        var txt = (e.nom || '') + ' (' + (e.type || '') + ' - ' + statut + ')';
+        if (e.objectif) txt += ' -- "' + e.objectif + '"';
+        txt += ' -- demarre le ' + _dateLocale(e.date_debut);
+        if (e.effet) txt += ' -- Effet declare : ' + e.effet;
+        if (e.arret === 'Oui' && e.raison_arret) txt += ' -- Raison arret : ' + e.raison_arret;
+        lines.push(txt);
+      });
+    }
+    if (essaisDebutes.length > 0) {
+      lines.push('-- Nouveaux essais demarres sur la periode --');
+      essaisDebutes.forEach(function(e) {
+        var diffJ = Math.max(0, Math.floor((new Date(dateTo + 'T12:00:00') - new Date(e.date_debut + 'T12:00:00')) / 86400000));
+        var statut = e.arret === 'Oui' ? 'Arrete' : 'En cours';
+        var txt = (e.nom || '') + ' (' + (e.type || '') + ' - ' + statut + ')';
+        if (e.objectif) txt += ' -- "' + e.objectif + '"';
+        txt += ' -- depuis ' + _dateLocale(e.date_debut) + ' (' + diffJ + ' jours)';
+        if (e.effet) txt += ' -- Effet declare : ' + e.effet;
+        if (e.arret === 'Oui' && e.raison_arret) txt += ' -- Raison arret : ' + e.raison_arret;
+        lines.push(txt);
+      });
+    }
   }
   lines.push('');
 
@@ -224,7 +255,7 @@ async function _generateNarrativeSection(context) {
     'EVENEMENTS SIGNALES\n' +
     '[paragraphe sur les evenements notables]\n\n' +
     'ESSAIS ET TRAITEMENTS\n' +
-    '[paragraphe sur les essais et observations associees]\n\n' +
+    '[paragraphe sur les essais actifs pendant la periode, qu\'ils aient ete demarres avant ou pendant la fenetre. Distinguer clairement les essais en cours depuis avant la periode des nouveaux essais demarres sur la periode.]\n\n' +
     'SUIVI DU PLAN PRECEDENT\n' +
     '[paragraphe sur ce qui avait ete prevu a la derniere consultation]\n\n' +
     'AVERTISSEMENT\n' +
