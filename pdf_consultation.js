@@ -266,6 +266,12 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     return;
   }
 
+  // Ouvrir une fenêtre IMMÉDIATEMENT (avant tout await) — seul moyen d'éviter le blocage popup Chrome
+  const _pdfWin = window.open('', '_blank');
+  if (_pdfWin) {
+    _pdfWin.document.write('<html><head><title>Génération du PDF...</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:18px;">⏳ Génération du PDF en cours…</p></body></html>');
+  }
+
   // --- Générer la narrative EN PREMIER (avant le PDF) pour l'insérer en page 2 ---
   const _narrativeDateFrom = narrativeDateFromOverride || (function() {
     var d = new Date(); d.setDate(d.getDate() - 6); return d.toISOString().split('T')[0];
@@ -1721,7 +1727,6 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   drawFooters();
-  const pdfUrl = doc.output('bloburl');
 
   // Nom de fichier dynamique
   const _normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -1736,22 +1741,21 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     ? 'PreConsultation_' + _nom + '_' + _prenom + '_' + _dateStr + '.pdf'
     : 'PreConsultation_' + _dateStr + '.pdf';
 
-  // Ouvrir dans un nouvel onglet (Chrome affiche le PDF avec barre d'outils)
-  // avec fallback téléchargement si popup bloquée
-  const _win = window.open(pdfUrl, '_blank');
-  if (!_win) {
-    // Popup bloquée — fallback téléchargement
+  // Rediriger la fenêtre déjà ouverte vers le blob PDF
+  const _blob = doc.output('blob');
+  const _objectUrl = URL.createObjectURL(_blob);
+  if (_pdfWin && !_pdfWin.closed) {
+    _pdfWin.location.href = _objectUrl;
+  } else {
+    // Fallback si la fenêtre a été fermée entre-temps
     const _a = document.createElement('a');
-    _a.href = pdfUrl;
+    _a.href = _objectUrl;
     _a.download = _filename;
-    _a.target = '_blank';
     document.body.appendChild(_a);
     _a.click();
     document.body.removeChild(_a);
-  } else {
-    // Nommer le document (visible dans l'onglet)
-    try { _win.document.title = _filename; } catch(e) {}
   }
+  setTimeout(function() { URL.revokeObjectURL(_objectUrl); }, 10000);
 }
 
 // Export global
