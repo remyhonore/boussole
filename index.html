@@ -673,6 +673,7 @@
               <textarea id="journal-add-text" rows="4" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#fff;" aria-label="Contenu de la note"></textarea>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
                 <span id="journal-add-count" style="font-size:11px;color:rgba(6,23,45,.45);">0/1000</span>
+                <button onclick="ouvrirModaleDictee('journal-add-text')" style="background:none;border:none;padding:4px;cursor:pointer;font-size:18px;line-height:1;" aria-label="Dicter la note" title="Dicter">&#x1F3A4;</button>
               </div>
               <div style="display:flex;gap:8px;margin-top:10px;">
                 <button onclick="saveNoteAdd()" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Enregistrer</button>
@@ -1604,6 +1605,7 @@
     var _dicteeRecognition = null;
     var _dicteeActive = false;
     var _dicteeBase = '';
+    var _dicteeTargetId = 'note';
 
     function _dicteeSetState(state) {
       // Barres d'onde
@@ -1637,12 +1639,13 @@
       if (preview && count) count.textContent = preview.value.length + '/1000';
     }
 
-    function ouvrirModaleDictee() {
+    function ouvrirModaleDictee(targetId) {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         alert('La dictée vocale n\'est pas disponible sur ce navigateur.\nUtilise Chrome ou Safari.');
         return;
       }
-      _dicteeBase = document.getElementById('note').value;
+      _dicteeTargetId = targetId || 'note';
+      _dicteeBase = document.getElementById(_dicteeTargetId).value;
       document.getElementById('dictee-preview').value = _dicteeBase;
       _dicteeUpdateCount();
       _dicteeSetState('idle');
@@ -1712,10 +1715,17 @@
 
     function validerDictee() {
       var texte = document.getElementById('dictee-preview').value.trim().slice(0, 1000);
-      var noteEl = document.getElementById('note');
-      noteEl.value = texte;
-      var counter = document.getElementById('note-count');
-      if (counter) counter.textContent = texte.length + '/1000';
+      var targetId = _dicteeTargetId || 'note';
+      var targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.value = texte;
+        // Mettre à jour le compteur associé si présent
+        var countId = targetId === 'note' ? 'note-count' : targetId + '-count';
+        var counter = document.getElementById(countId);
+        if (counter) counter.textContent = texte.length + '/1000';
+        // Déclencher oninput pour les autres listeners
+        targetEl.dispatchEvent(new Event('input'));
+      }
       fermerModaleDictee();
     }
 
