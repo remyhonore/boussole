@@ -3437,6 +3437,125 @@ function _journalCleanStr(str) {
     .trim();
 }
 
+// ============================================================
+// FEATURE V3 — Export PDF événements & essais
+// ============================================================
+
+function _pdfOpenTab(doc, filename) {
+  var win = window.open('', '_blank');
+  if (win) {
+    win.document.write('<html><head><title>' + filename + '</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:16px;">Generation...</p></body></html>');
+  }
+  var blob = doc.output('blob');
+  var url = URL.createObjectURL(blob);
+  if (win) { win.location.href = url; } else { doc.save(filename); }
+}
+
+function generateEventsPDF() {
+  if (!window.jspdf) { alert('jsPDF non disponible.'); return; }
+  var keys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); }).sort().reverse();
+  var events = keys.map(function(k) {
+    try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; }
+  }).filter(Boolean);
+  if (events.length === 0) { alert('Aucun événement enregistré.'); return; }
+  var labels = { 'reaction-medicament': 'Réaction médicament', 'symptome-inhabituel': 'Symptôme inhabituel',
+    'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle', 'mauvaise-journee-exceptionnelle': 'Mauvaise journée exceptionnelle', 'autre': 'Autre' };
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var mL = 18, mR = 18, mT = 20, pageW = 210, pageH = 297, contentW = pageW - mL - mR;
+  var y = mT;
+  function chk(n) { if (y + n > pageH - 18) { doc.addPage(); y = mT; hdr(); } }
+  function hdr() {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(120,140,130);
+    doc.text('myBoussole - Evénements notables', mL, 12);
+    doc.text(new Date().toLocaleDateString('fr-FR'), pageW - mR, 12, { align: 'right' });
+    doc.setDrawColor(210,220,215); doc.line(mL, 14, pageW - mR, 14); doc.setTextColor(6,23,45);
+  }
+  hdr();
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(45,106,79);
+  doc.text('Événements notables', mL, y + 10);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(100,120,110);
+  doc.text(_journalCleanStr(events.length + ' événement' + (events.length > 1 ? 's' : '') + ' - exporté le ' + new Date().toLocaleDateString('fr-FR')), mL, y + 18);
+  doc.setDrawColor(45,106,79); doc.setLineWidth(0.5); doc.line(mL, y + 22, pageW - mR, y + 22);
+  y += 30;
+  events.forEach(function(e, idx) {
+    if (idx > 0) { chk(6); doc.setDrawColor(220,230,225); doc.setLineWidth(0.2); doc.line(mL, y, pageW - mR, y); y += 5; }
+    chk(10);
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(45,106,79);
+    doc.text(_journalCleanStr(formatDateFr(e.date)), mL, y);
+    if (e.type) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,140,130);
+      doc.text(_journalCleanStr(labels[e.type] || e.type), mL, y + 5); y += 7;
+    } else { y += 3; }
+    if (e.description) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(6,23,45);
+      var lines = doc.splitTextToSize(_journalCleanStr(e.description), contentW);
+      lines.forEach(function(l) { chk(6); doc.text(l, mL, y + 4); y += 5.5; });
+    }
+    y += 3;
+  });
+  var tot = doc.getNumberOfPages();
+  for (var p = 1; p <= tot; p++) { doc.setPage(p); doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(160,170,165); doc.text('Page ' + p + ' / ' + tot, pageW/2, pageH-10, { align:'center' }); }
+  _pdfOpenTab(doc, 'myBoussole-evenements-' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+function generateEssaisPDF() {
+  if (!window.jspdf) { alert('jsPDF non disponible.'); return; }
+  var essais = loadEssais();
+  if (essais.length === 0) { alert('Aucun essai enregistré.'); return; }
+  var sorted = essais.slice().sort(function(a,b) { return (b.date_debut||'').localeCompare(a.date_debut||''); });
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var mL = 18, mR = 18, mT = 20, pageW = 210, pageH = 297, contentW = pageW - mL - mR;
+  var y = mT;
+  function chk(n) { if (y + n > pageH - 18) { doc.addPage(); y = mT; hdr(); } }
+  function hdr() {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(120,140,130);
+    doc.text('myBoussole - Mes essais', mL, 12);
+    doc.text(new Date().toLocaleDateString('fr-FR'), pageW - mR, 12, { align: 'right' });
+    doc.setDrawColor(210,220,215); doc.line(mL, 14, pageW - mR, 14); doc.setTextColor(6,23,45);
+  }
+  hdr();
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(45,106,79);
+  doc.text('Mes essais', mL, y + 10);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(100,120,110);
+  doc.text(_journalCleanStr(sorted.length + ' essai' + (sorted.length > 1 ? 's' : '') + ' - exporté le ' + new Date().toLocaleDateString('fr-FR')), mL, y + 18);
+  doc.setDrawColor(45,106,79); doc.setLineWidth(0.5); doc.line(mL, y + 22, pageW - mR, y + 22);
+  y += 30;
+  sorted.forEach(function(e, idx) {
+    if (idx > 0) { chk(6); doc.setDrawColor(220,230,225); doc.setLineWidth(0.2); doc.line(mL, y, pageW - mR, y); y += 5; }
+    chk(12);
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(45,106,79);
+    doc.text(_journalCleanStr(e.nom || ''), mL, y);
+    var meta = [];
+    if (e.type) meta.push(e.type);
+    if (e.effet) meta.push('Effet: ' + e.effet);
+    if (e.arret === 'Oui') meta.push('Arrete');
+    if (meta.length > 0) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,140,130);
+      doc.text(meta.join('  |  '), mL, y + 5); y += 8;
+    } else { y += 5; }
+    if (e.date_debut) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,120,110);
+      doc.text('Depuis le ' + _journalCleanStr(formatDateFr(e.date_debut)), mL, y + 3); y += 6;
+    }
+    if (e.objectif) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(6,23,45);
+      var lines = doc.splitTextToSize('Objectif: ' + _journalCleanStr(e.objectif), contentW);
+      lines.forEach(function(l) { chk(6); doc.text(l, mL, y + 4); y += 5.5; });
+    }
+    if (e.raison_arret) {
+      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(150,80,80);
+      var rlines = doc.splitTextToSize('Raison arret: ' + _journalCleanStr(e.raison_arret), contentW);
+      rlines.forEach(function(l) { chk(6); doc.text(l, mL, y + 4); y += 5.5; });
+    }
+    y += 3;
+  });
+  var tot = doc.getNumberOfPages();
+  for (var p = 1; p <= tot; p++) { doc.setPage(p); doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(160,170,165); doc.text('Page ' + p + ' / ' + tot, pageW/2, pageH-10, { align:'center' }); }
+  _pdfOpenTab(doc, 'myBoussole-essais-' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
 function generateJournalPDF() {
   if (!window.jspdf) {
     alert('jsPDF non disponible - verifiez votre connexion.');
@@ -3550,20 +3669,7 @@ function generateJournalPDF() {
     doc.text('Page ' + p + ' / ' + totalPages, pageW / 2, pageH - 10, { align: 'center' });
   }
 
-  // Ouvrir un nouvel onglet immediatement (evite le blocage popup)
-  var pdfWin = window.open('', '_blank');
-  if (pdfWin) {
-    pdfWin.document.write('<html><head><title>Mon journal - myBoussole</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:16px;">Generation du PDF...</p></body></html>');
-  }
-
-  var blob = doc.output('blob');
-  var objectUrl = URL.createObjectURL(blob);
-  if (pdfWin) {
-    pdfWin.location.href = objectUrl;
-  } else {
-    // Fallback si popup bloque
-    doc.save('myBoussole-journal-' + new Date().toISOString().split('T')[0] + '.pdf');
-  }
+  _pdfOpenTab(doc, 'myBoussole-journal-' + new Date().toISOString().split('T')[0] + '.pdf');
 }
 
 // ============================================================

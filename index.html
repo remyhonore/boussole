@@ -687,27 +687,39 @@
         </details>
 
         <details class="journal-accord" id="accord-events">
-          <summary class="journal-accord-title">▶ Événements notables</summary>
+          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>▶ Événements notables</span>
+            <button onclick="event.preventDefault();generateEventsPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
+          </summary>
           <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="document.getElementById('modal-event').style.display='flex'" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Signaler un événement</button>
+            </div>
             <div id="events-summary-container"></div>
           </div>
         </details>
 
         <details class="journal-accord" id="accord-essais">
-          <summary class="journal-accord-title">🧪 Mes essais</summary>
+          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>&#x1F9EA; Mes essais</span>
+            <button onclick="event.preventDefault();generateEssaisPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
+          </summary>
           <div class="journal-accord-body">
             <div style="margin-bottom:10px;">
-              <button onclick="openModalEssai()" class="btn-outline-sage" style="font-size:13px;padding:5px 14px;width:auto;">+ Ajouter un essai</button>
+              <button onclick="openModalEssai()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter un essai</button>
             </div>
             <div id="essais-list"></div>
           </div>
         </details>
 
         <details class="journal-accord" id="accord-consultations">
-          <summary class="journal-accord-title">📋 Mes consultations</summary>
+          <summary class="journal-accord-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>&#x1F4CB; Mes consultations</span>
+            <button onclick="event.preventDefault();exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">&#x1F4C4; PDF</button>
+          </summary>
           <div class="journal-accord-body">
             <div style="margin-bottom:12px;">
-              <button onclick="openPostConsultation()" style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;">📝 Enregistrer une consultation</button>
+              <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer une consultation</button>
             </div>
             <div id="pc-historique" style="display:none;"></div>
             <div id="historique-content"></div>
@@ -908,7 +920,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.19 — </span>
+    <span>Boussole v9.20 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
