@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Feature T-Med — Init module Traitements
   if (typeof window.Traitements !== 'undefined') window.Traitements.init();
 
+  // Import MES — Afficher le dossier médical si déjà importé
+  if (typeof window.ImportMES !== 'undefined' && typeof window.ImportMES.renderDossierMedical === 'function') window.ImportMES.renderDossierMedical();
+
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
     switchPanel('today');
