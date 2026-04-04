@@ -3292,47 +3292,85 @@ function renderJournalNotes(showAll) {
   if (!container) return;
 
   var data = loadEntries();
-  var withNotes = data.entries.filter(function(e) { return e.note && e.note.trim() !== ''; });
+  // Index des entrees par date pour acces O(1)
+  var byDate = {};
+  (data.entries || []).forEach(function(e) { byDate[e.date] = e; });
 
-  if (withNotes.length === 0) {
-    container.innerHTML = '<p style="font-size:13px;color:#6b7280;text-align:center;padding:16px 0;">Aucune note enregistrée pour l’instant.</p>';
-    return;
+  // Generer les 30 derniers jours (aujourd'hui inclus)
+  var days = [];
+  for (var i = 0; i < 30; i++) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
   }
 
-  // Filtre 14 jours par defaut
-  var cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 14);
-  var cutoffStr = cutoff.toISOString().split('T')[0];
-  var visible = showAll ? withNotes : withNotes.filter(function(e) { return e.date >= cutoffStr; });
-  var hidden = showAll ? 0 : withNotes.length - visible.length;
+  // Limiter a 14j par defaut sauf si showAll
+  var visible = showAll ? days : days.slice(0, 14);
+  var hidden = showAll ? 0 : days.length - visible.length;
 
-  container.innerHTML = visible.map(function(e) {
-    var dateLabel = formatDateFr(e.date);
-    var extrait = e.note.length > 120 ? e.note.substring(0, 120) + '…' : e.note;
-    var safeDate = e.date.replace(/-/g, '_');
-    return [
-      '<div class="journal-note-entry" id="journal-note-' + safeDate + '">',
-        '<div class="journal-note-header">',
-          '<span class="journal-note-date">' + dateLabel + '</span>',
-          '<div class="journal-note-actions">',
-            '<button class="journal-note-btn-edit" onclick="editNoteInline(\'' + e.date + '\')">Modifier</button>',
-            '<button class="journal-note-btn-del" onclick="deleteNoteJournal(\'' + e.date + '\')">Supprimer</button>',
+  var html = visible.map(function(date) {
+    var entry = byDate[date];
+    var safeDate = date.replace(/-/g, '_');
+    var dateLabel = formatDateFr(date);
+
+    if (entry && entry.note && entry.note.trim() !== '') {
+      // Jour avec note
+      var extrait = entry.note.length > 120 ? entry.note.substring(0, 120) + '\u2026' : entry.note;
+      return [
+        '<div class="journal-note-entry" id="journal-note-' + safeDate + '">',
+          '<div class="journal-note-header">',
+            '<span class="journal-note-date">' + dateLabel + '</span>',
+            '<div class="journal-note-actions">',
+              '<button class="journal-note-btn-edit" onclick="editNoteInline(\'' + date + '\')">Modifier</button>',
+              '<button class="journal-note-btn-del" onclick="deleteNoteJournal(\'' + date + '\')">Supprimer</button>',
+            '</div>',
           '</div>',
-        '</div>',
-        '<div class="journal-note-text" id="journal-note-text-' + safeDate + '">' + extrait.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</div>',
-        '<div class="journal-note-edit-zone" id="journal-note-edit-' + safeDate + '" style="display:none;">',
-          '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + e.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
-          '<div style="display:flex;gap:8px;margin-top:8px;">',
-            '<button onclick="saveNoteEdit(\'' + e.date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
-            '<button onclick="cancelNoteEdit(\'' + e.date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
+          '<div class="journal-note-text" id="journal-note-text-' + safeDate + '">' + extrait.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</div>',
+          '<div class="journal-note-edit-zone" id="journal-note-edit-' + safeDate + '" style="display:none;">',
+            '<textarea id="journal-note-textarea-' + safeDate + '" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Modifier la note du ' + dateLabel + '">' + entry.note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>',
+            '<div style="display:flex;gap:8px;margin-top:8px;">',
+              '<button onclick="saveNoteEdit(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>',
+              '<button onclick="cancelNoteEdit(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.2);color:#6b7280;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;">Annuler</button>',
+            '</div>',
           '</div>',
-        '</div>',
-      '</div>'
-    ].join('');
+        '</div>'
+      ].join('');
+    } else {
+      // Jour sans note — zone d'invitation compacte
+      var scores = '';
+      if (entry) {
+        var parts = [];
+        if (entry.humeur != null) parts.push('Humeur ' + entry.humeur);
+        if (entry.energie != null) parts.push('\u00c9nergie ' + entry.energie);
+        if (entry.qualite_sommeil != null) parts.push('Sommeil ' + entry.qualite_sommeil);
+        if (parts.length > 0) scores = '<span style="font-size:11px;color:#9ca3af;margin-left:8px;">' + parts.join(' · ') + '</span>';
+      }
+      var editZoneId = 'journal-empty-edit-' + safeDate;
+      var textareaId = 'journal-empty-textarea-' + safeDate;
+      return [
+        '<div class="journal-note-entry journal-note-empty" id="journal-note-' + safeDate + '">',
+          '<div class="journal-note-header">',
+            '<span class="journal-note-date" style="opacity:.55;">' + dateLabel + scores + '</span>',
+            '<button onclick="toggleEmptyNoteEdit(\'' + date + '\')" style="background:none;border:1px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">+ Note</button>',
+          '</div>',
+          '<div class="journal-note-text" style="font-size:12px;color:#d1d5db;font-style:italic;">Aucune note ce jour</div>',
+          '<div id="' + editZoneId + '" style="display:none;margin-top:8px;">',
+            '<textarea id="' + textareaId + '" rows="3" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;" aria-label="Note du ' + dateLabel + '"></textarea>',
+            '<div style="display:flex;gap:8px;margin-top:6px;">',
+              '<button onclick="saveEmptyNote(\'' + date + '\')" style="flex:1;background:#2d6a4f;color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:600;cursor:pointer;">Enregistrer</button>',
+              '<button onclick="cancelEmptyNote(\'' + date + '\')" style="flex:1;background:none;border:1.5px solid rgba(6,23,45,.15);color:#9ca3af;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;">Annuler</button>',
+            '</div>',
+          '</div>',
+        '</div>'
+      ].join('');
+    }
   }).join('');
 
+  container.innerHTML = html;
+  container.dataset.showAll = showAll ? 'true' : 'false';
+
   if (hidden > 0) {
-    container.innerHTML += '<p style="text-align:center;margin-top:8px;"><button onclick="renderJournalNotes(true)" style="background:none;border:none;color:#2d6a4f;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit;">Voir ' + hidden + ' note' + (hidden > 1 ? 's' : '') + ' plus ancienne' + (hidden > 1 ? 's' : '') + '</button></p>';
+    container.innerHTML += '<p style="text-align:center;margin-top:8px;"><button onclick="renderJournalNotes(true)" style="background:none;border:none;color:#2d6a4f;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit;">Voir les ' + hidden + ' jours précédents</button></p>';
   }
 }
 
@@ -3392,6 +3430,37 @@ function saveNoteAdd() {
 function cancelNoteAdd() {
   document.getElementById('journal-add-zone').style.display = 'none';
   document.getElementById('btn-journal-add').textContent = '+ Ajouter une note';
+}
+
+function toggleEmptyNoteEdit(date) {
+  var safeDate = date.replace(/-/g, '_');
+  var zone = document.getElementById('journal-empty-edit-' + safeDate);
+  if (!zone) return;
+  var opening = zone.style.display === 'none';
+  zone.style.display = opening ? 'block' : 'none';
+  if (opening) {
+    var ta = document.getElementById('journal-empty-textarea-' + safeDate);
+    if (ta) ta.focus();
+  }
+}
+
+function saveEmptyNote(date) {
+  var safeDate = date.replace(/-/g, '_');
+  var ta = document.getElementById('journal-empty-textarea-' + safeDate);
+  if (!ta) return;
+  var note = ta.value.trim();
+  if (!note) { alert('La note est vide.'); return; }
+  var existing = getEntry(date);
+  var entry = existing || { energie: null, qualite_sommeil: null, douleurs: null, clarte_mentale: null, humeur: null, rmssd: null };
+  entry.note = note;
+  saveEntry(date, entry);
+  renderJournalNotes(document.getElementById('journal-notes-list').dataset.showAll === 'true');
+}
+
+function cancelEmptyNote(date) {
+  var safeDate = date.replace(/-/g, '_');
+  var zone = document.getElementById('journal-empty-edit-' + safeDate);
+  if (zone) zone.style.display = 'none';
 }
 
 function saveNoteEdit(date) {

@@ -1335,6 +1335,13 @@ html.dark #card-essais > div[style*="border-left"] {
   line-height: 1.6;
   white-space: pre-wrap;
 }
+.journal-note-empty {
+  background: #fafaf8;
+  border-color: rgba(6,23,45,0.06);
+}
+.journal-note-empty .journal-note-date {
+  color: #9ca3af;
+}
 html.dark .journal-note-entry {
   background: #1b2838;
   border-color: rgba(255,255,255,0.08);
