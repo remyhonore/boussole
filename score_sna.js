@@ -1,7 +1,8 @@
-// score_sna.js — Feature R : Score composite SNA
-// ADR-2026-032
+// score_sna.js — Feature R : Score de récupération
+// ADR-2026-032 — ADR-2026-035 (refonte nomenclature + masquage conditionnel)
 // Ponderation : RMSSD 30% / FC 25% / Sommeil 25% / TA 15% / Poids 5%
 // Normalisation : baseline personnelle 30j, minimum 5 jours
+// Règle d'affichage PDF : masqué si < 2 mesures objectives (RMSSD ou FC) sur 30j
 
 window.ScoreSNA = (function() {
 
@@ -118,7 +119,9 @@ window.ScoreSNA = (function() {
 
     var score = Math.round(scoreTotal / poidsActifs);
     var couleur = score >= 65 ? 'vert' : score >= 40 ? 'orange' : 'rouge';
-    return { score: score, couleur: couleur, detail: detail, date: derniere.date };
+    // Compter les sources objectives disponibles (RMSSD + FC)
+    var nbSourcesObjectives = (detail.rmssd !== undefined ? 1 : 0) + (detail.fc !== undefined ? 1 : 0);
+    return { score: score, couleur: couleur, detail: detail, date: derniere.date, nbSourcesObjectives: nbSourcesObjectives };
   }
 
   function renderJauge(containerId) {
@@ -135,8 +138,6 @@ window.ScoreSNA = (function() {
     var couleurs = { vert: '#2d6a4f', orange: '#f59e0b', rouge: '#dc2626' };
     var c = couleurs[couleur];
     var labels = { vert: 'Bonne récupération', orange: 'Récupération modérée', rouge: 'Récupération faible' };
-
-    // Jauge SVG demi-cercle
     var rayon = 54;
     var circ = Math.PI * rayon;
     var offset = circ - (score / 100) * circ;
@@ -172,6 +173,11 @@ window.ScoreSNA = (function() {
         '<div style="font-size:0.8rem;font-weight:700;color:' + c + ';margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">' +
           labels[couleur] +
         '</div>' +
+        '<div style="font-size:0.72rem;color:#9ca3af;margin-top:3px;font-style:italic;">' +
+          (res.nbSourcesObjectives === 0 ? 'Basé sur sommeil déclaré uniquement — ajoute FC ou RMSSD pour affiner' :
+           res.nbSourcesObjectives === 1 ? '1 mesure objective (FC ou RMSSD) + sommeil' :
+           'FC + RMSSD + sommeil') +
+        '</div>' +
       '</div>' +
       '<div style="margin-top:6px;">' + detailHTML + '</div>';
 
@@ -184,8 +190,8 @@ window.ScoreSNA = (function() {
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'none\'" ' +
           'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;color:#9ca3af;cursor:pointer;" aria-label="Fermer">x</button>' +
         '<h3 style="font-size:1rem;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de récupération</h3>' +
-        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] mesure l\'etat de recuperation de ton systeme nerveux autonome.</p>' +
-        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Il combine 6 indicateurs : VFC (RMSSD), frequence cardiaque au repos, qualite et duree du sommeil, tension arterielle et poids.</p>' +
+        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] estime ta récupération en comparant tes données du jour à ta propre baseline des 30 derniers jours.</p>' +
+        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Il peut combiner jusqu\'à 6 sources : VFC (RMSSD), FC repos, qualité et durée du sommeil, tension artérielle, poids. <strong>Plus tu renseignes de mesures objectives, plus le score est fiable.</strong></p>' +
         '<div style="background:#f8f6f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:0.82rem;line-height:1.6;">' +
           '<div><span style="color:#2d6a4f;font-weight:700;">Vert (65+)</span> : bonne récupération</div>' +
           '<div><span style="color:#f59e0b;font-weight:700;">Orange (40-64)</span> : récupération modérée</div>' +
@@ -205,6 +211,8 @@ window.ScoreSNA = (function() {
   function resumePDF() {
     var res = calculer();
     if (!res) return null;
+    // Masquer dans le PDF si < 2 mesures objectives (RMSSD ou FC) — ADR-2026-035
+    if (res.nbSourcesObjectives < 2) return null;
     var score = res.score, couleur = res.couleur, detail = res.detail;
     var lib = { vert: 'Bonne recuperation', orange: 'Recuperation moderee', rouge: 'Recuperation faible' };
     var noms = { rmssd: 'VFC RMSSD', fc: 'FC repos', sommeil: 'Sommeil', ta_sys: 'TA systolique', ta_dia: 'TA diastolique', poids_kg: 'Poids' };

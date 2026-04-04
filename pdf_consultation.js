@@ -1122,7 +1122,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(45, 106, 79);
-      doc.text('SCORE SNA - Systeme Nerveux Autonome', margin + 4, y);
+      doc.text('SCORE DE RECUPERATION', margin + 4, y);
       y += 5;
       doc.setFontSize(12);
       doc.text(String(sna.score) + '/100  ' + sna.label, margin + 4, y);
