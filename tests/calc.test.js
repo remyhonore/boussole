@@ -6,7 +6,7 @@
  */
 
 // Import des fonctions (adapter selon l'environnement de test)
-// const { calculateSummary, calculateDayScore, DATASET_REF } = require('../calc.js');
+const { calculateSummary, calculateDayScore, DATASET_REF } = require('../calc.js');
 
 /**
  * Tests avec DATASET_REF
@@ -36,11 +36,11 @@ describe('calc_v1 - Dataset de référence', () => {
     // Calcul manuel :
     // energie: (4+5+7+6+3+5+7)/7 = 37/7 = 5,29 → arrondi 5
     // sommeil: (4+5+7+6+4+6+7)/7 = 39/7 = 5,57 → arrondi 6
-    // douleurs: (6+5+2+3+9+4+2)/7 = 31/7 = 4,43 → arrondi 4
+    // douleurs: (6+5+7+6+2+5+7)/7 = 38/7 = 5,43 → arrondi 5
     
     expect(result.energie.moyenne).toBe(5);
     expect(result.qualite_sommeil.moyenne).toBe(6);
-    expect(result.douleurs.moyenne).toBe(4);
+    expect(result.douleurs.moyenne).toBe(5);
   });
   
   test('Tendances définies', () => {

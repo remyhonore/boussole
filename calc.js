@@ -305,3 +305,9 @@ const DATASET_REF = [
   {date:"2026-02-08", energie:5, qualite_sommeil:6, douleurs:5, clarte_mentale:5, note:"Mal de tête après écrans"},
   {date:"2026-02-10", energie:7, qualite_sommeil:7, douleurs:7, clarte_mentale:8, note:null}
 ];
+
+
+// CommonJS exports pour les tests Jest (ignoré par le navigateur)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { calculateDayScore, calculateSummary, average, standardDeviation, calculateTrend, DATASET_REF };
+}

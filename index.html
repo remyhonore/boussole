@@ -87,84 +87,7 @@
     }
   </style>
   <style>
-    /* === Feature U : Hub suivi unifié === */
-    .hub-history-section {
-      background: var(--color-card, #fff);
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(6,23,45,0.07);
-      padding: 4px 0;
-      margin-bottom: 10px;
-    }
-    #btn-hub-history {
-      border: none;
-      border-radius: 14px;
-      background: transparent;
-      width: 100%;
-      padding: 14px 16px;
-      text-align: left;
-      font-size: 0.97rem;
-      font-weight: 600;
-      color: var(--color-navy, #06172D);
-      cursor: pointer;
-    }
-    #btn-hub-history:hover { background: rgba(45,106,79,0.06); }
-    #hub-history-container { padding: 0 14px 14px 14px; }
-    .btn-secondary-outline {
-      width: 100%;
-      padding: 10px 16px;
-      border: 1.5px solid #2d6a4f;
-      border-radius: 10px;
-      background: transparent;
-      color: #2d6a4f;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: left;
-    }
-    .btn-secondary-outline:hover { background: #f0f7f4; }
-    .hub-filters {
-      display: flex;
-      gap: 8px;
-      margin: 12px 0 8px 0;
-      flex-wrap: wrap;
-    }
-    .hub-filter {
-      padding: 5px 12px;
-      border-radius: 20px;
-      border: 1px solid #d1d5db;
-      background: #f9fafb;
-      font-size: 0.82rem;
-      cursor: pointer;
-      color: #374151;
-    }
-    .hub-filter.active {
-      background: #2d6a4f;
-      color: white;
-      border-color: #2d6a4f;
-    }
-    .hub-entry {
-      border-left: 3px solid #d1d5db;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      border-radius: 0 8px 8px 0;
-      background: #f9fafb;
-      font-size: 0.88rem;
-    }
-    .hub-entry.type-event { border-left-color: #f59e0b; }
-    .hub-entry.type-essai { border-left-color: #6366f1; }
-    .hub-entry.type-consult { border-left-color: #2d6a4f; }
-    .hub-entry-date { font-size: 0.78rem; color: #6b7280; margin-bottom: 3px; }
-    .hub-entry-text { color: #1a2332; }
-    .hub-entry-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 2px 7px;
-      border-radius: 10px;
-      margin-left: 6px;
-      background: #e5e7eb;
-      color: #374151;
-    }
-    .hub-empty { color: #9ca3af; font-size: 0.88rem; text-align: center; padding: 16px 0; }
+    /* Feature U hub supprimée (dead code) */
 
     /* Feature S — Mini-fiches contextuelles */
     .bloc-fiches { border-radius:10px; padding:14px; margin-bottom:12px; background:#fff; border:1.5px solid #e5e7eb; }
@@ -662,20 +585,7 @@
         </button>
       </div>
 
-      <div class="hub-history-section" style="display:none;" aria-hidden="true" data-audit="dead-feature-u">
-        <button id="btn-hub-history" onclick="toggleHubHistory()">
-          📓 Mon historique clinique
-        </button>
-        <div id="hub-history-container" style="display:none;">
-          <div class="hub-filters">
-            <button class="hub-filter active" data-filter="all" onclick="filterHubHistory('all')">Tous</button>
-            <button class="hub-filter" data-filter="event" onclick="filterHubHistory('event')">▶ Événements</button>
-            <button class="hub-filter" data-filter="essai" onclick="filterHubHistory('essai')">🧪 Essais</button>
-            <button class="hub-filter" data-filter="consult" onclick="filterHubHistory('consult')">📋 Consultations</button>
-          </div>
-          <div id="hub-history-list"></div>
-        </div>
-      </div>
+      <!-- Feature U hub-history : supprimé (dead code, remplacé par accordéons) -->
 
       <div id="journal-accordeons">
 
@@ -925,7 +835,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.35 — </span>
+    <span>Boussole v9.36 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -937,7 +847,7 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v9.35</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v9.36</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
