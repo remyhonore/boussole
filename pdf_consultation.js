@@ -785,7 +785,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   doc.line(colLX, y, colLX, y + traitH);
   doc.setLineWidth(0.1);
   doc.setFontSize(10);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('M\xe9dicaments', colLX + 5, y + padV);
   let lty = y + padV + labelH;
   leftItems.forEach(function(item) {
@@ -804,7 +804,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   doc.line(colRX, y, colRX, y + traitH);
   doc.setLineWidth(0.1);
   doc.setFontSize(10);
-  tc(MUTED, false);
+  tc(_pal.SECTION_LABEL, false);
   doc.text('Compl\xe9ments', colRX + 5, y + padV);
   let rty = y + padV + labelH;
   rightItems.forEach(function(item) {
@@ -898,7 +898,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     // Fond + bordure gauche
     doc.setFillColor(WARM_BG[0], WARM_BG[1], WARM_BG[2]);
     doc.rect(marginL, y, contentW, blocDomH, 'F');
-    doc.setDrawColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+    doc.setDrawColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
     doc.setLineWidth(3);
     doc.line(marginL, y, marginL, y + blocDomH);
     doc.setLineWidth(0.1);
@@ -1579,7 +1579,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(NAVY_CAL[0], NAVY_CAL[1], NAVY_CAL[2]);
+    doc.setTextColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
     doc.text('CALENDRIER 14 JOURS', marginL, y);
     y += 4;
 
@@ -1688,7 +1688,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (pacingDays >= 3) {
       checkPage(28);
       doc.setFontSize(9);
-      tc(MUTED, false);
+      tc(_pal.SECTION_LABEL, false);
       doc.text('PACING - GESTION DE L\'ENVELOPPE ENERGETIQUE (30 jours)', marginL, y);
       y += 5;
       doc.setFontSize(8);
@@ -1738,6 +1738,137 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       y += 5;
     }
   }
+
+
+    // ============================================================
+  // PAGE 2 — SYNTHESE NARRATIVE (generee avant le PDF, inseree ici)
+  // ============================================================
+  doc.addPage();
+  y = 15;
+  (function() {
+    var ny = y;
+    var narrativeText = _narrativeResult;
+    if (narrativeText && narrativeText.startsWith('__ERROR__:')) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 40, 40);
+      doc.text('SYNTHESE NARRATIVE - ERREUR DE GENERATION', marginL, ny); ny += 4;
+      drawSep(ny); ny += 8;
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+      doc.text('La synthese narrative n\'a pas pu etre generee.', marginL, ny); ny += 7;
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      var errMsg = narrativeText.replace('__ERROR__:', '');
+      var errLines = doc.splitTextToSize('Raison : ' + errMsg, contentW);
+      doc.text(errLines, marginL, ny); ny += errLines.length * 5 + 6;
+      doc.setFontSize(9);
+      doc.text('Solutions possibles :', marginL, ny); ny += 5;
+      doc.text('1. Verifier la connexion internet', marginL + 4, ny); ny += 5;
+      doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
+      doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
+    } else if (narrativeText) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny); ny += 4;
+      drawSep(ny); ny += 6;
+      if (nomPrenom) {
+        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+        doc.text(nomPrenom, marginL, ny); ny += 5;
+      }
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      doc.text('Periode : ' + _dateLocale(_narrativeDateFrom) + ' -> ' + _dateLocale(_narrativeDateTo), marginL, ny); ny += 8;
+
+      // --- RESUME EXECUTIF 3-4 lignes (construit depuis les données locales) ---
+      (function() {
+        var resumeLines = [];
+        // Tendance globale
+        var allMoy = metriques.filter(function(m) { return m.moy !== null; });
+        if (allMoy.length > 0) {
+          var moyGlobal = allMoy.reduce(function(acc, m) { return acc + m.moy; }, 0) / allMoy.length;
+          var tendanceGlobal = allMoy.map(function(m) { return m.tendance; });
+          var nbHausse = tendanceGlobal.filter(function(t) { return t === 'hausse'; }).length;
+          var evolutionTxt = nbHausse >= 3 ? 'Amelioration globale sur la periode.'
+            : (nbHausse <= 0 ? 'Scores stables ou en legere baisse sur la periode.'
+            : 'Evolution mixte sur la periode (' + nbHausse + '/4 axes en amelioration).');
+          resumeLines.push('Evolution : ' + evolutionTxt);
+        }
+        // Essais arrêtés
+        var essaisArr = [];
+        try { essaisArr = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
+        var essaisStop = essaisArr.filter(function(e) { return e.arret === 'Oui' && e.date_debut && e.date_debut >= _narrativeDateFrom; });
+        if (essaisStop.length > 0) {
+          resumeLines.push('Arret traitement : ' + essaisStop.map(function(e) { return e.nom || '?'; }).join(', ') + '.');
+        }
+        // Dernier événement notable
+        var evKeys2 = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
+        var lastEv = evKeys2.map(function(k) {
+          try { return JSON.parse(localStorage.getItem(k)); } catch(ex) { return null; }
+        }).filter(function(e) { return e && e.date && e.date >= _narrativeDateFrom; })
+          .sort(function(a, b) { return b.date.localeCompare(a.date); })[0];
+        if (lastEv) {
+          var evTxt = 'Dernier evenement : ' + _dateLocale(lastEv.date) + ' — ' + (lastEv.description || '').slice(0, 80);
+          if ((lastEv.description || '').length > 80) evTxt += '...';
+          resumeLines.push(evTxt);
+        }
+        // Point d'attention
+        if (pointAttention) {
+          resumeLines.push('Point d\'attention : ' + pointAttention.label + ' (' + (Math.round(pointAttention.moy * 10) / 10).toFixed(1) + '/10, ' + pointAttention.joursBas + ' jour(s) mauvais/7).');
+        }
+
+        if (resumeLines.length > 0) {
+          // Cadre résumé exécutif
+          var resumeH = 8 + resumeLines.length * 6 + 6;
+          doc.setFillColor(245, 245, 245);
+          doc.roundedRect(marginL, ny - 3, contentW, resumeH, 2, 2, 'F');
+          doc.setDrawColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]); doc.setLineWidth(2);
+          doc.line(marginL, ny - 3, marginL, ny - 3 + resumeH);
+          doc.setLineWidth(0.1);
+          doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(80, 80, 80);
+          doc.text('RESUME EXECUTIF', marginL + 5, ny + 2); ny += 7;
+          resumeLines.forEach(function(line) {
+            var lw = doc.splitTextToSize(line, contentW - 10);
+            doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+            lw.forEach(function(l) { doc.text(l, marginL + 5, ny); ny += 5; });
+          });
+          ny += 5;
+        }
+      })();
+      var SECTION_HEADERS = ['EVOLUTION SUR LA PERIODE','EVENEMENTS SIGNALES','ESSAIS ET TRAITEMENTS','SUIVI DU PLAN PRECEDENT','AVERTISSEMENT'];
+      var rawLines = narrativeText.split('\n');
+      rawLines.forEach(function(rawLine) {
+        var line = rawLine
+          .replace(/\u00e9/g,'e').replace(/\u00e8/g,'e').replace(/\u00ea/g,'e').replace(/\u00eb/g,'e')
+          .replace(/\u00e0/g,'a').replace(/\u00e2/g,'a').replace(/\u00e4/g,'a')
+          .replace(/\u00e7/g,'c').replace(/\u00ee/g,'i').replace(/\u00ef/g,'i')
+          .replace(/\u00f4/g,'o').replace(/\u00f6/g,'o')
+          .replace(/\u00f9/g,'u').replace(/\u00fb/g,'u').replace(/\u00fc/g,'u')
+          .replace(/\u00e6/g,'ae').replace(/\u0153/g,'oe')
+          .replace(/\u2019/g,'\'').replace(/\u2018/g,'\'')
+          .replace(/\u201c/g,'"').replace(/\u201d/g,'"')
+          .replace(/\u2013/g,'-').replace(/\u2014/g,'--')
+          .replace(/\u2026/g,'...');
+        var trimmed = line.trim();
+        if (!trimmed) { ny += 3; return; }
+        if (ny > 270) return; // limite maxi page 2
+        var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1 || SECTION_HEADERS.some(function(h){ return trimmed.toUpperCase().startsWith(h); });
+        if (isHeader) {
+          ny += 2;
+          doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(_pal.SECTION_LABEL[0], _pal.SECTION_LABEL[1], _pal.SECTION_LABEL[2]);
+          doc.text(trimmed, marginL, ny); ny += 4;
+        } else {
+          doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(26, 26, 26);
+          var wrapped = doc.splitTextToSize(trimmed, contentW);
+          wrapped.forEach(function(wl) { if (ny <= 270) { doc.text(wl, marginL, ny); ny += 4.5; } });
+        }
+      });
+    } else {
+      doc.setFontSize(9); doc.setFont('helvetica', 'italic'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
+      doc.text('Synthese narrative non disponible pour cette periode.', marginL, ny);
+    }
+    y = ny;
+  })();
+
+  // ============================================================
+  // PAGE 3+ — CALENDRIER, EVENEMENTS, PLAN POST-CONSULTATION
+  // ============================================================
+  doc.addPage();
+  y = 15;
 
   // ============================================================
   // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
@@ -1862,135 +1993,6 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     y += 5;
   }
 
-  // ============================================================
-  // PAGE 2 — SYNTHESE NARRATIVE (generee avant le PDF, inseree ici)
-  // ============================================================
-  doc.addPage();
-  y = 15;
-  (function() {
-    var ny = y;
-    var narrativeText = _narrativeResult;
-    if (narrativeText && narrativeText.startsWith('__ERROR__:')) {
-      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 40, 40);
-      doc.text('SYNTHESE NARRATIVE - ERREUR DE GENERATION', marginL, ny); ny += 4;
-      drawSep(ny); ny += 8;
-      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-      doc.text('La synthese narrative n\'a pas pu etre generee.', marginL, ny); ny += 7;
-      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      var errMsg = narrativeText.replace('__ERROR__:', '');
-      var errLines = doc.splitTextToSize('Raison : ' + errMsg, contentW);
-      doc.text(errLines, marginL, ny); ny += errLines.length * 5 + 6;
-      doc.setFontSize(9);
-      doc.text('Solutions possibles :', marginL, ny); ny += 5;
-      doc.text('1. Verifier la connexion internet', marginL + 4, ny); ny += 5;
-      doc.text('2. Reessayer dans quelques secondes', marginL + 4, ny); ny += 5;
-      doc.text('3. Si le probleme persiste, contacter support@myboussole.fr', marginL + 4, ny);
-    } else if (narrativeText) {
-      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-      doc.text('SYNTHESE NARRATIVE - A L\'ATTENTION DU MEDECIN', marginL, ny); ny += 4;
-      drawSep(ny); ny += 6;
-      if (nomPrenom) {
-        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-        doc.text(nomPrenom, marginL, ny); ny += 5;
-      }
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      doc.text('Periode : ' + _dateLocale(_narrativeDateFrom) + ' -> ' + _dateLocale(_narrativeDateTo), marginL, ny); ny += 8;
-
-      // --- RESUME EXECUTIF 3-4 lignes (construit depuis les données locales) ---
-      (function() {
-        var resumeLines = [];
-        // Tendance globale
-        var allMoy = metriques.filter(function(m) { return m.moy !== null; });
-        if (allMoy.length > 0) {
-          var moyGlobal = allMoy.reduce(function(acc, m) { return acc + m.moy; }, 0) / allMoy.length;
-          var tendanceGlobal = allMoy.map(function(m) { return m.tendance; });
-          var nbHausse = tendanceGlobal.filter(function(t) { return t === 'hausse'; }).length;
-          var evolutionTxt = nbHausse >= 3 ? 'Amelioration globale sur la periode.'
-            : (nbHausse <= 0 ? 'Scores stables ou en legere baisse sur la periode.'
-            : 'Evolution mixte sur la periode (' + nbHausse + '/4 axes en amelioration).');
-          resumeLines.push('Evolution : ' + evolutionTxt);
-        }
-        // Essais arrêtés
-        var essaisArr = [];
-        try { essaisArr = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
-        var essaisStop = essaisArr.filter(function(e) { return e.arret === 'Oui' && e.date_debut && e.date_debut >= _narrativeDateFrom; });
-        if (essaisStop.length > 0) {
-          resumeLines.push('Arret traitement : ' + essaisStop.map(function(e) { return e.nom || '?'; }).join(', ') + '.');
-        }
-        // Dernier événement notable
-        var evKeys2 = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
-        var lastEv = evKeys2.map(function(k) {
-          try { return JSON.parse(localStorage.getItem(k)); } catch(ex) { return null; }
-        }).filter(function(e) { return e && e.date && e.date >= _narrativeDateFrom; })
-          .sort(function(a, b) { return b.date.localeCompare(a.date); })[0];
-        if (lastEv) {
-          var evTxt = 'Dernier evenement : ' + _dateLocale(lastEv.date) + ' — ' + (lastEv.description || '').slice(0, 80);
-          if ((lastEv.description || '').length > 80) evTxt += '...';
-          resumeLines.push(evTxt);
-        }
-        // Point d'attention
-        if (pointAttention) {
-          resumeLines.push('Point d\'attention : ' + pointAttention.label + ' (' + (Math.round(pointAttention.moy * 10) / 10).toFixed(1) + '/10, ' + pointAttention.joursBas + ' jour(s) mauvais/7).');
-        }
-
-        if (resumeLines.length > 0) {
-          // Cadre résumé exécutif
-          var resumeH = 8 + resumeLines.length * 6 + 6;
-          doc.setFillColor(245, 245, 245);
-          doc.roundedRect(marginL, ny - 3, contentW, resumeH, 2, 2, 'F');
-          doc.setDrawColor(200, 200, 200); doc.setLineWidth(2);
-          doc.line(marginL, ny - 3, marginL, ny - 3 + resumeH);
-          doc.setLineWidth(0.1);
-          doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(80, 80, 80);
-          doc.text('RESUME EXECUTIF', marginL + 5, ny + 2); ny += 7;
-          resumeLines.forEach(function(line) {
-            var lw = doc.splitTextToSize(line, contentW - 10);
-            doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-            lw.forEach(function(l) { doc.text(l, marginL + 5, ny); ny += 5; });
-          });
-          ny += 5;
-        }
-      })();
-      var SECTION_HEADERS = ['EVOLUTION SUR LA PERIODE','EVENEMENTS SIGNALES','ESSAIS ET TRAITEMENTS','SUIVI DU PLAN PRECEDENT','AVERTISSEMENT'];
-      var rawLines = narrativeText.split('\n');
-      rawLines.forEach(function(rawLine) {
-        var line = rawLine
-          .replace(/\u00e9/g,'e').replace(/\u00e8/g,'e').replace(/\u00ea/g,'e').replace(/\u00eb/g,'e')
-          .replace(/\u00e0/g,'a').replace(/\u00e2/g,'a').replace(/\u00e4/g,'a')
-          .replace(/\u00e7/g,'c').replace(/\u00ee/g,'i').replace(/\u00ef/g,'i')
-          .replace(/\u00f4/g,'o').replace(/\u00f6/g,'o')
-          .replace(/\u00f9/g,'u').replace(/\u00fb/g,'u').replace(/\u00fc/g,'u')
-          .replace(/\u00e6/g,'ae').replace(/\u0153/g,'oe')
-          .replace(/\u2019/g,'\'').replace(/\u2018/g,'\'')
-          .replace(/\u201c/g,'"').replace(/\u201d/g,'"')
-          .replace(/\u2013/g,'-').replace(/\u2014/g,'--')
-          .replace(/\u2026/g,'...');
-        var trimmed = line.trim();
-        if (!trimmed) { ny += 3; return; }
-        if (ny > 270) return; // limite maxi page 2
-        var isHeader = SECTION_HEADERS.indexOf(trimmed.toUpperCase()) !== -1 || SECTION_HEADERS.some(function(h){ return trimmed.toUpperCase().startsWith(h); });
-        if (isHeader) {
-          ny += 2;
-          doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
-          doc.text(trimmed, marginL, ny); ny += 4;
-        } else {
-          doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(DARK_WARM[0], DARK_WARM[1], DARK_WARM[2]);
-          var wrapped = doc.splitTextToSize(trimmed, contentW);
-          wrapped.forEach(function(wl) { if (ny <= 270) { doc.text(wl, marginL, ny); ny += 4.5; } });
-        }
-      });
-    } else {
-      doc.setFontSize(9); doc.setFont('helvetica', 'italic'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      doc.text('Synthese narrative non disponible pour cette periode.', marginL, ny);
-    }
-    y = ny;
-  })();
-
-  // ============================================================
-  // PAGE 3+ — CALENDRIER, EVENEMENTS, PLAN POST-CONSULTATION
-  // ============================================================
-  doc.addPage();
-  y = 15;
 
   // ============================================================
   // 9b. ÉVÉNEMENTS NOTABLES (30 derniers jours)
