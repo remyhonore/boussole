@@ -338,6 +338,50 @@
         margin:0 0 16px;">
 
         <!-- Énergie -->
+        <!-- ======== MON JOURNAL — Carte dédiée ======== -->
+        <div style="background:linear-gradient(135deg,#f5f2ea,#eef5f0);border-radius:16px;padding:16px 16px 14px;margin:18px 0 4px;border:1.5px solid rgba(45,106,79,.18);">
+
+          <!-- En-tête journal -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;line-height:1;">📓</span>
+              <div>
+                <p style="font-size:14px;font-weight:700;color:#06172D;margin:0;line-height:1.2;">Mon journal du jour</p>
+                <p style="font-size:11px;color:rgba(6,23,45,.45);margin:0;line-height:1.3;">Vos mots apparaissent entre guillemets dans la synthèse médecin</p>
+              </div>
+            </div>
+            <span style="font-size:10px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap;">→ PDF médecin</span>
+          </div>
+
+          <!-- Zone de saisie -->
+          <div style="position:relative;">
+            <textarea
+              id="note"
+              maxlength="1000"
+              rows="4"
+              placeholder="Comment vous sentez-vous aujourd'hui ? Symptoms, effets d'un médicament, énergie…"
+              aria-label="Note du jour, reprise dans la synthèse PDF, 1000 caractères maximum"
+              style="width:100%;padding:12px 50px 12px 14px;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:rgba(255,255,255,.8);"
+            ></textarea>
+            <!-- Bouton micro mis en valeur -->
+            <button
+              id="btn-micro-note"
+              type="button"
+              onclick="ouvrirModaleDictee()"
+              title="Dicter ma note"
+              aria-label="Dicter ma note"
+              style="position:absolute;bottom:10px;right:10px;background:#2d6a4f;border:none;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(45,106,79,.25);transition:all .15s;"
+            >🎙️</button>
+          </div>
+
+          <!-- Pied de carte -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+            <p style="font-size:11px;color:rgba(6,23,45,.38);margin:0;">Parole ou texte libre · jusqu'à 1000 caractères</p>
+            <span class="textarea-count" id="note-count" style="font-size:11px;color:rgba(6,23,45,.35);">0/1000</span>
+          </div>
+        </div>
+        <!-- ======== FIN MON JOURNAL ======== -->
+
         <div class="indicator-card indicator-card--energie">
           <div class="field">
             <label class="field-label" for="energie">
@@ -436,50 +480,6 @@
             </div>
           </div>
         </div>
-
-        <!-- ======== MON JOURNAL — Carte dédiée ======== -->
-        <div style="background:linear-gradient(135deg,#f5f2ea,#eef5f0);border-radius:16px;padding:16px 16px 14px;margin:18px 0 4px;border:1.5px solid rgba(45,106,79,.18);">
-
-          <!-- En-tête journal -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:20px;line-height:1;">📓</span>
-              <div>
-                <p style="font-size:14px;font-weight:700;color:#06172D;margin:0;line-height:1.2;">Mon journal du jour</p>
-                <p style="font-size:11px;color:rgba(6,23,45,.45);margin:0;line-height:1.3;">Vos mots apparaissent entre guillemets dans la synthèse médecin</p>
-              </div>
-            </div>
-            <span style="font-size:10px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap;">→ PDF médecin</span>
-          </div>
-
-          <!-- Zone de saisie -->
-          <div style="position:relative;">
-            <textarea
-              id="note"
-              maxlength="1000"
-              rows="4"
-              placeholder="Comment vous sentez-vous aujourd'hui ? Symptoms, effets d'un médicament, énergie…"
-              aria-label="Note du jour, reprise dans la synthèse PDF, 1000 caractères maximum"
-              style="width:100%;padding:12px 50px 12px 14px;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:rgba(255,255,255,.8);"
-            ></textarea>
-            <!-- Bouton micro mis en valeur -->
-            <button
-              id="btn-micro-note"
-              type="button"
-              onclick="ouvrirModaleDictee()"
-              title="Dicter ma note"
-              aria-label="Dicter ma note"
-              style="position:absolute;bottom:10px;right:10px;background:#2d6a4f;border:none;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(45,106,79,.25);transition:all .15s;"
-            >🎙️</button>
-          </div>
-
-          <!-- Pied de carte -->
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-            <p style="font-size:11px;color:rgba(6,23,45,.38);margin:0;">Parole ou texte libre · jusqu'à 1000 caractères</p>
-            <span class="textarea-count" id="note-count" style="font-size:11px;color:rgba(6,23,45,.35);">0/1000</span>
-          </div>
-        </div>
-        <!-- ======== FIN MON JOURNAL ======== -->
 
         <!-- Boutons d'action -->
         <div class="btn-row">
@@ -854,7 +854,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.08 — </span>
+    <span>Boussole v9.09 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
