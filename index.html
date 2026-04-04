@@ -689,10 +689,32 @@
 
     <!-- Panel Paramètres (ADR-2026-025) -->
     <div class="panel" id="panel-params" role="tabpanel" aria-labelledby="tab-params">
-      <div class="card">
-        <h2 class="card-title">Paramètres</h2>
 
-        <!-- Import Mon Espace Santé — en premier pour auto-remplissage -->
+      <!-- ===== CARD 1 : Mes données ===== -->
+      <div class="card" style="margin-bottom:16px;">
+        <h2 class="card-title">Mes données</h2>
+        <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
+          Télécharger une copie de toutes tes données (entrées, mesures, consultations, paramètres).
+        </p>
+        <button id="btn-export-data" onclick="exportDonneesJSON()"
+          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">
+          ↓ Exporter mes données (.json)
+        </button>
+        <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
+          Restaurer tes données depuis un fichier exporté précédemment.
+        </p>
+        <label for="input-import-data" style="display:block;width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;box-sizing:border-box;">
+          ↑ Importer des données (.json)
+        </label>
+        <input type="file" id="input-import-data" accept=".json" style="display:none;" onchange="importDonneesJSON(event)">
+        <div id="import-feedback" style="display:none;margin-top:8px;font-size:13px;text-align:center;"></div>
+      </div>
+
+      <!-- ===== CARD 2 : Mon profil utilisateur ===== -->
+      <div class="card" style="margin-bottom:16px;">
+        <h2 class="card-title">Mon profil utilisateur</h2>
+
+        <!-- Import Mon Espace Santé -->
         <div class="settings-group" style="margin-bottom:16px;padding:16px;background:rgba(45,106,79,.05);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
           <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2d6a4f;margin:0 0 6px;">🏥 Mon Espace Santé</p>
           <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 10px;line-height:1.4;">
@@ -705,35 +727,6 @@
           <p style="font-size:11px;color:rgba(6,23,45,.35);margin:6px 0 0;">🔒 Le fichier est lu uniquement sur ton appareil. Rien n'est transmis.</p>
           <div id="dossier-medical-content" style="margin-top:12px;">
             <p style="font-size:13px;color:rgba(6,23,45,.45);margin:0;">Aucune donnée importée.</p>
-          </div>
-        </div>
-
-        <!-- Feature D — Profil foyers -->
-        <div style="margin-bottom:16px;padding:14px;background:rgba(45,106,79,.06);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 8px;">Ton profil</p>
-          <div id="profil-actif-display" style="margin-bottom:10px;"></div>
-          <button id="btn-changer-profil" style="padding:7px 14px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Changer de profil</button>
-        </div>
-
-        <!-- Sections actives (Feature P/B) -->
-        <div class="settings-group" style="margin-bottom:16px;">
-          <p class="settings-label">Sections actives</p>
-          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 10px;">Choisis les sections affichées dans l'onglet Aujourd'hui.</p>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
-              <div>
-                <span style="font-size:14px;font-weight:600;color:#06172D;">Pacing</span>
-                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">Stabilité du jour, enveloppe énergie, signalement d'événements</span>
-              </div>
-              <input type="checkbox" id="toggle-section-pacing" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
-            </label>
-            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
-              <div>
-                <span style="font-size:14px;font-weight:600;color:#06172D;">Mes mesures</span>
-                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">FC repos, tension, VFC/RMSSD, poids, cycle</span>
-              </div>
-              <input type="checkbox" id="toggle-section-mesures" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
-            </label>
           </div>
         </div>
 
@@ -811,26 +804,6 @@
           <p style="font-size:12px;color:rgba(6,23,45,.5);margin:6px 0 0;">Pré-rempli via l'import Mon Espace Santé</p>
         </div>
 
-        <!-- Mes données -->
-        <div class="settings-group" style="margin-top:16px;">
-          <p class="settings-label">Mes données</p>
-          <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
-            Télécharger une copie de toutes tes données (entrées, mesures, consultations, paramètres).
-          </p>
-          <button id="btn-export-data" onclick="exportDonneesJSON()"
-            style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">
-            ↓ Exporter mes données (.json)
-          </button>
-          <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
-            Restaurer tes données depuis un fichier exporté précédemment.
-          </p>
-          <label for="input-import-data" style="display:block;width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;box-sizing:border-box;">
-            ↑ Importer des données (.json)
-          </label>
-          <input type="file" id="input-import-data" accept=".json" style="display:none;" onchange="importDonneesJSON(event)">
-          <div id="import-feedback" style="display:none;margin-top:8px;font-size:13px;text-align:center;"></div>
-        </div>
-
         <div style="margin-top:24px;text-align:center;">
           <button id="btn-save-params"
             style="background:#2d6a4f;color:#fff;border:none;
@@ -839,6 +812,40 @@
           </button>
           <div id="params-save-confirmation" aria-live="polite" aria-atomic="true"
             style="margin-top:8px;font-size:12px;color:#2d6a4f;min-height:18px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CARD 3 : Mes préférences utilisateur ===== -->
+      <div class="card">
+        <h2 class="card-title">Mes préférences utilisateur</h2>
+
+        <!-- Profil foyers -->
+        <div style="margin-bottom:16px;padding:14px;background:rgba(45,106,79,.06);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 8px;">Mon profil</p>
+          <div id="profil-actif-display" style="margin-bottom:10px;"></div>
+          <button id="btn-changer-profil" style="padding:7px 14px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Changer de profil</button>
+        </div>
+
+        <!-- Sections actives (Feature P/B) -->
+        <div class="settings-group">
+          <p class="settings-label">Sections actives</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 10px;">Choisis les sections affichées dans l'onglet Aujourd'hui.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
+              <div>
+                <span style="font-size:14px;font-weight:600;color:#06172D;">Pacing</span>
+                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">Stabilité du jour, enveloppe énergie, signalement d'événements</span>
+              </div>
+              <input type="checkbox" id="toggle-section-pacing" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
+              <div>
+                <span style="font-size:14px;font-weight:600;color:#06172D;">Mes mesures</span>
+                <span style="font-size:12px;color:#6b7280;display:block;margin-top:2px;">FC repos, tension, VFC/RMSSD, poids, cycle</span>
+              </div>
+              <input type="checkbox" id="toggle-section-mesures" onchange="window.saveSectionsPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
+            </label>
           </div>
         </div>
       </div>
@@ -917,7 +924,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.61 — </span>
+    <span>Boussole v9.62 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
