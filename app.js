@@ -826,7 +826,7 @@ function refreshSummary() {
     html += `<div style="border-radius:12px;padding:12px 14px;margin-bottom:12px;background:rgba(45,106,79,.07);border:1.5px solid rgba(45,106,79,.2);display:flex;align-items:flex-start;gap:10px;">
       <span style="font-size:20px;line-height:1.2;">${profilActif.emoji}</span>
       <div>
-        <p style="margin:0;font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;">${profilActif.label}</p>
+        <p style="margin:0;font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;">${profilActif.label}</p>
         <p style="margin:4px 0 0;font-size:13px;color:rgba(6,23,45,.72);line-height:1.4;">${profilActif.tip}</p>
       </div>
     </div>`;
@@ -1801,7 +1801,7 @@ window._ouvrirModePresentation = function() {
 
   const enTeteHtml =
     '<div style="background:#06172D;padding:20px;border-radius:12px;margin-bottom:12px;text-align:center;">' +
-      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;">Montrer au médecin</p>' +
+      '<p style="margin:0;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em;">Montrer au médecin</p>' +
       '<p style="margin:6px 0 0;font-size:13px;color:#6E877D;">' + dateJourLong + '</p>' +
       (patientLine ? '<p style="margin:4px 0 0;font-size:13px;color:#fff;">' + patientLine + '</p>' : '') +
     '</div>';
@@ -1820,10 +1820,10 @@ window._ouvrirModePresentation = function() {
         return '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
           '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
-            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Médicaments</div>' +
+            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Médicaments</div>' +
               (medL.length ? medL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
             '</div>' +
-            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Compléments</div>' +
+            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Compléments</div>' +
               (compL.length ? compL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
             '</div>' +
           '</div>' + allerH + '</div>';

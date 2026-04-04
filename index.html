@@ -126,7 +126,7 @@
     .trt-chip--actif.trt-chip--active{background:#2d6a4f;border-color:#2d6a4f;}
     .trt-chip--pause.trt-chip--active{background:#f59e0b;border-color:#f59e0b;}
     .trt-chip--arrete.trt-chip--active{background:#dc2626;border-color:#dc2626;}
-    .trt-section-label{font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;}
+    .trt-section-label{font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;}
     .trt-field-group{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
     .trt-field-group label{font-size:12px;color:rgba(6,23,45,.6);font-weight:500;}
     .trt-input{padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;}
@@ -276,7 +276,7 @@
         <div id="humeur-section" style="margin-bottom:16px; padding:16px;
         background:rgba(110,135,125,0.08); border-radius:12px;">
           <p style="font-size:12px; color:rgba(6,23,45,.5); text-align:center;
-          margin:0 0 10px; letter-spacing:.04em; text-transform:uppercase;
+          margin:0 0 10px; letter-spacing:.08em; text-transform:uppercase;
           font-weight:500;">
             Comment je me sens aujourd'hui ?
           </p>
@@ -317,7 +317,7 @@
                 <p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.3;">Tes mots apparaissent entre guillemets dans la synthèse médecin</p>
               </div>
             </div>
-            <span style="font-size:11px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap;">→ PDF médecin</span>
+            <span style="font-size:11px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.08em;white-space:nowrap;">→ PDF médecin</span>
           </div>
 
           <!-- Zone de saisie -->
@@ -577,7 +577,7 @@
         </button>
         <button
           onclick="ouvrirModaleMsgMedecin()"
-          style="width:100%;background:#fff;border:1.5px solid rgba(110,135,125,.4);color:#06172D;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
+          style="width:100%;background:#fff;border:1.5px solid var(--color-primary);color:var(--color-primary);border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;"
           aria-label="Envoyer un message à mon médecin"
         >
           &#x2709;&#xFE0F; Message à mon médecin
@@ -597,7 +597,7 @@
             <!-- Formulaire d'ajout de note inline -->
             <div id="journal-add-zone" style="display:none;background:#f8faf9;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;padding:14px;margin-bottom:12px;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                <label for="journal-add-date" style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">Date</label>
+                <label for="journal-add-date" style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Date</label>
                 <input type="date" id="journal-add-date" style="padding:6px 10px;border:1.5px solid rgba(45,106,79,.3);border-radius:8px;font-size:13px;font-family:inherit;color:#06172D;" aria-label="Date de la note">
               </div>
               <textarea id="journal-add-text" rows="4" maxlength="1000" placeholder="Ta note pour ce jour..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(45,106,79,.3);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#fff;" aria-label="Contenu de la note"></textarea>
@@ -764,7 +764,7 @@
     <!-- Panel Feedback post-saisie -->
     <div class="panel" id="panel-feedback">
       <div class="card" style="text-align:center; padding:32px 24px;">
-        <p style="font-size:13px; font-weight:600; color:rgba(6,23,45,.45); text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">Saisie enregistrée</p>
+        <p style="font-size:13px; font-weight:600; color:rgba(6,23,45,.45); text-transform:uppercase; letter-spacing:.08em; margin:0 0 8px;">Saisie enregistrée</p>
         <div id="feedback-score" style="font-size:64px; font-weight:800; line-height:1; margin:0 0 16px;">—</div>
         <!-- Barre 3 segments -->
         <div style="position:relative; height:10px; border-radius:8px; overflow:visible; display:flex; margin:0 0 24px; gap:3px;">
@@ -834,7 +834,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.40 — </span>
+    <span>Boussole v9.41 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -846,7 +846,7 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.40</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.41</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
@@ -1184,13 +1184,13 @@
 
       <!-- Nom du médecin -->
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Nom du médecin (optionnel)</label>
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em;">Nom du médecin (optionnel)</label>
         <input type="text" id="msg-medecin-nom-dr" aria-label="Nom du médecin" placeholder="Dr Dupont" style="width:100%;padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
       </div>
 
       <!-- Période -->
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Période</label>
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Période</label>
         <div style="display:flex;flex-direction:column;gap:6px;">
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
             <input type="radio" name="msg-period" value="7j" checked style="accent-color:#2d6a4f;"> 7 derniers jours
@@ -1206,7 +1206,7 @@
 
       <!-- Motif du message -->
       <div style="margin-bottom:16px;">
-        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Motif du message</label>
+        <label style="font-size:12px;font-weight:600;color:rgba(6,23,45,.55);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em;">Motif du message</label>
         <textarea id="msg-medecin-motif" aria-label="Motif du message au médecin" maxlength="300" rows="3" placeholder="Ex: effets indésirables suite à l'augmentation du Quviviq à 50mg — dois-je continuer ?" style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;"></textarea>
         <p style="font-size:11px;color:rgba(6,23,45,.38);margin:3px 0 0;">Ce motif sera intégré dans le message généré.</p>
       </div>
@@ -1218,7 +1218,7 @@
       <!-- Zone résultat -->
       <div id="msg-medecin-result" style="display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.04em;">Message généré</span>
+          <span style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;">Message généré</span>
           <div style="display:flex;gap:8px;">
             <button onclick="copierMsgMedecin()" style="padding:5px 12px;background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Copier</button>
             <button onclick="partagerMsgMedecin()" id="btn-partager-msg" style="padding:5px 12px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Partager</button>
@@ -1273,7 +1273,7 @@
       </div>
       <!-- Sélecteur de période narrative -->
       <div id="narrative-period-selector" style="display:none;margin-bottom:16px;padding:12px;background:#f0f7f4;border-radius:12px;border:1.5px solid rgba(45,106,79,.25);">
-        <p style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;">Période couverte par la synthèse narrative</p>
+        <p style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px;">Période couverte par la synthèse narrative</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
             <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> <span id="label-depuis-consult">Depuis la dernière consultation</span>
@@ -1411,7 +1411,7 @@
 
       <!-- Saisie rapide avec parsing intelligent -->
       <div style="margin-bottom:14px;background:#f8faf9;border-radius:12px;padding:10px 12px;">
-        <label for="trt-saisie-rapide" style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Saisie rapide</label>
+        <label for="trt-saisie-rapide" style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">Saisie rapide</label>
         <div style="display:flex;gap:8px;">
           <input id="trt-saisie-rapide" type="text" maxlength="200"
             placeholder="Ex : Brintellix 20mg 1/j matin"
