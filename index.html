@@ -248,7 +248,7 @@
     </div>
 
     <!-- Panel Aujourd'hui -->
-    <div class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
+        <div class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
 
       <div id="welcome-banner" style="display:none;">
         <div class="card" style="text-align:center; margin-bottom:16px; background:linear-gradient(135deg,#f0f7f4,#e8f5f0);">
@@ -261,78 +261,8 @@
           </div>
         </div>
       </div>
-      <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
-      <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
 
-      <!-- Feature P : Pacing — Stabilité du jour -->
-      <div id="morning-pace-card"></div>
-
-      <!-- Signaler un événement (repositionné sous Pacing) -->
-      <div style="text-align:center; margin-bottom:12px;">
-        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
-      </div>
-
-      <!-- Feature B : Pacing — Enveloppe énergie -->
-      <div id="energy-envelope-card"></div>
-
-      <!-- Section Mes mesures — repositionnée sous Pacing (ADR-2026-021) -->
-      <div id="section-mesures" class="mesures-section">
-        <div class="mesures-header" id="toggle-mesures">
-          <span class="mesures-chevron">&#9654;</span>
-          <div class="mesures-header-text">
-            <span class="mesures-title">Mes mesures (optionnel)</span>
-            <span class="mesures-header-sub">FC repos · Tension · Poids · RMSSD</span>
-          </div>
-        </div>
-        <p class="mesures-subtitle" style="display:none;">Fréquence cardiaque, tension, poids… tes données restent sur ton appareil.</p>
-        <div class="mesures-body" style="display:none;">
-          <div class="mesures-grid">
-            <div class="mesures-field">
-              <label for="input-fc">FC repos (bpm)</label>
-              <input type="number" id="input-fc" placeholder="ex : 68" min="30" max="200" inputmode="numeric">
-            </div>
-            <div class="mesures-field">
-              <label for="mesures-sommeil">Durée de sommeil (h)</label>
-              <input type="number" id="mesures-sommeil" name="mesures-sommeil" placeholder="ex. 6.5" min="0" max="24" step="0.5" inputmode="decimal">
-            </div>
-            <div class="mesures-field">
-              <label for="mesures-repos-diurne">Repos diurne (h)</label>
-              <input type="number" id="mesures-repos-diurne" min="0" max="24" step="0.5" placeholder="ex : 3" inputmode="decimal">
-            </div>
-            <div class="mesures-field">
-              <label for="input-rmssd">VFC / RMSSD (ms)</label>
-              <input type="number" id="input-rmssd" placeholder="ex : 42" min="1" max="300" inputmode="numeric">
-            </div>
-            <div class="mesures-field mesures-field-ta">
-              <label id="label-tension">Tension (mmHg)</label>
-              <div class="ta-inputs">
-                <input type="number" id="input-ta-sys" placeholder="120" min="60" max="250" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension systolique">
-                <span class="ta-separator">/</span>
-                <input type="number" id="input-ta-dia" placeholder="80" min="30" max="150" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension diastolique">
-              </div>
-            </div>
-            <div class="mesures-field">
-              <label for="input-poids">Poids (kg)</label>
-              <input type="number" id="input-poids" placeholder="ex : 65.0" min="20" max="300" step="0.1" inputmode="decimal">
-            </div>
-          </div>
-          <div class="mesures-field mesures-cycle">
-            <label>Phase du cycle</label>
-            <div class="cycle-chips" id="cycle-chips">
-              <button type="button" class="chip" data-phase="menstruation">Règles</button>
-              <button type="button" class="chip" data-phase="folliculaire">Folliculaire</button>
-              <button type="button" class="chip" data-phase="ovulation">Ovulation</button>
-              <button type="button" class="chip" data-phase="luteale">Lutéale</button>
-              <button type="button" class="chip" data-phase="perimenopause">Irrégulier</button>
-              <button type="button" class="chip" data-phase="aucun">Non applicable</button>
-            </div>
-            <p class="mesures-help">Si tu suis ton cycle, indique la phase du jour.</p>
-          </div>
-          <button id="btn-save-mesures" class="btn-save-mesures">Enregistrer mes mesures</button>
-          <p id="mesures-status" class="mesures-status" style="display:none;"></p>
-        </div>
-      </div>
-
+      <!-- ===== CARD 1 : Mon bilan du jour ===== -->
       <div class="card">
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
@@ -554,9 +484,86 @@
         </div>
       </div>
 
+      <!-- ===== CARD 2 : Pacing (conditionnel) ===== -->
+      <div id="section-pacing-wrapper">
+        <!-- Alerte pacing PEM (positionnée en haut pour visibilité) -->
+      <div id="pacing-alert-today" class="pacing-alert" style="display:none;" role="alert"></div>
+
+      <!-- Feature P : Pacing — Stabilité du jour -->
+      <div id="morning-pace-card"></div>
+
+      <!-- Signaler un événement (repositionné sous Pacing) -->
+      <div style="text-align:center; margin-bottom:12px;">
+        <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
+      </div>
+
+      <!-- Feature B : Pacing — Enveloppe énergie -->
+      <div id="energy-envelope-card"></div>
+      </div>
+
+      <!-- ===== CARD 3 : Mes mesures (conditionnel) ===== -->
+      <!-- Section Mes mesures — repositionnée sous Pacing (ADR-2026-021) -->
+      <div id="section-mesures" class="mesures-section">
+        <div class="mesures-header" id="toggle-mesures">
+          <span class="mesures-chevron">&#9654;</span>
+          <div class="mesures-header-text">
+            <span class="mesures-title">Mes mesures (optionnel)</span>
+            <span class="mesures-header-sub">FC repos · Tension · Poids · RMSSD</span>
+          </div>
+        </div>
+        <p class="mesures-subtitle" style="display:none;">Fréquence cardiaque, tension, poids… tes données restent sur ton appareil.</p>
+        <div class="mesures-body" style="display:none;">
+          <div class="mesures-grid">
+            <div class="mesures-field">
+              <label for="input-fc">FC repos (bpm)</label>
+              <input type="number" id="input-fc" placeholder="ex : 68" min="30" max="200" inputmode="numeric">
+            </div>
+            <div class="mesures-field">
+              <label for="mesures-sommeil">Durée de sommeil (h)</label>
+              <input type="number" id="mesures-sommeil" name="mesures-sommeil" placeholder="ex. 6.5" min="0" max="24" step="0.5" inputmode="decimal">
+            </div>
+            <div class="mesures-field">
+              <label for="mesures-repos-diurne">Repos diurne (h)</label>
+              <input type="number" id="mesures-repos-diurne" min="0" max="24" step="0.5" placeholder="ex : 3" inputmode="decimal">
+            </div>
+            <div class="mesures-field">
+              <label for="input-rmssd">VFC / RMSSD (ms)</label>
+              <input type="number" id="input-rmssd" placeholder="ex : 42" min="1" max="300" inputmode="numeric">
+            </div>
+            <div class="mesures-field mesures-field-ta">
+              <label id="label-tension">Tension (mmHg)</label>
+              <div class="ta-inputs">
+                <input type="number" id="input-ta-sys" placeholder="120" min="60" max="250" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension systolique">
+                <span class="ta-separator">/</span>
+                <input type="number" id="input-ta-dia" placeholder="80" min="30" max="150" inputmode="numeric" aria-labelledby="label-tension" aria-label="Tension diastolique">
+              </div>
+            </div>
+            <div class="mesures-field">
+              <label for="input-poids">Poids (kg)</label>
+              <input type="number" id="input-poids" placeholder="ex : 65.0" min="20" max="300" step="0.1" inputmode="decimal">
+            </div>
+          </div>
+          <div class="mesures-field mesures-cycle">
+            <label>Phase du cycle</label>
+            <div class="cycle-chips" id="cycle-chips">
+              <button type="button" class="chip" data-phase="menstruation">Règles</button>
+              <button type="button" class="chip" data-phase="folliculaire">Folliculaire</button>
+              <button type="button" class="chip" data-phase="ovulation">Ovulation</button>
+              <button type="button" class="chip" data-phase="luteale">Lutéale</button>
+              <button type="button" class="chip" data-phase="perimenopause">Irrégulier</button>
+              <button type="button" class="chip" data-phase="aucun">Non applicable</button>
+            </div>
+            <p class="mesures-help">Si tu suis ton cycle, indique la phase du jour.</p>
+          </div>
+          <button id="btn-save-mesures" class="btn-save-mesures">Enregistrer mes mesures</button>
+          <p id="mesures-status" class="mesures-status" style="display:none;"></p>
+        </div>
+      </div>
 
       <!-- Alerte dégradation prolongée (Feature Q) -->
       <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:rgba(6,23,45,.78);" role="alert"></div>
+
+    </div>
 
     </div>
 
@@ -932,7 +939,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.64 — </span>
+    <span>Boussole v9.65 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
