@@ -300,13 +300,32 @@ window.EnergyEnvelope = (function() {
     }
   }
 
-  function addCustomActivity(nom, cout, categorie) {
+  function addCustomActivity(nom, cout, categorie, emoji) {
     var customs = [];
     try { var raw = localStorage.getItem(CATALOGUE_KEY); if (raw) customs = JSON.parse(raw); } catch (e) {}
     var id = 'custom_' + Date.now();
-    customs.push({ id: id, nom: nom, cout: parseInt(cout, 10), categorie: categorie || 'physique', emoji: '⚡' });
+    customs.push({ id: id, nom: nom, cout: parseInt(cout, 10), categorie: categorie || 'physique', emoji: emoji || '⚡' });
     try { localStorage.setItem(CATALOGUE_KEY, JSON.stringify(customs)); } catch (e) {}
     return id;
+  }
+
+  function deleteCustomActivity(id) {
+    var customs = [];
+    try { var raw = localStorage.getItem(CATALOGUE_KEY); if (raw) customs = JSON.parse(raw); } catch (e) {}
+    customs = customs.filter(function(a) { return a.id !== id; });
+    try { localStorage.setItem(CATALOGUE_KEY, JSON.stringify(customs)); } catch (e) {}
+    render('energy-envelope-card');
+  }
+
+  function _submitCustom() {
+    var nom = (document.getElementById('ee-custom-nom') || {}).value || '';
+    var cout = (document.getElementById('ee-custom-cout') || {}).value || '';
+    if (!nom.trim() || cout === '') return;
+    var cat = (document.getElementById('ee-custom-cat') || {}).value || 'physique';
+    addCustomActivity(nom.trim(), cout, cat, '⚡');
+    render('energy-envelope-card');
+    // Rouvrir le picker
+    setTimeout(function() { var p = document.getElementById('ee-picker'); if (p) p.style.display = 'block'; }, 50);
   }
 
   function _togglePicker() {
@@ -387,6 +406,34 @@ window.EnergyEnvelope = (function() {
       });
       pickerHtml += '</div>';
     });
+
+    // --- Activités personnalisées ---
+    var customs = [];
+    try { var rawC = localStorage.getItem(CATALOGUE_KEY); if (rawC) customs = JSON.parse(rawC); } catch(e) {}
+    if (customs.length > 0) {
+      pickerHtml += '<div style="font-size:11px;font-weight:600;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px;">⚡ Mes activités</div>';
+      pickerHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+      customs.forEach(function(a) {
+        var signe = a.cout >= 0 ? '+' : '';
+        pickerHtml += '<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(45,106,79,.06);border:1px solid rgba(45,106,79,.2);border-radius:8px;padding:4px 6px 4px 10px;font-size:12px;">' +
+          '<button onclick="window.EnergyEnvelope.logActivity(\'' + a.id + '\')" style="background:none;border:none;cursor:pointer;font-size:12px;font-family:inherit;color:#1a2332;padding:0;">' +
+          (a.emoji || '⚡') + ' ' + a.nom + ' <span style="color:#9ca3af;">(' + signe + a.cout + ')</span></button>' +
+          '<button onclick="window.EnergyEnvelope.deleteCustomActivity(\'' + a.id + '\')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px;padding:0 2px;" title="Supprimer">&times;</button>' +
+        '</div>';
+      });
+      pickerHtml += '</div>';
+    }
+
+    // --- Formulaire création ---
+    pickerHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;">';
+    pickerHtml += '<p style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;">+ Créer une activité</p>';
+    pickerHtml += '<div style="display:grid;grid-template-columns:1fr 70px 90px 50px;gap:6px;align-items:end;">';
+    pickerHtml += '<div><label style="font-size:10px;color:#9ca3af;">Nom</label><input id="ee-custom-nom" type="text" maxlength="40" placeholder="Ex : Yoga doux" style="width:100%;padding:6px 8px;border:1px solid rgba(6,23,45,.15);border-radius:6px;font-size:12px;font-family:inherit;"></div>';
+    pickerHtml += '<div><label style="font-size:10px;color:#9ca3af;">Coût</label><input id="ee-custom-cout" type="number" placeholder="15" min="-30" max="50" style="width:100%;padding:6px 8px;border:1px solid rgba(6,23,45,.15);border-radius:6px;font-size:12px;"></div>';
+    pickerHtml += '<div><label style="font-size:10px;color:#9ca3af;">Catégorie</label><select id="ee-custom-cat" style="width:100%;padding:6px 4px;border:1px solid rgba(6,23,45,.15);border-radius:6px;font-size:11px;font-family:inherit;"><option value="physique">Physique</option><option value="cognitif">Cognitif</option><option value="repos">Repos</option></select></div>';
+    pickerHtml += '<div><button onclick="window.EnergyEnvelope._submitCustom()" style="width:100%;padding:6px;background:#2d6a4f;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">OK</button></div>';
+    pickerHtml += '</div></div>';
+
     pickerHtml += '</div>';
 
     // Remaining points
@@ -433,7 +480,9 @@ window.EnergyEnvelope = (function() {
     logActivity: logActivity,
     removeActivity: removeActivity,
     addCustomActivity: addCustomActivity,
+    deleteCustomActivity: deleteCustomActivity,
     _togglePicker: _togglePicker,
+    _submitCustom: _submitCustom,
     render: render
   };
 
