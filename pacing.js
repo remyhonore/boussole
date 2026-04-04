@@ -23,14 +23,11 @@ window.MorningPace = (function() {
     try {
       var keys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
       for (var i = 0; i < keys.length; i++) {
-        var parts = keys[i].replace('boussole_event_', '').split('_');
-        var dateEvt = parts[0];
-        if (dateEvt >= cutoffStr) {
-          var raw = localStorage.getItem(keys[i]);
-          if (raw) {
-            var evt = JSON.parse(raw);
-            if (crashTypes.indexOf(evt.type) !== -1) return true;
-          }
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) {
+          var evt = JSON.parse(raw);
+          var evtDate = evt.date || '';
+          if (evtDate >= cutoffStr && crashTypes.indexOf(evt.type) !== -1) return true;
         }
       }
     } catch (e) {}
@@ -91,10 +88,11 @@ window.MorningPace = (function() {
     else if (blended < 78) niveau = 4;
     else niveau = 5;
 
-    // 5. Ajustement événements crash récents (48h)
+    // 5. Ajustement événements crash récents (48h) — Option B : −1 cran
+    // Le lendemain les scores subjectifs prendront le relais naturellement
     var crashRecent = _hasCrashEvent48h();
     if (crashRecent) {
-      niveau = Math.max(1, niveau - 2); // crash = descendre de 2 niveaux
+      niveau = Math.max(1, niveau - 1);
     }
 
     // Ajustement feedback : si l'utilisateur a souvent dit 👎, baisser d'un cran

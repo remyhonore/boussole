@@ -869,7 +869,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.54 — </span>
+    <span>Boussole v9.55 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1427,6 +1427,16 @@
         <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
         <option value="autre">Autre</option>
       </select>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <div style="flex:1;">
+          <label for="event-date" style="font-size:12px;color:#6b7280;">Date</label>
+          <input type="date" id="event-date" aria-label="Date de l'événement" style="width:100%;padding:8px 10px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
+        </div>
+        <div style="flex:0 0 100px;">
+          <label for="event-time" style="font-size:12px;color:#6b7280;">Heure</label>
+          <input type="time" id="event-time" aria-label="Heure de l'événement" style="width:100%;padding:8px 10px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;box-sizing:border-box;">
+        </div>
+      </div>
       <label for="event-desc" style="display:none;">Description de l'événement</label>
       <textarea id="event-desc" aria-label="Description de l'événement" maxlength="300" placeholder="Décrivez l'événement... (300 car max)" rows="4"></textarea>
       <span id="event-desc-count">0/300</span>

@@ -1198,11 +1198,19 @@ function openEventModal(editKey) {
     document.getElementById('event-type').value = e.type || '';
     document.getElementById('event-desc').value = e.description || '';
     document.getElementById('event-desc-count').textContent = (e.description || '').length + '/300';
+    var evtDate = document.getElementById('event-date');
+    var evtTime = document.getElementById('event-time');
+    if (evtDate) evtDate.value = e.date || '';
+    if (evtTime) evtTime.value = e.heure || '';
     modal.querySelector('h3').textContent = '✏️ Modifier l\'événement';
   } else {
     document.getElementById('event-desc').value = '';
     document.getElementById('event-type').value = '';
     document.getElementById('event-desc-count').textContent = '0/300';
+    var evtDateNew = document.getElementById('event-date');
+    var evtTimeNew = document.getElementById('event-time');
+    if (evtDateNew) evtDateNew.value = localDateStr(new Date());
+    if (evtTimeNew) evtTimeNew.value = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     modal.querySelector('h3').textContent = '▶ Événement notable';
   }
 }
@@ -1215,14 +1223,18 @@ function saveEvent() {
   let key, event;
   if (editKey) {
     const existing = JSON.parse(localStorage.getItem(editKey) || '{}');
-    event = Object.assign({}, existing, { type: type, description: desc });
+    var editDate = (document.getElementById('event-date') || {}).value || existing.date;
+    var editHeure = (document.getElementById('event-time') || {}).value || existing.heure || '';
+    event = Object.assign({}, existing, { type: type, description: desc, date: editDate, heure: editHeure });
     key = editKey;
   } else {
-    const dateStr = window._saisieDate || localDateStr(new Date());
+    var formDate = (document.getElementById('event-date') || {}).value || (window._saisieDate || localDateStr(new Date()));
+    var formHeure = (document.getElementById('event-time') || {}).value || '';
     const ts = Date.now();
-    const todayEntry = JSON.parse(localStorage.getItem('boussole_' + dateStr) || '{}');
+    const todayEntry = JSON.parse(localStorage.getItem('boussole_' + formDate) || '{}');
     event = {
-      date: dateStr,
+      date: formDate,
+      heure: formHeure,
       type: type,
       description: desc,
       score: todayEntry.score ?? null,
@@ -1230,7 +1242,7 @@ function saveEvent() {
       medicaments: localStorage.getItem('boussole_medicaments') || '',
       created_at: ts
     };
-    key = 'boussole_event_' + dateStr + '_' + ts;
+    key = 'boussole_event_' + formDate + '_' + ts;
   }
   localStorage.setItem(key, JSON.stringify(event));
   window._editEventKey = null;
