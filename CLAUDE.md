@@ -35,6 +35,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `cycle_tracker.js` | Suivi cycle menstruel |
 | `correlations.js` | Analyse corrélations entre métriques |
 | `charts.js` | Graphiques temporels interactifs in-app (7/14/30/90j, overlays traitements + événements) |
+| `questionnaires.js` | Questionnaires PRO validés (PHQ-9, GAD-7, PCFS) — scoring auto, stockage local, intégration Résumé + PDF |
 | `share_profile.js` | Partage profil patient |
 | `fiches_data.js` | Données des fiches pratiques |
 | `profil_data.js` | Données profil utilisateur |
@@ -44,7 +45,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 
 ```
 storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_consultation.js
-→ pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js
+→ pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js → questionnaires.js
 → share_profile.js → profil_data.js → traitements.js → import_mes.js → app.js
 ```
 
@@ -65,6 +66,9 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 | `boussole_pacing_catalogue` | Activités personnalisées pour l'enveloppe énergie |
 | `boussole_pacing_log_YYYY-MM-DD` | Log d'activités du jour `[{ id, nom, cout, emoji, heure }]` |
 | `boussole_sections` | Sections actives `{ pacing: bool, mesures: bool }` (défaut : tout ON) |
+| `boussole_q_PHQ-9_YYYY-MM-DD` | Résultat PHQ-9 `{ date, scale, answers, score, ts }` |
+| `boussole_q_GAD-7_YYYY-MM-DD` | Résultat GAD-7 `{ date, scale, answers, score, ts }` |
+| `boussole_q_PCFS_YYYY-MM-DD` | Résultat PCFS `{ date, scale, answers, score, ts }` |
 | `version_seen` | Version modale changelog vue |
 | `newsletter_done` | Email gate newsletter |
 | `brevo_subscribed` | Statut abonnement Brevo |

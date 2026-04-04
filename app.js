@@ -915,6 +915,11 @@ function refreshSummary() {
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
+  // 5b. Questionnaires PRO (PHQ-9, GAD-7, PCFS)
+  if (window.Questionnaires && typeof window.Questionnaires.buildBloc === 'function') {
+    html += window.Questionnaires.buildBloc();
+  }
+
   // 6. Feature E — Corrélations traitements × score
   html += buildBlocCorrelations();
 
