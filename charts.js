@@ -314,7 +314,113 @@
     /** Détruit le graphique courant */
     destroy: function() {
       if (_chart) { _chart.destroy(); _chart = null; }
+    },
+
+    // === YEAR IN PIXELS ===
+
+    /** Génère le HTML du calendrier Year in Pixels */
+    buildYearInPixels: function() {
+      return _buildYearInPixels();
+    },
+    /** Attache les listeners du filtre indicateur */
+    initYearInPixels: function() {
+      _initYearInPixels();
     }
   };
 
-})();
+  // === YEAR IN PIXELS — implémentation ===
+
+  var MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var _yipFilter = 'score';
+
+  var YIP_FILTERS = [
+    { key: 'score',   label: 'Score' },
+    { key: 'energie', label: 'Énergie' },
+    { key: 'sommeil', label: 'Sommeil' },
+    { key: 'confort', label: 'Confort' },
+    { key: 'clarte',  label: 'Clarté' }
+  ];
+
+
+  function _yipColor(val) {
+    if (val === null || val === undefined) return 'rgba(6,23,45,.06)';
+    if (val >= 8) return '#2d6a4f';
+    if (val >= 6) return '#6E877D';
+    if (val >= 4) return '#e07b2a';
+    if (val >= 2) return '#dc6050';
+    return '#dc2626';
+  }
+
+  function _getYipData(filterKey) {
+    var data = typeof loadEntries === 'function' ? loadEntries() : { entries: [] };
+    var map = {};
+    (data.entries || []).forEach(function(e) {
+      var val = null;
+      if (filterKey === 'score') {
+        var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return v !== null && v !== undefined; });
+        val = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+      } else if (filterKey === 'energie') val = e.energie;
+      else if (filterKey === 'sommeil') val = e.qualite_sommeil;
+      else if (filterKey === 'confort') val = e.douleurs;
+      else if (filterKey === 'clarte') val = e.clarte_mentale;
+      if (val !== null && val !== undefined) map[e.date] = val;
+    });
+    return map;
+  }
+
+  function _buildYearInPixels() {
+    var year = new Date().getFullYear();
+    var filterBtns = YIP_FILTERS.map(function(f) {
+      var active = f.key === _yipFilter;
+      return '<button class="yip-filter-btn' + (active ? ' yip-filter-btn--active' : '') + '" data-filter="' + f.key + '">' + f.label + '</button>';
+    }).join('');
+
+    var html = '<div id="year-in-pixels-card" style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Year in Pixels ' + year + '</p>';
+    html += '<div id="yip-filter-btns" style="display:flex;gap:3px;">' + filterBtns + '</div>';
+    html += '</div>';
+    html += '<div id="yip-grid">' + _renderGrid() + '</div>';
+    // Légende
+    html += '<div style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:8px;">';
+    var legendColors = [
+      { c: '#dc2626', l: '0-2' }, { c: '#dc6050', l: '2-4' },
+      { c: '#e07b2a', l: '4-6' }, { c: '#6E877D', l: '6-8' }, { c: '#2d6a4f', l: '8-10' }
+    ];
+    legendColors.forEach(function(lc) {
+      html += '<span style="display:inline-flex;align-items:center;gap:2px;font-size:9px;color:rgba(6,23,45,.5);"><span style="width:10px;height:10px;border-radius:2px;background:' + lc.c + ';display:inline-block;"></span>' + lc.l + '</span>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function _renderGrid() {
+    var year = new Date().getFullYear();
+    var dataMap = _getYipData(_yipFilter);
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var todayStr = typeof localDateStr === 'function' ? localDateStr(today) : today.toISOString().split('T')[0];
+
+    var html = '<div style="display:grid;grid-template-columns:28px repeat(31,1fr);gap:1px;font-size:9px;">';
+    for (var m = 0; m < 12; m++) {
+      // Mois label
+      html += '<div style="font-size:9px;color:rgba(6,23,45,.45);font-weight:600;display:flex;align-items:center;padding-right:4px;">' + MONTHS_FR[m] + '</div>';
+      var daysInMonth = new Date(year, m + 1, 0).getDate();
+      for (var d = 1; d <= 31; d++) {
+        if (d > daysInMonth) {
+          html += '<div></div>';
+          continue;
+        }
+        var ds = year + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        var isFuture = ds > todayStr;
+        var val = dataMap[ds];
+        var bg = isFuture ? 'transparent' : _yipColor(val);
+        var border = ds === todayStr ? '2px solid #06172D' : 'none';
+        var title = val !== null && val !== undefined ? (d + '/' + (m+1) + ' : ' + (typeof val === 'number' ? val.toFixed(1) : val)) : '';
+        html += '<div style="aspect-ratio:1;border-radius:2px;background:' + bg + ';border:' + border + ';" title="' + title + '"></div>';
+      }
+    }
+    html += '</div>';
+    return html;
+  }
+

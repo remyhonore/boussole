@@ -1306,6 +1306,63 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
+  // 8b. RESUME PACING (conditionnel)
+  // ============================================================
+  (function() {
+    if (!window.EnergyEnvelope) return;
+    var budget = window.EnergyEnvelope.getBudget();
+    var LOG_PREFIX = 'boussole_pacing_log_';
+    var daysLogged = 0, daysOver = 0, totalCost = 0, activityCounts = {};
+
+    entrees.forEach(function(e) {
+      var raw = localStorage.getItem(LOG_PREFIX + e.date);
+      if (!raw) return;
+      try {
+        var log = JSON.parse(raw);
+        if (!Array.isArray(log) || log.length === 0) return;
+        daysLogged++;
+        var dayCost = log.reduce(function(s, a) { return s + (a.cout || 0); }, 0);
+        totalCost += dayCost;
+        if (dayCost > budget * 0.8) daysOver++;
+        log.forEach(function(a) {
+          var nom = a.nom || 'Inconnu';
+          if (!activityCounts[nom]) activityCounts[nom] = { count: 0, totalCout: 0 };
+          activityCounts[nom].count++;
+          activityCounts[nom].totalCout += (a.cout || 0);
+        });
+      } catch(ex) {}
+    });
+
+    if (daysLogged === 0) return;
+
+    checkPage(30);
+    doc.setFontSize(9);
+    tc(MUTED, false);
+    doc.text('R\xc9SUM\xc9 PACING \xc9NERG\xc9TIQUE', marginL, y);
+    y += 5;
+    doc.setFontSize(8);
+    tc(ANTHRACITE, false);
+    var avgCost = Math.round(totalCost / daysLogged);
+    doc.text('Budget quotidien : ' + budget + ' pts  |  Co\xfbt moyen : ' + avgCost + ' pts/j  |  Jours de d\xe9passement (>80%) : ' + daysOver + '/' + daysLogged, marginL, y);
+    y += 5;
+
+    // Top 3 activités les plus coûteuses
+    var sorted = Object.keys(activityCounts).map(function(n) {
+      return { nom: n, count: activityCounts[n].count, total: activityCounts[n].totalCout };
+    }).sort(function(a, b) { return b.total - a.total; }).slice(0, 3);
+
+    if (sorted.length > 0) {
+      doc.text('Activit\xe9s les plus co\xfbteuses : ' + sorted.map(function(a) {
+        return a.nom + ' (' + a.total + ' pts, ' + a.count + 'x)';
+      }).join('  |  '), marginL, y);
+      y += 5;
+    }
+
+    drawSep(y);
+    y += 5;
+  })();
+
+  // ============================================================
   // CYCLE HORMONAL (conditionnel — logique conservee)
   // ============================================================
 
