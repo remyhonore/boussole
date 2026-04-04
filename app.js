@@ -383,7 +383,7 @@ function loadTodayData() {
   if (pacingWrapper) pacingWrapper.style.display = pacingVisible ? '' : 'none';
   if (mpCard) mpCard.style.display = pacingVisible ? '' : 'none';
   if (eeCard) eeCard.style.display = pacingVisible ? '' : 'none';
-  if (pacingAlert) pacingAlert.style.display = pacingVisible ? '' : 'none';
+  if (pacingAlert) pacingAlert.style.display = 'none';
 
   if (pacingVisible) {
     if (window.MorningPace && typeof window.MorningPace.render === 'function') {
