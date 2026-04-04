@@ -298,7 +298,7 @@
         </div>
 
         <div style="text-align:right; margin:-4px 0 12px;">
-          <button id="btn-mark-event">▶ Signaler un événement</button>
+          <button id="btn-mark-event" style="border:1.5px solid var(--color-primary);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--color-primary);background:none;cursor:pointer;font-family:inherit;">▶ Signaler un événement</button>
         </div>
 
         <hr style="border:none; border-top:1px solid rgba(110,135,125,.2);
@@ -314,10 +314,10 @@
               <span style="font-size:20px;line-height:1;">📓</span>
               <div>
                 <p style="font-size:14px;font-weight:700;color:#06172D;margin:0;line-height:1.2;">Mon journal du jour</p>
-                <p style="font-size:11px;color:rgba(6,23,45,.45);margin:0;line-height:1.3;">Tes mots apparaissent entre guillemets dans la synthèse médecin</p>
+                <p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.3;">Tes mots apparaissent entre guillemets dans la synthèse médecin</p>
               </div>
             </div>
-            <span style="font-size:10px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap;">→ PDF médecin</span>
+            <span style="font-size:11px;font-weight:700;background:rgba(45,106,79,.15);color:#2d6a4f;border-radius:20px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap;">→ PDF médecin</span>
           </div>
 
           <!-- Zone de saisie -->
@@ -551,7 +551,7 @@
         <!-- Contenu généré dynamiquement -->
       </div>
 
-      <button onclick="window.generateShareProfile()" id="btn-share-profile" style="display:block; margin:24px auto 8px; padding:14px 32px; background:#2d6a4f; color:white; border:none; border-radius:12px; font-size:17px; cursor:pointer; font-weight:600;">🌟 Mon profil Boussole</button>
+      <button onclick="window.generateShareProfile()" id="btn-share-profile" style="display:block; margin:24px auto 8px; padding:14px 32px; background:#2d6a4f; color:white; border:none; border-radius:12px; font-size:16px; cursor:pointer; font-weight:600;">🌟 Mon profil Boussole</button>
       <p style="text-align:center; color:#6b7280; font-size:13px; margin:0 0 24px;">Partage ton profil bien-être (données anonymes)</p>
 
     </div>
@@ -834,7 +834,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.37 — </span>
+    <span>Boussole v9.38 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -846,7 +846,7 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v9.37</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.38</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
@@ -1177,7 +1177,7 @@
   <div id="modal-msg-medecin" role="dialog" aria-modal="true" aria-labelledby="msg-medecin-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:92vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <h2 id="msg-medecin-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;">✉️ Message à mon médecin</h2>
+        <h2 id="msg-medecin-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;">✉️ Message à mon médecin</h2>
         <button onclick="fermerModaleMsgMedecin()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <p style="font-size:13px;color:rgba(6,23,45,.5);margin:0 0 16px;">Message court (SMS / email) rédigé par l'IA à partir de tes notes.</p>
@@ -1237,7 +1237,7 @@
   <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="consultation-modal-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
+        <h2 id="consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
         <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
       <p style="font-size:13px;font-weight:600;color:#06172D;margin:0 0 10px;">Motifs fréquents</p>
@@ -1321,7 +1321,7 @@
   <div id="modal-post-consultation" role="dialog" aria-modal="true" aria-labelledby="post-consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="post-consultation-modal-title" style="font-size:17px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après ma consultation</h2>
+        <h2 id="post-consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après ma consultation</h2>
         <button onclick="closePostConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
 

@@ -36,13 +36,43 @@
   --spacing-xl: 32px;
 
   /* Radius — plus généreux, alignés vitrine */
-  --radius-sm: 6px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
 
   /* Ombres — douces comme vitrine */
   --shadow-card: 0 14px 34px rgba(6,23,45,.11);
   --shadow-soft: 0 4px 12px rgba(6,23,45,.08);
+
+  /* === DESIGN TOKENS v2 (audit 04/04/2026) === */
+
+  /* Texte — 3 niveaux sémantiques (remplace les grays Tailwind/legacy) */
+  --color-text-secondary: rgba(6,23,45,.65);
+  --color-text-hint: rgba(6,23,45,.45);
+
+  /* Vert score (unique — remplace rgb(45,158,110) et rgb(46,158,110)) */
+  --color-score: #2d9e6e;
+
+  /* Bordures interactives */
+  --color-border-input: rgba(110,135,125,.35);
+  --color-border-dashed: rgba(45,106,79,.4);
+
+  /* Fonds neutres (remplace Tailwind gray-50/200) */
+  --color-bg-field: rgba(6,23,45,.03);
+  --color-border-field: rgba(6,23,45,.12);
+
+  /* Typographie — échelle stricte 5 tailles (audit) */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+
+  /* Radius — 3 valeurs strictes (audit : remplace 11 valeurs) */
+  /* --radius-sm: 8px  (déjà 6px, on le passe à 8px) */
+  /* --radius-md: 12px (déjà) */
+  /* --radius-lg: 18px (déjà) */
+  --radius-pill: 20px;
 }
 
 /* === RESET === */
@@ -815,10 +845,11 @@ h2.summary-section {
   background: var(--color-primary);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
 .btn-save-mesures:hover {
@@ -1371,4 +1402,191 @@ html.dark .journal-note-text { color: #e8e4de; }
 html.dark .journal-accord {
   background: #1b2838;
   border-color: rgba(255,255,255,0.08);
+}
+/* === CLASSES UTILITAIRES (audit design system 04/04/2026) === */
+
+/* Label de section uppercase — pattern unifié */
+.section-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-hint);
+  margin: 0 0 8px;
+}
+
+/* Label de section uppercase — variante visible */
+.section-label--visible {
+  color: var(--color-text);
+}
+
+/* Bouton action principal (filled vert) */
+.btn-action {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-action:hover { background: var(--color-primary-dark); }
+
+/* Bouton outline vert */
+.btn-outline {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-outline:hover { background: rgba(45,106,79,.06); }
+
+/* Bouton ajout dashed */
+.btn-add {
+  width: 100%;
+  padding: 7px 14px;
+  background: none;
+  border: 1.5px dashed var(--color-border-dashed);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-add:hover { background: rgba(45,106,79,.04); }
+
+/* Bouton supprimer (unique style) */
+.btn-delete {
+  background: none;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  border-radius: var(--radius-sm);
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-delete:hover { background: rgba(220,38,38,.06); }
+
+/* Champ input unifié */
+.input-field {
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--color-text);
+  background: #fff;
+  box-sizing: border-box;
+  width: 100%;
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Chip/pill (cycle, filtres) */
+.chip-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-field);
+  background: var(--color-bg-field);
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+}
+.chip-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.chip-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* Score vert unifié */
+.score-value {
+  color: var(--color-score);
+  font-weight: 700;
+}
+
+/* Compteur caractères (toujours à droite) */
+.char-counter {
+  font-size: var(--text-xs);
+  color: var(--color-text-hint);
+  text-align: right;
+}
+
+/* Note/hint sous un champ */
+.field-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
+}
+
+/* Section Mes mesures — harmonisation */
+.mesures-grid label {
+  font-size: var(--text-sm) !important;
+  color: var(--color-text-secondary) !important;
+  font-weight: 500;
+}
+
+.mesures-grid input {
+  border: 1.5px solid var(--color-border-input) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: var(--text-base) !important;
+  color: var(--color-text) !important;
+  font-family: inherit !important;
+}
+
+.mesures-grid input:focus {
+  border-color: var(--color-primary) !important;
+  outline: none;
+}
+
+/* Chips cycle — harmonisation */
+.cycle-chips .chip {
+  border-radius: var(--radius-pill) !important;
+  border: 1px solid var(--color-border-field) !important;
+  background: var(--color-bg-field) !important;
+  color: var(--color-text-secondary) !important;
+  font-size: var(--text-sm) !important;
+}
+
+.cycle-chips .chip:hover,
+.cycle-chips .chip.active {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Accordéon — séparateur en-tête/corps */
+.journal-accord-body {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+/* Bouton microphone — style unifié */
+button[aria-label="Dicter la note"],
+button[aria-label="Dicter"] {
+  background: none !important;
+  border: none !important;
+  padding: 4px !important;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  border-radius: var(--radius-sm) !important;
+}
+
+button[aria-label="Dicter la note"]:hover,
+button[aria-label="Dicter"]:hover {
+  background: rgba(45,106,79,.08) !important;
 }
