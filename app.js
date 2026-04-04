@@ -2683,6 +2683,22 @@ function refreshPostConsultationHistorique() {
 function savePostConsultation() {
   var dateRdv = document.getElementById('pc-date-rdv').value;
   if (!dateRdv) return;
+
+  // Normaliser la date en YYYY-MM-DD quelle que soit la locale du navigateur
+  // Sur certains iOS, l'input[type="date"] peut retourner DD/MM/YYYY
+  if (dateRdv && !/^\d{4}-\d{2}-\d{2}$/.test(dateRdv)) {
+    // Tenter DD/MM/YYYY → YYYY-MM-DD
+    var parts = dateRdv.split(/[\/-]/);
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        // Déjà YYYY/MM/DD avec slash
+        dateRdv = parts[0] + '-' + parts[1].padStart(2,'0') + '-' + parts[2].padStart(2,'0');
+      } else {
+        // DD/MM/YYYY ou DD-MM-YYYY
+        dateRdv = parts[2] + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0');
+      }
+    }
+  }
   var data = {
     date_rdv: dateRdv,
     decisions: document.getElementById('pc-decisions').value,
