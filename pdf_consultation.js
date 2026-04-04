@@ -197,7 +197,35 @@ function _buildNarrativeContext(dateFrom, dateTo) {
   }
   lines.push('');
 
-  // --- Derniere consultation ---
+  // --- Traitements codifiés (module Traitements) ---
+  lines.push('=== TRAITEMENTS CODES ===');
+  if (typeof window.Traitements !== 'undefined') {
+    var trtExport = window.Traitements.exportPourPDF();
+    if (trtExport && (trtExport.actifs.length || trtExport.pauses.length || trtExport.arretes.length)) {
+      if (trtExport.actifs.length) {
+        lines.push('Actifs : ' + trtExport.actifs.join(' | '));
+      }
+      if (trtExport.pauses.length) {
+        lines.push('En pause : ' + trtExport.pauses.join(' | '));
+      }
+      // Arrêtés récents 90j
+      var cutoff90trt = new Date(); cutoff90trt.setDate(cutoff90trt.getDate()-90);
+      var cutoff90Str = cutoff90trt.getFullYear()+'-'+String(cutoff90trt.getMonth()+1).padStart(2,'0')+'-'+String(cutoff90trt.getDate()).padStart(2,'0');
+      var arretesRecents = (trtExport.raw||[]).filter(function(t){return t.statut==='arrete'&&(t.date_statut||'')>=cutoff90Str;});
+      if (arretesRecents.length) {
+        lines.push('Arretes recemment (90j) : ' + trtExport.arretes.join(' | '));
+      }
+    } else {
+      lines.push('Aucun traitement code enregistre.');
+    }
+  } else {
+    // Fallback textareas
+    var txMedCtx = (localStorage.getItem('boussole_medicaments')||'').trim();
+    var txCompCtx = (localStorage.getItem('boussole_complements')||'').trim();
+    if (txMedCtx) lines.push('Medicaments : ' + txMedCtx.replace(/\n/g, ', '));
+    if (txCompCtx) lines.push('Complements : ' + txCompCtx.replace(/\n/g, ', '));
+  }
+  lines.push('');
   lines.push('=== DERNIERE CONSULTATION (avant cette periode) ===');
   var pcKeys = Object.keys(localStorage)
     .filter(function(k) { return k.startsWith('boussole_post_consultation_'); })
@@ -403,19 +431,56 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
   const idTel    = (localStorage.getItem('boussole_tel')    || '').trim();
 
-  // ---- DONNEES MEDICALES ----
+  // ---- DONNEES MEDICALES — Priorité : module Traitements, fallback : textareas Paramètres ----
   const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
   const txComp = _stripEmoji((localStorage.getItem('boussole_complements') || '').trim());
   const txAll  = _stripEmoji((localStorage.getItem('boussole_allergies')   || '').trim());
 
-  const medLines = txMed
-    ? txMed.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
-        .map(function(ml) { return ml.replace(/(\d)(mg|µg|g|ml|mcg)/gi, '$1 $2'); })
-    : [];
+  // Essayer de lire les données structurées du module Traitements
+  var _trtData = (typeof window.Traitements !== 'undefined') ? window.Traitements.exportPourPDF() : null;
+  var _trtActifs = _trtData ? _trtData.raw.filter(function(t){return t.statut==='actif';}) : [];
+  var _trtPauses = _trtData ? _trtData.raw.filter(function(t){return t.statut==='pause';}) : [];
 
-  const compLines = txComp
-    ? txComp.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })
-    : [];
+  var medLines, compLines;
+
+  if (_trtActifs.length > 0 || _trtPauses.length > 0) {
+    // Données structurées disponibles — les utiliser en priorité
+    function _trtLigne(t) {
+      var s = t.nom;
+      if (t.dci && t.dci !== t.nom) s += ' (' + t.dci + ')';
+      if (t.dose) s += ' ' + t.dose + (t.unite ? ' ' + t.unite : '');
+      if (t.frequence) s += ' - ' + t.frequence;
+      if (t.moment) s += ' (' + t.moment + ')';
+      if (t.prescripteur) s += ' [' + t.prescripteur + ']';
+      return s;
+    }
+    var trtMeds  = _trtActifs.filter(function(t){return t.categorie==='medicament';});
+    var trtComps = _trtActifs.filter(function(t){return t.categorie!=='medicament';});
+    medLines  = trtMeds.map(_trtLigne);
+    compLines = trtComps.map(_trtLigne);
+    // Ajouter les pauses
+    _trtPauses.forEach(function(t){
+      var l = _trtLigne(t) + ' [PAUSE' + (t.raison_statut ? ' : ' + t.raison_statut : '') + ']';
+      if (t.categorie === 'medicament') medLines.push(l);
+      else compLines.push(l);
+    });
+    // Arrêtés récents (90j) — à mentionner en note
+    var _cutoff90 = new Date(); _cutoff90.setDate(_cutoff90.getDate()-90);
+    var _cutoff90Str = _localDateStr(_cutoff90);
+    var _arr90 = (_trtData ? _trtData.raw : []).filter(function(t){return t.statut==='arrete'&&(t.date_statut||'')>=_cutoff90Str;});
+    if (_arr90.length) {
+      medLines.push('Arretes recemment : ' + _arr90.map(function(t){return t.nom+(t.raison_statut?' ('+t.raison_statut+')':'');}).join(', '));
+    }
+  } else {
+    // Fallback : textareas libres (compatibilité utilisateurs existants)
+    medLines = txMed
+      ? txMed.split('\n').map(function(l){return l.trim();}).filter(Boolean)
+          .map(function(ml){return ml.replace(/(\d)(mg|µg|g|ml|mcg)/gi,'$1 $2');})
+      : [];
+    compLines = txComp
+      ? txComp.split('\n').map(function(l){return l.trim();}).filter(Boolean)
+      : [];
+  }
 
   // Normaliser motifItems et noteLibre
   let motifList = Array.isArray(motifItems) ? motifItems : [];

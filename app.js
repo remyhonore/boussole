@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Feature D — Afficher profil actif dans Paramètres
   renderProfilActifDisplay();
 
+  // Feature T-Med — Init module Traitements
+  if (typeof window.Traitements !== 'undefined') window.Traitements.init();
+
   document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
     localStorage.setItem('boussole_onboarded', '1');
     switchPanel('today');
@@ -709,6 +712,7 @@ function renderAccordeons() {
   renderEssaisList();
   refreshPostConsultationHistorique();
   _renderHistoriqueTab(document.getElementById('historique-content'));
+  if (typeof window.Traitements !== 'undefined') window.Traitements.renderListe();
 }
 
 function _renderHistoriqueTab(content) {
@@ -1797,33 +1801,27 @@ window._ouvrirModePresentation = function() {
     '</div>';
 
   // ============================================================
-  // 2. TRAITEMENT ACTUEL — fond #f0f7f4, bordure #2d6a4f
+  // 2. TRAITEMENT ACTUEL — module Traitements (T-Med) ou fallback textareas
   // ============================================================
-  const medLines  = txMed  ? txMed.split('\n').map(l => l.trim()).filter(Boolean)  : [];
-  const compLines = txComp ? txComp.split('\n').map(l => l.trim()).filter(Boolean) : [];
-  const allergiesHtml = (txAll && txAll.toUpperCase() !== 'RAS')
-    ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:6px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
-    : '';
-
-  const traitementHtml =
-    '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
-      '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
-        '<div>' +
-          '<div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Médicaments</div>' +
-          (medLines.length > 0
-            ? medLines.map(l => '<div style="font-size:13px;color:#06172D;padding:2px 0;">• ' + l + '</div>').join('')
-            : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
-        '</div>' +
-        '<div>' +
-          '<div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Compléments</div>' +
-          (compLines.length > 0
-            ? compLines.map(l => '<div style="font-size:13px;color:#06172D;padding:2px 0;">• ' + l + '</div>').join('')
-            : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
-        '</div>' +
-      '</div>' +
-      allergiesHtml +
-    '</div>';
+  const traitementHtml = (typeof window.Traitements !== 'undefined' && window.Traitements.charger().length > 0)
+    ? window.Traitements.blocHTML()
+    : (function() {
+        const medL  = (txMed  ? txMed.split('\n').map(l=>l.trim()).filter(Boolean) : []);
+        const compL = (txComp ? txComp.split('\n').map(l=>l.trim()).filter(Boolean) : []);
+        const allerH = (txAll && txAll.toUpperCase() !== 'RAS')
+          ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:6px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
+          : '';
+        return '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
+          '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Médicaments</div>' +
+              (medL.length ? medL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+            '</div>' +
+            '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Compléments</div>' +
+              (compL.length ? compL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+            '</div>' +
+          '</div>' + allerH + '</div>';
+      })();
 
   // ============================================================
   // 3. PROBLÈME PRINCIPAL

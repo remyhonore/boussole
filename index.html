@@ -195,6 +195,23 @@
     .btn-confirmer-profil{width:100%;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
     .btn-confirmer-profil:disabled{background:#9ca3af;cursor:not-allowed;}
     .profil-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(45,106,79,.1);color:#2d6a4f;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;}
+
+    /* Feature T-Med — Traitements codifiés */
+    .trt-chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;border:1.5px solid #d1d5db;background:#f9fafb;font-size:13px;cursor:pointer;color:#374151;transition:all .15s;font-family:inherit;}
+    .trt-chip:hover{border-color:#2d6a4f;color:#2d6a4f;}
+    .trt-chip--active{background:#2d6a4f;color:#fff;border-color:#2d6a4f;font-weight:600;}
+    .trt-chip--actif.trt-chip--active{background:#2d6a4f;border-color:#2d6a4f;}
+    .trt-chip--pause.trt-chip--active{background:#f59e0b;border-color:#f59e0b;}
+    .trt-chip--arrete.trt-chip--active{background:#dc2626;border-color:#dc2626;}
+    .trt-section-label{font-size:11px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;}
+    .trt-field-group{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+    .trt-field-group label{font-size:12px;color:rgba(6,23,45,.6);font-weight:500;}
+    .trt-input{padding:9px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:10px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;width:100%;}
+    .trt-input:focus{outline:none;border-color:#2d6a4f;}
+    .trt-row{display:flex;gap:10px;}
+    .trt-row>*{flex:1;}
+    .trt-details-toggle{width:100%;padding:8px;background:rgba(45,106,79,.06);border:1px dashed rgba(45,106,79,.3);border-radius:8px;font-size:13px;color:#2d6a4f;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;margin-top:4px;}
+    .trt-details-body{padding:10px 4px 0;}
   </style>
 
   <!-- Dark mode : appliquer avant le rendu pour éviter le flash blanc -->
@@ -713,6 +730,16 @@
           </div>
         </details>
 
+        <details class="journal-accord" id="accord-traitements">
+          <summary class="journal-accord-title">💊 Mes traitements</summary>
+          <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="Traitements.ouvrirModale()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter un médicament / complément</button>
+            </div>
+            <div id="traitements-list"></div>
+          </div>
+        </details>
+
         <details class="journal-accord" id="accord-consultations">
           <summary class="journal-accord-title">&#x1F4CB; Mes consultations</summary>
           <div class="journal-accord-body">
@@ -921,7 +948,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.28 — </span>
+    <span>Boussole v9.29 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1486,6 +1513,174 @@
     </div>
   </div>
 
+  <!-- Modale Traitement codifié (Feature T-Med) -->
+  <div id="modal-traitement" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="trt-modal-title">
+    <div class="modal-card" style="width:min(480px,96vw);max-height:92vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 id="trt-modal-title" style="margin:0;font-size:16px;font-weight:700;color:#06172D;">Nouveau traitement</h3>
+        <button onclick="Traitements.fermerModale()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">×</button>
+      </div>
+
+      <!-- Section 1 : Infos rapides (toujours visible) -->
+      <div style="margin-bottom:12px;">
+        <p class="trt-section-label">Catégorie</p>
+        <div id="trt-chips-categorie" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="trt-chip trt-chip--active" data-val="medicament">💊 Médicament</button>
+          <button class="trt-chip" data-val="complement">🌿 Complément</button>
+          <button class="trt-chip" data-val="strategie">⚡ Stratégie</button>
+        </div>
+      </div>
+
+      <div class="trt-field-group">
+        <label for="trt-nom">Nom <span style="color:#dc2626;">*</span></label>
+        <input id="trt-nom" type="text" maxlength="100" placeholder="Ex : Quviviq, Magnésium bisglycinate, Pacing…" class="trt-input" aria-label="Nom du traitement">
+      </div>
+
+      <div class="trt-row">
+        <div class="trt-field-group">
+          <label for="trt-dose">Dose</label>
+          <input id="trt-dose" type="number" min="0" step="any" placeholder="Ex : 50" class="trt-input" aria-label="Dose">
+        </div>
+        <div class="trt-field-group">
+          <label for="trt-unite">Unité</label>
+          <select id="trt-unite" class="trt-input" aria-label="Unité">
+            <option value="mg">mg</option>
+            <option value="µg">µg</option>
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="UI">UI</option>
+            <option value="cp">cp</option>
+            <option value="gouttes">gouttes</option>
+            <option value="%">%</option>
+            <option value="">—</option>
+          </select>
+        </div>
+        <div class="trt-field-group">
+          <label for="trt-frequence">Fréquence</label>
+          <select id="trt-frequence" class="trt-input" aria-label="Fréquence">
+            <option value="1x/j">1x/jour</option>
+            <option value="2x/j">2x/jour</option>
+            <option value="3x/j">3x/jour</option>
+            <option value="sem">Hebdo</option>
+            <option value="si besoin">Si besoin</option>
+            <option value="">Libre</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="trt-row">
+        <div class="trt-field-group">
+          <label for="trt-date-debut">Date de début <span style="color:#dc2626;">*</span></label>
+          <input id="trt-date-debut" type="date" class="trt-input" aria-label="Date de début">
+        </div>
+        <div class="trt-field-group">
+          <label for="trt-moment">Moment</label>
+          <select id="trt-moment" class="trt-input" aria-label="Moment de prise">
+            <option value="">—</option>
+            <option value="matin">Matin</option>
+            <option value="midi">Midi</option>
+            <option value="soir">Soir</option>
+            <option value="coucher">Coucher</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <p class="trt-section-label">Statut actuel</p>
+        <div id="trt-chips-statut" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="trt-chip trt-chip--actif trt-chip--active" data-val="actif">✅ En cours</button>
+          <button class="trt-chip trt-chip--pause" data-val="pause">⏸ Pause</button>
+          <button class="trt-chip trt-chip--arrete" data-val="arrete">🛑 Arrêté</button>
+        </div>
+      </div>
+
+      <div id="trt-date-statut-wrap" style="display:none;" class="trt-field-group">
+        <label for="trt-date-statut">Date du changement</label>
+        <input id="trt-date-statut" type="date" class="trt-input" aria-label="Date du changement de statut">
+      </div>
+      <div id="trt-raison-statut-wrap" style="display:none;" class="trt-field-group">
+        <label for="trt-raison-statut">Raison (pause / arrêt)</label>
+        <input id="trt-raison-statut" type="text" maxlength="150" placeholder="Ex : fasciculations, intolérance, amélioration…" class="trt-input" aria-label="Raison de pause ou arrêt">
+      </div>
+
+      <!-- Section 2 : Détails (accordéon dépliable) -->
+      <details style="margin-bottom:12px;">
+        <summary class="trt-details-toggle">+ Détails (DCI, prescripteur, effets…)</summary>
+        <div class="trt-details-body">
+
+          <div class="trt-field-group">
+            <label for="trt-dci">DCI (nom générique)</label>
+            <input id="trt-dci" type="text" maxlength="100" placeholder="Ex : daridorexant, magnésium bisglycinate…" class="trt-input" aria-label="DCI nom générique">
+          </div>
+
+          <div id="trt-prescripteur-wrap" class="trt-field-group">
+            <label for="trt-prescripteur">Prescripteur</label>
+            <input id="trt-prescripteur" type="text" maxlength="100" placeholder="Ex : Dr André, médecin traitant…" class="trt-input" aria-label="Prescripteur">
+          </div>
+
+          <div id="trt-ordonnance-wrap" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <input type="checkbox" id="trt-ordonnance" style="width:16px;height:16px;accent-color:#2d6a4f;" aria-label="Sur ordonnance">
+            <label for="trt-ordonnance" style="font-size:13px;color:#06172D;cursor:pointer;">Sur ordonnance</label>
+          </div>
+
+          <div class="trt-field-group">
+            <label for="trt-objectif">Objectif clinique</label>
+            <input id="trt-objectif" type="text" maxlength="150" placeholder="Ex : insomnie de maintien, anxiété, énergie…" class="trt-input" aria-label="Objectif clinique">
+          </div>
+
+          <div class="trt-field-group">
+            <label for="trt-effets">Effets indésirables observés</label>
+            <input id="trt-effets" type="text" maxlength="200" placeholder="Ex : céphalées au réveil, fasciculations…" class="trt-input" aria-label="Effets indésirables">
+          </div>
+
+          <div class="trt-field-group">
+            <label for="trt-effet-global">Effet global perçu</label>
+            <select id="trt-effet-global" class="trt-input" aria-label="Effet global perçu">
+              <option value="">—</option>
+              <option value="Positif">Positif</option>
+              <option value="Neutre">Neutre</option>
+              <option value="Négatif">Négatif</option>
+              <option value="Paradoxal">Paradoxal</option>
+            </select>
+          </div>
+
+          <div class="trt-field-group">
+            <label for="trt-notes">Notes libres</label>
+            <textarea id="trt-notes" maxlength="300" rows="2" placeholder="Observations, contexte, source…" class="trt-input" style="resize:vertical;" aria-label="Notes libres"></textarea>
+          </div>
+
+          <!-- Historique paliers -->
+          <p class="trt-section-label" style="margin-top:4px;">Historique des paliers de dose</p>
+          <div id="trt-paliers-list" style="margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;background:#f8faf9;border-radius:8px;padding:10px;">
+            <div style="flex:1;min-width:80px;">
+              <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Nouvelle dose</label>
+              <input type="number" id="trt-palier-dose" min="0" step="any" placeholder="Ex : 100" class="trt-input" style="padding:7px 10px;" aria-label="Nouvelle dose du palier">
+            </div>
+            <div style="width:70px;">
+              <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Unité</label>
+              <select id="trt-palier-unite" class="trt-input" style="padding:7px 6px;" aria-label="Unité du palier">
+                <option value="mg">mg</option><option value="µg">µg</option><option value="g">g</option>
+                <option value="ml">ml</option><option value="UI">UI</option><option value="cp">cp</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:110px;">
+              <label style="font-size:11px;color:rgba(6,23,45,.5);display:block;margin-bottom:3px;">Depuis le</label>
+              <input type="date" id="trt-palier-date" class="trt-input" style="padding:7px 10px;" aria-label="Date du nouveau palier">
+            </div>
+            <button onclick="Traitements.ajouterPalier()" style="padding:8px 14px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">+ Ajouter</button>
+          </div>
+
+        </div>
+      </details>
+
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button onclick="Traitements.fermerModale()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
+        <button onclick="Traitements.sauvegarderDepuisModale()" style="flex:2;padding:10px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modale Essai (Feature M) -->
   <div id="modal-essai" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="essai-modal-title">
     <div class="modal-card" style="width:min(480px,94vw);max-height:90vh;overflow-y:auto;">
@@ -1593,6 +1788,7 @@
   <script src="score_sna.js" defer></script>
   <script src="share_profile.js" defer></script>
   <script src="profil_data.js" defer></script>
+  <script src="traitements.js" defer></script>
   <script src="app.js" defer></script>
 
   <script>
