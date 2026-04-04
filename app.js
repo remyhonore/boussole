@@ -443,7 +443,7 @@ function refreshPacingAlert() {
   if (window.shouldShowPacingAlert(recentDays)) {
     alertEl.innerHTML =
       '<span class="pacing-icon">(i)</span>' +
-      ' Tu accumules de l\'energie depuis 3 jours. Reste attentif(ve) a ne pas depasser ton enveloppe energetique.' +
+      ' Tu accumules de l\'énergie depuis 3 jours. Reste attentif(ve) à ne pas dépasser ton enveloppe énergétique.' +
       '<button class="pacing-dismiss" onclick="dismissPacingAlert()" aria-label="Fermer l\'alerte">&times;</button>';
     alertEl.style.display = 'block';
   } else {
