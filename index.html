@@ -942,7 +942,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.77 — </span>
+    <span>Boussole v9.78 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1407,6 +1407,20 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <!-- Sélecteur de mode couleur PDF -->
+      <div id="pdf-color-mode-selector" style="display:none;margin-bottom:16px;">
+        <p style="font-size:12px;font-weight:700;color:rgba(6,23,45,.55);text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px;">Style du PDF</p>
+        <div style="display:flex;gap:8px;">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1.5px solid rgba(6,23,45,.15);cursor:pointer;font-size:13px;font-weight:600;color:#06172D;background:#fff;transition:border-color .2s,background .2s;" id="label-pdf-bw">
+            <input type="radio" name="pdf-color-mode" value="bw" checked style="accent-color:#2d6a4f;cursor:pointer;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#333,#aaa);"></span> Clinique N&amp;B</span>
+          </label>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1.5px solid rgba(6,23,45,.15);cursor:pointer;font-size:13px;font-weight:600;color:#06172D;background:#fff;transition:border-color .2s,background .2s;" id="label-pdf-color">
+            <input type="radio" name="pdf-color-mode" value="color" style="accent-color:#2d6a4f;cursor:pointer;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#2d6a4f,#e0a35c);"></span> Couleur</span>
+          </label>
         </div>
       </div>
       <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">Précisions / autres informations</p>
@@ -2139,6 +2153,9 @@
       // Afficher le sélecteur de période uniquement en mode PDF
       const periodSel = document.getElementById('narrative-period-selector');
       if (periodSel) periodSel.style.display = _consultationMode === 'pdf' ? 'block' : 'none';
+      // Afficher le sélecteur de mode couleur uniquement en mode PDF
+      const colorSel = document.getElementById('pdf-color-mode-selector');
+      if (colorSel) colorSel.style.display = _consultationMode === 'pdf' ? 'block' : 'none';
       // Sélectionner depuis-derniere-consult par défaut si une consultation existe, sinon 30j
       (function() {
         var pcKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_post_consultation_'); }).sort();
@@ -2230,7 +2247,10 @@
         if (checkedNow && checkedNow.value === 'custom') {
           dateFrom = document.getElementById('narrative-date-from').value || dateFrom;
         }
-        genererPDFConsultation(cochees, texteLibre, dateFrom, today);
+        var _selectedColorMode = 'bw';
+        var colorRadio = document.querySelector('input[name="pdf-color-mode"]:checked');
+        if (colorRadio) _selectedColorMode = colorRadio.value;
+        genererPDFConsultation(cochees, texteLibre, dateFrom, today, _selectedColorMode);
       } else {
         if (typeof window._ouvrirModePresentation === 'function') {
           window._ouvrirModePresentation();

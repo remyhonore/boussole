@@ -16,17 +16,64 @@ function _localDateStr(d) {
 }
 
 // ============================================
-// PALETTE CHARTE CLINIQUE v4
+// PALETTES CHARTE CLINIQUE v5 (BW + COULEUR)
 // ============================================
-const ANTHRACITE  = [26,  26,  26];
-const TAUPE       = [120, 120, 120];
-const TAUPE_LIGHT = [190, 190, 190];
-const WARM_BG     = [235, 235, 235];
-const LIGHT_BG    = [248, 248, 248];
-const MUTED       = [153, 153, 153];
-const DARK_WARM   = [80,  80,  80];
-const GREEN_SOFT  = [100, 100, 100];
-const SEP         = [220, 220, 220];
+const PALETTE_BW = {
+  ANTHRACITE:  [26,  26,  26],
+  TAUPE:       [120, 120, 120],
+  TAUPE_LIGHT: [190, 190, 190],
+  WARM_BG:     [235, 235, 235],
+  LIGHT_BG:    [248, 248, 248],
+  MUTED:       [153, 153, 153],
+  DARK_WARM:   [80,  80,  80],
+  GREEN_SOFT:  [100, 100, 100],
+  SEP:         [220, 220, 220],
+  VOR_VERT:    [100, 100, 100],
+  VOR_ORANGE:  [150, 150, 150],
+  VOR_ROUGE:   [60,  60,  60],
+  ALERT_RED:   [80,  80,  80],
+  ALERT_ORANGE:[120, 120, 120],
+  ALERT_GREEN: [100, 100, 100],
+  SNA_BG:      [245, 245, 245],
+  SNA_TEXT:     [80,  80,  80]
+};
+
+const PALETTE_COLOR = {
+  ANTHRACITE:  [6,   23,  45],
+  TAUPE:       [107, 114, 128],
+  TAUPE_LIGHT: [180, 195, 185],
+  WARM_BG:     [240, 247, 243],
+  LIGHT_BG:    [248, 246, 240],
+  MUTED:       [107, 114, 128],
+  DARK_WARM:   [45,  106, 79],
+  GREEN_SOFT:  [45,  106, 79],
+  SEP:         [200, 215, 205],
+  VOR_VERT:    [45,  106, 79],
+  VOR_ORANGE:  [224, 123, 42],
+  VOR_ROUGE:   [220, 60,  60],
+  ALERT_RED:   [220, 60,  60],
+  ALERT_ORANGE:[224, 123, 42],
+  ALERT_GREEN: [45,  106, 79],
+  SNA_BG:      [240, 247, 243],
+  SNA_TEXT:     [45,  106, 79]
+};
+
+// Variables actives (seront definies dans genererPDFConsultation selon le mode)
+let ANTHRACITE, TAUPE, TAUPE_LIGHT, WARM_BG, LIGHT_BG, MUTED, DARK_WARM, GREEN_SOFT, SEP;
+
+function _applyPalette(mode) {
+  var p = mode === 'color' ? PALETTE_COLOR : PALETTE_BW;
+  ANTHRACITE  = p.ANTHRACITE;
+  TAUPE       = p.TAUPE;
+  TAUPE_LIGHT = p.TAUPE_LIGHT;
+  WARM_BG     = p.WARM_BG;
+  LIGHT_BG    = p.LIGHT_BG;
+  MUTED       = p.MUTED;
+  DARK_WARM   = p.DARK_WARM;
+  GREEN_SOFT  = p.GREEN_SOFT;
+  SEP         = p.SEP;
+  return p;
+}
 
 // ============================================
 // UTILITAIRES CALCUL
@@ -319,7 +366,9 @@ async function _generateNarrativeSection(context) {
 // GENERATION PDF
 // ============================================
 
-async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOverride, narrativeDateToOverride) {
+async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOverride, narrativeDateToOverride, colorMode) {
+  // Appliquer la palette selon le mode (defaut: bw)
+  var _pal = _applyPalette(colorMode || 'bw');
   if (typeof window.jspdf === 'undefined') {
     alert('jsPDF non disponible - verifiez votre connexion internet.');
     return;
@@ -1219,12 +1268,12 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       var margin  = marginL;
       var contentWidth = contentW;
       // checkPage_p1(20 + sna.lignes.length * 5);
-      doc.setFillColor(240, 247, 243);
+      doc.setFillColor(_pal.SNA_BG[0], _pal.SNA_BG[1], _pal.SNA_BG[2]);
       doc.roundedRect(margin, y, contentWidth, 14 + sna.lignes.length * 5, 3, 3, 'F');
       y += 5;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
-      doc.setTextColor(45, 106, 79);
+      doc.setTextColor(_pal.SNA_TEXT[0], _pal.SNA_TEXT[1], _pal.SNA_TEXT[2]);
       doc.text('SCORE DE RECUPERATION', margin + 4, y);
       y += 5;
       doc.setFontSize(12);
@@ -1469,9 +1518,9 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // ============================================================
   // checkPage_p1(22);
 
-  const VOR_VERT   = [100, 100, 100];
-  const VOR_ORANGE = [150, 150, 150];
-  const VOR_ROUGE  = [60,  60,  60];
+  const VOR_VERT   = _pal.VOR_VERT;
+  const VOR_ORANGE = _pal.VOR_ORANGE;
+  const VOR_ROUGE  = _pal.VOR_ROUGE;
 
   doc.setFontSize(9);
   tc(MUTED, false);
@@ -1636,13 +1685,13 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       doc.text('Jours traces : ' + pacingDays + '/30 - Budget moyen : ' + avgBudget + '/100 pts - Depassements (>80%) : ' + depassements + ' j. (' + pctDepas + '%)', marginL, y);
       y += 4;
       if (pctDepas > 50) {
-        tc([220, 60, 60], false);
+        tc(_pal.ALERT_RED, false);
         doc.text('/!\\ Depassement frequent — risque de crash post-effort (PEM)', marginL, y);
       } else if (pctDepas > 25) {
-        tc([224, 123, 42], false);
+        tc(_pal.ALERT_ORANGE, false);
         doc.text('Depassements reguliers — vigilance sur la gestion de l\'enveloppe', marginL, y);
       } else {
-        tc([45, 106, 79], false);
+        tc(_pal.ALERT_GREEN, false);
         doc.text('Bonne adherence au pacing — enveloppe energetique respectee', marginL, y);
       }
       tc(ANTHRACITE, false);
