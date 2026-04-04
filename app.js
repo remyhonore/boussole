@@ -928,6 +928,11 @@ function refreshSummary() {
     html += window.PacingCorrelations.render();
   }
 
+  // 6c. Year in Pixels
+  if (window.BoussoleCharts && typeof window.BoussoleCharts.buildYearInPixels === 'function') {
+    html += window.BoussoleCharts.buildYearInPixels();
+  }
+
   // 7. Calendrier 14j (résumé 30 jours)
   html += `<div class="card">`;
   html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
@@ -1197,6 +1202,7 @@ function refreshSummary() {
   // Charts.js — graphique temporel interactif + SNA + repos
   setTimeout(function() {
     if (window.BoussoleCharts) window.BoussoleCharts.render(30);
+    if (window.BoussoleCharts) window.BoussoleCharts.initYearInPixels();
     if (window.ScoreSNA) window.ScoreSNA.renderJauge('jauge-sna');
     renderSparkRepos();
   }, 300);

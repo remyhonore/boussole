@@ -424,3 +424,33 @@
     return html;
   }
 
+
+  function _initYearInPixels() {
+    var container = document.getElementById('yip-filter-btns');
+    if (!container) return;
+    container.addEventListener('click', function(e) {
+      var btn = e.target.closest('.yip-filter-btn');
+      if (!btn) return;
+      _yipFilter = btn.dataset.filter;
+      // MAJ boutons actifs
+      container.querySelectorAll('.yip-filter-btn').forEach(function(b) {
+        b.classList.toggle('yip-filter-btn--active', b.dataset.filter === _yipFilter);
+      });
+      // Rerendre la grille
+      var grid = document.getElementById('yip-grid');
+      if (grid) grid.innerHTML = _renderGrid();
+    });
+
+    // Injecter CSS yip
+    if (!document.getElementById('yip-css')) {
+      var style = document.createElement('style');
+      style.id = 'yip-css';
+      style.textContent =
+        '.yip-filter-btn{padding:3px 7px;border-radius:6px;border:1px solid rgba(6,23,45,.12);background:#fff;color:rgba(6,23,45,.6);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;}' +
+        '.yip-filter-btn--active{background:#2d6a4f;color:#fff;border-color:#2d6a4f;}' +
+        '.yip-filter-btn:hover:not(.yip-filter-btn--active){border-color:#2d6a4f;color:#2d6a4f;}';
+      document.head.appendChild(style);
+    }
+  }
+
+})();
