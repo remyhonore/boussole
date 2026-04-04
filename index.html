@@ -145,6 +145,10 @@
 
   <!-- jsPDF pour génération PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- pdf.js (Mozilla) pour extraction texte PDF côté client — Import Mon Espace Santé -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </head>
 <body><a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
@@ -730,6 +734,18 @@
           <div id="import-feedback" style="display:none;margin-top:8px;font-size:13px;text-align:center;"></div>
         </div>
 
+        <div class="settings-group" style="margin-top:16px;">
+          <p class="settings-label">Mon Espace Sante</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;line-height:1.4;">
+            Importe ta Synthese medicale depuis <a href="https://www.monespacesante.fr" target="_blank" style="color:#2d6a4f;font-weight:600;">monespacesante.fr</a> pour pre-remplir tes traitements et informations.
+          </p>
+          <button onclick="ImportMES.ouvrirModale()"
+            style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;box-sizing:border-box;">
+            🏥 Importer une Synthese medicale (.pdf)
+          </button>
+          <p style="font-size:11px;color:rgba(6,23,45,.35);margin:6px 0 0;">🔒 Le fichier est lu uniquement sur ton appareil.</p>
+        </div>
+
         <div class="settings-group">
           <p class="settings-label">Profil</p>
           <p class="settings-desc">Permet d'afficher ou masquer certaines sections adaptées à ton profil.</p>
@@ -835,7 +851,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.45 — </span>
+    <span>Boussole v9.46 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -847,7 +863,7 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.45</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v9.46</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
@@ -1693,6 +1709,7 @@
   <script src="share_profile.js" defer></script>
   <script src="profil_data.js" defer></script>
   <script src="traitements.js" defer></script>
+  <script src="import_mes.js" defer></script>
   <script src="app.js" defer></script>
 
   <script>

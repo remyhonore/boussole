@@ -27,6 +27,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `pdf.js` | Export PDF enrichi multi-pages (30j, Chart.js, corrélations) |
 | `pdf_consultation.js` | Export PDF consultation 1 page + mode narratif IA |
 | `traitements.js` | Feature T-MED : gestion structurée médicaments, compléments, stratégies, allergies |
+| `import_mes.js` | Import Synthèse Médicale Mon Espace Santé (parser PDF CDA → patient + traitements + antécédents) |
 | `onboarding.js` | Parcours de première utilisation |
 | `score_sna.js` | Score composite SNA (système nerveux autonome) |
 | `pem_detector.js` | Détection malaise post-effort (PEM) |
@@ -42,7 +43,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 ```
 storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_consultation.js
 → pem_detector.js → cycle_tracker.js → correlations.js → score_sna.js
-→ share_profile.js → profil_data.js → traitements.js → app.js
+→ share_profile.js → profil_data.js → traitements.js → import_mes.js → app.js
 ```
 
 `app.js` est chargé en dernier : il orchestre tout, charge les données via `storage.js`, les agrège via `calc.js`/`daytype.js`, met à jour le DOM, et déclenche les exports PDF.
