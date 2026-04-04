@@ -665,12 +665,40 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   doc.text('PROBLEME PRINCIPAL', marginL, y);
   y += 5;
 
+  // --- Vérifier s'il existe des événements ou essais arrêtés sur la période ---
+  const _eventsInPeriod = (function() {
+    const evKeys = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
+    return evKeys.some(function(k) {
+      try { var e = JSON.parse(localStorage.getItem(k)); return e && e.date && e.date >= cutoffStr && e.date <= aujourd_hui; }
+      catch(ex) { return false; }
+    });
+  })();
+  const _essaisArretés = (function() {
+    var essais = [];
+    try { essais = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
+    return essais.some(function(e) {
+      return e.arret === 'Oui' && e.date_debut && e.date_debut >= cutoffStr;
+    });
+  })();
+  const _hasRecentNote = (function() {
+    return entrees.some(function(e) { return e.note && e.note.trim().length > 0; });
+  })();
+
   if (pointAttention === null) {
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-    doc.text('Aucun probl\xe8me identifi\xe9 cette semaine', marginL, y);
-    y += 8;
+    if (_eventsInPeriod || _essaisArretés || _hasRecentNote) {
+      // Des données existent malgré un bon score composite — orienter vers la narrative
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(DARK_WARM[0], DARK_WARM[1], DARK_WARM[2]);
+      doc.text('Scores fonctionnels satisfaisants \xb7 Voir synth\xe8se narrative (page 2)', marginL, y);
+      y += 8;
+    } else {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text('Scores fonctionnels satisfaisants cette semaine', marginL, y);
+      y += 8;
+    }
   } else {
     const titreMap = {
       'Energie':          'Fatigue persistante',
@@ -1098,6 +1126,11 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       y += 5;
       doc.setFontSize(12);
       doc.text(String(sna.score) + '/100  ' + sna.label, margin + 4, y);
+      y += 6;
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7.5);
+      doc.setTextColor(150, 150, 150);
+      doc.text('(calcule a partir du sommeil declare — donnees auto-evaluees)', margin + 4, y);
       y += 6;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
@@ -1559,7 +1592,63 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
         doc.text(nomPrenom, marginL, ny); ny += 5;
       }
       doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(TAUPE[0], TAUPE[1], TAUPE[2]);
-      doc.text('Periode : ' + _dateLocale(_narrativeDateFrom) + ' -> ' + _dateLocale(_narrativeDateTo), marginL, ny); ny += 6;
+      doc.text('Periode : ' + _dateLocale(_narrativeDateFrom) + ' -> ' + _dateLocale(_narrativeDateTo), marginL, ny); ny += 8;
+
+      // --- RESUME EXECUTIF 3-4 lignes (construit depuis les données locales) ---
+      (function() {
+        var resumeLines = [];
+        // Tendance globale
+        var allMoy = metriques.filter(function(m) { return m.moy !== null; });
+        if (allMoy.length > 0) {
+          var moyGlobal = allMoy.reduce(function(acc, m) { return acc + m.moy; }, 0) / allMoy.length;
+          var tendanceGlobal = allMoy.map(function(m) { return m.tendance; });
+          var nbHausse = tendanceGlobal.filter(function(t) { return t === 'hausse'; }).length;
+          var evolutionTxt = nbHausse >= 3 ? 'Amelioration globale sur la periode.'
+            : (nbHausse <= 0 ? 'Scores stables ou en legere baisse sur la periode.'
+            : 'Evolution mixte sur la periode (' + nbHausse + '/4 axes en amelioration).');
+          resumeLines.push('Evolution : ' + evolutionTxt);
+        }
+        // Essais arrêtés
+        var essaisArr = [];
+        try { essaisArr = JSON.parse(localStorage.getItem('boussole_essais') || '[]'); } catch(ex) {}
+        var essaisStop = essaisArr.filter(function(e) { return e.arret === 'Oui' && e.date_debut && e.date_debut >= _narrativeDateFrom; });
+        if (essaisStop.length > 0) {
+          resumeLines.push('Arret traitement : ' + essaisStop.map(function(e) { return e.nom || '?'; }).join(', ') + '.');
+        }
+        // Dernier événement notable
+        var evKeys2 = Object.keys(localStorage).filter(function(k) { return k.startsWith('boussole_event_'); });
+        var lastEv = evKeys2.map(function(k) {
+          try { return JSON.parse(localStorage.getItem(k)); } catch(ex) { return null; }
+        }).filter(function(e) { return e && e.date && e.date >= _narrativeDateFrom; })
+          .sort(function(a, b) { return b.date.localeCompare(a.date); })[0];
+        if (lastEv) {
+          var evTxt = 'Dernier evenement : ' + _dateLocale(lastEv.date) + ' — ' + (lastEv.description || '').slice(0, 80);
+          if ((lastEv.description || '').length > 80) evTxt += '...';
+          resumeLines.push(evTxt);
+        }
+        // Point d'attention
+        if (pointAttention) {
+          resumeLines.push('Point d\'attention : ' + pointAttention.label + ' (' + (Math.round(pointAttention.moy * 10) / 10).toFixed(1) + '/10, ' + pointAttention.joursBas + ' jour(s) mauvais/7).');
+        }
+
+        if (resumeLines.length > 0) {
+          // Cadre résumé exécutif
+          var resumeH = 8 + resumeLines.length * 6 + 6;
+          doc.setFillColor(245, 245, 245);
+          doc.roundedRect(marginL, ny - 3, contentW, resumeH, 2, 2, 'F');
+          doc.setDrawColor(200, 200, 200); doc.setLineWidth(2);
+          doc.line(marginL, ny - 3, marginL, ny - 3 + resumeH);
+          doc.setLineWidth(0.1);
+          doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(80, 80, 80);
+          doc.text('RESUME EXECUTIF', marginL + 5, ny + 2); ny += 7;
+          resumeLines.forEach(function(line) {
+            var lw = doc.splitTextToSize(line, contentW - 10);
+            doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
+            lw.forEach(function(l) { doc.text(l, marginL + 5, ny); ny += 5; });
+          });
+          ny += 5;
+        }
+      })();
       var SECTION_HEADERS = ['EVOLUTION SUR LA PERIODE','EVENEMENTS SIGNALES','ESSAIS ET TRAITEMENTS','SUIVI DU PLAN PRECEDENT','AVERTISSEMENT'];
       var rawLines = narrativeText.split('\n');
       rawLines.forEach(function(rawLine) {
