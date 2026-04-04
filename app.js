@@ -854,7 +854,10 @@ function refreshSummary() {
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
-  // 5. Calendrier 14j (résumé 30 jours)
+  // 6. Feature E — Corrélations traitements × score
+  html += buildBlocCorrelations();
+
+  // 7. Calendrier 14j (résumé 30 jours)
   html += `<div class="card">`;
   html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
   html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
@@ -1549,6 +1552,89 @@ function buildBlocStabilite(mode) {
     '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
     '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
     '</div>';
+}
+
+/**
+ * Feature E — Corrélations traitements × score (N-of-1 simplifié)
+ * Compare le score moyen avant vs après le début de chaque traitement actif.
+ */
+function buildBlocCorrelations() {
+  if (typeof window.Traitements === 'undefined') return '';
+  var traitements = window.Traitements.charger();
+  if (!traitements || !traitements.length) return '';
+
+  var data = loadEntries();
+  var entries = (data.entries || []).filter(function(e) {
+    return calculateDayScore(e) !== null;
+  }).sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+  if (entries.length < 10) return '';
+
+  var resultats = [];
+
+  traitements.forEach(function(t) {
+    if (!t.date_debut || t.categorie === 'allergie') return;
+    var dateDebut = t.date_debut;
+    var avant = entries.filter(function(e) { return e.date < dateDebut; });
+    var apres = entries.filter(function(e) { return e.date >= dateDebut; });
+
+    if (avant.length < 5 || apres.length < 5) return;
+
+    var moyAvant = avant.reduce(function(s, e) { return s + calculateDayScore(e); }, 0) / avant.length;
+    var moyApres = apres.reduce(function(s, e) { return s + calculateDayScore(e); }, 0) / apres.length;
+    var diff = moyApres - moyAvant;
+
+    var labelCat = {medicament: 'Medicament', complement: 'Complement', strategie: 'Strategie'}[t.categorie] || '';
+    var emoji = {medicament: '💊', complement: '🧪', strategie: '🛠️'}[t.categorie] || '📊';
+    var statutLabel = t.statut === 'actif' ? 'en cours' : t.statut === 'arrete' ? 'arrete' : t.statut;
+
+    resultats.push({
+      nom: t.nom || 'Sans nom',
+      emoji: emoji,
+      labelCat: labelCat,
+      statut: statutLabel,
+      moyAvant: moyAvant,
+      moyApres: moyApres,
+      diff: diff,
+      nbAvant: avant.length,
+      nbApres: apres.length,
+      dateDebut: dateDebut
+    });
+  });
+
+  if (!resultats.length) return '';
+
+  // Trier par impact absolu décroissant
+  resultats.sort(function(a, b) { return Math.abs(b.diff) - Math.abs(a.diff); });
+
+  var ST = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
+  var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+  html += '<p style="' + ST + 'color:#06172D;">Observations traitements</p>';
+
+  resultats.forEach(function(r) {
+    var arrow = r.diff > 0.3 ? '↗' : r.diff < -0.3 ? '↘' : '→';
+    var color = r.diff > 0.3 ? '#2d6a4f' : r.diff < -0.3 ? '#dc2626' : '#6b7280';
+    var diffStr = (r.diff > 0 ? '+' : '') + r.diff.toFixed(1) + ' pt';
+
+    html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
+    html += '<span style="font-size:18px;line-height:1.2;" aria-hidden="true">' + r.emoji + '</span>';
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<p style="margin:0;font-size:14px;font-weight:600;color:#06172D;">' + r.nom + '</p>';
+    html += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.55);">Depuis le ' + _formatDateCorrel(r.dateDebut) + ' · ' + r.nbApres + 'j de donnees</p>';
+    html += '<p style="margin:4px 0 0;font-size:13px;color:' + color + ';font-weight:600;">' + arrow + ' Score moyen ' + diffStr + ' <span style="font-weight:400;color:rgba(6,23,45,.45);">(' + r.moyAvant.toFixed(1) + ' → ' + r.moyApres.toFixed(1) + ')</span></p>';
+    html += '</div></div>';
+  });
+
+  html += '<p style="font-size:11px;color:rgba(6,23,45,.4);margin:10px 0 0;line-height:1.4;font-style:italic;">Observation personnelle basee sur tes donnees. Ne constitue pas une preuve scientifique. A discuter avec ton professionnel de sante.</p>';
+  html += '</div>';
+  return html;
+}
+
+function _formatDateCorrel(dateStr) {
+  if (!dateStr) return '';
+  var parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  var mois = ['jan','fev','mars','avr','mai','juin','juil','aout','sept','oct','nov','dec'];
+  return parseInt(parts[2], 10) + ' ' + (mois[parseInt(parts[1], 10) - 1] || '') + ' ' + parts[0];
 }
 
 function showStatus(message, type = 'info') {
