@@ -30,7 +30,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `import_mes.js` | Import Synthèse Médicale Mon Espace Santé (parser PDF CDA → patient + traitements + antécédents) |
 | `onboarding.js` | Parcours de première utilisation |
 | `score_sna.js` | Score composite SNA (système nerveux autonome) |
-| `pacing.js` | Feature P : score de stabilité matinal (Morning Pace) + feedback |
+| `pacing.js` | Feature P (stabilité matinale) + Feature B (enveloppe énergie, budget, catalogue activités) |
 | `pem_detector.js` | Détection malaise post-effort (PEM) |
 | `cycle_tracker.js` | Suivi cycle menstruel |
 | `correlations.js` | Analyse corrélations entre métriques |
@@ -61,6 +61,8 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 | `entries` | Tableau saisies quotidiennes `{ date, energie, qualite_sommeil, douleurs, clarte_mentale, note }` |
 | `boussole_traitements` | Tableau structuré T-MED `{ id, categorie, nom, dci, dose, unite, frequence, statut, paliers[], ... }` |
 | `boussole_pace_feedback` | Feedbacks stabilité matinale `[{ date, match: bool }]` (90j max) |
+| `boussole_pacing_catalogue` | Activités personnalisées pour l'enveloppe énergie |
+| `boussole_pacing_log_YYYY-MM-DD` | Log d'activités du jour `[{ id, nom, cout, emoji, heure }]` |
 | `version_seen` | Version modale changelog vue |
 | `newsletter_done` | Email gate newsletter |
 | `brevo_subscribed` | Statut abonnement Brevo |

@@ -344,6 +344,11 @@ function loadTodayData() {
     window.MorningPace.render('morning-pace-card');
   }
 
+  // Feature B — Enveloppe énergétique
+  if (window.EnergyEnvelope && typeof window.EnergyEnvelope.render === 'function') {
+    window.EnergyEnvelope.render('energy-envelope-card');
+  }
+
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
     ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {

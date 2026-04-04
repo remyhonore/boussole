@@ -161,3 +161,230 @@ window.MorningPace = (function() {
   };
 
 })();
+
+
+// === Feature B : Enveloppe énergétique déclarative ===
+// Budget quotidien basé sur la stabilité matinale, catalogue d'activités personnalisable,
+// jauge visuelle avec alertes à 60/80/100%
+
+window.EnergyEnvelope = (function() {
+  'use strict';
+
+  var CATALOGUE_KEY = 'boussole_pacing_catalogue';
+  var LOG_PREFIX = 'boussole_pacing_log_';
+
+  // Budget par niveau de stabilité matinale (1-5)
+  var BUDGETS = { 1: 40, 2: 60, 3: 80, 4: 100, 5: 120 };
+
+  // Catalogue par défaut (coût en points)
+  var CATALOGUE_DEFAUT = [
+    { id: 'marche_courte', nom: 'Marche courte (15 min)', cout: 10, categorie: 'physique', emoji: '🚶' },
+    { id: 'marche_longue', nom: 'Marche longue (30+ min)', cout: 20, categorie: 'physique', emoji: '🚶' },
+    { id: 'courses', nom: 'Courses / commissions', cout: 20, categorie: 'physique', emoji: '🛒' },
+    { id: 'menage', nom: 'Ménage / rangement', cout: 15, categorie: 'physique', emoji: '🧹' },
+    { id: 'cuisine', nom: 'Cuisine (préparer un repas)', cout: 12, categorie: 'physique', emoji: '🍳' },
+    { id: 'douche', nom: 'Douche / soins', cout: 8, categorie: 'physique', emoji: '🚿' },
+    { id: 'sport_leger', nom: 'Sport léger / étirements', cout: 25, categorie: 'physique', emoji: '🧘' },
+    { id: 'ecran_travail', nom: 'Travail / écran (1h)', cout: 15, categorie: 'cognitif', emoji: '💻' },
+    { id: 'reunion', nom: 'Réunion / appel', cout: 20, categorie: 'cognitif', emoji: '📞' },
+    { id: 'lecture', nom: 'Lecture (30 min)', cout: 8, categorie: 'cognitif', emoji: '📖' },
+    { id: 'conversation', nom: 'Conversation stressante', cout: 18, categorie: 'cognitif', emoji: '😰' },
+    { id: 'admin', nom: 'Tâches administratives', cout: 12, categorie: 'cognitif', emoji: '📋' },
+    { id: 'social', nom: 'Sortie sociale', cout: 25, categorie: 'cognitif', emoji: '👥' },
+    { id: 'repos_allonge', nom: 'Repos allongé (30 min)', cout: -10, categorie: 'repos', emoji: '🛋️' },
+    { id: 'sieste', nom: 'Sieste', cout: -15, categorie: 'repos', emoji: '😴' },
+    { id: 'meditation', nom: 'Méditation / respiration', cout: -5, categorie: 'repos', emoji: '🧘' }
+  ];
+
+  function _getCatalogue() {
+    try {
+      var raw = localStorage.getItem(CATALOGUE_KEY);
+      if (raw) {
+        var custom = JSON.parse(raw);
+        // Fusionner : défaut + custom (custom ids commencent par 'custom_')
+        var defIds = CATALOGUE_DEFAUT.map(function(a) { return a.id; });
+        var merged = CATALOGUE_DEFAUT.slice();
+        custom.forEach(function(c) {
+          if (defIds.indexOf(c.id) === -1) merged.push(c);
+        });
+        return merged;
+      }
+    } catch (e) {}
+    return CATALOGUE_DEFAUT.slice();
+  }
+
+  function _getLog(date) {
+    try {
+      var raw = localStorage.getItem(LOG_PREFIX + date);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
+  function _saveLog(date, log) {
+    try { localStorage.setItem(LOG_PREFIX + date, JSON.stringify(log)); } catch (e) {}
+  }
+
+  function _today() { return new Date().toISOString().split('T')[0]; }
+
+  function getBudget() {
+    var pace = window.MorningPace ? window.MorningPace.calculer() : null;
+    var niveau = pace ? pace.niveau : 3; // défaut modéré
+    return BUDGETS[niveau] || 80;
+  }
+
+  function getUsed(date) {
+    var log = _getLog(date || _today());
+    return log.reduce(function(sum, entry) { return sum + (entry.cout || 0); }, 0);
+  }
+
+  function logActivity(activityId) {
+    var date = _today();
+    var catalogue = _getCatalogue();
+    var act = catalogue.find(function(a) { return a.id === activityId; });
+    if (!act) return;
+    var log = _getLog(date);
+    log.push({ id: act.id, nom: act.nom, cout: act.cout, emoji: act.emoji, heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) });
+    _saveLog(date, log);
+    render('energy-envelope-card');
+  }
+
+  function removeActivity(index) {
+    var date = _today();
+    var log = _getLog(date);
+    if (index >= 0 && index < log.length) {
+      log.splice(index, 1);
+      _saveLog(date, log);
+      render('energy-envelope-card');
+    }
+  }
+
+  function addCustomActivity(nom, cout, categorie) {
+    var customs = [];
+    try { var raw = localStorage.getItem(CATALOGUE_KEY); if (raw) customs = JSON.parse(raw); } catch (e) {}
+    var id = 'custom_' + Date.now();
+    customs.push({ id: id, nom: nom, cout: parseInt(cout, 10), categorie: categorie || 'physique', emoji: '⚡' });
+    try { localStorage.setItem(CATALOGUE_KEY, JSON.stringify(customs)); } catch (e) {}
+    return id;
+  }
+
+  function _togglePicker() {
+    var picker = document.getElementById('ee-picker');
+    if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // --- Rendu principal ---
+  function render(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Pas de Morning Pace = pas d'enveloppe
+    var pace = window.MorningPace ? window.MorningPace.calculer() : null;
+    if (!pace) { container.style.display = 'none'; return; }
+
+    var budget = getBudget();
+    var date = _today();
+    var log = _getLog(date);
+    var used = log.reduce(function(s, e) { return s + (e.cout || 0); }, 0);
+    var pct = budget > 0 ? Math.max(0, Math.min(100, (used / budget) * 100)) : 0;
+
+    // Couleur jauge
+    var gaugeColor = pct < 60 ? '#2d6a4f' : pct < 80 ? '#f59e0b' : '#dc2626';
+    var gaugeLabel = pct < 60 ? 'Zone confort' : pct < 80 ? 'Attention' : pct >= 100 ? 'Budget dépassé' : 'Zone rouge';
+
+    // Alerte contextuelle
+    var alertHtml = '';
+    if (pct >= 100) {
+      alertHtml = '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#991b1b;line-height:1.4;">' +
+        '⚠️ Budget dépassé. Risque de crash dans les 24-48h. Repose-toi.</div>';
+    } else if (pct >= 80) {
+      alertHtml = '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#92400e;line-height:1.4;">' +
+        'Il te reste peu d\'énergie. Pense à te reposer.</div>';
+    } else if (pct >= 60) {
+      alertHtml = '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#92400e;line-height:1.4;">' +
+        'Tu as utilisé plus de la moitié de ton enveloppe.</div>';
+    }
+
+    // Log du jour
+    var logHtml = '';
+    if (log.length > 0) {
+      logHtml = '<div style="margin-top:10px;">';
+      log.forEach(function(entry, idx) {
+        var signe = entry.cout >= 0 ? '+' : '';
+        var coul = entry.cout >= 0 ? '#dc2626' : '#2d6a4f';
+        logHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6;font-size:12px;">' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+            '<span>' + (entry.emoji || '⚡') + '</span>' +
+            '<span style="color:#1a2332;">' + entry.nom + '</span>' +
+            '<span style="color:#9ca3af;font-size:11px;">' + entry.heure + '</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+            '<span style="font-weight:600;color:' + coul + ';">' + signe + entry.cout + '</span>' +
+            '<button onclick="window.EnergyEnvelope.removeActivity(' + idx + ')" style="background:none;border:none;color:#d1d5db;cursor:pointer;font-size:14px;padding:0 2px;" aria-label="Supprimer cette activité">&times;</button>' +
+          '</div>' +
+        '</div>';
+      });
+      logHtml += '</div>';
+    }
+
+    // Picker d'activités (caché par défaut)
+    var catalogue = _getCatalogue();
+    var cats = { physique: '💪 Physique', cognitif: '🧠 Cognitif', repos: '🛋️ Repos' };
+    var pickerHtml = '<div id="ee-picker" style="display:none;margin-top:10px;border-top:1px solid #e5e7eb;padding-top:10px;">';
+    Object.keys(cats).forEach(function(cat) {
+      var items = catalogue.filter(function(a) { return a.categorie === cat; });
+      if (items.length === 0) return;
+      pickerHtml += '<div style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px;">' + cats[cat] + '</div>';
+      pickerHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+      items.forEach(function(a) {
+        var signe = a.cout >= 0 ? '+' : '';
+        var bg = a.cout < 0 ? 'rgba(45,106,79,.08)' : 'rgba(6,23,45,.04)';
+        pickerHtml += '<button onclick="window.EnergyEnvelope.logActivity(\'' + a.id + '\')" ' +
+          'style="background:' + bg + ';border:1px solid rgba(6,23,45,.12);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;color:#1a2332;" ' +
+          'aria-label="Ajouter ' + a.nom + '">' +
+          a.emoji + ' ' + a.nom + ' <span style="color:#9ca3af;">(' + signe + a.cout + ')</span></button>';
+      });
+      pickerHtml += '</div>';
+    });
+    pickerHtml += '</div>';
+
+    // Remaining points
+    var remaining = budget - used;
+    var remainTxt = remaining >= 0 ? remaining + ' pts restants' : Math.abs(remaining) + ' pts au-dessus';
+
+    container.style.display = 'block';
+    container.innerHTML =
+      '<div style="border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+          '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;">Enveloppe énergie</div>' +
+          '<span style="font-size:12px;color:#9ca3af;">Budget : ' + budget + ' pts</span>' +
+        '</div>' +
+        // Jauge
+        '<div style="position:relative;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;margin-bottom:6px;">' +
+          '<div style="position:absolute;left:0;top:0;height:100%;width:' + Math.min(pct, 100) + '%;background:' + gaugeColor + ';border-radius:9px;transition:width 0.4s ease;"></div>' +
+          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:' + (pct > 45 ? '#fff' : '#1a2332') + ';">' +
+            Math.round(pct) + '%</div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">' +
+          '<span style="color:' + gaugeColor + ';font-weight:600;">' + gaugeLabel + '</span>' +
+          '<span style="color:#6b7280;">' + remainTxt + '</span>' +
+        '</div>' +
+        alertHtml +
+        // Bouton ajouter
+        '<button onclick="window.EnergyEnvelope._togglePicker()" style="margin-top:10px;width:100%;padding:8px;background:rgba(45,106,79,.08);border:1.5px solid rgba(45,106,79,.2);border-radius:10px;font-size:13px;font-weight:600;color:#2d6a4f;cursor:pointer;font-family:inherit;" aria-label="Ajouter une activité">' +
+          '+ Ajouter une activité</button>' +
+        pickerHtml +
+        logHtml +
+      '</div>';
+  }
+
+  return {
+    getBudget: getBudget,
+    getUsed: getUsed,
+    logActivity: logActivity,
+    removeActivity: removeActivity,
+    addCustomActivity: addCustomActivity,
+    _togglePicker: _togglePicker,
+    render: render
+  };
+
+})();
