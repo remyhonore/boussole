@@ -306,6 +306,10 @@
         <p style="font-size:13px; color:rgba(6,23,45,.5); margin:0 0 24px;">
           🔒 Tes données restent sur ton téléphone. Jamais partagées.
         </p>
+        <p style="font-size:12px; color:rgba(6,23,45,.45); margin:0 0 24px; line-height:1.6;">
+          ⚕️ myBoussole est un outil de suivi personnel. Ce n'est pas un dispositif médical. Les informations affichées ne remplacent pas l'avis d'un professionnel de santé.
+          <br><a href="/cgu.html" style="color:#2d6a4f;font-size:11px;">CGU</a> · <a href="/confidentialite.html" style="color:#2d6a4f;font-size:11px;">Confidentialité</a>
+        </p>
         <button
           id="btn-onboarding-start"
           style="width:100%; background:#2d6a4f; color:#fff; border:none; border-radius:14px; padding:16px; font-size:16px; font-weight:700; cursor:pointer;"
@@ -658,7 +662,7 @@
         </button>
       </div>
 
-      <div class="hub-history-section" style="display:none;" aria-hidden="true">
+      <div class="hub-history-section" style="display:none;" aria-hidden="true" data-audit="dead-feature-u">
         <button id="btn-hub-history" onclick="toggleHubHistory()">
           📓 Mon historique clinique
         </button>
@@ -921,17 +925,19 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v9.34 — </span>
+    <span>Boussole v9.35 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
+    <span> — </span>
+    <a href="/cgu.html" target="_blank" rel="noopener" aria-label="Conditions générales d'utilisation">CGU</a>
   </footer>
 
   <!-- Popup Changelog -->
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v8.90</h2>
+        <h2 id="changelog-title" style="font-size:17px;font-weight:700;margin:0;">Quoi de neuf ? — v9.35</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>

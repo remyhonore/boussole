@@ -3,209 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Politique de confidentialit&eacute; - Boussole</title>
+  <title>Politique de confidentialit&eacute; &mdash; myBoussole</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="alternate icon" href="/favicon.svg">
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6E877D">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Boussole">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-
-  <!-- Styles -->
+  <meta name="theme-color" content="#2d6a4f">
   <link rel="stylesheet" href="styles.css">
-
   <style>
-    .privacy-section {
-      margin-bottom: 28px;
-    }
-    .privacy-section h2 {
-      font-size: 16px;
-      font-weight: 700;
-      color: #06172D;
-      margin: 0 0 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .privacy-section h2 .icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      background: rgba(110,135,125,.12);
-      border-radius: 50%;
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-    .privacy-section p,
-    .privacy-section li {
-      font-size: 14px;
-      line-height: 1.75;
-      color: rgba(6,23,45,.72);
-      margin: 0 0 6px;
-    }
-    .privacy-section ul {
-      margin: 6px 0 0 20px;
-      padding: 0;
-    }
-    .privacy-section li {
-      margin-bottom: 4px;
-    }
-    .privacy-divider {
-      border: none;
-      border-top: 1px solid rgba(6,23,45,.08);
-      margin: 0 0 28px;
-    }
-    .privacy-hero {
-      text-align: center;
-      padding: 12px 0 20px;
-    }
-    .privacy-hero h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: #06172D;
-      margin: 0 0 8px;
-    }
-    .privacy-hero p {
-      font-size: 13px;
-      color: rgba(6,23,45,.5);
-      margin: 0;
-    }
-    .badge-local {
-      display: inline-block;
-      background: rgba(110,135,125,.15);
-      color: #4a6b5e;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-top: 10px;
-    }
+    .legal-page{max-width:640px;margin:0 auto;padding:24px 16px 60px;}
+    .legal-page h1{font-size:22px;font-weight:800;color:#06172D;margin:0 0 4px;}
+    .legal-page .subtitle{font-size:13px;color:rgba(6,23,45,.5);margin:0 0 24px;}
+    .legal-page h2{font-size:16px;font-weight:700;color:#06172D;margin:24px 0 8px;}
+    .legal-page p,.legal-page li{font-size:14px;line-height:1.75;color:rgba(6,23,45,.72);margin:0 0 6px;}
+    .legal-page ul{margin:6px 0 0 20px;padding:0;}
+    .legal-page li{margin-bottom:4px;}
+    .legal-page a{color:#2d6a4f;}
+    .legal-page hr{border:none;border-top:1px solid rgba(6,23,45,.08);margin:24px 0;}
+    .badge-local{display:inline-block;background:rgba(45,106,79,.12);color:#2d6a4f;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-top:8px;}
   </style>
 </head>
 <body>
+<div class="legal-page">
+  <a href="/index.html" style="font-size:13px;color:#2d6a4f;text-decoration:none;font-weight:600;">&larr; Retour &agrave; l&rsquo;app</a>
+  <h1 style="margin-top:16px;">Politique de confidentialit&eacute;</h1>
+  <p class="subtitle">Derni&egrave;re mise &agrave; jour : avril 2026</p>
+  <span class="badge-local">&#128274; 100 % local &mdash; z&eacute;ro donn&eacute;es transmises</span>
 
-  <div class="container">
+  <h2>1. &Eacute;diteur responsable</h2>
+  <p>Dr R&eacute;my Honor&eacute;, Docteur en pharmacie<br>
+  &Eacute;diteur du site myboussole.fr et de l&rsquo;application myBoussole<br>
+  Contact : <a href="mailto:contact@myboussole.fr">contact@myboussole.fr</a></p>
 
-    <!-- En-tête -->
-    <header class="header">
-      <h1><a href="https://myboussole.fr" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Boussole</a></h1>
-      <p>Donn&eacute;es sur ton appareil &middot; sans compte &middot; sans cloud</p>
-    </header>
+  <h2>2. Donn&eacute;es collect&eacute;es et base l&eacute;gale</h2>
+  <p><strong>Donn&eacute;es de bien-&ecirc;tre (scores, mesures, notes, traitements) :</strong> stock&eacute;es exclusivement dans le <code>localStorage</code> de votre navigateur. Aucune transmission &agrave; un serveur. Base l&eacute;gale : consentement (article 6.1.a RGPD).</p>
+  <p><strong>Donn&eacute;es d&rsquo;identit&eacute; (pr&eacute;nom, nom, date de naissance, t&eacute;l&eacute;phone, email) :</strong> stock&eacute;es uniquement en <code>localStorage</code> pour personnaliser vos PDF de consultation. Jamais transmises. Base l&eacute;gale : consentement.</p>
+  <p><strong>Fonctionnalit&eacute; &laquo; Message &agrave; mon m&eacute;decin &raquo; :</strong> lorsque vous utilisez cette fonctionnalit&eacute;, un r&eacute;sum&eacute; anonymis&eacute; de vos scores et notes est envoy&eacute; &agrave; l&rsquo;API Anthropic (Claude) pour g&eacute;n&eacute;rer un message. Aucune donn&eacute;e identifiante (nom, pr&eacute;nom, email) n&rsquo;est transmise dans cette requ&ecirc;te. Anthropic ne conserve pas les donn&eacute;es des appels API. Base l&eacute;gale : consentement (d&eacute;clench&eacute; par votre action explicite).</p>
+  <p><strong>Newsletter :</strong> si vous vous inscrivez via myboussole.fr, votre email est g&eacute;r&eacute; par Brevo (ex-Sendinblue), h&eacute;berg&eacute; en France/UE. D&eacute;sinscription possible &agrave; tout moment. Base l&eacute;gale : consentement.</p>
 
-    <!-- Navigation -->
-    <nav class="nav" role="navigation">
-      <a class="nav-btn" href="/index.html" aria-label="Aller &agrave; l&rsquo;Accueil">
-        Accueil
-      </a>
-      <a class="nav-btn" href="https://myboussole.fr/articles/" aria-label="Lire les articles">
-        Articles
-      </a>
-    </nav>
+  <h2>3. Dur&eacute;e de conservation</h2>
+  <p>Vos donn&eacute;es locales sont conserv&eacute;es tant que vous ne les supprimez pas. Vous pouvez les supprimer &agrave; tout moment via Param&egrave;tres &gt; Export/Import ou en vidant le localStorage de votre navigateur.</p>
+  <p>Les donn&eacute;es transmises &agrave; l&rsquo;API Anthropic ne sont pas conserv&eacute;es apr&egrave;s le traitement de la requ&ecirc;te.</p>
 
-    <!-- Contenu principal -->
-    <div class="panel active" id="panel-privacy" style="padding-top:0;">
+  <h2>4. Aucun tracking, aucun cookie tiers</h2>
+  <ul>
+    <li>Aucun cookie de suivi</li>
+    <li>Aucun outil d&rsquo;analyse (Google Analytics, Facebook Pixel, etc.)</li>
+    <li>Aucune donn&eacute;e partag&eacute;e avec des tiers &agrave; des fins publicitaires</li>
+  </ul>
 
-      <div class="card">
+  <h2>5. PDF g&eacute;n&eacute;r&eacute;s</h2>
+  <p>Les rapports PDF sont g&eacute;n&eacute;r&eacute;s localement dans votre navigateur (biblioth&egrave;que jsPDF). Aucun PDF n&rsquo;est transmis &agrave; un serveur.</p>
 
-        <div class="privacy-hero">
-          <h1>Confidentialit&eacute;</h1>
-          <p>Derni&egrave;re mise &agrave; jour&nbsp;: mars 2026</p>
-          <span class="badge-local">&#128274; 100&nbsp;% local</span>
-        </div>
+  <h2>6. Vos droits (RGPD)</h2>
+  <p>Conform&eacute;ment au R&egrave;glement G&eacute;n&eacute;ral sur la Protection des Donn&eacute;es (UE 2016/679), vous disposez des droits suivants :</p>
+  <ul>
+    <li><strong>Droit d&rsquo;acc&egrave;s :</strong> vos donn&eacute;es sont directement accessibles dans l&rsquo;app (Param&egrave;tres &gt; Exporter mes donn&eacute;es)</li>
+    <li><strong>Droit de rectification :</strong> modifiez vos saisies directement dans l&rsquo;app</li>
+    <li><strong>Droit &agrave; l&rsquo;effacement :</strong> supprimez vos donn&eacute;es via le localStorage du navigateur</li>
+    <li><strong>Droit &agrave; la portabilit&eacute; :</strong> exportez vos donn&eacute;es au format JSON depuis Param&egrave;tres</li>
+  </ul>
+  <p>Pour exercer ces droits ou toute question : <a href="mailto:contact@myboussole.fr">contact@myboussole.fr</a></p>
 
-        <hr class="privacy-divider">
+  <h2>7. S&eacute;curit&eacute;</h2>
+  <p>L&rsquo;application est servie via HTTPS (Vercel). Les donn&eacute;es restent sur votre appareil et ne transitent par aucun serveur (sauf fonctionnalit&eacute; Message m&eacute;decin, cf. section 2).</p>
 
-        <!-- Section 1 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#128274;</span> Vos donn&eacute;es restent sur votre appareil</h2>
-          <p>Boussole ne collecte, ne transmet et ne stocke <strong>aucune donn&eacute;e personnelle</strong> sur un serveur.</p>
-          <ul>
-            <li>Toutes vos saisies (scores quotidiens, mesures objectives, notes libres) sont enregistr&eacute;es uniquement dans le stockage local de votre navigateur (<code>localStorage</code>).</li>
-            <li>Aucun compte utilisateur n&rsquo;est n&eacute;cessaire.</li>
-          </ul>
-        </div>
+  <h2>8. Avertissement de sant&eacute;</h2>
+  <p>myBoussole est un outil de suivi personnel de bien-&ecirc;tre. <strong>Ce n&rsquo;est pas un dispositif m&eacute;dical.</strong> Les informations affich&eacute;es ne constituent pas un diagnostic, un avis m&eacute;dical, ni une recommandation th&eacute;rapeutique. Consultez toujours un professionnel de sant&eacute; pour toute d&eacute;cision m&eacute;dicale.</p>
 
-        <hr class="privacy-divider">
+  <hr>
+  <p style="font-size:12px;color:rgba(6,23,45,.4);text-align:center;">myBoussole &mdash; Dr R&eacute;my Honor&eacute; &mdash; <a href="mailto:contact@myboussole.fr">contact@myboussole.fr</a></p>
+</div>
 
-        <!-- Section 2 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#128683;</span> Aucun tracking, aucun cookie tiers</h2>
-          <ul>
-            <li>Boussole n&rsquo;utilise aucun cookie de suivi.</li>
-            <li>Aucun outil d&rsquo;analyse (Google Analytics, Facebook Pixel, etc.) n&rsquo;est int&eacute;gr&eacute;.</li>
-            <li>Aucune donn&eacute;e n&rsquo;est partag&eacute;e avec des tiers.</li>
-          </ul>
-        </div>
-
-        <hr class="privacy-divider">
-
-        <!-- Section 3 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#128196;</span> Les PDF g&eacute;n&eacute;r&eacute;s restent les v&ocirc;tres</h2>
-          <ul>
-            <li>Les rapports PDF (enrichi et consultation) sont g&eacute;n&eacute;r&eacute;s <strong>localement</strong> dans votre navigateur.</li>
-            <li>Aucun PDF n&rsquo;est transmis &agrave; un serveur. Vous &ecirc;tes le seul &agrave; y avoir acc&egrave;s.</li>
-          </ul>
-        </div>
-
-        <hr class="privacy-divider">
-
-        <!-- Section 4 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#128140;</span> Newsletter (optionnel)</h2>
-          <ul>
-            <li>Si vous vous inscrivez &agrave; la newsletter via le site <a href="https://myboussole.fr" target="_blank" rel="noopener">myboussole.fr</a>, votre adresse email est g&eacute;r&eacute;e par Brevo (ex-Sendinblue), h&eacute;berg&eacute; en France/UE.</li>
-            <li>Vous pouvez vous d&eacute;sinscrire &agrave; tout moment via le lien en bas de chaque email.</li>
-            <li>Votre email n&rsquo;est jamais partag&eacute; avec des tiers.</li>
-          </ul>
-        </div>
-
-        <hr class="privacy-divider">
-
-        <!-- Section 5 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#9878;</span> Vos droits</h2>
-          <p>Conform&eacute;ment au RGPD, vous pouvez &agrave; tout moment supprimer vos donn&eacute;es en vidant le <code>localStorage</code> de votre navigateur&nbsp;:</p>
-          <p style="font-size:13px;color:rgba(6,23,45,.5);font-style:italic;">Param&egrave;tres &rsaquo; Donn&eacute;es de navigation &rsaquo; Stockage local</p>
-          <p>Pour toute question&nbsp;: <a href="mailto:contact@myboussole.fr">contact@myboussole.fr</a></p>
-        </div>
-
-        <hr class="privacy-divider">
-
-        <!-- Section 6 -->
-        <div class="privacy-section">
-          <h2><span class="icon">&#127968;</span> &Eacute;diteur</h2>
-          <p>Dr R&eacute;my Honor&eacute;, Docteur en pharmacie</p>
-          <p><a href="https://myboussole.fr" target="_blank" rel="noopener">myboussole.fr</a></p>
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Footer version -->
-  <footer class="app-footer">
-    <span>Boussole v3.1 &mdash; </span>
-    <a href="https://myboussole.fr/confidentialite" target="_blank" rel="noopener" aria-label="Politique de confidentialit&eacute;">Confidentialit&eacute;</a>
-  </footer>
-
-  <!-- Service Worker PWA -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(() => console.log('Service Worker actif'))
-          .catch(err => console.warn('SW non enregistr&eacute; :', err));
-      });
-    }
-  </script>
-
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>
