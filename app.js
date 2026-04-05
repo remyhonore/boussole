@@ -1903,7 +1903,7 @@ function buildBlocCorrelations() {
 
   // ST migrated to CSS class .section-title
   var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p style="' + ST + 'color:#06172D;margin:0;">Observations traitements</p>' + _infoBtn('traitements') + '</div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p class="section-title" style="margin:0;">Observations traitements</p>' + _infoBtn('traitements') + '</div>';
 
   resultats.forEach(function(r) {
     var arrow = r.diff > 0.3 ? '↗' : r.diff < -0.3 ? '↘' : '→';

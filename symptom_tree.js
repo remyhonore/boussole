@@ -9,15 +9,26 @@
 
   // === PISTES CLINIQUES ===
   var PISTES = {
-    'EMSFC': { label: 'EM/SFC - Malaise post-effort', emoji: '⚡', color: '#dc2626' },
-    'POTS':  { label: 'POTS - Dysautonomie', emoji: '💓', color: '#e07b2a' },
-    'FIBRO': { label: 'Fibromyalgie', emoji: '🔥', color: '#9333ea' },
-    'MCAS':  { label: 'MCAS - Activation mastocytaire', emoji: '🧬', color: '#0891b2' },
-    'NEURO': { label: 'Fatigue centrale / neuro-inflammation', emoji: '🧠', color: '#6366f1' },
-    'DECON': { label: 'Deconditionnement physique', emoji: '🏃', color: '#6E877D' }
+    EMSFC: { label: 'EM/SFC - Malaise post-effort', emoji: '⚡', icon: '⚡', color: '#dc2626', short: 'EM/SFC',
+      description: 'L\'encephalomyelite myalgique se caracterise par un malaise post-effort (PEM) : aggravation disproportionnee des symptomes apres un effort physique ou mental.',
+      suggest: 'Evaluer le PEM avec un journal d\'activite. Demander un test d\'effort en 2 jours (CPET) si accessible.' },
+    POTS: { label: 'POTS - Dysautonomie', emoji: '💓', icon: '💓', color: '#e07b2a', short: 'POTS',
+      description: 'Le syndrome de tachycardie orthostatique posturale se manifeste par une acceleration du rythme cardiaque au passage en position debout, souvent accompagnee de vertiges et fatigue.',
+      suggest: 'Demander un test de table basculante (tilt test) ou un test actif du pouls (test de NASA lean). Mesurer la FC couchee vs debout sur 10 minutes.' },
+    FIBRO: { label: 'Fibromyalgie', emoji: '🔥', icon: '🔥', color: '#9333ea', short: 'Fibro',
+      description: 'La fibromyalgie se caracterise par des douleurs diffuses chroniques, une fatigue et des troubles cognitifs. Les douleurs sont souvent migratrices et fluctuantes.',
+      suggest: 'Evaluer les criteres ACR 2016 (douleurs diffuses, index WPI + SSS). Envisager un bilan rhumatologique.' },
+    MCAS: { label: 'MCAS - Activation mastocytaire', emoji: '🧬', icon: '🧬', color: '#0891b2', short: 'MCAS',
+      description: 'Le syndrome d\'activation mastocytaire provoque des reactions excessives a divers declencheurs (aliments, stress, temperature). Symptomes : flush, urticaire, troubles digestifs.',
+      suggest: 'Doser la tryptase serique basale et en crise. Envisager un dosage d\'histamine et prostaglandines urinaires. Consultation allergologie/immunologie.' },
+    NEURO: { label: 'Fatigue centrale / neuro-inflammation', emoji: '🧠', icon: '🧠', color: '#6366f1', short: 'Neuro-inflam.',
+      description: 'La neuro-inflammation peut provoquer brouillard cognitif, fatigue centrale et troubles de la memoire. Souvent associee aux suites d\'infections virales.',
+      suggest: 'IRM cerebrale si non realisee. Evaluer marqueurs inflammatoires (CRP, IL-6). Envisager consultation neurologique.' },
+    DECON: { label: 'Deconditionnement physique', emoji: '🏃', icon: '🏃', color: '#6E877D', short: 'Decond.',
+      description: 'La reduction prolongee d\'activite physique entraine un cercle vicieux : fatigue -> inactivite -> perte de condition -> fatigue accrue.',
+      suggest: 'Envisager une reeducation progressive adaptee (programme GET modifie ou pacing). Evaluer la VO2max si possible.' }
   };
 
-  // === DOMAINES SYMPTOMATIQUES ===
   var DOMAINS = [
     {
       id: 'fatigue',
@@ -51,48 +62,6 @@
         { text: 'Je ressens des maux de tete ou migraines frequents', weights: { NEURO: 1, FIBRO: 1, MCAS: 1 } }
       ]
     },
-    pots: {
-      label: 'POTS - Dysautonomie',
-      short: 'POTS',
-      color: '#e07b2a',
-      icon: '💓',
-      description: 'Le syndrome de tachycardie orthostatique posturale se manifeste par une acceleration du rythme cardiaque au passage en position debout, souvent accompagnee de vertiges et fatigue.',
-      suggest: 'Demander un test de table basculante (tilt test) ou un test actif du pouls (test de NASA lean). Mesurer la FC couchee vs debout sur 10 minutes.'
-    },
-    fibro: {
-      label: 'Fibromyalgie',
-      short: 'Fibro',
-      color: '#7c3aed',
-      icon: '🔥',
-      description: 'La fibromyalgie se caracterise par des douleurs diffuses chroniques, une fatigue et des troubles cognitifs. Les douleurs sont souvent migratrices et fluctuantes.',
-      suggest: 'Evaluer les criteres ACR 2016 (douleurs diffuses, index WPI + SSS). Envisager un bilan rhumatologique.'
-    },
-    mcas: {
-      label: 'MCAS - Activation mastocytaire',
-      short: 'MCAS',
-      color: '#db2777',
-      icon: '🛡️',
-      description: 'Le syndrome d\'activation mastocytaire provoque des reactions excessives a divers declencheurs (aliments, stress, temperature). Symptomes : flush, urticaire, troubles digestifs.',
-      suggest: 'Doser la tryptase serique basale et en crise. Envisager un dosage d\'histamine et prostaglandines urinaires. Consultation allergologie/immunologie.'
-    },
-    neuroinflam: {
-      label: 'Fatigue centrale - Neuro-inflammation',
-      short: 'Neuro-inflam.',
-      color: '#0891b2',
-      icon: '🧠',
-      description: 'La neuro-inflammation peut provoquer brouillard cognitif, fatigue centrale et troubles de la memoire. Souvent associee aux suites d\'infections virales.',
-      suggest: 'IRM cerebrale si non realisee. Evaluer marqueurs inflammatoires (CRP, IL-6). Envisager consultation neurologique.'
-    },
-    deconditionnement: {
-      label: 'Deconditionnement physique',
-      short: 'Decond.',
-      color: '#6b7280',
-      icon: '🏃',
-      description: 'La reduction prolongee d\'activite physique entraine un cercle vicieux : fatigue -> inactivite -> perte de condition -> fatigue accrue.',
-      suggest: 'Envisager une reeducation progressive adaptee (programme GET modifie ou pacing). Evaluer la VO2max si possible.'
-    }
-  };
-
     {
       id: 'cognition',
       label: 'Cognition',
@@ -123,44 +92,6 @@
         { text: 'J\'ai des rougeurs cutanees, urticaire ou flush facial', weights: { MCAS: 3 } }
       ]
     },
-  var OPTIONS = [
-    { value: 0, label: 'Pas du tout' },
-    { value: 1, label: 'Un peu' },
-    { value: 2, label: 'Moderement' },
-    { value: 3, label: 'Fortement' }
-  ];
-
-  // === SCORING ===
-
-  function computeScores(answers) {
-    var scores = { emsfc: 0, pots: 0, fibro: 0, mcas: 0, neuroinflam: 0, deconditionnement: 0 };
-    var maxScores = { emsfc: 0, pots: 0, fibro: 0, mcas: 0, neuroinflam: 0, deconditionnement: 0 };
-
-    DOMAINS.forEach(function(domain) {
-      domain.items.forEach(function(item) {
-        var val = answers[item.id] || 0;
-        var w = item.weights;
-        for (var piste in w) {
-          if (w.hasOwnProperty(piste)) {
-            scores[piste] += val * w[piste];
-            maxScores[piste] += 3 * w[piste]; // max possible = option 3 * weight
-          }
-        }
-      });
-    });
-
-    // Normaliser en pourcentage
-    var results = [];
-    for (var key in PISTES) {
-      if (PISTES.hasOwnProperty(key)) {
-        var pct = maxScores[key] > 0 ? Math.round((scores[key] / maxScores[key]) * 100) : 0;
-        results.push({ id: key, pct: pct, raw: scores[key], max: maxScores[key] });
-      }
-    }
-    results.sort(function(a, b) { return b.pct - a.pct; });
-    return results;
-  }
-
     {
       id: 'temporalite',
       label: 'Temporalite et declencheur',
@@ -187,6 +118,29 @@
     Object.keys(PISTES).forEach(function(k) { scores[k] = 0; });
     var maxPossible = {};
     Object.keys(PISTES).forEach(function(k) { maxPossible[k] = 0; });
+
+    DOMAINS.forEach(function(domain) {
+      domain.items.forEach(function(item, idx) {
+        var key = domain.id + '_' + idx;
+        var val = answers[key] || 0;
+        Object.keys(item.weights).forEach(function(piste) {
+          scores[piste] += val * item.weights[piste];
+          maxPossible[piste] += 3 * item.weights[piste];
+        });
+      });
+    });
+
+    // Normaliser en pourcentage
+    var results = [];
+    Object.keys(PISTES).forEach(function(k) {
+      var pct = maxPossible[k] > 0 ? Math.round((scores[k] / maxPossible[k]) * 100) : 0;
+      results.push({ id: k, pct: pct, raw: scores[k], max: maxPossible[k] });
+    });
+
+    // Trier par score decroissant
+    results.sort(function(a, b) { return b.pct - a.pct; });
+    return results;
+  }
 
   // === STORAGE ===
 
@@ -219,29 +173,6 @@
   var _currentDomainIdx = 0;
   var _answers = {};
 
-    DOMAINS.forEach(function(domain) {
-      domain.items.forEach(function(item, idx) {
-        var key = domain.id + '_' + idx;
-        var val = answers[key] || 0;
-        Object.keys(item.weights).forEach(function(piste) {
-          scores[piste] += val * item.weights[piste];
-          maxPossible[piste] += 3 * item.weights[piste];
-        });
-      });
-    });
-
-    // Normaliser en pourcentage
-    var results = [];
-    Object.keys(PISTES).forEach(function(k) {
-      var pct = maxPossible[k] > 0 ? Math.round((scores[k] / maxPossible[k]) * 100) : 0;
-      results.push({ id: k, pct: pct, raw: scores[k], max: maxPossible[k] });
-    });
-
-    // Trier par score decroissant
-    results.sort(function(a, b) { return b.pct - a.pct; });
-    return results;
-  }
-
   // === STOCKAGE ===
 
   function getStorageKey(date) {
@@ -267,13 +198,6 @@
 
   // === UI MODALE ===
 
-  function _openModal() {
-    var existing = document.getElementById('symptom-tree-modal');
-    if (existing) existing.remove();
-
-    var modal = document.createElement('div');
-    modal.id = 'symptom-tree-modal';
-    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(6,23,45,.55);z-index:10000;display:flex;align-items:center;justify-content:center;padding:12px;';
   function _openModal() {
     _currentDomainIdx = 0;
     _answers = {};
@@ -600,6 +524,15 @@
 
       top3.forEach(function(r) {
         var piste = PISTES[r.id];
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
+        html += '<span style="font-size:13px;font-weight:600;">' + piste.icon + ' ' + piste.short + '</span>';
+        html += '<span style="font-size:13px;font-weight:700;color:' + piste.color + ';">' + r.pct + ' %</span>';
+        html += '</div>';
+      });
+    } else {
+      html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Identifie les pistes cliniques a explorer avec ton professionnel de sante.</p>';
+    }
+
     html += '<button onclick="SymptomTree.open()" style="width:100%;padding:10px;margin-top:10px;border:1.5px solid rgba(45,106,79,.3);border-radius:8px;background:#fff;color:#2d6a4f;font-size:12px;font-weight:600;cursor:pointer;">🧭 ' + (last ? 'Refaire l\'evaluation' : 'Commencer l\'evaluation') + '</button>';
     html += '</div>';
     return html;
@@ -632,56 +565,6 @@
     _prev: _prev,
     _next: _next,
     _finish: _finish
-  };
-
-})();
-        var barW = Math.max(r.pct, 4);
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
-        html += '<span style="font-size:12px;min-width:20px;">' + piste.emoji + '</span>';
-        html += '<div style="flex:1;">';
-        html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
-        html += '<span style="font-size:12px;font-weight:600;color:#06172D;">' + piste.label.split(' - ')[0] + '</span>';
-        html += '<span style="font-size:12px;font-weight:700;color:' + piste.color + ';">' + r.pct + '%</span></div>';
-        html += '<div style="background:rgba(6,23,45,.06);border-radius:3px;height:5px;overflow:hidden;">';
-        html += '<div style="background:' + piste.color + ';height:100%;width:' + barW + '%;border-radius:3px;"></div></div>';
-        html += '</div></div>';
-      });
-    } else {
-      html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Aucune evaluation. Identifie tes pistes cliniques pour mieux orienter ta consultation.</p>';
-    }
-
-    html += '<button onclick="SymptomTree.open()" style="width:100%;padding:9px;border:1.5px solid rgba(45,106,79,.3);border-radius:8px;background:#fff;color:#2d6a4f;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;">Evaluer mes symptomes</button>';
-    html += '</div>';
-    return html;
-  }
-
-  // === EXPORT PDF ===
-
-  function exportPourPDF() {
-    var last = getLastResult();
-    if (!last || !last.results) return null;
-    var top3 = last.results.slice(0, 3).filter(function(r) { return r.pct > 0; });
-    return {
-      date: last.date,
-      pistes: top3.map(function(r) {
-        return {
-          id: r.id,
-          label: PISTES[r.id].label,
-          pct: r.pct,
-          suggestion: SUGGESTIONS[r.id]
-        };
-      })
-    };
-  }
-
-  // === API PUBLIQUE ===
-
-  window.SymptomTree = {
-    open: function() { _openModal(); },
-    buildBloc: buildBloc,
-    exportPourPDF: exportPourPDF,
-    getLastResult: getLastResult,
-    PISTES: PISTES
   };
 
 })();
