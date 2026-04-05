@@ -105,6 +105,34 @@
     return events;
   }
 
+  /** Récupère les résultats questionnaires PRO sur la période */
+  function _getQuestionnaires(dates) {
+    if (typeof Questionnaires === 'undefined') return [];
+    var first = dates[0], last = dates[dates.length - 1];
+    var scaleIds = ['PHQ-9', 'GAD-7', 'PCFS'];
+    var results = [];
+    scaleIds.forEach(function(scaleId) {
+      var scale = Questionnaires.SCALES[scaleId];
+      if (!scale) return;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k || k.indexOf('boussole_q_' + scaleId + '_') !== 0) continue;
+        try {
+          var data = JSON.parse(localStorage.getItem(k));
+          if (data && data.date >= first && data.date <= last) {
+            var interp = scale.interpret(data.score);
+            results.push({
+              date: data.date, scale: scaleId, score: data.score,
+              label: scale.shortLabel, color: interp.color, level: interp.label,
+              maxScore: scale.maxScore || 27
+            });
+          }
+        } catch(e) {}
+      }
+    });
+    return results.sort(function(a, b) { return a.date.localeCompare(b.date); });
+  }
+
   /** Plugin Chart.js : lignes verticales traitements + marqueurs événements */
   var overlayPlugin = {
     id: 'boussoleOverlays',
@@ -170,6 +198,51 @@
         ctx.fill();
         ctx.restore();
       });
+
+      // --- Questionnaires PRO : badges en haut du graphique ---
+      var qResults = meta.questionnaires || [];
+      var qByDate = {};
+      qResults.forEach(function(q) {
+        if (!qByDate[q.date]) qByDate[q.date] = [];
+        qByDate[q.date].push(q);
+      });
+      Object.keys(qByDate).forEach(function(date) {
+        var idx = dates.indexOf(date);
+        if (idx === -1) return;
+        var x = xScale.getPixelForValue(idx);
+        var items = qByDate[date];
+        items.forEach(function(q, i) {
+          var y = yScale.top + 4 + (i * 16);
+          ctx.save();
+          // Pastille colorée
+          ctx.fillStyle = q.color;
+          ctx.globalAlpha = 0.9;
+          ctx.beginPath();
+          ctx.arc(x, y + 5, 4, 0, Math.PI * 2);
+          ctx.fill();
+          // Label abrégé + score
+          ctx.globalAlpha = 1;
+          ctx.font = 'bold 8px sans-serif';
+          ctx.fillStyle = q.color;
+          ctx.textAlign = 'left';
+          var txt = q.label.replace('PHQ-9', 'P9').replace('GAD-7', 'G7').replace('PCFS', 'PC') + ':' + q.score;
+          ctx.fillText(txt, x + 7, y + 8);
+          ctx.restore();
+        });
+        // Ligne verticale fine de raccord
+        if (items.length) {
+          ctx.save();
+          ctx.setLineDash([2, 3]);
+          ctx.strokeStyle = 'rgba(6,23,45,0.15)';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(x, yScale.top + 2 + items.length * 16);
+          ctx.lineTo(x, yScale.top);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+      });
     }
   };
 
@@ -190,6 +263,7 @@
         '<span style="font-size:10px;color:#dc2626;">▼ Crash/PEM</span>' +
         '<span style="font-size:10px;color:#2d6a4f;">◆ Bonne journée</span>' +
         '<span style="font-size:10px;color:rgba(45,106,79,.5);">┆ Début traitement</span>' +
+        '<span style="font-size:10px;color:#3B82F6;">● Questionnaire PRO</span>' +
       '</div>' +
     '</div>';
   }
@@ -207,6 +281,7 @@
     var chartData = _buildChartData(days);
     var traitements = _getTraitements();
     var events = _getEvents(chartData.dates);
+    var questionnaires = _getQuestionnaires(chartData.dates);
 
     // Enregistrer le plugin une seule fois
     if (!Chart._boussolePluginRegistered) {
@@ -222,7 +297,7 @@
       },
       options: {
         responsive: true,
-        layout: { padding: { top: 14, bottom: 16 } },
+        layout: { padding: { top: 20, bottom: 16 } },
         plugins: {
           legend: {
             position: 'bottom',
@@ -254,7 +329,8 @@
     _chart._boussoleOverlays = {
       dates: chartData.dates,
       traitements: traitements,
-      events: events
+      events: events,
+      questionnaires: questionnaires
     };
 
 

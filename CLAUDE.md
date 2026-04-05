@@ -35,7 +35,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `pem_detector.js` | Détection malaise post-effort (PEM) |
 | `cycle_tracker.js` | Suivi cycle menstruel |
 | `correlations.js` | Analyse corrélations entre métriques |
-| `charts.js` | Graphiques temporels interactifs in-app (7/14/30/90j, overlays traitements + événements) |
+| `charts.js` | Graphiques temporels interactifs in-app (7/14/30/90j, overlays traitements + événements + questionnaires PRO) |
 | `questionnaires.js` | Questionnaires PRO validés (PHQ-9, GAD-7, PCFS) — scoring auto, stockage local, intégration Résumé + PDF |
 | `symptom_tree.js` | Arbre symptôme → piste clinique — questionnaire orienté par domaines, scoring pondéré vers 6 pistes (EM/SFC, POTS, fibro, MCAS, neuro-inflammation, déconditionnement) |
 | `share_profile.js` | Partage profil patient |
