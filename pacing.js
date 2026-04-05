@@ -655,3 +655,8 @@ window.PacingCorrelations = (function() {
   return { analyser: analyser, render: render };
 
 })();
+
+// CommonJS exports pour les tests Jest (ignoré par le navigateur)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { MorningPace: window.MorningPace, EnergyEnvelope: window.EnergyEnvelope, PacingCorrelations: window.PacingCorrelations };
+}
