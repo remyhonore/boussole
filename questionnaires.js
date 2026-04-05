@@ -236,7 +236,7 @@
       '<h3 style="margin:0 0 4px;">' + scale.shortLabel + ' — Score : ' + score + '/' + scale.maxScore + '</h3>' +
       '<p style="font-size:18px;font-weight:700;color:' + interp.color + ';margin:4px 0 12px;">' + interp.label + '</p>' +
       '<p style="font-size:12px;color:rgba(6,23,45,.55);margin:0 0 16px;">Ce score est un indicateur, pas un diagnostic. Parles-en à ton professionnel de santé.</p>' +
-      '<button class="btn" onclick="this.closest(\'.modal\').remove()" style="width:100%;font-size:14px;">Fermer</button>' +
+      '<button class="btn" onclick="this.closest(\'.modal\').remove()" style="width:100%;font-size:13px;">Fermer</button>' +
     '</div>';
     document.body.appendChild(modal);
   }

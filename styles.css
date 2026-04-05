@@ -350,12 +350,12 @@ textarea:focus-visible {
 /* === BUTTONS === */
 .btn {
   display: inline-block;
-  padding: 12px 24px;
+  padding: 10px 14px;
   background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -572,14 +572,6 @@ h2.summary-section {
   .card {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
-  }
-
-  .btn-row {
-    flex-direction: column;
-  }
-
-  .btn-row .btn {
-    width: 100%;
   }
 }
 
