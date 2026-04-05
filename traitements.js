@@ -547,3 +547,8 @@ window.Traitements = (function () {
     ouvrirModaleAllergie:ouvrirModaleAllergie,fermerModaleAllergie:fermerModaleAllergie,
     sauvegarderAllergie:sauvegarderAllergie};
 })();
+
+// CommonJS exports pour les tests Jest (ignoré par le navigateur)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.Traitements;
+}
