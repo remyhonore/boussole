@@ -421,11 +421,7 @@
       var m = monthsToShow[mi];
       html += '<div style="font-size:9px;color:rgba(6,23,45,.45);font-weight:600;display:flex;align-items:center;padding-right:4px;">' + MONTHS_FR[m] + '</div>';
       var daysInMonth = new Date(year, m + 1, 0).getDate();
-      for (var d = 1; d <= 31; d++) {
-        if (d > daysInMonth) {
-          html += '<div></div>';
-          continue;
-        }
+      for (var d = daysInMonth; d >= 1; d--) {
         var ds = year + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
         var isFuture = ds > todayStr;
         var val = dataMap[ds];
@@ -434,6 +430,7 @@
         var title = val !== null && val !== undefined ? (d + '/' + (m+1) + ' : ' + (typeof val === 'number' ? val.toFixed(1) : val)) : '';
         html += '<div style="aspect-ratio:1;border-radius:2px;background:' + bg + ';border:' + border + ';" title="' + title + '"></div>';
       }
+      for (var pad = daysInMonth + 1; pad <= 31; pad++) { html += '<div></div>'; }
     }
     html += '</div></div>';
     return html;

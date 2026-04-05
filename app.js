@@ -1050,12 +1050,11 @@ function refreshSummary() {
   if (summary.joursRenseignes < 5) {
     html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
   }
-  html += `</div>`;
 
-  // 6. Type de journées
+  // 6. Type de journées (dans la même card que Résumé 30j)
   const dist = (typeof getDayTypeDistribution === 'function') ? getDayTypeDistribution(data.entries, 30) : null;
   if (dist && dist.total > 0) {
-    html += `<div class="card">`;
+    html += '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(6,23,45,.08);">';
     html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
     html += '<div style="margin-bottom:10px;">' +
       '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
@@ -1086,6 +1085,7 @@ function refreshSummary() {
     '</div>';
     html += `</div>`;
   }
+  html += `</div>`;
 
 
   // ============ TIER 2 — TENDANCES ============
