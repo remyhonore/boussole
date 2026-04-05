@@ -475,6 +475,16 @@ h2.summary-section {
   margin: 0 0 12px;
 }
 
+/* Sous-titres de section dans les cards (remplace les inline SECTION_TITLE) */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+  color: #06172D;
+}
+
 .summary-item {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);

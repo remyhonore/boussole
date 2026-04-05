@@ -361,7 +361,7 @@ window.Traitements = (function () {
       return'<div style="font-size:13px;color:#06172D;padding:2px 0;">'+s+'</div>';
     }
     var h='<div style="border-radius:10px;padding:14px;margin-bottom:12px;background:#f0f7f4;border:1.5px solid #2d6a4f;">';
-    h+='<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#2d6a4f;">Traitement actuel</p>';
+    h+='<p class="section-title" style="color:#2d6a4f;">Traitement actuel</p>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
     h+='<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">💊 Médicaments</div>';
     h+=meds.length?meds.map(lh).join(''):'<div style="font-size:12px;color:rgba(6,23,45,.42);font-style:italic;">Non renseigné</div>';

@@ -271,7 +271,7 @@
 
 
     var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Questionnaires PRO</p>';
+    html += '<p class="section-title" style="color:#06172D;">Questionnaires PRO</p>';
     if (hasAny) html += cardsHtml;
     else html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Aucun questionnaire complété. Complète-en un pour suivre ton évolution.</p>';
     html += '<div style="display:flex;gap:6px;margin-top:10px;">' + btnsHtml + '</div>';

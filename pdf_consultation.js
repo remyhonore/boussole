@@ -285,6 +285,20 @@ function _buildNarrativeContext(dateFrom, dateTo) {
     if (txCompCtx) lines.push('Complements : ' + txCompCtx.replace(/\n/g, ', '));
   }
   lines.push('');
+
+  // --- Arbre symptome → pistes cliniques ---
+  if (window.SymptomTree && typeof window.SymptomTree.exportPourPDF === 'function') {
+    var stExport = window.SymptomTree.exportPourPDF();
+    if (stExport && stExport.pistes && stExport.pistes.length > 0) {
+      lines.push('=== ARBRE SYMPTOME -> PISTES CLINIQUES (' + stExport.date + ') ===');
+      stExport.pistes.forEach(function(p) {
+        lines.push(p.label + ' : ' + p.pct + '% — ' + p.short);
+        if (p.suggest) lines.push('  -> ' + p.suggest);
+      });
+    }
+  }
+  lines.push('');
+
   lines.push('=== DERNIERE CONSULTATION (avant cette periode) ===');
   var pcKeys = Object.keys(localStorage)
     .filter(function(k) { return k.startsWith('boussole_post_consultation_'); })
@@ -1743,6 +1757,42 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
         var dateFmt = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
         doc.text(q.scale + ' : ' + q.score + '/' + q.max + ' (' + q.label + ') - ' + dateFmt, marginL, y);
         y += 4;
+      });
+      y += 2;
+      drawSep(y);
+      y += 5;
+    }
+  }
+
+
+  // 8d. ARBRE SYMPTOME → PISTES CLINIQUES (conditionnel)
+  // ============================================================
+  if (window.SymptomTree && typeof window.SymptomTree.exportPourPDF === 'function') {
+    var stData = window.SymptomTree.exportPourPDF();
+    if (stData && stData.pistes && stData.pistes.length > 0) {
+      checkPage(20);
+      doc.setFontSize(9);
+      tc(_pal.SECTION_LABEL, true);
+      var stDateParts = stData.date.split('-');
+      var stDateFmt = stDateParts[2] + '/' + stDateParts[1] + '/' + stDateParts[0];
+      doc.text('ARBRE SYMPTOME -> PISTES CLINIQUES (' + stDateFmt + ')', marginL, y);
+      y += 5;
+      doc.setFontSize(8);
+      tc(ANTHRACITE, false);
+      stData.pistes.forEach(function(p) {
+        doc.text(p.label + ' : ' + p.pct + '% — ' + p.short, marginL, y);
+        y += 4;
+        if (p.suggest) {
+          tc(TAUPE, false);
+          doc.setFontSize(7);
+          var suggestLines = doc.splitTextToSize('-> ' + p.suggest, contentW - 5);
+          suggestLines.forEach(function(sl) {
+            doc.text(sl, marginL + 3, y);
+            y += 3.5;
+          });
+          doc.setFontSize(8);
+          tc(ANTHRACITE, false);
+        }
       });
       y += 2;
       drawSep(y);

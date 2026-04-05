@@ -318,7 +318,7 @@
       var progress = Math.round(((currentDomain) / DOMAINS.length) * 100);
 
       var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-      html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Arbre symptomes</p>';
+      html += '<p class="section-title" style="margin:0;color:#06172D;">Arbre symptomes</p>';
       html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
 
       // Progress bar
@@ -522,7 +522,7 @@
     var box = document.getElementById('symptom-tree-modal').querySelector('div');
 
     var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Pistes a explorer</p>';
+    html += '<p class="section-title" style="margin:0;color:#06172D;">Pistes a explorer</p>';
     html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
 
     html += '<p style="font-size:12px;color:#6b7280;margin:0 0 16px;line-height:1.5;">Ces pistes sont des orientations, pas des diagnostics. Elles t\'aident a preparer ta consultation.</p>';
@@ -556,7 +556,7 @@
   function buildBloc() {
     var last = getLastResult();
     var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Arbre symptome -> piste</p>';
+    html += '<p class="section-title" style="color:#06172D;">Arbre symptome -> piste</p>';
 
     if (last && last.results) {
       var dateParts = last.date.split('-');
@@ -590,7 +590,7 @@
   function buildBloc() {
     var last = getLastResult();
     var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Arbre symptomes -> pistes</p>';
+    html += '<p class="section-title" style="color:#06172D;">Arbre symptomes -> pistes</p>';
 
     if (last && last.results) {
       var top3 = last.results.slice(0, 3).filter(function(r) { return r.pct > 0; });

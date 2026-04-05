@@ -286,7 +286,7 @@ window.ImportMES = (function() {
     // Médecin traitant
     if (medecin && medecin.nom) {
       h += '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(45,106,79,.06);border-radius:8px;">';
-      h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2d6a4f;margin:0 0 4px;">Medecin traitant</p>';
+      h += '<p class="section-title" style="color:#2d6a4f;margin:0 0 4px;">Medecin traitant</p>';
       h += '<p style="margin:0;font-size:13px;font-weight:600;color:#06172D;">Dr ' + medecin.nom + '</p>';
       if (medecin.organisation) h += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.55);">' + medecin.organisation + '</p>';
       if (medecin.depuis) h += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.45);">Depuis le ' + medecin.depuis + '</p>';
@@ -296,7 +296,7 @@ window.ImportMES = (function() {
     if (dossier) {
       // Antécédents médicaux
       if (dossier.antecedents && dossier.antecedents.length) {
-        h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 6px;">Antecedents medicaux</p>';
+        h += '<p class="section-title" style="color:#06172D;margin:0 0 6px;">Antecedents medicaux</p>';
         dossier.antecedents.forEach(function(a) {
           h += '<p style="margin:0 0 3px;font-size:13px;color:rgba(6,23,45,.72);padding-left:8px;border-left:3px solid #2d6a4f;">'+a.nom+'</p>';
         });
@@ -305,7 +305,7 @@ window.ImportMES = (function() {
 
       // Antécédents chirurgicaux
       if (dossier.antecedentsChir && dossier.antecedentsChir.length) {
-        h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 6px;">Antecedents chirurgicaux</p>';
+        h += '<p class="section-title" style="color:#06172D;margin:0 0 6px;">Antecedents chirurgicaux</p>';
         dossier.antecedentsChir.forEach(function(a) {
           h += '<p style="margin:0 0 3px;font-size:13px;color:rgba(6,23,45,.72);padding-left:8px;border-left:3px solid #6b7280;">'+a.nom+'</p>';
         });
@@ -314,13 +314,13 @@ window.ImportMES = (function() {
 
       // Facteurs de risque
       if (dossier.facteursRisque && dossier.facteursRisque !== 'pas d\'information connue') {
-        h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 4px;">Facteurs de risque</p>';
+        h += '<p class="section-title" style="color:#06172D;margin:0 0 4px;">Facteurs de risque</p>';
         h += '<p style="font-size:13px;color:rgba(6,23,45,.72);margin:0 0 10px;">'+dossier.facteursRisque+'</p>';
       }
 
       // Points de vigilance
       if (dossier.pointsVigilance && dossier.pointsVigilance.length > 2) {
-        h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#dc2626;margin:0 0 4px;">Points de vigilance</p>';
+        h += '<p class="section-title" style="color:#dc2626;margin:0 0 4px;">Points de vigilance</p>';
         h += '<p style="font-size:13px;color:rgba(6,23,45,.72);margin:0 0 10px;">'+dossier.pointsVigilance+'</p>';
       }
 
@@ -387,7 +387,7 @@ window.ImportMES = (function() {
   function _renderPreview(data) {
     var preview = document.getElementById('import-mes-preview');
     var h = '<div style="background:rgba(45,106,79,.05);border-radius:12px;padding:14px;margin-bottom:8px;">';
-    h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2d6a4f;margin:0 0 8px;">Donnees detectees</p>';
+    h += '<p class="section-title" style="color:#2d6a4f;margin:0 0 8px;">Donnees detectees</p>';
 
     // Patient
     if (data.patient.prenom || data.patient.nom) {
