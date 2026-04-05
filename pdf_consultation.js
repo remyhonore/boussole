@@ -324,7 +324,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
 
   var fullContext = lines.join('\n');
   // Limite à 6000 caractères pour éviter un contexte trop long (notes 200 chars × 30j + événements)
-  // Si dépassé, tronquer les sections les moins importantes (PLAN POST-CONSULTATION en dernier)
+  // Si dépassé, tronquer les sections les moins importantes (PLAN POST-RENDEZ-VOUS en dernier)
   var MAX_CONTEXT = 6000;
   if (fullContext.length > MAX_CONTEXT) {
     fullContext = fullContext.slice(0, MAX_CONTEXT) + '\n\n[Contexte tronque a ' + MAX_CONTEXT + ' caracteres pour respecter les limites de traitement]';
@@ -640,7 +640,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // Gauche
   doc.setFontSize(9);
   tc(_pal.SECTION_LABEL, true);
-  doc.text('NOTE DE PRE-CONSULTATION', marginL, y);
+  doc.text('MON RESUME PERSONNEL', marginL, y);
 
   y += 6;
   const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
@@ -735,13 +735,13 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
-  // 2. MOTIF DE CONSULTATION
+  // 2. MOTIF DU RENDEZ-VOUS
   // ============================================================
   // checkPage_p1(20);
 
   doc.setFontSize(9);
   tc(_pal.SECTION_LABEL, true);
-  doc.text('MOTIF DE CONSULTATION', marginL, y);
+  doc.text('MOTIF DU RENDEZ-VOUS', marginL, y);
   y += 4;
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
@@ -1960,7 +1960,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   })();
 
   // ============================================================
-  // PAGE 3+ — CALENDRIER, EVENEMENTS, PLAN POST-CONSULTATION
+  // PAGE 3+ — CALENDRIER, EVENEMENTS, PLAN POST-RENDEZ-VOUS
   // ============================================================
   doc.addPage();
   y = 15;
@@ -2125,7 +2125,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
-  // 10. PLAN POST-CONSULTATION (conditionnel)
+  // 10. PLAN POST-RENDEZ-VOUS (conditionnel)
   // ============================================================
   var NAVY_PC = [26, 26, 26];
   var SAGE_PC = [100, 100, 100];
@@ -2167,7 +2167,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(NAVY_PC[0], NAVY_PC[1], NAVY_PC[2]);
-    doc.text('PLAN POST-CONSULTATION \u2014 RDV du ' + dateRdvFmt, marginL, y);
+    doc.text('PLAN POST-RENDEZ-VOUS \u2014 RDV du ' + dateRdvFmt, marginL, y);
     y += 3;
 
     doc.setDrawColor(SAGE_PC[0], SAGE_PC[1], SAGE_PC[2]);

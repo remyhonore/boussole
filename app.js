@@ -795,7 +795,7 @@ function _renderHistoriqueTab(content) {
   keys.sort().reverse();
 
   if (keys.length === 0) {
-    content.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
+    content.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:4px 0;">Aucun rendez-vous enregistré.</p>';
     return;
   }
 
@@ -3112,7 +3112,7 @@ function refreshPostConsultationHistorique() {
   }
 
   var html = '<div style="margin-bottom:8px;">';
-  html += '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.45);text-transform:uppercase;margin-bottom:2px;">Mes consultations</div>';
+  html += '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.45);text-transform:uppercase;margin-bottom:2px;">Mes rendez-vous</div>';
   html += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-bottom:6px;">' + fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '') + ' enregistr\u00e9e' + (fiches.length > 1 ? 's' : '') + '</div>';
   html += '<button onclick="exportJournalConsultationPDF()" style="background:none;border:1px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:4px 14px;font-size:12px;cursor:pointer;margin-bottom:10px;">\u2193 Exporter le journal (PDF)</button>';
 
