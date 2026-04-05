@@ -401,7 +401,8 @@
     today.setHours(0, 0, 0, 0);
     var todayStr = typeof localDateStr === 'function' ? localDateStr(today) : today.toISOString().split('T')[0];
 
-    var html = '<div style="display:grid;grid-template-columns:28px repeat(31,1fr);gap:1px;font-size:9px;">';
+    var html = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;">';
+    html += '<div style="display:grid;grid-template-columns:28px repeat(31,14px);gap:1px;font-size:9px;min-width:0;">';
     for (var m = 0; m < 12; m++) {
       // Mois label
       html += '<div style="font-size:9px;color:rgba(6,23,45,.45);font-weight:600;display:flex;align-items:center;padding-right:4px;">' + MONTHS_FR[m] + '</div>';
@@ -420,7 +421,7 @@
         html += '<div style="aspect-ratio:1;border-radius:2px;background:' + bg + ';border:' + border + ';" title="' + title + '"></div>';
       }
     }
-    html += '</div>';
+    html += '</div></div>';
     return html;
   }
 
