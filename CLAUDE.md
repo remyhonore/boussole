@@ -90,6 +90,19 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 
 Toute nouvelle page HTML doit inclure la navigation principale complète avec les mêmes styles que `index.html`. La page active est indiquée visuellement (classe `.nav-btn.active`).
 
+### Mobile overflow — Règle obligatoire
+
+Tout layout multi-colonnes (grid, flex row) doit être testé mentalement pour un viewport de **320px** (plus petit iPhone SE). Si le nombre de colonnes × taille minimale dépasse 320px, appliquer systématiquement :
+
+1. **Wrapper** : `overflow-x:auto;-webkit-overflow-scrolling:touch;`
+2. **Colonnes fixes** : `repeat(N, Xpx)` au lieu de `repeat(N, 1fr)` pour les grids denses
+3. **Jamais** de `flex-direction:column` en media query sur `.btn-row` — les boutons restent côte à côte (taille compacte `13px` / `10px 14px`)
+
+Seuils de vigilance :
+- **≥ 7 colonnes** : wrapper overflow-x obligatoire
+- **≥ 14 colonnes** : colonnes fixes + wrapper obligatoire
+- **Boutons inline** : `font-size:13px;padding:10px 14px;` — jamais plus gros
+
 ### PDF
 
 - `pdf.js` : export enrichi multi-pages avec graphiques Chart.js. Canvas attaché au DOM, délai 300ms avant capture JPEG (600×220px, qualité 0.82).
