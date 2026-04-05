@@ -829,6 +829,117 @@ function _renderHistoriqueTab(content) {
   content.innerHTML = html;
 }
 
+// === BACKFILL — Saisie rapide depuis pastille calendrier ===
+
+function openBackfillModal(dateStr) {
+  // Charger données existantes pour cette date
+  var data = loadEntries();
+  var existing = data.entries.find(function(e) { return e.date === dateStr; });
+
+  // Formater la date en français
+  var parts = dateStr.split('-');
+  var dateLabel = parts[2] + '/' + parts[1] + '/' + parts[0];
+  var joursSemaine = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var dObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var jourLabel = joursSemaine[dObj.getDay()] + ' ' + dateLabel;
+
+  var eVal = existing ? (existing.energie || 5) : 5;
+  var sVal = existing ? (existing.qualite_sommeil || 5) : 5;
+  var cVal = existing ? (existing.douleurs || 5) : 5;
+  var mVal = existing ? (existing.clarte_mentale || 5) : 5;
+  var nVal = existing && existing.note ? existing.note : '';
+
+  var modal = document.getElementById('backfill-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'backfill-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(6,23,45,.55);display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'flex';
+
+  var isEdit = !!existing;
+  var titleText = isEdit ? 'Modifier : ' + jourLabel : 'Saisir : ' + jourLabel;
+
+  var html = '<div style="background:#fff;border-radius:16px;max-width:400px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
+  html += '<p style="font-size:15px;font-weight:700;margin:0;color:#06172D;">' + titleText + '</p>';
+  html += '<button onclick="document.getElementById(\'backfill-modal\').style.display=\'none\'" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);padding:0;line-height:1;">\u2715</button>';
+  html += '</div>';
+
+  // Sliders
+  var sliders = [
+    { id: 'bf-energie', label: 'Energie', val: eVal, low: '0 = epuise(e)', high: '10 = pleine forme' },
+    { id: 'bf-sommeil', label: 'Sommeil', val: sVal, low: '0 = insomnie', high: '10 = parfait' },
+    { id: 'bf-confort', label: 'Confort physique', val: cVal, low: '0 = douleurs intenses', high: '10 = aucune douleur' },
+    { id: 'bf-clarte', label: 'Clarte mentale', val: mVal, low: '0 = brouillard total', high: '10 = esprit vif' }
+  ];
+
+  sliders.forEach(function(s) {
+    html += '<div style="margin-bottom:14px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+    html += '<label style="font-size:13px;font-weight:600;color:#06172D;">' + s.label + '</label>';
+    html += '<span id="' + s.id + '-val" style="font-size:14px;font-weight:700;color:#2d6a4f;">' + s.val + '</span>';
+    html += '</div>';
+    html += '<input type="range" id="' + s.id + '" min="0" max="10" value="' + s.val + '" style="width:100%;accent-color:#2d6a4f;" oninput="document.getElementById(\'' + s.id + '-val\').textContent=this.value">';
+    html += '<div style="display:flex;justify-content:space-between;"><span style="font-size:9px;color:rgba(6,23,45,.4);">' + s.low + '</span><span style="font-size:9px;color:rgba(6,23,45,.4);">' + s.high + '</span></div>';
+    html += '</div>';
+  });
+
+  // Note libre
+  html += '<div style="margin-bottom:16px;">';
+  html += '<label style="font-size:13px;font-weight:600;color:#06172D;">Note (optionnel)</label>';
+  html += '<textarea id="bf-note" maxlength="200" rows="2" style="width:100%;margin-top:4px;padding:8px;border:1.5px solid rgba(6,23,45,.15);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;">' + nVal + '</textarea>';
+  html += '</div>';
+
+  // Boutons
+  html += '<div style="display:flex;gap:10px;">';
+  html += '<button onclick="document.getElementById(\'backfill-modal\').style.display=\'none\'" style="flex:1;padding:10px 14px;background:none;border:1.5px solid rgba(6,23,45,.15);border-radius:10px;font-size:13px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>';
+  html += '<button onclick="saveBackfill(\'' + dateStr + '\')" style="flex:2;padding:10px 14px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Enregistrer</button>';
+  html += '</div>';
+  html += '</div>';
+
+  modal.innerHTML = html;
+}
+
+function saveBackfill(dateStr) {
+  var energie = parseInt(document.getElementById('bf-energie').value);
+  var sommeil = parseInt(document.getElementById('bf-sommeil').value);
+  var confort = parseInt(document.getElementById('bf-confort').value);
+  var clarte = parseInt(document.getElementById('bf-clarte').value);
+  var note = document.getElementById('bf-note').value.trim();
+
+  // Charger entries existantes
+  var data = loadEntries();
+  var idx = data.entries.findIndex(function(e) { return e.date === dateStr; });
+
+  var entry = {
+    date: dateStr,
+    energie: energie,
+    qualite_sommeil: sommeil,
+    douleurs: confort,
+    clarte_mentale: clarte,
+    note: note || ''
+  };
+
+  if (idx >= 0) {
+    // Préserver les champs existants non couverts par le backfill
+    var old = data.entries[idx];
+    entry = Object.assign({}, old, entry);
+    data.entries[idx] = entry;
+  } else {
+    data.entries.push(entry);
+  }
+
+  // Sauvegarder
+  try { localStorage.setItem('boussole_v1_data', JSON.stringify(data)); } catch(e) {}
+
+  // Fermer et rafraichir
+  document.getElementById('backfill-modal').style.display = 'none';
+  refreshSummary();
+}
+
 function refreshSummary() {
   const data = loadEntries();
   const summary = calculateSummary(data.entries, 30);
@@ -938,7 +1049,7 @@ function refreshSummary() {
     html += window.BoussoleCharts.buildYearInPixels();
   }
 
-  // 7. Calendrier 14j (résumé 30 jours)
+  // 7. Calendrier 30j (résumé 30 jours)
   html += `<div class="card">`;
   html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
   html += `<p>Jours renseignés : <strong>${summary.joursRenseignes}/${summary.totalJours}</strong>`;
@@ -950,21 +1061,22 @@ function refreshSummary() {
     const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     const today14 = new Date();
     let calCells = '';
-    for (let i = 13; i >= 0; i--) {
+    for (let i = 29; i >= 0; i--) {
       const d = new Date(today14);
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = localDateStr(d);
       const entry = data.entries.find(e => e.date === dateStr);
       const dt = entry ? getDayType(entry) : null;
       const dotClass = dt ? 'cal-dot cal-dot-' + dt.type : 'cal-dot cal-dot-vide';
-      calCells += `<div class="cal-cell">
+      const cursor = 'cursor:pointer;';
+      calCells += `<div class="cal-cell" onclick="openBackfillModal('${dateStr}')" style="${cursor}" title="${d.getDate()}/${d.getMonth()+1}">
         <span class="cal-day-label">${DAY_LABELS[d.getDay()]}</span>
         <div class="${dotClass}"></div>
-        <span class="cal-day-num">${d.getDate()}</span>
+        <span class="cal-day-num">${d.getDate()}/${String(d.getMonth()+1).padStart(2,'0')}</span>
       </div>`;
     }
-    html += `<p style="font-size:11px;color:rgba(6,23,45,.55);margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
-    html += `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;"><div class="cal-grid">${calCells}</div></div>`;
+    html += `<p style="font-size:11px;color:rgba(6,23,45,.55);margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">30 derniers jours — clique sur une pastille pour saisir/modifier</p>`;
+    html += `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;"><div class="cal-grid" style="grid-template-columns:repeat(30,38px);">${calCells}</div></div>`;
   }
   if (summary.joursRenseignes < 5) {
     html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
