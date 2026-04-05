@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm test               # Run Jest test suite
+npm test               # Run lint-ux + Jest test suite
 npm run test:watch     # Tests en mode watch
 npm run test:coverage  # Rapport de couverture (seuil : 80%)
 npm start              # Serveur local (npx serve .)
 npx jest --testNamePattern="nom du test"  # Un seul test
+node lint-ux.js        # Lint UX seul (font-size, couleurs, inline patterns)
 ```
 
 ## Architecture
@@ -129,6 +130,17 @@ Ne jamais utiliser de gris hex directs (`#999`, `#aaa`, `#4b5563`). Utiliser les
 | `.card` / `.card-group` | Cards de base (définis dans `styles.css`) | padding/shadow/border via variables CSS |
 
 Ne jamais réinliner les propriétés de `.section-title` ou `.section-card`. Ajouter la couleur en `style="color:X;"` si différente du défaut.
+
+### Lint UX (`lint-ux.js`)
+
+Exécuté automatiquement par `npm test`. Bloque le build si violation détectée. 4 règles :
+
+| Règle | Ce qui est interdit | Correction |
+|---|---|---|
+| R1 | `font-size: 14px/15px/16px/rem` dans les .js | Utiliser 9/11/12/13px (exceptions : emoji 18px, scores 20px+) |
+| R2 | Couleurs hex `#999`, `#aaa`, `#4b5563`, `#1a2332` | `rgba(6,23,45,.42)`, `rgba(6,23,45,.55)`, `#06172D` |
+| R3 | Inline `font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;` | Utiliser `class="section-title"` |
+| R4 | Inline `border-radius:12px;padding:14px;margin-bottom:12px;` | Utiliser `class="section-card"` |
 
 ### Mobile overflow — Règle obligatoire
 

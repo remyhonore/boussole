@@ -4,7 +4,7 @@
   "description": "Journal de santé quotidien avec génération PDF pour consultation médicale",
   "main": "index.html",
   "scripts": {
-    "test": "jest",
+    "test": "node lint-ux.js && jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "serve": "npx serve .",
