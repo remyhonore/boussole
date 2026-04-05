@@ -136,38 +136,62 @@ body {
   color: var(--color-text-muted);
 }
 
-/* === NAVIGATION === */
-.nav {
+/* === BOTTOM TAB BAR (ADR-2026-043) === */
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
+  align-items: stretch;
+  background: #fff;
+  border-top: 1px solid rgba(6,23,45,.1);
+  box-shadow: 0 -2px 8px rgba(6,23,45,.06);
+  z-index: 999;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-.nav-btn {
+.tab-btn {
   flex: 1;
-  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-base);
+  color: rgba(6,23,45,.45);
+  font-size: 10px;
   font-family: var(--font-family);
-  text-decoration: none;
-  text-align: center;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.15s;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-btn:hover {
-  color: var(--color-text);
-  background: rgba(110,135,125,.06);
+.tab-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.nav-btn.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+.tab-btn:hover {
+  color: rgba(6,23,45,.65);
+}
+
+.tab-btn.active {
+  color: #2d6a4f;
   font-weight: 600;
+}
+
+.tab-btn.active svg {
+  stroke-width: 2;
 }
 
 /* === PANELS === */
@@ -660,7 +684,7 @@ h2.summary-section {
 /* === Footer version === */
 .app-footer {
   text-align: center;
-  padding: 20px 16px 8px;
+  padding: 20px 16px 72px;
   font-size: 12px;
   color: var(--color-text-muted);
 }
@@ -1134,9 +1158,9 @@ html.dark .modal-content { background: #1b2838; color: #e8e4de; }
 html.dark .status { background: #162230; }
 
 /* Nav */
-html.dark .nav { border-bottom-color: rgba(255,255,255,.1); }
-html.dark .nav-btn { color: rgba(232,228,222,.58); }
-html.dark .nav-btn.active { color: #8aab9e; }
+html.dark .bottom-tab-bar { background: #0d1b2a; border-top-color: rgba(255,255,255,.08); box-shadow: 0 -2px 8px rgba(0,0,0,.3); }
+html.dark .tab-btn { color: rgba(232,228,222,.45); }
+html.dark .tab-btn.active { color: #8aab9e; }
 
 /* === Panel Paramètres (ADR-2026-025) === */
 

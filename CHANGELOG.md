@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.18] - 2026-04-05
+
+### Modifié — Chantier A : Bottom tab bar (ADR-2026-043)
+- Navigation principale migrée du haut vers le bas (barre fixe 56px, position:fixed bottom:0)
+- 4 onglets avec icônes SVG : Accueil / Résumé / Suivi / Paramètres
+- Onglet actif : couleur forêt #2d6a4f, inactifs : rgba(6,23,45,.45)
+- safe-area-inset-bottom pour iPhone X+ (encoche)
+- Dark mode : fond #0d1b2a, actif #8aab9e
+- Footer padding-bottom 72px pour compenser la barre fixe
+- 3 fichiers modifiés (index.html, styles.css, app.js), 70/70 tests, lint UX 0 violation
+
 ## [10.15] - 2026-04-05
 
 ### Modifié — Sprint réglementaire (MDR 2017/745)

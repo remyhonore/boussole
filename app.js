@@ -111,7 +111,7 @@ function initSectionsToggles() {
 }
 
 function initNavigation() {
-  const navButtons = document.querySelectorAll('.nav-btn');
+  const navButtons = document.querySelectorAll('.tab-btn');
   
   navButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -130,7 +130,7 @@ function switchPanel(panelId) {
   }
 
   // Désactiver tous les boutons et panels
-  document.querySelectorAll('.nav-btn').forEach(btn => {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.remove('active');
     btn.removeAttribute('aria-current');
     btn.setAttribute('aria-selected', 'false');

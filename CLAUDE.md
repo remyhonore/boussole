@@ -91,7 +91,7 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 
 ## Conventions UX
 
-Toute nouvelle page HTML doit inclure la navigation principale complète avec les mêmes styles que `index.html`. La page active est indiquée visuellement (classe `.nav-btn.active`).
+Toute nouvelle page HTML doit inclure la navigation principale complète avec les mêmes styles que `index.html`. La navigation est une bottom tab bar fixe (`.bottom-tab-bar` + `.tab-btn`). L'onglet actif est indiqué visuellement (classe `.tab-btn.active`).
 
 ### Échelle typographique (harmonisée v10)
 
