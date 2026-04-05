@@ -54,7 +54,10 @@ window.Traitements = (function () {
     if(t.dose)s+=t.dose;
     if(t.unite)s+=' '+t.unite;
     if(t.frequence)s+=' · '+t.frequence;
-    if(t.moment)s+=' ('+t.moment+')';
+    if(t.moment){
+      var m=t.moment.split(',').filter(Boolean);
+      if(m.length)s+=' ('+m.join(' + ')+')';
+    }
     return s;
   }
 
@@ -66,7 +69,7 @@ window.Traitements = (function () {
   function renderListe() {
     var container=document.getElementById('traitements-list');
     if(!container)return;
-    var liste=charger().slice().sort(function(a,b){
+    var liste=charger().filter(function(t){return t.categorie!=='allergie';}).sort(function(a,b){
       var o={actif:0,pause:1,arrete:2};
       var d=(o[a.statut]||0)-(o[b.statut]||0);
       if(d!==0)return d;
@@ -196,12 +199,20 @@ window.Traitements = (function () {
       s = s.replace(freqMatch[0], ' ').trim();
     }
 
-    // Extraire moment : matin, midi, soir, coucher, au coucher, le matin
-    var momentMatch = s.match(/(?:le\s+|au\s+)?(matin|midi|soir|coucher)/i);
-    if (momentMatch) {
-      result.moment = momentMatch[1].toLowerCase();
-      s = s.replace(momentMatch[0], ' ').trim();
+    // Extraire moment : matin, midi, soir, coucher — support multi ("matin et soir", "matin/soir")
+    var momentParts = [];
+    var multiMoment = s.match(/(?:le\s+)?(matin|midi|soir|coucher)\s*(?:et|\/|\+)\s*(matin|midi|soir|coucher)/i);
+    if (multiMoment) {
+      momentParts.push(multiMoment[1].toLowerCase(), multiMoment[2].toLowerCase());
+      s = s.replace(multiMoment[0], ' ').trim();
+    } else {
+      var momentMatch = s.match(/(?:le\s+|au\s+)?(matin|midi|soir|coucher)/i);
+      if (momentMatch) {
+        momentParts.push(momentMatch[1].toLowerCase());
+        s = s.replace(momentMatch[0], ' ').trim();
+      }
     }
+    result.moment = momentParts.join(',');
 
     // Extraire mots-clés complément
     var compKeywords = /\b(magnésium|magnesium|vitamine|zinc|fer|omega|oméga|créatine|creatine|choline|taurine|tyrosine|whey|probiotique|curcumine|ashwagandha|rhodiola|coq10|nad|nmn|bisglycinate|malate|citrate|glycinate|collagène|spiruline|chlorelle|psyllium|inuline|berbérine|berberine|melatonine|mélatonine)\b/i;
@@ -232,7 +243,12 @@ window.Traitements = (function () {
     if (parsed.dose) setVal('trt-dose', parsed.dose);
     setVal('trt-unite', parsed.unite);
     if (parsed.frequence) setVal('trt-frequence', parsed.frequence);
-    if (parsed.moment) setVal('trt-moment', parsed.moment);
+    if (parsed.moment) {
+      var mm = parsed.moment.split(',').filter(Boolean);
+      document.querySelectorAll('#trt-chips-moment .trt-chip').forEach(function(c) {
+        c.classList.toggle('trt-chip--active', mm.indexOf(c.dataset.val) >= 0);
+      });
+    }
 
     // Catégorie via chips
     document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c) {
@@ -261,13 +277,17 @@ window.Traitements = (function () {
     var champs={
       'trt-nom':t&&t.nom||'','trt-dci':t&&t.dci||'',
       'trt-dose':t&&t.dose||'','trt-unite':t&&t.unite||'mg',
-      'trt-frequence':t&&t.frequence||'1x/j','trt-moment':t&&t.moment||'',
+      'trt-frequence':t&&t.frequence||'1x/j',
       'trt-date-debut':t&&t.date_debut||today,'trt-date-statut':t&&t.date_statut||today,
       'trt-raison-statut':t&&t.raison_statut||'','trt-prescripteur':t&&t.prescripteur||'',
       'trt-objectif':t&&t.objectif||'','trt-effets':t&&t.effets_indesirables||'',
       'trt-effet-global':t&&t.effet_global||'','trt-notes':t&&t.notes||''
     };
     Object.keys(champs).forEach(function(k){var el=document.getElementById(k);if(el)el.value=champs[k];});
+    var momentVals=(t&&t.moment||'').split(',').filter(Boolean);
+    document.querySelectorAll('#trt-chips-moment .trt-chip').forEach(function(c){
+      c.classList.toggle('trt-chip--active',momentVals.indexOf(c.dataset.val)>=0);
+    });
     document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c){
       c.classList.toggle('trt-chip--active',c.dataset.val===(t?t.categorie:'medicament'));
     });
@@ -304,8 +324,11 @@ window.Traitements = (function () {
       var last=paliers[paliers.length-1];
       if(dose&&!last.date_fin){last.dose=dose;last.unite=unite||last.unite;}
     }
+    var momentArr=[];
+    document.querySelectorAll('#trt-chips-moment .trt-chip--active').forEach(function(c){momentArr.push(c.dataset.val);});
+    var momentStr=momentArr.join(',');
     upsert({id:editId||null,categorie:categorie,nom:nom,dci:_getVal('trt-dci'),
-      dose:dose,unite:unite,frequence:_getVal('trt-frequence'),moment:_getVal('trt-moment'),
+      dose:dose,unite:unite,frequence:_getVal('trt-frequence'),moment:momentStr,
       date_debut:dateDebut,statut:statut,date_statut:_getVal('trt-date-statut')||dateDebut,
       raison_statut:_getVal('trt-raison-statut'),ordonnance:ordonnance,
       prescripteur:_getVal('trt-prescripteur'),objectif:_getVal('trt-objectif'),
@@ -317,7 +340,7 @@ window.Traitements = (function () {
     var t=charger().find(function(x){return x.id===id;});
     if(!t)return;
     if(!confirm('Supprimer "'+t.nom+'" ?\nCette action est irréversible.'))return;
-    supprimer(id); renderListe(); renderResumeParametres();
+    supprimer(id); renderListe(); renderAllergies(); renderResumeParametres();
   }
 
   function exportPourPDF(){
@@ -328,7 +351,7 @@ window.Traitements = (function () {
       if(t.dci&&t.dci!==t.nom)s+=' ('+t.dci+')';
       if(t.dose)s+=' '+t.dose+(t.unite?' '+t.unite:'');
       if(t.frequence)s+=' · '+t.frequence;
-      if(t.moment)s+=' le '+t.moment;
+      if(t.moment){var mm=t.moment.split(',').filter(Boolean);if(mm.length)s+=' le '+mm.join(' + ');}
       if(t.prescripteur)s+=' ['+t.prescripteur+']';
       if(t.date_debut)s+=' depuis '+_formatDateFr(t.date_debut);
       if(t.effets_indesirables)s+=' — EI : '+t.effets_indesirables;
@@ -356,7 +379,7 @@ window.Traitements = (function () {
       if(t.dci&&t.dci!==t.nom)s+=' ('+t.dci+')';
       if(t.dose)s+=' <strong>'+t.dose+(t.unite?' '+t.unite:'')+'</strong>';
       if(t.frequence)s+=' — '+t.frequence;
-      if(t.moment)s+=' ('+t.moment+')';
+      if(t.moment){var mm=t.moment.split(',').filter(Boolean);if(mm.length)s+=' ('+mm.join(' + ')+')';}
       if(t.effets_indesirables)s+=' <span style="color:#dc2626">⚠️ '+t.effets_indesirables+'</span>';
       return'<div style="font-size:13px;color:#06172D;padding:2px 0;">'+s+'</div>';
     }
@@ -382,6 +405,68 @@ window.Traitements = (function () {
     }
     h+='</div>';
     return h;
+  }
+
+  function renderAllergies() {
+    var container = document.getElementById('allergies-list');
+    if (!container) return;
+    var allergies = charger().filter(function(t) { return t.categorie === 'allergie'; });
+    if (!allergies.length) {
+      container.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:8px 0 0;">Aucune allergie enregistrée.</p>';
+      return;
+    }
+    var html = '';
+    allergies.forEach(function(t) {
+      html += '<div style="border-left:3px solid #dc2626;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fef2f2;">';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">';
+      html += '<strong style="font-size:13px;color:#06172D;">' + t.nom + '</strong>';
+      html += '<div style="display:flex;gap:6px;">';
+      html += '<button onclick="Traitements.ouvrirModaleAllergie(\'' + t.id + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer;">Modifier</button>';
+      html += '<button onclick="Traitements.confirmerSuppression(\'' + t.id + '\')" style="background:none;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;">Supprimer</button>';
+      html += '</div></div>';
+      if (t.notes) html += '<div style="font-size:12px;color:rgba(6,23,45,.55);margin-top:4px;">' + t.notes + '</div>';
+      if (t.date_debut) html += '<div style="font-size:11px;color:rgba(6,23,45,.42);margin-top:4px;">Depuis le ' + _formatDateFr(t.date_debut) + '</div>';
+      html += '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function ouvrirModaleAllergie(id) {
+    var modal = document.getElementById('modal-allergie');
+    if (!modal) return;
+    var t = id ? charger().find(function(x) { return x.id === id; }) : null;
+    modal.dataset.editId = id || '';
+    document.getElementById('allerg-nom').value = t ? t.nom : '';
+    document.getElementById('allerg-date').value = t ? (t.date_debut || '') : _localDateStr(new Date());
+    document.getElementById('allerg-notes').value = t ? (t.notes || '') : '';
+    var titre = document.getElementById('allerg-modal-title');
+    if (titre) titre.textContent = id ? 'Modifier l\'allergie' : 'Nouvelle allergie / intolérance';
+    modal.style.display = 'flex';
+    setTimeout(function() { document.getElementById('allerg-nom').focus(); }, 100);
+  }
+
+  function fermerModaleAllergie() {
+    var m = document.getElementById('modal-allergie');
+    if (m) { m.style.display = 'none'; m.dataset.editId = ''; }
+  }
+
+  function sauvegarderAllergie() {
+    var nom = (document.getElementById('allerg-nom').value || '').trim();
+    if (!nom) { document.getElementById('allerg-nom').focus(); return; }
+    var modal = document.getElementById('modal-allergie');
+    var editId = modal ? modal.dataset.editId : '';
+    upsert({
+      id: editId || null, categorie: 'allergie', nom: nom, dci: '', dose: null,
+      unite: '', frequence: '', moment: '',
+      date_debut: document.getElementById('allerg-date').value || '',
+      statut: 'actif', date_statut: '', raison_statut: '', ordonnance: false,
+      prescripteur: '', objectif: '', paliers: [],
+      effets_indesirables: '', effet_global: '',
+      notes: (document.getElementById('allerg-notes').value || '').trim()
+    });
+    fermerModaleAllergie();
+    renderAllergies();
+    renderResumeParametres();
   }
 
   function renderResumeParametres() {
@@ -425,17 +510,22 @@ window.Traitements = (function () {
   function init(){
     migrerEssais();
     renderListe();
+    renderAllergies();
     renderResumeParametres();
     document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(chip){
       chip.addEventListener('click',function(){
         document.querySelectorAll('#trt-chips-categorie .trt-chip').forEach(function(c){c.classList.remove('trt-chip--active');});
         chip.classList.add('trt-chip--active');
         var iS=chip.dataset.val==='strategie';
-        var iA=chip.dataset.val==='allergie';
         var pw=document.getElementById('trt-prescripteur-wrap');
         var ow=document.getElementById('trt-ordonnance-wrap');
-        if(pw)pw.style.display=(iS||iA)?'none':'block';
-        if(ow)ow.style.display=(iS||iA)?'none':'flex';
+        if(pw)pw.style.display=iS?'none':'block';
+        if(ow)ow.style.display=iS?'none':'flex';
+      });
+    });
+    document.querySelectorAll('#trt-chips-moment .trt-chip').forEach(function(chip){
+      chip.addEventListener('click',function(){
+        chip.classList.toggle('trt-chip--active');
       });
     });
     document.querySelectorAll('#trt-chips-statut .trt-chip').forEach(function(chip){
@@ -450,8 +540,10 @@ window.Traitements = (function () {
 
   return{init:init,charger:charger,ouvrirModale:ouvrirModale,fermerModale:fermerModale,
     sauvegarderDepuisModale:sauvegarderDepuisModale,confirmerSuppression:confirmerSuppression,
-    ajouterPalier:ajouterPalier,renderListe:renderListe,exportPourPDF:exportPourPDF,
-    blocHTML:blocHTML,_supprimerPalier:_supprimerPalier,_renderPaliers:_renderPaliers,
-    parseTraitement:parseTraitement,appliquerParsing:appliquerParsing,
-    renderResumeParametres:renderResumeParametres};
+    ajouterPalier:ajouterPalier,renderListe:renderListe,renderAllergies:renderAllergies,
+    exportPourPDF:exportPourPDF,blocHTML:blocHTML,_supprimerPalier:_supprimerPalier,
+    _renderPaliers:_renderPaliers,parseTraitement:parseTraitement,appliquerParsing:appliquerParsing,
+    renderResumeParametres:renderResumeParametres,
+    ouvrirModaleAllergie:ouvrirModaleAllergie,fermerModaleAllergie:fermerModaleAllergie,
+    sauvegarderAllergie:sauvegarderAllergie};
 })();

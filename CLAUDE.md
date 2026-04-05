@@ -72,6 +72,7 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 | `boussole_q_GAD-7_YYYY-MM-DD` | Résultat GAD-7 `{ date, scale, answers, score, ts }` |
 | `boussole_q_PCFS_YYYY-MM-DD` | Résultat PCFS `{ date, scale, answers, score, ts }` |
 | `boussole_symptom_tree_YYYY-MM-DD` | Résultat arbre symptôme `{ date, answers, results, ts }` |
+| `boussole_agenda_rdv` | Agenda consultations `[{ id, datetime, specialiste, lieu, notes }]` |
 | `version_seen` | Version modale changelog vue |
 | `newsletter_done` | Email gate newsletter |
 | `brevo_subscribed` | Statut abonnement Brevo |
@@ -81,6 +82,7 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 ### Conventions
 
 - **Nommage** : fonctions en camelCase, champs de données en snake_case français (`qualite_sommeil`, `clarte_mentale`)
+- **Moment de prise** : stocké en comma-separated (`"matin,soir"`) — rétrocompatible avec l'ancien format string simple (`"matin"`)
 - **Fonctions pures** dans `calc.js` : toujours testables sans mock
 - **HTML dynamique** généré par template literals (pas de framework de rendu)
 - **CSS** : variables CSS centralisées à la racine, approche mobile-first, breakpoint unique à 640 px

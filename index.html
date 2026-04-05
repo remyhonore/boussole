@@ -64,7 +64,7 @@
     @media print {
       .header, .nav, #banner-install, #btn-fermer-dashboard, #btn-imprimer-dashboard,
       .skip-link, .app-footer, #status-message, .panel,
-      #consultation-modal, #modal-post-consultation, #modal-event, #modal-essai, #pdf-modal, #changelog-modal,
+      #consultation-modal, #modal-post-consultation, #modal-event, #modal-essai, #modal-allergie, #modal-agenda-rdv, #pdf-modal, #changelog-modal,
       .container > .nav, .container > .header { display: none !important; }
       #overlay-dashboard-visuel {
         position: static !important;
@@ -588,7 +588,7 @@
     <div class="panel" id="panel-tbsante" role="tabpanel" aria-labelledby="tab-tbsante">
 
       <div class="card" style="margin-bottom:16px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(6,23,45,.45);margin:0 0 10px;">Consulter mon médecin</p>
+        <p class="section-title" style="color:rgba(6,23,45,.45);">Mon suivi médical</p>
         <button
           onclick="ouvrirModaleConsultation('pdf')"
           style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
@@ -604,12 +604,55 @@
         >
           &#x2709;&#xFE0F; Message à mon médecin
         </button>
+
+        <div style="margin-top:16px;">
+
+        <details class="journal-accord" id="accord-traitements">
+          <summary class="journal-accord-title">&#x1F48A; Mes traitements</summary>
+          <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="Traitements.ouvrirModale()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter un traitement</button>
+            </div>
+            <div id="traitements-list"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-allergies">
+          <summary class="journal-accord-title">&#x1F6AB; Allergies et intolérances</summary>
+          <div class="journal-accord-body">
+            <div style="margin-bottom:10px;">
+              <button onclick="Traitements.ouvrirModaleAllergie()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter une allergie / intolérance</button>
+            </div>
+            <div id="allergies-list"></div>
+          </div>
+        </details>
+
+        <details class="journal-accord" id="accord-consultations">
+          <summary class="journal-accord-title">&#x1F4CB; Mes consultations</summary>
+          <div class="journal-accord-body">
+            <p class="section-title" style="color:rgba(6,23,45,.45);margin-bottom:8px;">Prochains RDV</p>
+            <div id="agenda-rdv-list"></div>
+            <div style="margin-bottom:12px;">
+              <button onclick="ouvrirModaleAgendaRDV()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Planifier un RDV</button>
+            </div>
+            <div style="border-top:1px solid rgba(6,23,45,.1);margin:14px 0;"></div>
+            <p class="section-title" style="color:rgba(6,23,45,.45);margin-bottom:8px;">Historique</p>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+              <button onclick="exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
+            </div>
+            <div style="margin-bottom:12px;">
+              <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer une consultation passée</button>
+            </div>
+            <div id="pc-historique" style="display:none;"></div>
+            <div id="historique-content"></div>
+          </div>
+        </details>
+
+        </div>
       </div>
 
-      <!-- Feature U hub-history : supprimé (dead code, remplacé par accordéons) -->
-
       <div class="card" style="margin-bottom:16px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(6,23,45,.45);margin:0 0 10px;">Mon dossier</p>
+        <p class="section-title" style="color:rgba(6,23,45,.45);">Mon journal</p>
       <div id="journal-accordeons">
 
         <details class="journal-accord" id="accord-journal">
@@ -664,30 +707,6 @@
               <p style="font-size:12px;color:rgba(6,23,45,.5);margin:0 0 8px;line-height:1.6;">Les essais historiques restent visibles ici. Pour documenter un traitement actif, utilise <a href="#" onclick="event.preventDefault();document.querySelector('[data-panel=tbsante]').click();setTimeout(function(){document.getElementById('accord-traitements').open=true;},300);" style="color:#2d6a4f;font-weight:600;">Mes traitements</a>.</p>
             </div>
             <div id="essais-list"></div>
-          </div>
-        </details>
-
-        <details class="journal-accord" id="accord-traitements">
-          <summary class="journal-accord-title">💊 Mes traitements</summary>
-          <div class="journal-accord-body">
-            <div style="margin-bottom:10px;">
-              <button onclick="Traitements.ouvrirModale()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Ajouter un médicament / complément</button>
-            </div>
-            <div id="traitements-list"></div>
-          </div>
-        </details>
-
-        <details class="journal-accord" id="accord-consultations">
-          <summary class="journal-accord-title">&#x1F4CB; Mes consultations</summary>
-          <div class="journal-accord-body">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
-              <button onclick="exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
-            </div>
-            <div style="margin-bottom:12px;">
-              <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer une consultation</button>
-            </div>
-            <div id="pc-historique" style="display:none;"></div>
-            <div id="historique-content"></div>
           </div>
         </details>
 
@@ -941,7 +960,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.09 — </span>
+    <span>Boussole v10.10 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1575,7 +1594,6 @@
           <button class="trt-chip trt-chip--active" data-val="medicament">💊 Médicament</button>
           <button class="trt-chip" data-val="complement">🌿 Complément</button>
           <button class="trt-chip" data-val="strategie">⚡ Stratégie</button>
-          <button class="trt-chip" data-val="allergie">🚫 Allergie</button>
         </div>
       </div>
 
@@ -1622,14 +1640,13 @@
           <input id="trt-date-debut" type="date" class="trt-input" aria-label="Date de début">
         </div>
         <div class="trt-field-group">
-          <label for="trt-moment">Moment</label>
-          <select id="trt-moment" class="trt-input" aria-label="Moment de prise">
-            <option value="">—</option>
-            <option value="matin">Matin</option>
-            <option value="midi">Midi</option>
-            <option value="soir">Soir</option>
-            <option value="coucher">Coucher</option>
-          </select>
+          <label>Moment <span style="font-weight:400;color:rgba(6,23,45,.42);font-size:11px;">(multi)</span></label>
+          <div id="trt-chips-moment" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="trt-chip" data-val="matin">Matin</button>
+            <button class="trt-chip" data-val="midi">Midi</button>
+            <button class="trt-chip" data-val="soir">Soir</button>
+            <button class="trt-chip" data-val="coucher">Coucher</button>
+          </div>
         </div>
       </div>
 
@@ -1725,6 +1742,62 @@
       <div style="display:flex;gap:10px;margin-top:4px;">
         <button onclick="Traitements.fermerModale()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:14px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
         <button onclick="Traitements.sauvegarderDepuisModale()" style="flex:2;padding:10px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Allergie / Intolérance -->
+  <div id="modal-allergie" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="allerg-modal-title">
+    <div class="modal-content" style="max-width:420px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 id="allerg-modal-title" style="font-size:13px;font-weight:700;color:#06172D;margin:0;">Nouvelle allergie / intolérance</h2>
+        <button onclick="Traitements.fermerModaleAllergie()" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);line-height:1;" aria-label="Fermer">&times;</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Nom *</label>
+        <input type="text" id="allerg-nom" placeholder="Ex : Pénicilline, Lactose, Acariens" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Nom de l'allergie">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Connue depuis</label>
+        <input type="date" id="allerg-date" class="trt-input" style="padding:8px 10px;" aria-label="Date allergie connue">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Notes (réaction, gravité…)</label>
+        <textarea id="allerg-notes" maxlength="300" rows="2" placeholder="Ex : Urticaire sévère, choc anaphylactique" class="trt-input" style="resize:vertical;width:100%;box-sizing:border-box;padding:10px 12px;" aria-label="Notes allergie"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="Traitements.fermerModaleAllergie()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:13px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
+        <button onclick="Traitements.sauvegarderAllergie()" style="flex:2;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Agenda RDV -->
+  <div id="modal-agenda-rdv" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title">
+    <div class="modal-content" style="max-width:420px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 id="agenda-modal-title" style="font-size:13px;font-weight:700;color:#06172D;margin:0;">Planifier un RDV</h2>
+        <button onclick="fermerModaleAgendaRDV()" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);line-height:1;" aria-label="Fermer">&times;</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Date et heure *</label>
+        <input type="datetime-local" id="rdv-datetime" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Date et heure du RDV">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Spécialiste *</label>
+        <input type="text" id="rdv-specialiste" placeholder="Ex : Dr Dupont (cardiologue)" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Nom du spécialiste">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Lieu</label>
+        <input type="text" id="rdv-lieu" placeholder="Ex : Hôpital Saint-Louis, Cabinet…" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Lieu du RDV">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Notes (motif, préparer…)</label>
+        <textarea id="rdv-notes" maxlength="500" rows="2" placeholder="Motif, documents à apporter…" class="trt-input" style="resize:vertical;width:100%;box-sizing:border-box;padding:10px 12px;" aria-label="Notes RDV"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fermerModaleAgendaRDV()" style="flex:1;padding:10px;background:none;border:1.5px solid rgba(110,135,125,.4);border-radius:12px;font-size:13px;font-weight:600;color:#06172D;cursor:pointer;">Annuler</button>
+        <button onclick="sauvegarderAgendaRDV()" style="flex:2;padding:10px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;">Enregistrer</button>
       </div>
     </div>
   </div>

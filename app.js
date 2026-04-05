@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Feature T-Med — Init module Traitements
   if (typeof window.Traitements !== 'undefined') window.Traitements.init();
+  renderAgendaRDV();
 
   // Import MES — Afficher le dossier médical si déjà importé
   if (typeof window.ImportMES !== 'undefined' && typeof window.ImportMES.renderDossierMedical === 'function') window.ImportMES.renderDossierMedical();
@@ -2916,6 +2917,110 @@ function loadPostConsultation(dateStr) {
   } catch (e) {
     return false;
   }
+}
+
+// ===== Agenda RDV =====
+var AGENDA_KEY = 'boussole_agenda_rdv';
+
+function _chargerAgenda() {
+  try { return JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]'); } catch (e) { return []; }
+}
+function _sauvegarderAgenda(l) {
+  try { localStorage.setItem(AGENDA_KEY, JSON.stringify(l)); } catch (e) {}
+}
+
+function ouvrirModaleAgendaRDV(id) {
+  var modal = document.getElementById('modal-agenda-rdv');
+  if (!modal) return;
+  var rdv = id ? _chargerAgenda().find(function(r) { return r.id === id; }) : null;
+  modal.dataset.editId = id || '';
+  document.getElementById('rdv-datetime').value = rdv ? rdv.datetime : '';
+  document.getElementById('rdv-specialiste').value = rdv ? (rdv.specialiste || '') : '';
+  document.getElementById('rdv-lieu').value = rdv ? (rdv.lieu || '') : '';
+  document.getElementById('rdv-notes').value = rdv ? (rdv.notes || '') : '';
+  var titre = document.getElementById('agenda-modal-title');
+  if (titre) titre.textContent = id ? 'Modifier le RDV' : 'Planifier un RDV';
+  modal.style.display = 'flex';
+}
+
+function fermerModaleAgendaRDV() {
+  var m = document.getElementById('modal-agenda-rdv');
+  if (m) { m.style.display = 'none'; m.dataset.editId = ''; }
+}
+
+function sauvegarderAgendaRDV() {
+  var dt = (document.getElementById('rdv-datetime').value || '').trim();
+  var spec = (document.getElementById('rdv-specialiste').value || '').trim();
+  if (!dt || !spec) {
+    if (!dt) document.getElementById('rdv-datetime').focus();
+    else document.getElementById('rdv-specialiste').focus();
+    return;
+  }
+  var modal = document.getElementById('modal-agenda-rdv');
+  var editId = modal ? modal.dataset.editId : '';
+  var agenda = _chargerAgenda();
+  var entry = {
+    id: editId || Date.now().toString(),
+    datetime: dt,
+    specialiste: spec,
+    lieu: (document.getElementById('rdv-lieu').value || '').trim(),
+    notes: (document.getElementById('rdv-notes').value || '').trim()
+  };
+  if (editId) {
+    var idx = agenda.findIndex(function(r) { return r.id === editId; });
+    if (idx >= 0) agenda[idx] = entry; else agenda.push(entry);
+  } else { agenda.push(entry); }
+  _sauvegarderAgenda(agenda);
+  fermerModaleAgendaRDV();
+  renderAgendaRDV();
+}
+
+function supprimerAgendaRDV(id) {
+  if (!confirm('Supprimer ce RDV ?')) return;
+  _sauvegarderAgenda(_chargerAgenda().filter(function(r) { return r.id !== id; }));
+  renderAgendaRDV();
+}
+
+function renderAgendaRDV() {
+  var container = document.getElementById('agenda-rdv-list');
+  if (!container) return;
+  var agenda = _chargerAgenda().sort(function(a, b) {
+    return (a.datetime || '').localeCompare(b.datetime || '');
+  });
+  var now = new Date().toISOString().slice(0, 16);
+  var futurs = agenda.filter(function(r) { return r.datetime >= now; });
+  var passes = agenda.filter(function(r) { return r.datetime < now; });
+  if (!futurs.length && !passes.length) {
+    container.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:0 0 8px;">Aucun RDV planifié.</p>';
+    return;
+  }
+  var html = '';
+  function card(r, isPast) {
+    var d = new Date(r.datetime);
+    var dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    var heureStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    var col = isPast ? 'rgba(6,23,45,.25)' : '#2d6a4f';
+    var bg = isPast ? '#f9fafb' : '#f0f7f4';
+    var h = '<div style="border-left:3px solid ' + col + ';border-radius:8px;padding:10px 12px;margin-bottom:8px;background:' + bg + ';">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">';
+    h += '<div><strong style="font-size:13px;color:#06172D;">' + r.specialiste + '</strong>';
+    h += ' <span style="font-size:12px;color:rgba(6,23,45,.55);">' + dateStr + ' à ' + heureStr + '</span></div>';
+    h += '<div style="display:flex;gap:6px;">';
+    h += '<button onclick="ouvrirModaleAgendaRDV(\'' + r.id + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer;">Modifier</button>';
+    h += '<button onclick="supprimerAgendaRDV(\'' + r.id + '\')" style="background:none;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;">Supprimer</button>';
+    h += '</div></div>';
+    if (r.lieu) h += '<div style="font-size:12px;color:rgba(6,23,45,.55);">📍 ' + r.lieu + '</div>';
+    if (r.notes) h += '<div style="font-size:12px;color:rgba(6,23,45,.55);margin-top:2px;">' + r.notes + '</div>';
+    h += '</div>';
+    return h;
+  }
+  futurs.forEach(function(r) { html += card(r, false); });
+  if (passes.length) {
+    html += '<details style="margin-top:4px;"><summary style="font-size:11px;color:rgba(6,23,45,.42);cursor:pointer;">RDV passés (' + passes.length + ')</summary><div style="margin-top:6px;">';
+    passes.reverse().forEach(function(r) { html += card(r, true); });
+    html += '</div></details>';
+  }
+  container.innerHTML = html;
 }
 
 function openPostConsultation() {
