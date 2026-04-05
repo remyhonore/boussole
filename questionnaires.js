@@ -310,3 +310,8 @@
   };
 
 })();
+
+// CommonJS exports pour les tests Jest (ignoré par le navigateur)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.Questionnaires;
+}
