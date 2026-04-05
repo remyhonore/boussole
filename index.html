@@ -628,7 +628,7 @@
         </details>
 
         <details class="journal-accord" id="accord-consultations">
-          <summary class="journal-accord-title">&#x1F4CB; Mes consultations</summary>
+          <summary class="journal-accord-title">&#x1F4CB; Mes rendez-vous</summary>
           <div class="journal-accord-body">
             <p class="section-title" style="color:rgba(6,23,45,.45);margin-bottom:8px;">Prochains RDV</p>
             <div id="agenda-rdv-list"></div>
@@ -641,7 +641,7 @@
               <button onclick="exportJournalConsultationPDF()" style="background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">&#x1F4C4; Voir en PDF</button>
             </div>
             <div style="margin-bottom:12px;">
-              <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer une consultation passée</button>
+              <button onclick="openPostConsultation()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Enregistrer un rendez-vous passé</button>
             </div>
             <div id="pc-historique" style="display:none;"></div>
             <div id="historique-content"></div>
@@ -722,7 +722,7 @@
       <div class="card" style="margin-bottom:16px;">
         <h2 class="card-title">Mes données</h2>
         <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
-          Télécharger une copie de toutes tes données (entrées, mesures, consultations, paramètres).
+          Télécharger une copie de toutes tes données (entrées, mesures, rendez-vous, paramètres).
         </p>
         <button id="btn-export-data" onclick="exportDonneesJSON()"
           style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;">
@@ -964,7 +964,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.15 — </span>
+    <span>Boussole v10.16 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -991,7 +991,7 @@
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.90</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 21 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Clarté mentale : libellé mis à jour → "Ma mémoire et ma concentration..."</li>
-          <li>PDF consultation en niveaux de gris (impression optimisée noir &amp; blanc)</li>
+          <li>PDF résumé en niveaux de gris (impression optimisée noir &amp; blanc)</li>
           <li>Calendrier 14j : cases avec score chiffré, 3 niveaux de gris</li>
           <li>Nom du fichier PDF personnalisé avec ton prénom, nom et la date</li>
           <li>Événements notables : du plus récent au plus ancien</li>
@@ -1013,7 +1013,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.68</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 18 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Feature U : Hub suivi unifié — chronologie Événements + Essais + Consultations sur 30 jours dans le panel Suivi</li>
+          <li>Feature U : Hub suivi unifié — chronologie Événements + Essais + Rendez-vous sur 30 jours dans le panel Suivi</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.67</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
@@ -1085,7 +1085,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.53</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>ADR-2026-030 : Refonte navigation — Accueil supprimé, nouvel onglet Suivi avec journal de bord (Événements, Essais, Consultations, Historique)</li>
+          <li>ADR-2026-030 : Refonte navigation — Accueil supprimé, nouvel onglet Suivi avec journal de bord (Événements, Essais, Rendez-vous, Historique)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.52</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 17 mars 2026</span></p>
@@ -1100,12 +1100,12 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.29</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Export PDF journal consultations</li>
+          <li>Export PDF journal rendez-vous</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.28</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Journal historique fiches post-consultation</li>
+          <li>Journal historique fiches post-rendez-vous</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.27</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
@@ -1115,7 +1115,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.26</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Feature J : mode post-consultation (formulaire structuré + PDF)</li>
+          <li>Feature J : mode post-rendez-vous (formulaire structuré + PDF)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
@@ -1125,7 +1125,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Feature Q : bannière alerte dégradation prolongée (5j score &lt; 5) avec lien consultation</li>
+          <li>Feature Q : bannière alerte dégradation prolongée (5j score &lt; 5) avec lien rendez-vous</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.23</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
@@ -1140,7 +1140,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.21</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Calendrier 14j dans PDF consultation et mode médecin</li>
+          <li>Calendrier 14j dans PDF résumé et mode médecin</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.20</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
@@ -1170,19 +1170,19 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.15</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Fix régression : section TYPE DE JOURNÉES restaurée dans PDF consultation</li>
+          <li>Fix régression : section TYPE DE JOURNÉES restaurée dans PDF résumé</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.14</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Questions suggérées pour le médecin générées automatiquement dans le PDF consultation</li>
+          <li>Questions suggérées pour le médecin générées automatiquement dans le PDF résumé</li>
           <li>6 règles : énergie, cycle hormonal, FC repos, score bas, variabilité, dissociation humeur/score</li>
           <li>Section conditionnelle — absente si aucune règle déclenchée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.13</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 15 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>PDF consultation repensé pour le médecin remplaçant</li>
+          <li>PDF résumé repensé pour le médecin remplaçant</li>
           <li>Hiérarchie : traitement, problème principal, synthèse fonctionnelle</li>
           <li>Vocabulaire médical (impact, modérément altéré, dégradation fonctionnelle)</li>
           <li>Médicaments : espacement automatique de la posologie</li>
@@ -1337,7 +1337,7 @@
             <input type="radio" name="msg-period" value="14j" style="accent-color:#2d6a4f;"> 14 derniers jours
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
-            <input type="radio" name="msg-period" value="depuis-consult" style="accent-color:#2d6a4f;"> Depuis la dernière consultation
+            <input type="radio" name="msg-period" value="depuis-consult" style="accent-color:#2d6a4f;"> Depuis le dernier rendez-vous
           </label>
         </div>
       </div>
@@ -1371,7 +1371,7 @@
     </div>
   </div>
 
-  <!-- Modale Consultation -->
+  <!-- Modale Résumé personnel -->
   <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -1414,7 +1414,7 @@
         <p style="font-size:12px;font-weight:700;color:#2d6a4f;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px;">Période couverte par la synthèse narrative</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
-            <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> <span id="label-depuis-consult">Depuis la dernière consultation</span>
+            <input type="radio" name="narrative-period" value="depuis-derniere-consult" style="accent-color:#2d6a4f;"> <span id="label-depuis-consult">Depuis le dernier rendez-vous</span>
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#06172D;cursor:pointer;">
             <input type="radio" name="narrative-period" value="30j" style="accent-color:#2d6a4f;"> 30 derniers jours
@@ -1469,11 +1469,11 @@
     </div>
   </div>
 
-  <!-- Modale Post-Consultation -->
+  <!-- Modale Post-rendez-vous -->
   <div id="modal-post-consultation" role="dialog" aria-modal="true" aria-labelledby="post-consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="post-consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après ma consultation</h2>
+        <h2 id="post-consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après mon rendez-vous</h2>
         <button onclick="closePostConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
 
@@ -2249,11 +2249,11 @@
           var lastDate = pcKeys[pcKeys.length - 1].replace('boussole_post_consultation_', '');
           var parts = lastDate.split('-');
           var dateLabel = parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : lastDate;
-          if (labelEl) labelEl.textContent = 'Depuis la dernière consultation (' + dateLabel + ')';
+          if (labelEl) labelEl.textContent = 'Depuis le dernier rendez-vous (' + dateLabel + ')';
           var radioConsult = document.querySelector('input[name="narrative-period"][value="depuis-derniere-consult"]');
           if (radioConsult) radioConsult.checked = true;
         } else {
-          if (labelEl) labelEl.textContent = 'Depuis la dernière consultation (aucune enregistrée)';
+          if (labelEl) labelEl.textContent = 'Depuis le dernier rendez-vous (aucune enregistrée)';
           var radio30j = document.querySelector('input[name="narrative-period"][value="30j"]');
           if (radio30j) radio30j.checked = true;
         }

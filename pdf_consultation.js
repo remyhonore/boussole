@@ -311,7 +311,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
     }
   }
   if (!lastPC) {
-    lines.push('Aucune consultation enregistree avant cette periode.');
+    lines.push('Aucun rendez-vous enregistre avant cette periode.');
   } else {
     var rdvFmt = lastPC.date_rdv ? _dateLocale(lastPC.date_rdv) : '(date inconnue)';
     lines.push('Date du RDV : ' + rdvFmt);
@@ -340,7 +340,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
 async function _generateNarrativeSection(context) {
   var SYSTEM = 'Tu es un assistant de synthese pour patients atteints de maladies chroniques.\n\n' +
     'ROLE STRICT : tu es une secretaire factuelle. Tu transformes des donnees de suivi en compte-rendu narratif ' +
-    'destine a etre lu par un medecin lors d\'une consultation.\n\n' +
+    'destine a etre partage avec ton professionnel de sante.\n\n' +
     'REGLES ABSOLUES :\n' +
     '1. Rapporte UNIQUEMENT ce que les donnees contiennent. Pas un mot de plus.\n' +
     '2. N\'ajoute aucun terme medical absent des donnees sources.\n' +
@@ -358,7 +358,7 @@ async function _generateNarrativeSection(context) {
     'ESSAIS ET TRAITEMENTS\n' +
     '[paragraphe sur les essais actifs pendant la periode, qu\'ils aient ete demarres avant ou pendant la fenetre. Distinguer clairement les essais en cours depuis avant la periode des nouveaux essais demarres sur la periode.]\n\n' +
     'SUIVI DU PLAN PRECEDENT\n' +
-    '[paragraphe sur ce qui avait ete prevu a la derniere consultation]\n\n' +
+    '[paragraphe sur ce qui avait ete prevu au dernier rendez-vous]\n\n' +
     'AVERTISSEMENT\n' +
     'Document genere automatiquement a partir des donnees auto-evaluees de la patiente. ' +
     'Les scores sont des auto-evaluations subjectives. ' +
@@ -2226,8 +2226,8 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const _yyyy   = _now.getFullYear();
   const _dateStr = _dd + _mm + _yyyy;
   const _filename = (_nom && _prenom)
-    ? 'PreConsultation_' + _nom + '_' + _prenom + '_' + _dateStr + '.pdf'
-    : 'PreConsultation_' + _dateStr + '.pdf';
+    ? 'MonResume_' + _nom + '_' + _prenom + '_' + _dateStr + '.pdf'
+    : 'MonResume_' + _dateStr + '.pdf';
 
   // Rediriger la fenêtre déjà ouverte vers le blob PDF
   const _blob = doc.output('blob');

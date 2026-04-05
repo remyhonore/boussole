@@ -3322,7 +3322,7 @@ function exportJournalConsultationPDF() {
     }
   }
   if (fiches.length === 0) {
-    alert('Aucune fiche de consultation enregistree.');
+    alert('Aucune fiche de rendez-vous enregistree.');
     return;
   }
   fiches.sort(function(a, b) { return (b.date_rdv || '').localeCompare(a.date_rdv || ''); });
@@ -3349,7 +3349,7 @@ function exportJournalConsultationPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(255, 255, 255);
-  doc.text('JOURNAL DE SUIVI - CONSULTATIONS', pageW / 2, 12, { align: 'center' });
+  doc.text('JOURNAL DE SUIVI - RENDEZ-VOUS', pageW / 2, 12, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
@@ -3449,7 +3449,7 @@ function exportJournalConsultationPDF() {
   drawFooters();
 
   // Ouverture dans un nouvel onglet (comme les autres PDFs)
-  _pdfOpenTab(doc, 'boussole-journal-consultations-' + todayStr + '.pdf');
+  _pdfOpenTab(doc, 'boussole-journal-rendez-vous-' + todayStr + '.pdf');
 }
 
 // ============================================================
@@ -3795,7 +3795,7 @@ function collectHubEntries() {
       entries.push({
         date: fiche.date_rdv,
         type: 'consult',
-        label: '📋 Consultation',
+        label: '📋 Rendez-vous',
         text: text || '(sans notes)',
         badge: formatDateFr(fiche.date_rdv)
       });
