@@ -1006,19 +1006,21 @@ function refreshSummary() {
   }
 
 
-  // ============ TIER 1 — VUE D'ENSEMBLE ============
 
-  html += '<div class="card-group">';
+  // ============ SYNTHESE 7J ============
   // 1. Synthèse fonctionnelle 7j
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
 
-  // 3. Problème principal
-  html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
 
-  // 3c. Mini-fiches contextuelles (Feature S)
-  const fichesPatterns = detectFichesPatterns(recent7j);
-  html += buildBlocFiches(fichesPatterns);
+  // ============ EVOLUTION ============
+  // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
+  if (window.BoussoleCharts) {
+    html += window.BoussoleCharts.buildHTML();
+  }
 
+
+  // ============ VUE 30 JOURS ============
+  html += '<div class="card-group">';
   // 7. Calendrier 30j (résumé 30 jours)
   html += `<div class="card">`;
   html += `<h2 class="summary-section">RÉSUMÉ 30 JOURS</h2>`;
@@ -1089,30 +1091,32 @@ function refreshSummary() {
   html += `</div>`;
 
 
-  html += '</div>'; // end card-group Mon etat
-
-  // ============ TIER 2 — TENDANCES ============
-
-  html += '<div class="card-group">';
-  // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
-  if (window.BoussoleCharts) {
-    html += window.BoussoleCharts.buildHTML();
-  }
-
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
+  html += '</div>';
+
+  // ============ YEAR IN PIXELS ============
   // 6c. Year in Pixels
   if (window.BoussoleCharts && typeof window.BoussoleCharts.buildYearInPixels === 'function') {
     html += window.BoussoleCharts.buildYearInPixels();
   }
 
 
-  html += '</div>'; // end card-group Evolution
 
-  // ============ TIER 3 — CLINIQUE ============
-
+  // ============ SANTE & RECUPERATION ============
   html += '<div class="card-group">';
+  // Score de récupération (Feature R — ADR-2026-032)
+  html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
+    '<div id="jauge-sna"></div>' +
+    '</div>';
+
+  // Corrélations mesures biologiques / bien-être
+  if (typeof window.renderCorrelationsCard === 'function') {
+    const corrHtml = window.renderCorrelationsCard(data.entries);
+    if (corrHtml) html += corrHtml;
+  }
+
   // 5b. Episodes PEM detectes (30 jours)
   if (typeof window.detectPEMEvents === 'function') {
     var pemDays = [];
@@ -1161,25 +1165,6 @@ function refreshSummary() {
       html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montre ces episodes a ton professionnel de sante pour en discuter.</p>';
       html += '</div>';
     }
-  }
-
-  // 5c. Arbre symptome -> piste clinique
-  if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
-    html += window.SymptomTree.buildBloc();
-  }
-
-  // 6. Feature E — Corrélations traitements × score
-  html += buildBlocCorrelations();
-
-  // 6b. Feature E bis — Corrélations activités → crash
-  if (window.PacingCorrelations && typeof window.PacingCorrelations.render === 'function') {
-    html += window.PacingCorrelations.render();
-  }
-
-  // Corrélations mesures biologiques / bien-être
-  if (typeof window.renderCorrelationsCard === 'function') {
-    const corrHtml = window.renderCorrelationsCard(data.entries);
-    if (corrHtml) html += corrHtml;
   }
 
   // 5c. Corrélation cycle hormonal (30 jours)
@@ -1243,23 +1228,47 @@ function refreshSummary() {
   }
 
 
-  html += '</div>'; // end card-group Clinique
+  html += '</div>';
 
-  // ============ TIER 4 — OUTILS ============
-
+  // ============ TRAITEMENTS ============
   html += '<div class="card-group">';
-  // Score de récupération (Feature R — ADR-2026-032)
-  html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
-    '<div id="jauge-sna"></div>' +
-    '</div>';
+  // 6. Feature E — Corrélations traitements × score
+  html += buildBlocCorrelations();
 
-  // 3b. Carte Pacing Repos 14j
-  html += buildBlocRepos();
+  // 6b. Feature E bis — Corrélations activités → crash
+  if (window.PacingCorrelations && typeof window.PacingCorrelations.render === 'function') {
+    html += window.PacingCorrelations.render();
+  }
 
   // 5b. Questionnaires PRO (PHQ-9, GAD-7, PCFS)
   if (window.Questionnaires && typeof window.Questionnaires.buildBloc === 'function') {
     html += window.Questionnaires.buildBloc();
   }
+
+  html += '</div>';
+
+  // ============ ARBRE SYMPTOME ============
+  // 5c. Arbre symptome -> piste clinique
+  if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
+    html += window.SymptomTree.buildBloc();
+  }
+
+
+  // ============ ALERTES & CONSEILS ============
+  html += '<div class="card-group">';
+  // 3. Problème principal
+  html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
+
+  // 3c. Mini-fiches contextuelles (Feature S)
+  const fichesPatterns = detectFichesPatterns(recent7j);
+  html += buildBlocFiches(fichesPatterns);
+
+  html += '</div>';
+
+  // ============ JOURNAL ============
+  html += '<div class="card-group">';
+  // 3b. Carte Pacing Repos 14j
+  html += buildBlocRepos();
 
   // Variations
   if (summary.variations && summary.variations.length > 0) {
@@ -1327,10 +1336,9 @@ function refreshSummary() {
   }
   
 
-  html += '</div>'; // end card-group Outils
+  html += '</div>';
 
-  // ============ TIER 5 — ACTIONS ============
-
+  // ============ PRUDENCE ============
   // 6. Prudence
   html += `<div class="card">`;
   html += `<h2 class="summary-section">PRUDENCE</h2>`;
