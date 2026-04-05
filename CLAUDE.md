@@ -133,14 +133,15 @@ Ne jamais réinliner les propriétés de `.section-title` ou `.section-card`. Aj
 
 ### Lint UX (`lint-ux.js`)
 
-Exécuté automatiquement par `npm test`. Bloque le build si violation détectée. 4 règles :
+Exécuté automatiquement par `npm test`. Bloque le build si violation détectée. 5 règles :
 
-| Règle | Ce qui est interdit | Correction |
+| Règle | Ce qui est vérifié | Action si violation |
 |---|---|---|
-| R1 | `font-size: 14px/15px/16px/rem` dans les .js | Utiliser 9/11/12/13px (exceptions : emoji 18px, scores 20px+) |
-| R2 | Couleurs hex `#999`, `#aaa`, `#4b5563`, `#1a2332` | `rgba(6,23,45,.42)`, `rgba(6,23,45,.55)`, `#06172D` |
-| R3 | Inline `font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;` | Utiliser `class="section-title"` |
-| R4 | Inline `border-radius:12px;padding:14px;margin-bottom:12px;` | Utiliser `class="section-card"` |
+| R0 | Syntaxe JS valide (`node -c` sur chaque fichier) | Fix la SyntaxError avant de commiter |
+| R1 | `font-size: 14px/15px/16px/rem` dans les .js | Utiliser 9/11/12/13px |
+| R2 | Couleurs hex `#999`, `#aaa`, `#4b5563`, `#1a2332` | `rgba(6,23,45,.42)`, `.55`, `#06172D` |
+| R3 | Inline `font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;` | `class="section-title"` |
+| R4 | Inline `border-radius:12px;padding:14px;margin-bottom:12px;` | `class="section-card"` |
 
 ### Mobile overflow — Règle obligatoire
 

@@ -5,6 +5,7 @@
  * Exécuté automatiquement par `npm test`.
  *
  * Règles :
+ *  0. Syntaxe JS valide (node -c)
  *  1. font-size interdit : 14px, 15px, 16px, rem (dans les .js)
  *  2. Couleurs hex interdites : #999, #aaa, #4b5563, #1a2332
  *  3. Inline section-title : font-size:11px;font-weight:700;text-transform:uppercase
@@ -12,7 +13,7 @@
  */
 
 const fs = require('fs');
-const path = require('path');
+const { execSync } = require('child_process');
 
 const JS_FILES = fs.readdirSync('.').filter(f =>
   f.endsWith('.js') &&
@@ -92,6 +93,18 @@ function check(file) {
 // === EXÉCUTION ===
 console.log(`\n🔍 Lint UX — ${JS_FILES.length} fichiers JS\n`);
 
+// R0: Syntaxe JS valide
+JS_FILES.forEach(file => {
+  try {
+    execSync(`node -c ${file}`, { stdio: 'pipe' });
+  } catch (e) {
+    const msg = e.stderr ? e.stderr.toString().split('\n')[0] : 'SyntaxError';
+    console.error(`  ❌ R0 syntaxe invalide: ${file} — ${msg}`);
+    errors++;
+  }
+});
+
+// R1-R4: Conventions visuelles
 JS_FILES.forEach(check);
 
 if (errors === 0) {
