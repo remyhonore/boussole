@@ -2,6 +2,19 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.22] - 2026-04-06
+
+### Ajouté — Feature W : Vue Agenda calendrier mensuel
+- Nouveau module `agenda_view.js` (IIFE, ~240 lignes)
+- Grille mensuelle lun→dim avec navigation ← mois →
+- Pastilles couleur auto-assignées par spécialiste (palette 6 couleurs)
+- RDV passés : pastille muted (opacité 40%), futurs : pastille pleine
+- Clic jour → liste RDV du jour sous le calendrier avec boutons Modifier/Suppr
+- Bouton "+ Planifier un RDV" réutilise la modale existante
+- Légende automatique en bas : pastille + nom spécialiste
+- `renderAgendaRDV()` délègue à `AgendaView.render()` (fallback si module absent)
+- Changelog modal mis à jour, footer → v10.22, SW bumped
+
 ## [10.19] - 2026-04-05
 
 ### Ajouté — Chantier B : Dashboard tiles Accueil (ADR-2026-043)

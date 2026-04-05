@@ -632,11 +632,7 @@
         <details class="journal-accord" id="accord-consultations">
           <summary class="journal-accord-title">&#x1F4CB; Mes rendez-vous</summary>
           <div class="journal-accord-body">
-            <p class="section-title" style="color:rgba(6,23,45,.45);margin-bottom:8px;">Prochains RDV</p>
             <div id="agenda-rdv-list"></div>
-            <div style="margin-bottom:12px;">
-              <button onclick="ouvrirModaleAgendaRDV()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Planifier un RDV</button>
-            </div>
             <div style="border-top:1px solid rgba(6,23,45,.1);margin:14px 0;"></div>
             <p class="section-title" style="color:rgba(6,23,45,.45);margin-bottom:8px;">Historique</p>
             <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
@@ -966,7 +962,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.20 — </span>
+    <span>Boussole v10.22 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -978,10 +974,17 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.20</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.22</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.22</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Vue Agenda calendrier mensuel avec pastilles couleur par specialiste</li>
+          <li>Navigation entre les mois et detail des RDV au clic</li>
+          <li>Legende automatique des specialistes</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.20</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 05 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Nouvelle navigation en bas de l'écran (4 onglets)</li>
@@ -1932,6 +1935,7 @@
   <script src="pacing.js" defer></script>
   <script src="questionnaires.js" defer></script>
   <script src="symptom_tree.js" defer></script>
+  <script src="agenda_view.js" defer></script>
   <script src="share_profile.js" defer></script>
   <script src="profil_data.js" defer></script>
   <script src="traitements.js" defer></script>

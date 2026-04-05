@@ -2703,7 +2703,7 @@ document.getElementById('btn-download-pdf')?.addEventListener('click', downloadP
 document.getElementById('btn-cancel-pdf')?.addEventListener('click', closePDFModal);
 
 // Changelog modal
-const CURRENT_VERSION = '1.9';
+const CURRENT_VERSION = '1.10';
 const VERSION_KEY = 'boussole_last_version_seen';
 
 function openChangelog() {
@@ -3062,16 +3062,9 @@ function supprimerAgendaRDV(id) {
 }
 
 function renderAgendaRDV() {
-  var container = document.getElementById('agenda-rdv-list');
-  if (!container) return;
-  var agenda = _chargerAgenda().sort(function(a, b) {
-    return (a.datetime || '').localeCompare(b.datetime || '');
-  });
-  var now = new Date().toISOString().slice(0, 16);
-  var futurs = agenda.filter(function(r) { return r.datetime >= now; });
-  var passes = agenda.filter(function(r) { return r.datetime < now; });
-  if (!futurs.length && !passes.length) {
-    container.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:0 0 8px;">Aucun RDV planifié.</p>';
+  // Délègue au module AgendaView (vue calendrier mensuel)
+  if (typeof window.AgendaView !== 'undefined') {
+    window.AgendaView.render('agenda-rdv-list');
     return;
   }
   var html = '';

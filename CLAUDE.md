@@ -38,6 +38,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `charts.js` | Graphiques temporels interactifs in-app (7/14/30/90j, overlays traitements + événements + questionnaires PRO) |
 | `questionnaires.js` | Questionnaires PRO validés (PHQ-9, GAD-7, PCFS) — scoring auto, stockage local, intégration Résumé + PDF |
 | `symptom_tree.js` | Arbre symptôme → piste clinique — questionnaire orienté par domaines, scoring pondéré vers 6 pistes (EM/SFC, POTS, fibro, MCAS, neuro-inflammation, déconditionnement) |
+| `agenda_view.js` | Vue Agenda calendrier mensuel — grille lun-dim, pastilles couleur par spécialiste, navigation mois, détail RDV au clic |
 | `share_profile.js` | Partage profil patient |
 | `fiches_data.js` | Données des fiches pratiques |
 | `profil_data.js` | Données profil utilisateur |
@@ -47,7 +48,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 
 ```
 storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_consultation.js
-→ pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js → questionnaires.js → symptom_tree.js
+→ pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js → questionnaires.js → symptom_tree.js → agenda_view.js
 → share_profile.js → profil_data.js → traitements.js → import_mes.js → app.js
 ```
 
