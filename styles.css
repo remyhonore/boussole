@@ -1090,6 +1090,12 @@ html.dark .indicator-card--mental   { background: #1a2230; }
 
 /* Generic cards */
 html.dark .card { border-color: rgba(255,255,255,.06); }
+html.dark .card-group { border-color: rgba(255,255,255,.06); }
+
+/* Section titles & cards */
+html.dark .section-title { color: #e8e4de; }
+html.dark h2.summary-section { color: #e8e4de; }
+html.dark .section-card { border-color: rgba(255,255,255,.08); }
 
 /* Inputs */
 html.dark input[type="number"],
