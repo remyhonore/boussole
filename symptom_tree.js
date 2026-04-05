@@ -217,8 +217,9 @@
     html += '<p style="font-size:12px;color:rgba(6,23,45,.5);margin:0 0 16px;">Au cours des 2 dernieres semaines :</p>';
 
     // Items
-    domain.items.forEach(function(item) {
-      var selected = _answers[item.id];
+    domain.items.forEach(function(item, idx) {
+      var itemId = domain.id + '_' + idx;
+      var selected = _answers[itemId];
       html += '<div style="margin-bottom:14px;">';
       html += '<p style="font-size:13px;font-weight:500;margin:0 0 8px;color:#06172D;line-height:1.4;">' + item.text + '</p>';
       html += '<div style="display:flex;gap:6px;">';
@@ -227,7 +228,7 @@
         var bg = isActive ? '#2d6a4f' : '#fff';
         var clr = isActive ? '#fff' : '#06172D';
         var brd = isActive ? '#2d6a4f' : 'rgba(6,23,45,.15)';
-        html += '<button onclick="SymptomTree._answer(\'' + item.id + '\',' + opt.value + ')" style="flex:1;padding:8px 4px;border:1.5px solid ' + brd + ';border-radius:8px;background:' + bg + ';color:' + clr + ';font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">' + opt.label + '</button>';
+        html += '<button onclick="SymptomTree._answer(\'' + itemId + '\',' + opt.value + ')" style="flex:1;padding:8px 4px;border:1.5px solid ' + brd + ';border-radius:8px;background:' + bg + ';color:' + clr + ';font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">' + opt.label + '</button>';
       });
       html += '</div></div>';
     });
@@ -237,7 +238,7 @@
     if (_currentDomainIdx > 0) {
       html += '<button onclick="SymptomTree._prev()" style="flex:1;padding:12px;border:1.5px solid rgba(6,23,45,.15);border-radius:10px;background:#fff;color:#06172D;font-size:13px;font-weight:600;cursor:pointer;">Precedent</button>';
     }
-    var allAnswered = domain.items.every(function(item) { return _answers.hasOwnProperty(item.id); });
+    var allAnswered = domain.items.every(function(item, idx) { return _answers.hasOwnProperty(domain.id + '_' + idx); });
     if (_currentDomainIdx < totalDomains - 1) {
       html += '<button onclick="SymptomTree._next()" style="flex:1;padding:12px;border:none;border-radius:10px;background:' + (allAnswered ? '#2d6a4f' : 'rgba(6,23,45,.12)') + ';color:' + (allAnswered ? '#fff' : 'rgba(6,23,45,.3)') + ';font-size:13px;font-weight:600;cursor:pointer;" ' + (allAnswered ? '' : 'disabled') + '>Suivant</button>';
     } else {
@@ -260,13 +261,13 @@
 
   function _next() {
     var domain = DOMAINS[_currentDomainIdx];
-    var allAnswered = domain.items.every(function(item) { return _answers.hasOwnProperty(item.id); });
+    var allAnswered = domain.items.every(function(item, idx) { return _answers.hasOwnProperty(domain.id + '_' + idx); });
     if (allAnswered && _currentDomainIdx < DOMAINS.length - 1) { _currentDomainIdx++; _renderDomain(); }
   }
 
   function _finish() {
     var domain = DOMAINS[_currentDomainIdx];
-    var allAnswered = domain.items.every(function(item) { return _answers.hasOwnProperty(item.id); });
+    var allAnswered = domain.items.every(function(item, idx) { return _answers.hasOwnProperty(domain.id + '_' + idx); });
     if (!allAnswered) return;
 
     var results = computeScores(_answers);
