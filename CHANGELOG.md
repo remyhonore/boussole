@@ -2,6 +2,18 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.15] - 2026-04-05
+
+### Modifié — Sprint réglementaire (MDR 2017/745)
+- **Feature B** : PEM → « Variation d'énergie » dans toute l'UI (app.js, pdf_consultation.js, pacing.js, charts.js, share_profile.js, symptom_tree.js, profil_data.js)
+- **Feature N** : « Questions à poser au médecin » → « Points de réflexion personnels » (6 questions reformulées en observations non directives)
+- **Feature C** : « Préparer ma consultation » → « Mon résumé personnel »
+- **Feature P** : « Score de stabilité » → « Variabilité de ton ressenti »
+- **Feature E** : « Corrélations » → « Observations » (titres UI)
+- **Vocabulaire global** : symptôme→ressenti, clinique→personnel, rapport→résumé, détecté→observé
+- **Disclaimers** : intended purpose ajouté CGU, PDF footer renforcé, Score VOR disclaimer dans Résumé
+- **10 fichiers modifiés**, 70/70 tests, lint UX 0 violation
+
 ## [9.87] - 2026-04-05
 
 ### Ajouté
