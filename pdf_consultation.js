@@ -491,6 +491,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const idNom    = (localStorage.getItem('boussole_nom')    || '').trim().toUpperCase();
   const idDdn    = (localStorage.getItem('boussole_ddn')    || '').trim();
   const idTel    = (localStorage.getItem('boussole_tel')    || '').trim();
+  const idNIR    = (localStorage.getItem('boussole_ins_nir') || '').trim();
 
   // ---- DONNEES MEDICALES — Priorité : module Traitements, fallback : textareas Paramètres ----
   const txMed  = _stripEmoji((localStorage.getItem('boussole_medicaments') || '').trim());
@@ -624,12 +625,12 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   // Gauche
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('NOTE DE PRE-CONSULTATION', marginL, y);
 
   y += 6;
   const nomPrenom = [idPrenom, idNom].filter(Boolean).join(' ');
-  doc.setFontSize(14);
+  doc.setFontSize(16);
   tc(ANTHRACITE, true);
   doc.text(nomPrenom || 'Patient', marginL, y);
 
@@ -639,6 +640,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     const ddnParts = idDdn.split('-');
     if (ddnParts.length === 3) idParts.push('N\xe9(e) le ' + ddnParts[2] + '/' + ddnParts[1] + '/' + ddnParts[0]);
   }
+  if (idNIR) idParts.push('NIR : ' + idNIR);
   if (idTel) idParts.push(idTel);
   if (idParts.length > 0) {
     doc.setFontSize(11);
@@ -650,8 +652,17 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const rightX = marginL + contentW;
   doc.setFontSize(10);
   tc(MUTED, false);
+  var _periodLabel = 'Synth\xe8se 7 jours';
+  if (narrativeDateFromOverride) {
+    var _dfrom = new Date(narrativeDateFromOverride + 'T12:00:00');
+    var _dto = new Date((narrativeDateToOverride || _localDateStr(new Date())) + 'T12:00:00');
+    var _diffDays = Math.round((_dto - _dfrom) / 86400000);
+    if (_diffDays <= 8) _periodLabel = 'Synth\xe8se 7 jours';
+    else if (_diffDays <= 35) _periodLabel = 'Synth\xe8se 30 jours';
+    else _periodLabel = 'Synth\xe8se ' + _diffDays + ' jours';
+  }
   doc.text(
-    'Synth\xe8se 7 jours \xB7 derni\xe8re saisie ' + _dateLocale(derniereSaisie),
+    _periodLabel + ' \xB7 derni\xe8re saisie ' + _dateLocale(derniereSaisie),
     rightX, 14, { align: 'right' }
   );
   doc.setFontSize(9);
@@ -681,7 +692,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(20);
 
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('MOTIF DE CONSULTATION', marginL, y);
   y += 4;
   doc.setFontSize(8);
@@ -697,14 +708,14 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.text('Aucun motif saisi', marginL, y);
     y += 7;
   } else {
-    doc.setFontSize(9);
+    doc.setFontSize(11);
     motifList.forEach(function(item) {
-      tc(ANTHRACITE, false);
+      tc(ANTHRACITE, true);
       const itemLines = doc.splitTextToSize('- ' + item, contentW);
       itemLines.forEach(function(l) { doc.text(l, marginL, y); y += 5; });
     });
     if (noteLibreTrimmed.length > 0) {
-      doc.setFontSize(9);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(ANTHRACITE[0], ANTHRACITE[1], ANTHRACITE[2]);
       const precLines = doc.splitTextToSize(noteLibreTrimmed, contentW);
@@ -722,7 +733,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(30);
 
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('TRAITEMENT EN COURS', marginL, y);
   y += 5;
 
@@ -785,7 +796,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   doc.line(colLX, y, colLX, y + traitH);
   doc.setLineWidth(0.1);
   doc.setFontSize(10);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('M\xe9dicaments', colLX + 5, y + padV);
   let lty = y + padV + labelH;
   leftItems.forEach(function(item) {
@@ -804,7 +815,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   doc.line(colRX, y, colRX, y + traitH);
   doc.setLineWidth(0.1);
   doc.setFontSize(10);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('Compl\xe9ments', colRX + 5, y + padV);
   let rty = y + padV + labelH;
   rightItems.forEach(function(item) {
@@ -825,7 +836,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(40);
 
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('PROBLEME PRINCIPAL', marginL, y);
   y += 5;
 
@@ -966,7 +977,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // checkPage_p1(50);
 
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('SYNTHESE FONCTIONNELLE - 7 JOURS', marginL, y);
   y += 5;
 
@@ -1105,7 +1116,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.setLineWidth(0.1);
 
     doc.setFontSize(9);
-    tc(_pal.SECTION_LABEL, false);
+    tc(_pal.SECTION_LABEL, true);
     doc.text('DETAIL SOMMEIL - DONN\xc9ES D\xc9CLARATIVES', marginL + 5, y + 7);
 
     const somMoyStr  = moySommeil !== null
@@ -1182,7 +1193,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     // checkPage_p1(mesBlockH + 10);
 
     doc.setFontSize(9);
-    tc(_pal.SECTION_LABEL, false);
+    tc(_pal.SECTION_LABEL, true);
     doc.text('DONN\xc9ES OBJECTIVES D\xc9CLARATIVES', marginL, y);
     y += 5;
 
@@ -1333,7 +1344,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       // checkPage_p1(25);
 
       doc.setFontSize(9);
-      tc(_pal.SECTION_LABEL, false);
+      tc(_pal.SECTION_LABEL, true);
       doc.text('\xc9PISODES DE CRASH', marginL, y);
       y += 5;
 
@@ -1398,7 +1409,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
     checkPage(30);
     doc.setFontSize(9);
-    tc(_pal.SECTION_LABEL, false);
+    tc(_pal.SECTION_LABEL, true);
     doc.text('R\xc9SUM\xc9 PACING \xc9NERG\xc9TIQUE', marginL, y);
     y += 5;
     doc.setFontSize(8);
@@ -1450,7 +1461,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       // checkPage_p1(30);
 
       doc.setFontSize(9);
-      tc(_pal.SECTION_LABEL, false);
+      tc(_pal.SECTION_LABEL, true);
       doc.text('CYCLE ET BIEN-\xcaTRE', marginL, y);
       y += 5;
 
@@ -1535,7 +1546,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const VOR_ROUGE  = _pal.VOR_ROUGE;
 
   doc.setFontSize(9);
-  tc(_pal.SECTION_LABEL, false);
+  tc(_pal.SECTION_LABEL, true);
   doc.text('TYPE DE JOURN\xc9ES - 7 JOURS', marginL, y);
   y += 5;
 
@@ -1688,7 +1699,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (pacingDays >= 3) {
       checkPage(28);
       doc.setFontSize(9);
-      tc(_pal.SECTION_LABEL, false);
+      tc(_pal.SECTION_LABEL, true);
       doc.text('PACING - GESTION DE L\'ENVELOPPE ENERGETIQUE (30 jours)', marginL, y);
       y += 5;
       doc.setFontSize(8);
@@ -1722,7 +1733,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (qResults.length > 0) {
       checkPage(20);
       doc.setFontSize(9);
-      tc(_pal.SECTION_LABEL, false);
+      tc(_pal.SECTION_LABEL, true);
       doc.text('QUESTIONNAIRES PRO VALIDES', marginL, y);
       y += 5;
       doc.setFontSize(8);
