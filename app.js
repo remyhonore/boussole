@@ -964,7 +964,7 @@ function refreshSummary() {
       </div>`;
     }
     html += `<p style="font-size:11px;color:rgba(6,23,45,.55);margin:8px 0 4px 0;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">14 derniers jours</p>`;
-    html += `<div class="cal-grid">${calCells}</div>`;
+    html += `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;"><div class="cal-grid">${calCells}</div></div>`;
   }
   if (summary.joursRenseignes < 5) {
     html += `<div class="status status-warning" style="margin-top: 10px;">Données insuffisantes — renseigne au moins 5 jours pour des tendances fiables.</div>`;
@@ -2240,7 +2240,9 @@ window._ouvrirModePresentation = function() {
   const calendrier14jHtml =
     '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="' + SECTION_TITLE + 'color:#06172D;">Calendrier 14 jours</p>' +
+      '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;">' +
       '<div class="cal-grid">' + calCells14mp + '</div>' +
+      '</div>' +
       '<div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
         '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2d6a4f;display:inline-block;"></span> Haut (\u22657)</span>' +
         '<span style="font-size:11px;color:rgba(6,23,45,.55);display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Moyen (4-6)</span>' +
