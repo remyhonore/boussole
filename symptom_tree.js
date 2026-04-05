@@ -142,32 +142,6 @@
     return results;
   }
 
-  // === STORAGE ===
-
-  function _storageKey() {
-    var d = new Date();
-    var dd = String(d.getDate()).padStart(2,'0');
-    var mm = String(d.getMonth()+1).padStart(2,'0');
-    return 'boussole_symptom_tree_' + d.getFullYear() + '-' + mm + '-' + dd;
-  }
-
-  function saveResult(answers, results) {
-    var data = { date: _storageKey().replace('boussole_symptom_tree_',''), answers: answers, results: results, ts: Date.now() };
-    try { localStorage.setItem(_storageKey(), JSON.stringify(data)); } catch(e) {}
-  }
-
-  function getLastResult() {
-    var keys = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k && k.indexOf('boussole_symptom_tree_') === 0) keys.push(k);
-    }
-    if (!keys.length) return null;
-    keys.sort();
-    var last = keys[keys.length - 1];
-    try { return JSON.parse(localStorage.getItem(last)); } catch(e) { return null; }
-  }
-
   // === MODAL UI ===
 
   var _currentDomainIdx = 0;
@@ -319,6 +293,7 @@
 
     modal.innerHTML = html;
   }
+  } // ferme _renderDomain
 
   function _answer(itemId, value) {
     _answers[itemId] = value;
@@ -335,36 +310,6 @@
     if (allAnswered && _currentDomainIdx < DOMAINS.length - 1) { _currentDomainIdx++; _renderDomain(); }
   }
 
-      var isLast = currentDomain === DOMAINS.length - 1;
-      var nextLabel = isLast ? 'Voir mes pistes' : 'Suivant';
-      var nextBg = isLast ? '#2d6a4f' : '#2d6a4f';
-      html += '<button id="st-next" style="flex:1;padding:10px;border:none;border-radius:10px;background:' + nextBg + ';color:#fff;font-size:13px;font-weight:600;cursor:pointer;">' + nextLabel + '</button>';
-      html += '</div>';
-
-      box.innerHTML = html;
-
-      // Attach option click handlers
-      box.querySelectorAll('[data-key]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          answers[this.getAttribute('data-key')] = parseInt(this.getAttribute('data-val'));
-          renderDomain(); // re-render to update selected state
-        });
-      });
-
-      // Attach nav handlers
-      var prevBtn = box.querySelector('#st-prev');
-      if (prevBtn) prevBtn.addEventListener('click', function() { currentDomain--; renderDomain(); });
-
-      var nextBtn = box.querySelector('#st-next');
-      if (nextBtn) nextBtn.addEventListener('click', function() {
-        if (isLast) {
-          _showResults(answers);
-        } else {
-          currentDomain++;
-          renderDomain();
-        }
-      });
-    }
   function _finish() {
     var domain = DOMAINS[_currentDomainIdx];
     var allAnswered = domain.items.every(function(item) { return _answers.hasOwnProperty(item.id); });
@@ -480,40 +425,6 @@
   function buildBloc() {
     var last = getLastResult();
     var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p class="section-title" style="color:#06172D;">Arbre symptome -> piste</p>';
-
-    if (last && last.results) {
-      var dateParts = last.date.split('-');
-      var dateLabel = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
-      html += '<p style="font-size:11px;color:rgba(6,23,45,.4);margin:0 0 8px;">Derniere evaluation : ' + dateLabel + '</p>';
-
-      var top = last.results.filter(function(r) { return r.pct > 0; }).slice(0, 3);
-      top.forEach(function(r) {
-        var piste = PISTES[r.id];
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
-        html += '<span style="font-size:13px;font-weight:600;">' + piste.icon + ' ' + piste.short + '</span>';
-        html += '<span style="font-size:13px;font-weight:700;color:' + piste.color + ';">' + r.pct + ' %</span>';
-        html += '</div>';
-      });
-    } else {
-      html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Identifie les pistes cliniques a explorer avec ton professionnel de sante.</p>';
-    }
-
-
-    html += '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(45,106,79,.06);border-left:3px solid #2d6a4f;">';
-    html += '<p style="font-size:11px;color:#06172D;margin:0;line-height:1.4;">';
-    html += '/!\\ Cet outil est informatif. Il ne remplace pas l\'avis d\'un professionnel de sante. Parlez-en a votre medecin.</p></div>';
-
-    html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-top:16px;">Fermer</button>';
-
-    box.innerHTML = html;
-  }
-
-  // === BLOC RESUME ===
-
-  function buildBloc() {
-    var last = getLastResult();
-    var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<p class="section-title" style="color:#06172D;">Arbre symptomes -> pistes</p>';
 
     if (last && last.results) {
@@ -564,7 +475,15 @@
     _answer: _answer,
     _prev: _prev,
     _next: _next,
-    _finish: _finish
+    _finish: _finish,
+    _computeScores: computeScores,
+    _PISTES: PISTES,
+    _DOMAINS: DOMAINS
   };
 
 })();
+
+// CommonJS exports pour les tests Jest (ignoré par le navigateur)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.SymptomTree;
+}
