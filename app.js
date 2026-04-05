@@ -100,6 +100,12 @@ function updateAccueilScoreCTA() {
   } else {
     scoreDisplay.style.display = 'none';
     ctaSaisie.style.display = 'block';
+    // Message de bienvenue personnalisé
+    var welcomeEl = document.getElementById('accueil-welcome-name');
+    if (welcomeEl) {
+      var prenom = localStorage.getItem('boussole_prenom');
+      welcomeEl.textContent = prenom ? 'Bonjour ' + prenom + ', comment tu te sens ?' : 'Comment tu te sens aujourd\'hui ?';
+    }
   }
 }
 window.updateAccueilScoreCTA = updateAccueilScoreCTA;

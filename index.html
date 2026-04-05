@@ -213,17 +213,37 @@
 
 
       <!-- Score du jour / CTA (ADR-2026-044 Sprint 1) -->
-      <div id="accueil-score-cta" class="card" style="text-align:center;margin-top:4px;">
-        <div id="accueil-score-display" style="display:none;">
+      <div id="accueil-score-cta" class="card" style="margin-top:4px;padding:24px 20px;">
+        <!-- État A : score du jour (saisie faite) -->
+        <div id="accueil-score-display" style="display:none;text-align:center;">
           <p style="font-size:11px;font-weight:700;color:rgba(6,23,45,.45);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Score du jour</p>
           <div id="accueil-score-value" style="font-size:56px;font-weight:800;line-height:1;color:#2d6a4f;margin:0 0 8px;">—</div>
-          <p id="accueil-score-label" style="font-size:14px;color:rgba(6,23,45,.6);margin:0;">—</p>
+          <p id="accueil-score-label" style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 12px;">—</p>
+          <button onclick="switchPanel('resume')" style="background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:12px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">Modifier ma saisie</button>
         </div>
+        <!-- État B : pas de saisie -->
         <div id="accueil-cta-saisie" style="display:none;">
-          <p style="font-size:18px;margin:0 0 8px;">☀️</p>
-          <p style="font-size:15px;font-weight:600;color:#06172D;margin:0 0 4px;">Comment tu te sens aujourd&#x27;hui ?</p>
-          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">2 minutes pour noter ta journée.</p>
-          <button onclick="switchPanel(&#x27;resume&#x27;)" style="background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Commence ta journée</button>
+          <p id="accueil-welcome-name" style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px;text-align:center;"></p>
+          <div style="display:flex;gap:12px;margin:0 0 16px;">
+            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
+              <div style="font-size:22px;margin:0 0 4px;">💪</div>
+              <div style="font-size:11px;color:rgba(6,23,45,.55);">Énergie</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
+              <div style="font-size:22px;margin:0 0 4px;">🌙</div>
+              <div style="font-size:11px;color:rgba(6,23,45,.55);">Sommeil</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
+              <div style="font-size:22px;margin:0 0 4px;">❤️</div>
+              <div style="font-size:11px;color:rgba(6,23,45,.55);">Confort</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
+              <div style="font-size:22px;margin:0 0 4px;">🧠</div>
+              <div style="font-size:11px;color:rgba(6,23,45,.55);">Clarté</div>
+            </div>
+          </div>
+          <button onclick="switchPanel('resume')" style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">Commence ta journée</button>
+          <p style="font-size:11px;color:rgba(6,23,45,.38);text-align:center;margin:8px 0 0;">🔒 Tes données restent sur ton appareil</p>
         </div>
       </div>
 
@@ -939,7 +959,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.26 — </span>
+    <span>Boussole v10.27 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
