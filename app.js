@@ -62,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Import MES — Afficher le dossier médical si déjà importé
   if (typeof window.ImportMES !== 'undefined' && typeof window.ImportMES.renderDossierMedical === 'function') window.ImportMES.renderDossierMedical();
 
-  // Legacy onboarding button (sera supprimé Sprint 2)
-  // panel-onboarding supprimé de index.html — ce listener est désormais inerte
+  // Guide de démarrage géré par onboarding_guide.js (ADR-2026-044 Sprint 2)
 
   // Charger le dataset de référence si mode debug
   const urlParams = new URLSearchParams(window.location.search);

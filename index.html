@@ -822,6 +822,18 @@
           <button id="btn-changer-profil" style="padding:7px 14px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Changer de profil</button>
         </div>
 
+        <!-- Guide de démarrage (ADR-2026-044 Sprint 2) -->
+        <div style="margin-bottom:16px;">
+          <button onclick="OnboardingGuide.reset()" style="width:100%;padding:12px;background:none;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-weight:600;color:rgba(6,23,45,.6);cursor:pointer;font-family:inherit;">🧭 Relancer le guide de démarrage</button>
+        </div>
+
+        <!-- Guide de démarrage (ADR-2026-044 Sprint 2) -->
+        <div style="margin-bottom:16px;padding:14px;background:rgba(45,106,79,.06);border-radius:12px;border:1.5px solid rgba(45,106,79,.18);">
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#06172D;margin:0 0 8px;">Guide de démarrage</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 10px;">Revoir les 5 étapes d'introduction à myBoussole.</p>
+          <button onclick="if(window.OnboardingGuide){OnboardingGuide.reset();OnboardingGuide.show();}" style="padding:9px 18px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;">Relancer le guide</button>
+        </div>
+
         <!-- Sections actives (Feature P/B) -->
         <div class="settings-group">
           <p class="settings-label">Sections actives</p>
@@ -927,7 +939,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.24 — </span>
+    <span>Boussole v10.25 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -939,10 +951,16 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.24</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.25</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Guide de demarrage en 5 etapes pour les nouveaux utilisateurs</li>
+          <li>Bouton "Relancer le guide" dans les Parametres</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Accueil epuree : score du jour et raccourcis, sans formulaire</li>
@@ -1913,6 +1931,7 @@
   <script src="traitements.js" defer></script>
   <script src="import_mes.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="onboarding_guide.js" defer></script>
 
   <script>
     // ---- Modale consultation ----

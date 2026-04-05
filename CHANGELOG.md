@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.25] - 2026-04-06
+
+### ADR-2026-044 Sprint 2 — Guide de démarrage
+- Nouveau module `onboarding_guide.js` (IIFE, ~170 lignes)
+- Overlay plein écran, 5 étapes séquentielles avec dots de progression
+- Boutons Retour/Suivant/Passer, animation d'entrée
+- Clé localStorage `boussole_guide_done` (remplace `boussole_onboarded`)
+- Bouton "Relancer le guide" dans Paramètres
+- Ancien `onboarding.js` (jamais branché) supprimé
+- SW v10.25, changelog + footer synchronisés
+
 ## [10.24] - 2026-04-06
 
 ### ADR-2026-044 Sprint 1 — Restructuration Accueil + Ma journée
