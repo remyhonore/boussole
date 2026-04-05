@@ -400,11 +400,25 @@
     var today = new Date();
     today.setHours(0, 0, 0, 0);
     var todayStr = typeof localDateStr === 'function' ? localDateStr(today) : today.toISOString().split('T')[0];
+    var currentMonth = today.getMonth(); // 0-indexed
+
+    // Determine which months have data or are current/past
+    var monthsToShow = [];
+    for (var m = 11; m >= 0; m--) {
+      if (m > currentMonth) continue; // future month — skip entirely
+      var hasData = false;
+      var daysInMonth = new Date(year, m + 1, 0).getDate();
+      for (var d = 1; d <= daysInMonth; d++) {
+        var ds = year + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        if (dataMap[ds] !== undefined) { hasData = true; break; }
+      }
+      if (hasData || m === currentMonth) monthsToShow.push(m);
+    }
 
     var html = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;">';
     html += '<div style="display:grid;grid-template-columns:28px repeat(31,14px);gap:1px;font-size:9px;min-width:0;">';
-    for (var m = 0; m < 12; m++) {
-      // Mois label
+    for (var mi = 0; mi < monthsToShow.length; mi++) {
+      var m = monthsToShow[mi];
       html += '<div style="font-size:9px;color:rgba(6,23,45,.45);font-weight:600;display:flex;align-items:center;padding-right:4px;">' + MONTHS_FR[m] + '</div>';
       var daysInMonth = new Date(year, m + 1, 0).getDate();
       for (var d = 1; d <= 31; d++) {
