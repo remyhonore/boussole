@@ -3131,19 +3131,8 @@ function exportJournalConsultationPDF() {
 
   drawFooters();
 
-  // Telechargement
-  var filename = 'boussole-journal-consultations-' + todayStr + '.pdf';
-  var blob = doc.output('blob');
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function() {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 1000);
+  // Ouverture dans un nouvel onglet (comme les autres PDFs)
+  _pdfOpenTab(doc, 'boussole-journal-consultations-' + todayStr + '.pdf');
 }
 
 // ============================================================
