@@ -182,7 +182,7 @@
 
     return '<div id="chart-temporal-card" style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
-        '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Évolution</p>' +
+        '<div style="display:flex;align-items:center;gap:6px;"><p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Évolution</p>' + (typeof _infoBtn === 'function' ? _infoBtn('evolution') : '') + '</div>' +
         '<div id="chart-range-btns" style="display:flex;gap:4px;">' + btns + '</div>' +
       '</div>' +
       '<canvas id="chart-temporal-canvas" height="200"></canvas>' +
@@ -377,7 +377,7 @@
 
     var html = '<div id="year-in-pixels-card" style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
-    html += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Year in Pixels ' + year + '</p>';
+    html += '<div style="display:flex;align-items:center;gap:6px;"><p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Year in Pixels ' + year + '</p>' + (typeof _infoBtn === 'function' ? _infoBtn('yip') : '') + '</div>';
     html += '<div id="yip-filter-btns" style="display:flex;gap:3px;">' + filterBtns + '</div>';
     html += '</div>';
     html += '<div id="yip-grid">' + _renderGrid() + '</div>';

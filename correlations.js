@@ -139,7 +139,7 @@ function renderCorrelationsCard(entries) {
   const daysWithMeasures = correlations.reduce((max, c) => Math.max(max, c.n), 0);
 
   let html = '<div class="card">';
-  html += '<h2 class="summary-section">CORRÉLATIONS</h2>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 class="summary-section" style="margin:0;">CORRÉLATIONS</h2>' + (typeof _infoBtn === 'function' ? _infoBtn('correlations') : '') + '</div>';
   html += '<ul class="summary-list">';
   significant.forEach(c => {
     html += `<li>${c.interpretation}</li>`;

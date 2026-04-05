@@ -829,6 +829,83 @@ function _renderHistoriqueTab(content) {
   content.innerHTML = html;
 }
 
+// === MODALES INFO (?) — Explications contextuelles ===
+
+var INFO_MODALS = {
+  synthese: {
+    title: 'Synthese fonctionnelle',
+    body: '<p>Affiche tes <strong>4 indicateurs cles</strong> moyennes sur les 7 derniers jours : energie, sommeil, confort physique et clarte mentale.</p>' +
+      '<p><strong>Tendance</strong> : hausse ou baisse par rapport a la semaine precedente.</p>' +
+      '<p><strong>Impact</strong> : Correct (5-7) / Bon (7-8) / Excellent (8+) / Insuffisant (&lt;5).</p>' +
+      '<p>Les jours bas comptent les journees sous 4/10 sur 7 jours.</p>'
+  },
+  evolution: {
+    title: 'Graphique d\'evolution',
+    body: '<p>Visualise l\'evolution de tes 4 indicateurs sur <strong>7, 14, 30 ou 90 jours</strong>.</p>' +
+      '<p>Les <strong>lignes verticales tiretees</strong> indiquent les debuts de traitements.</p>' +
+      '<p>Les <strong>triangles rouges</strong> signalent les episodes de crash (PEM) detectes.</p>' +
+      '<p>Les <strong>losanges verts</strong> marquent les bonnes journees (score >= 8).</p>'
+  },
+  stabilite: {
+    title: 'Score de stabilite',
+    body: '<p>Compare la <strong>regularite de tes scores</strong> entre les 15 premiers et les 15 derniers jours du mois.</p>' +
+      '<p>Une stabilite qui s\'ameliore signifie moins de fluctuations au quotidien : ton etat devient plus previsible.</p>' +
+      '<p>Le pourcentage indique la reduction (ou l\'augmentation) de l\'ecart-type entre les deux periodes.</p>'
+  },
+  yip: {
+    title: 'Year in Pixels',
+    body: '<p>Chaque case represente <strong>une journee</strong>. La couleur indique ton score pour l\'indicateur selectionne :</p>' +
+      '<p>🟢 <strong>8-10</strong> : Tres bon — 🟡 <strong>6-8</strong> : Correct — 🟠 <strong>4-6</strong> : Moyen — 🔴 <strong>2-4</strong> : Bas — ⛔ <strong>0-2</strong> : Critique</p>' +
+      '<p>Le mois le plus recent est affiche en haut. Les mois sans donnees sont masques.</p>'
+  },
+  pem: {
+    title: 'Episodes de crash (PEM)',
+    body: '<p>Le <strong>malaise post-effort</strong> (PEM) est une degradation retardee apres un effort physique, cognitif ou emotionnel.</p>' +
+      '<p>L\'algorithme detecte les chutes de score de <strong>2+ points en 24-72h</strong> apres un jour correct.</p>' +
+      '<p>Le niveau (Probable / Confirme / Renforce) depend de la presence de donnees objectives (FC repos, VFC).</p>' +
+      '<p>Montre ces episodes a ton professionnel de sante pour en discuter.</p>'
+  },
+  correlations: {
+    title: 'Correlations',
+    body: '<p>Analyse les <strong>liens statistiques</strong> entre tes mesures biologiques (FC repos, RMSSD, tension) et ton bien-etre declare.</p>' +
+      '<p>Exemple : "FC basse associee a un score eleve" suggere une bonne recuperation.</p>' +
+      '<p>Base sur les 7 derniers jours avec mesures renseignees. Plus tu renseignes de mesures, plus les correlations sont fiables.</p>'
+  },
+  traitements: {
+    title: 'Observations traitements',
+    body: '<p>Compare ton <strong>score moyen avant et apres</strong> le debut de chaque traitement ou complement.</p>' +
+      '<p>Le delta (+X pts) indique l\'evolution du score composite depuis le debut du traitement.</p>' +
+      '<p>C\'est une <strong>observation personnelle</strong>, pas une preuve d\'efficacite. A discuter avec ton professionnel de sante.</p>'
+  }
+};
+
+function openInfoModal(key) {
+  var info = INFO_MODALS[key];
+  if (!info) return;
+  var id = 'info-modal-' + key;
+  var modal = document.getElementById(id);
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = id;
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;position:relative;max-height:80vh;overflow-y:auto;">' +
+      '<button onclick="document.getElementById(\'' + id + '\').style.display=\'none\'" ' +
+      'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;color:#9ca3af;cursor:pointer;">✕</button>' +
+      '<h3 style="font-size:15px;font-weight:700;color:#06172D;margin:0 0 12px;">' + info.title + '</h3>' +
+      '<div style="font-size:13px;color:#4b5563;line-height:1.6;">' + info.body + '</div>' +
+      '</div>';
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'flex';
+}
+
+function _infoBtn(key) {
+  return '<button onclick="openInfoModal(\'' + key + '\')" ' +
+    'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:0.7rem;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
+    'aria-label="En savoir plus">?</button>';
+}
+
 // === BACKFILL — Saisie rapide depuis pastille calendrier ===
 
 function openBackfillModal(dateStr) {
@@ -1179,7 +1256,7 @@ function refreshSummary() {
       var levelLabel = { probable: 'Probable', confirmed: 'Confirme (FC)', reinforced: 'Renforce (FC + VFC)' };
       var displayed = pemEvents.slice(0, 5);
       html += '<div class="card pem-section">';
-      html += '<h3 class="pem-header">ÉPISODES DE CRASH DÉTECTÉS</h3>';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;"><h3 class="pem-header" style="margin-bottom:0;">ÉPISODES DE CRASH DÉTECTÉS</h3>' + _infoBtn('pem') + '</div>';
       html += '<p class="pem-count">' + pemEvents.length + ' episode(s) identifie(s)</p>';
       displayed.forEach(function(ev) {
         var deltaStr = '-' + ev.delta.toFixed(1) + ' pts';
@@ -1757,7 +1834,7 @@ function buildBlocStabilite(mode) {
   const ecartType = 'Calculé sur les 30 derniers jours';
   if (mode === 'resume') {
     return '<div class="card">' +
-      '<h2 class="summary-section">SCORE DE STABILITÉ — 30 JOURS</h2>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 class="summary-section" style="margin:0;">SCORE DE STABILITÉ — 30 JOURS</h2>' + _infoBtn('stabilite') + '</div>' +
       '<p style="margin:8px 0;font-size:15px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
       '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
       '</div>';
@@ -1826,7 +1903,7 @@ function buildBlocCorrelations() {
 
   var ST = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;';
   var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-  html += '<p style="' + ST + 'color:#06172D;">Observations traitements</p>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p style="' + ST + 'color:#06172D;margin:0;">Observations traitements</p>' + _infoBtn('traitements') + '</div>';
 
   resultats.forEach(function(r) {
     var arrow = r.diff > 0.3 ? '↗' : r.diff < -0.3 ? '↘' : '→';
@@ -1933,7 +2010,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
   }).join('');
   return (
     '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
-      '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#06172D;">Synthèse fonctionnelle — 7 jours</p>' + _infoBtn('synthese') + '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
       '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
     '</div>'
