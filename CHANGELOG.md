@@ -2,6 +2,26 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.24] - 2026-04-06
+
+### ADR-2026-044 Sprint 1 — Restructuration Accueil + Ma journée
+- Accueil épurée : tiles dashboard + score du jour (ou CTA si pas de saisie)
+- Formulaire de saisie quotidienne déplacé dans l'onglet "Ma journée" (ex-Résumé)
+- Onglet Résumé renommé "Ma journée" (saisie en haut, résumé en dessous)
+- Suppression code mort : panel-onboarding statique, welcome-banner, logique boussole_onboarded
+- Fonction updateAccueilScoreCTA() : affichage conditionnel score/CTA sur l'accueil
+- 5 onglets finaux : Accueil / Ma journée / Articles / Suivi / Paramètres
+
+## [10.23] - 2026-04-06
+
+### Corrigé — Arbre Ressentis : item.id undefined
+- Bug critique : les items dans DOMAINS n'avaient pas de propriété `id`
+- `item.id` → `undefined` pour tous → toutes les réponses écrasaient `_answers['undefined']`
+- Symptôme : toutes les réponses s'alignaient sur la même valeur, "Voir les pistes" activé prématurément
+- Fix : clé composite `domain.id + '_' + idx` (identique à `computeScores()`)
+- 4 occurrences corrigées : rendu boutons radio + 3× `allAnswered` check
+- 3 fichiers modifiés (symptom_tree.js, sw.js, index.html), 70/70 tests
+
 ## [10.22] - 2026-04-06
 
 ### Ajouté — Feature W : Vue Agenda calendrier mensuel

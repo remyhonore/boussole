@@ -33,11 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initRappels();
   document.getElementById('btn-mark-event')?.addEventListener('click', openEventModal);
 
-  // Onboarding : premier lancement — welcome banner conditionnel dans panel-today
-  if (!localStorage.getItem('boussole_onboarded')) {
-    const banner = document.getElementById('welcome-banner');
-    if (banner) banner.style.display = 'block';
-  }
+  // Accueil : score du jour ou CTA (ADR-2026-044 Sprint 1)
+  updateAccueilScoreCTA();
   // Panel initial : depuis URL ?panel= ou défaut today
   const urlPanel = new URLSearchParams(window.location.search).get('panel');
   const validPanels = ['today', 'resume', 'tbsante', 'params'];
@@ -51,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sections actives — initialiser les toggles
   initSectionsToggles();
 
-  // Feature D — Modale profil si onboardé mais pas encore de profil défini
-  if (localStorage.getItem('boussole_onboarded') && !localStorage.getItem('boussole_profil')) {
+  // Feature D — Modale profil si premier lancement ou pas de profil défini
+  if (!localStorage.getItem('boussole_profil')) {
     setTimeout(() => ouvrirModaleProfil(), 900);
   }
   // Feature D — Afficher profil actif dans Paramètres
@@ -65,14 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Import MES — Afficher le dossier médical si déjà importé
   if (typeof window.ImportMES !== 'undefined' && typeof window.ImportMES.renderDossierMedical === 'function') window.ImportMES.renderDossierMedical();
 
-  document.getElementById('btn-onboarding-start')?.addEventListener('click', () => {
-    localStorage.setItem('boussole_onboarded', '1');
-    switchPanel('today');
-    // Feature D — enchaîner modale profil si pas encore défini
-    if (!localStorage.getItem('boussole_profil')) {
-      setTimeout(() => ouvrirModaleProfil(), 600);
-    }
-  });
+  // Legacy onboarding button (sera supprimé Sprint 2)
+  // panel-onboarding supprimé de index.html — ce listener est désormais inerte
 
   // Charger le dataset de référence si mode debug
   const urlParams = new URLSearchParams(window.location.search);
@@ -80,6 +71,39 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDebugDataset();
   }
 });
+
+/**
+ * === ACCUEIL : Score du jour / CTA (ADR-2026-044 Sprint 1) ===
+ */
+function updateAccueilScoreCTA() {
+  var scoreDisplay = document.getElementById('accueil-score-display');
+  var ctaSaisie = document.getElementById('accueil-cta-saisie');
+  var scoreValue = document.getElementById('accueil-score-value');
+  var scoreLabel = document.getElementById('accueil-score-label');
+  if (!scoreDisplay || !ctaSaisie) return;
+
+  var today = localDateStr(new Date());
+  var entry = getEntry(today);
+
+  if (entry && typeof entry.energie === 'number') {
+    var avg = computeScore(entry);
+    scoreDisplay.style.display = 'block';
+    ctaSaisie.style.display = 'none';
+    if (scoreValue) {
+      scoreValue.textContent = avg.toFixed(1);
+      scoreValue.style.color = avg >= 7 ? '#2d6a4f' : avg >= 4 ? '#D97706' : '#DC2626';
+    }
+    if (scoreLabel) {
+      scoreLabel.textContent = avg >= 7 ? 'Bonne journée' : avg >= 4 ? 'Journée moyenne' : 'Journée difficile';
+    }
+    var tileSub = document.getElementById('tile-journee-sub');
+    if (tileSub) tileSub.textContent = 'Score : ' + avg.toFixed(1) + '/10';
+  } else {
+    scoreDisplay.style.display = 'none';
+    ctaSaisie.style.display = 'block';
+  }
+}
+window.updateAccueilScoreCTA = updateAccueilScoreCTA;
 
 /**
  * === NAVIGATION ===
@@ -125,8 +149,8 @@ function initNavigation() {
 }
 
 function switchPanel(panelId) {
-  // Réinitialiser _saisieDate si on quitte today
-  if (app.currentPanel === 'today' && panelId !== 'today') {
+  // Réinitialiser _saisieDate si on quitte Ma journée (resume)
+  if (app.currentPanel === 'resume' && panelId !== 'resume') {
     window._saisieDate = localDateStr(new Date());
     const btnSave = document.getElementById('btn-save');
     if (btnSave) btnSave.textContent = 'Enregistrer';
@@ -155,7 +179,12 @@ function switchPanel(panelId) {
 
   // Rafraîchir selon le panel
   if (panelId === 'resume') {
+    loadTodayData(); // Charger la saisie (formulaire déplacé ici, ADR-2026-044)
     refreshSummary();
+  }
+
+  if (panelId === 'today') {
+    updateAccueilScoreCTA();
   }
 
   if (panelId === 'tbsante') {
@@ -700,10 +729,8 @@ function saveCurrentEntry() {
   const success = saveEntry(today, entry);
 
   if (success) {
-    // Masquer le welcome banner et marquer l'onboarding comme terminé
-    const banner = document.getElementById('welcome-banner');
-    if (banner) banner.style.display = 'none';
-    if (!localStorage.getItem('boussole_onboarded')) localStorage.setItem('boussole_onboarded', '1');
+    // Mettre à jour l'accueil score/CTA après enregistrement
+    updateAccueilScoreCTA();
     updateLastSavedDisplay();
     // Mettre à jour le smiley accueil (ADR-2026-026)
     const humeurVal = (humeurRangeEl?.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null;

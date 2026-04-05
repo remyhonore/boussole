@@ -182,67 +182,13 @@
 
     <main id="main-content">
 
-    <!-- Panel Onboarding (affiché uniquement au premier lancement) -->
-    <div class="panel" id="panel-onboarding">
-      <div class="card" style="text-align:center; padding:32px 24px;">
-        <p style="font-size:28px; font-weight:800; color:#2d6a4f; margin:0 0 4px;" aria-hidden="true">myBoussole</p>
-        <p style="font-size:15px; color:rgba(6,23,45,.55); margin:0 0 24px;">Ton journal de bien-être</p>
-        <p style="font-size:16px; font-weight:600; color:#06172D; line-height:1.5; margin:0 0 28px;">
-          En 30 secondes par jour, tu vas avoir quelque chose de concret à montrer à ton médecin.
-        </p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 28px;">
-          <div style="background:rgba(45,106,79,.08); border-radius:12px; padding:16px;">
-            <div style="font-size:28px; margin-bottom:6px;">💪</div>
-            <div style="font-size:13px; font-weight:600; color:#06172D;">Énergie</div>
-          </div>
-          <div style="background:rgba(45,106,79,.08); border-radius:12px; padding:16px;">
-            <div style="font-size:28px; margin-bottom:6px;">🌙</div>
-            <div style="font-size:13px; font-weight:600; color:#06172D;">Sommeil</div>
-          </div>
-          <div style="background:rgba(45,106,79,.08); border-radius:12px; padding:16px;">
-            <div style="font-size:28px; margin-bottom:6px;">❤️</div>
-            <div style="font-size:13px; font-weight:600; color:#06172D;">Confort physique</div>
-          </div>
-          <div style="background:rgba(45,106,79,.08); border-radius:12px; padding:16px;">
-            <div style="font-size:28px; margin-bottom:6px;">🧠</div>
-            <div style="font-size:13px; font-weight:600; color:#06172D;">Clarté mentale</div>
-          </div>
-        </div>
-        <p style="font-size:13px; color:rgba(6,23,45,.5); margin:0 0 24px;">
-          🔒 Tes données restent sur ton téléphone. Jamais partagées.
-        </p>
-        <p style="font-size:12px; color:rgba(6,23,45,.45); margin:0 0 24px; line-height:1.6;">
-          ⚕️ myBoussole est un outil de suivi personnel. Ce n'est pas un dispositif médical. Les informations affichées ne remplacent pas l'avis d'un professionnel de santé.
-          <br><a href="/cgu.html" style="color:#2d6a4f;font-size:11px;">CGU</a> · <a href="/confidentialite.html" style="color:#2d6a4f;font-size:11px;">Confidentialité</a>
-        </p>
-        <button
-          id="btn-onboarding-start"
-          style="width:100%; background:#2d6a4f; color:#fff; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:700; cursor:pointer;"
-          aria-label="Commencer ma première saisie"
-        >
-          Commencer ma première saisie
-        </button>
-      </div>
-    </div>
-
-    <!-- Panel Aujourd'hui -->
+    <!-- Panel Aujourd'hui (Accueil) -->
         <div class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
 
-      <div id="welcome-banner" style="display:none;">
-        <div class="card" style="text-align:center; margin-bottom:16px; background:linear-gradient(135deg,#f0f7f4,#e8f5f0);">
-          <div style="font-size:40px; margin-bottom:8px;">🧭</div>
-          <h2 style="font-size:18px; font-weight:700; color:#06172D; margin:0 0 8px;">Bienvenue sur myBoussole</h2>
-          <p style="font-size:14px; color:rgba(6,23,45,.72); margin:0 0 4px;">Ton journal de bien-être — sans compte, sans cloud.</p>
-          <p style="font-size:13px; color:#6B7280; margin:0 0 16px;">Tes données restent uniquement sur ton appareil.</p>
-          <div style="font-size:12px; color:#9CA3AF; padding:8px; background:rgba(255,255,255,0.6); border-radius:8px;">
-            🔒 Données stockées uniquement sur ton appareil · Zéro serveur · Zéro compte
-          </div>
-        </div>
-      </div>
 
       <!-- ===== DASHBOARD TILES (ADR-2026-043 Chantier B) ===== -->
       <div id="dashboard-tiles" class="dashboard-grid">
-        <button class="dash-tile dash-tile--forest" onclick="document.getElementById('card-saisie').scrollIntoView({behavior:'smooth',block:'start'})" aria-label="Ma journée">
+        <button class="dash-tile dash-tile--forest" onclick="switchPanel('resume')" aria-label="Ma journée">
           <span class="dash-tile-icon">☀️</span>
           <span class="dash-tile-label">Ma journée</span>
           <span class="dash-tile-sub" id="tile-journee-sub">Pas encore rempli</span>
@@ -263,6 +209,28 @@
           <span class="dash-tile-sub" id="tile-agenda-sub">—</span>
         </button>
       </div>
+
+
+
+      <!-- Score du jour / CTA (ADR-2026-044 Sprint 1) -->
+      <div id="accueil-score-cta" class="card" style="text-align:center;margin-top:4px;">
+        <div id="accueil-score-display" style="display:none;">
+          <p style="font-size:11px;font-weight:700;color:rgba(6,23,45,.45);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Score du jour</p>
+          <div id="accueil-score-value" style="font-size:56px;font-weight:800;line-height:1;color:#2d6a4f;margin:0 0 8px;">—</div>
+          <p id="accueil-score-label" style="font-size:14px;color:rgba(6,23,45,.6);margin:0;">—</p>
+        </div>
+        <div id="accueil-cta-saisie" style="display:none;">
+          <p style="font-size:18px;margin:0 0 8px;">☀️</p>
+          <p style="font-size:15px;font-weight:600;color:#06172D;margin:0 0 4px;">Comment tu te sens aujourd&#x27;hui ?</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">2 minutes pour noter ta journée.</p>
+          <button onclick="switchPanel(&#x27;resume&#x27;)" style="background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Commence ta journée</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Panel Ma journée (ex-Résumé) -->
+    <div class="panel" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume" aria-label="Ma journée">
 
       <!-- ===== CARD 1 : Mon bilan du jour ===== -->
       <div class="card" id="card-saisie">
@@ -570,12 +538,9 @@
       <!-- Alerte dégradation prolongée (Feature Q) -->
       <div id="degradation-alert" style="display:none;position:relative;background:#FEF2F2;border-left:3px solid #e74c3c;border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:14px;line-height:1.6;color:rgba(6,23,45,.78);" role="alert"></div>
 
-    </div>
+      <hr style="border:none;border-top:1px solid rgba(6,23,45,.1);margin:16px 0 20px;">
 
-    <!-- Panel Résumé -->
-    <div class="panel" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume">
-
-      <div id="summary-content">
+            <div id="summary-content">
         <!-- Contenu généré dynamiquement -->
       </div>
 
@@ -962,7 +927,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.23 — </span>
+    <span>Boussole v10.24 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -974,10 +939,17 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.22</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.24</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Accueil epuree : score du jour et raccourcis, sans formulaire</li>
+          <li>Onglet Ma journee : saisie + resume reunis au meme endroit</li>
+          <li>Nettoyage du code d'accueil (ecran bienvenue supprime)</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.22</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Vue Agenda calendrier mensuel avec pastilles couleur par specialiste</li>
@@ -2502,7 +2474,7 @@
     </button>
     <button class="tab-btn" data-panel="resume" role="tab" id="tab-resume" aria-selected="false" aria-controls="panel-resume">
       <svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span>Résumé</span>
+      <span>Ma journée</span>
     </button>
     <a class="tab-btn" href="/articles.html" role="tab" aria-label="Articles">
       <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
