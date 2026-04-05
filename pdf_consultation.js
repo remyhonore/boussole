@@ -701,6 +701,40 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   }
 
   // ============================================================
+  // 1b. PROCHAIN RDV (si agenda planifie)
+  // ============================================================
+  var _agendaRaw = [];
+  try { _agendaRaw = JSON.parse(localStorage.getItem('boussole_agenda_rdv') || '[]'); } catch(e) {}
+  var _agendaNow = new Date().toISOString().slice(0, 16);
+  var _prochainRDV = _agendaRaw
+    .filter(function(r) { return r.datetime >= _agendaNow; })
+    .sort(function(a, b) { return a.datetime.localeCompare(b.datetime); })[0] || null;
+  if (_prochainRDV) {
+    doc.setFontSize(9);
+    tc(_pal.SECTION_LABEL, true);
+    doc.text('PROCHAIN RDV', marginL, y);
+    y += 4.5;
+    var _rdvDate = new Date(_prochainRDV.datetime);
+    var _rdvStr = String(_rdvDate.getDate()).padStart(2, '0') + '/' +
+      String(_rdvDate.getMonth() + 1).padStart(2, '0') + '/' + _rdvDate.getFullYear() +
+      ' a ' + String(_rdvDate.getHours()).padStart(2, '0') + ':' +
+      String(_rdvDate.getMinutes()).padStart(2, '0');
+    doc.setFontSize(9);
+    tc(ANTHRACITE, true);
+    doc.text(_prochainRDV.specialiste + '  -  ' + _rdvStr, marginL, y);
+    if (_prochainRDV.lieu || _prochainRDV.notes) {
+      y += 4;
+      doc.setFontSize(8);
+      tc(MUTED, false);
+      var _rdvDetails = [_prochainRDV.lieu, _prochainRDV.notes].filter(Boolean).join(' - ');
+      doc.text(_rdvDetails.substring(0, 90), marginL, y);
+    }
+    y += 5;
+    drawSep(y);
+    y += 5;
+  }
+
+  // ============================================================
   // 2. MOTIF DE CONSULTATION
   // ============================================================
   // checkPage_p1(20);
