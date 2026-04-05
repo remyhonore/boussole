@@ -130,7 +130,7 @@ window.ScoreSNA = (function() {
     var res = calculer();
 
     if (!res) {
-      container.innerHTML = '<p style="color:#6b7280;font-size:0.85rem;text-align:center;padding:8px 0;">Renseigne au moins 5 jours de mesures pour activer le Score de récupération.</p>';
+      container.innerHTML = '<p style="color:#6b7280;font-size:13px;text-align:center;padding:8px 0;">Renseigne au moins 5 jours de mesures pour activer le Score de récupération.</p>';
       return;
     }
 
@@ -146,7 +146,7 @@ window.ScoreSNA = (function() {
     var detailHTML = Object.keys(detail).map(function(k) {
       var v = detail[k];
       var col = v >= 65 ? '#2d6a4f' : v >= 40 ? '#f59e0b' : '#dc2626';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:3px 0;border-bottom:1px solid #f3f4f6;">' +
+      return '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;border-bottom:1px solid #f3f4f6;">' +
         '<span style="color:#6b7280;">' + (noms[k] || k) + '</span>' +
         '<span style="font-weight:600;color:' + col + '">' + v + '/100</span>' +
         '</div>';
@@ -154,9 +154,9 @@ window.ScoreSNA = (function() {
 
     container.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
-        '<div style="font-size:0.85rem;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;">Score de récupération</div>' +
+        '<div style="font-size:13px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;">Score de récupération</div>' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'flex\'" ' +
-          'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:0.7rem;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
+          'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:11px;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
           'aria-label="En savoir plus sur le Score de récupération">?</button>' +
       '</div>' +
       '<div style="text-align:center;padding:4px 0 8px;">' +
@@ -170,10 +170,10 @@ window.ScoreSNA = (function() {
           '<text x="60" y="55" text-anchor="middle" font-size="22" font-weight="700" fill="' + c + '">' + score + '</text>' +
           '<text x="60" y="66" text-anchor="middle" font-size="9" fill="#9ca3af">/100</text>' +
         '</svg>' +
-        '<div style="font-size:0.8rem;font-weight:700;color:' + c + ';margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">' +
+        '<div style="font-size:12px;font-weight:700;color:' + c + ';margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">' +
           labels[couleur] +
         '</div>' +
-        '<div style="font-size:0.72rem;color:#9ca3af;margin-top:3px;font-style:italic;">' +
+        '<div style="font-size:11px;color:#9ca3af;margin-top:3px;font-style:italic;">' +
           (res.nbSourcesObjectives === 0 ? 'Basé sur sommeil déclaré uniquement — ajoute FC ou RMSSD pour affiner' :
            res.nbSourcesObjectives === 1 ? '1 mesure objective (FC ou RMSSD) + sommeil' :
            'FC + RMSSD + sommeil') +
@@ -188,17 +188,17 @@ window.ScoreSNA = (function() {
       modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:16px;';
       modal.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'none\'" ' +
-          'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;color:#9ca3af;cursor:pointer;" aria-label="Fermer">x</button>' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de récupération</h3>' +
-        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] estime ta récupération en comparant tes données du jour à ta propre baseline des 30 derniers jours.</p>' +
-        '<p style="font-size:0.85rem;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Il peut combiner jusqu\'à 6 sources : VFC (RMSSD), FC repos, qualité et durée du sommeil, tension artérielle, poids. <strong>Plus tu renseignes de mesures objectives, plus le score est fiable.</strong></p>' +
-        '<div style="background:#f8f6f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:0.82rem;line-height:1.6;">' +
+          'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;" aria-label="Fermer">x</button>' +
+        '<h3 style="font-size:15px;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de récupération</h3>' +
+        '<p style="font-size:13px;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] estime ta récupération en comparant tes données du jour à ta propre baseline des 30 derniers jours.</p>' +
+        '<p style="font-size:13px;color:#4b5563;line-height:1.5;margin:0 0 10px 0;">Il peut combiner jusqu\'à 6 sources : VFC (RMSSD), FC repos, qualité et durée du sommeil, tension artérielle, poids. <strong>Plus tu renseignes de mesures objectives, plus le score est fiable.</strong></p>' +
+        '<div style="background:#f8f6f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.6;">' +
           '<div><span style="color:#2d6a4f;font-weight:700;">Vert (65+)</span> : bonne récupération</div>' +
           '<div><span style="color:#f59e0b;font-weight:700;">Orange (40-64)</span> : récupération modérée</div>' +
           '<div><span style="color:#dc2626;font-weight:700;">Rouge (&lt;40)</span> : récupération faible</div>' +
         '</div>' +
-        '<p style="font-size:0.82rem;color:#6b7280;line-height:1.5;margin:0 0 6px 0;">Le score est calcule par rapport a ta propre baseline des 30 derniers jours - pas des normes exterieures.</p>' +
-        '<p style="font-size:0.78rem;color:#9ca3af;margin:0;">Base sur minimum 5 jours de mesures renseignees.</p>' +
+        '<p style="font-size:13px;color:#6b7280;line-height:1.5;margin:0 0 6px 0;">Le score est calcule par rapport a ta propre baseline des 30 derniers jours - pas des normes exterieures.</p>' +
+        '<p style="font-size:12px;color:#9ca3af;margin:0;">Base sur minimum 5 jours de mesures renseignees.</p>' +
       '</div>';
       document.body.appendChild(modal);
       // Fermer en cliquant sur le fond

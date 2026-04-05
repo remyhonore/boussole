@@ -794,7 +794,7 @@ function _renderHistoriqueTab(content) {
   keys.sort().reverse();
 
   if (keys.length === 0) {
-    content.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:14px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
+    content.innerHTML = '<p style="color:rgba(6,23,45,.42);font-size:13px;font-style:italic;margin:4px 0;">Aucune consultation enregistrée.</p>';
     return;
   }
 
@@ -821,7 +821,7 @@ function _renderHistoriqueTab(content) {
     }
     var isEmpty = !fiche || (!fiche.decisions && !fiche.examens && !fiche.traitement_teste && !fiche.variable_suivie);
     var textColor = isEmpty ? '#9ca3af' : '#06172D';
-    html += '<div style="padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);font-size:14px;color:' + textColor + ';">';
+    html += '<div style="padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);font-size:13px;color:' + textColor + ';">';
     html += '&#x1F4CB; ' + dateLabel;
     if (motif) html += ' \u2014 ' + motif;
     html += '</div>';
@@ -957,7 +957,7 @@ function openBackfillModal(dateStr) {
     html += '<div style="margin-bottom:14px;">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
     html += '<label style="font-size:13px;font-weight:600;color:#06172D;">' + s.label + '</label>';
-    html += '<span id="' + s.id + '-val" style="font-size:14px;font-weight:700;color:#2d6a4f;">' + s.val + '</span>';
+    html += '<span id="' + s.id + '-val" style="font-size:13px;font-weight:700;color:#2d6a4f;">' + s.val + '</span>';
     html += '</div>';
     html += '<input type="range" id="' + s.id + '" min="0" max="10" value="' + s.val + '" style="width:100%;accent-color:#2d6a4f;" oninput="document.getElementById(\'' + s.id + '-val\').textContent=this.value">';
     html += '<div style="display:flex;justify-content:space-between;"><span style="font-size:9px;color:rgba(6,23,45,.4);">' + s.low + '</span><span style="font-size:9px;color:rgba(6,23,45,.4);">' + s.high + '</span></div>';
@@ -1835,7 +1835,7 @@ function buildBlocStabilite(mode) {
   if (mode === 'resume') {
     return '<div class="card">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 class="summary-section" style="margin:0;">SCORE DE STABILITÉ — 30 JOURS</h2>' + _infoBtn('stabilite') + '</div>' +
-      '<p style="margin:8px 0;font-size:15px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
+      '<p style="margin:8px 0;font-size:13px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
       '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
       '</div>';
   }
@@ -1913,7 +1913,7 @@ function buildBlocCorrelations() {
     html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
     html += '<span style="font-size:18px;line-height:1.2;" aria-hidden="true">' + r.emoji + '</span>';
     html += '<div style="flex:1;min-width:0;">';
-    html += '<p style="margin:0;font-size:14px;font-weight:600;color:#06172D;">' + r.nom + '</p>';
+    html += '<p style="margin:0;font-size:13px;font-weight:600;color:#06172D;">' + r.nom + '</p>';
     html += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.55);">Depuis le ' + _formatDateCorrel(r.dateDebut) + ' · ' + r.nbApres + 'j de donnees</p>';
     html += '<p style="margin:4px 0 0;font-size:13px;color:' + color + ';font-weight:600;">' + arrow + ' Score moyen ' + diffStr + ' <span style="font-weight:400;color:rgba(6,23,45,.45);">(' + r.moyAvant.toFixed(1) + ' → ' + r.moyApres.toFixed(1) + ')</span></p>';
     html += '</div></div>';
@@ -3019,7 +3019,7 @@ function refreshPostConsultationHistorique() {
     var cardId = 'pc-card-' + idx;
 
     html += '<div style="background:#fff;border-left:3px solid #6E877D;border-radius:12px;padding:12px;margin-bottom:8px;">';
-    html += '<div class="pc-card-header" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#06172D;">';
+    html += '<div class="pc-card-header" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:600;color:#06172D;">';
     html += '<span>' + headerText + '</span>';
     html += '<span id="' + cardId + '-chevron" style="font-size:12px;color:rgba(6,23,45,.45);">' + (isOpen ? '\u25bc' : '\u25b6') + '</span>';
     html += '</div>';
@@ -3467,7 +3467,7 @@ function renderEssaisList() {
   if (!container) return;
   var essais = loadEssais();
   if (essais.length === 0) {
-    container.innerHTML = '<p style="color:var(--color-text-muted);font-size:14px;font-style:italic;margin:8px 0 0;">Aucun essai enregistré</p>';
+    container.innerHTML = '<p style="color:var(--color-text-muted);font-size:13px;font-style:italic;margin:8px 0 0;">Aucun essai enregistré</p>';
     return;
   }
   var sorted = essais.slice().sort(function(a, b) { return (b.date_debut || '').localeCompare(a.date_debut || ''); });
@@ -3484,7 +3484,7 @@ function renderEssaisList() {
     var effetStyle = effectColors[e.effet] || { bg: '#f3f4f6', color: '#374151' };
     html += '<div style="border-left:3px solid #a855f7;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">';
     html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">';
-    html += '<strong style="font-size:14px;color:#06172D;">' + (e.nom || '') + '</strong>';
+    html += '<strong style="font-size:13px;color:#06172D;">' + (e.nom || '') + '</strong>';
     if (e.type) {
       html += '<span class="essai-badge-type">' + e.type + '</span>';
     }

@@ -90,6 +90,20 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 
 Toute nouvelle page HTML doit inclure la navigation principale complète avec les mêmes styles que `index.html`. La page active est indiquée visuellement (classe `.nav-btn.active`).
 
+### Échelle typographique (harmonisée v10)
+
+Toute taille de police dans l'app doit utiliser l'une de ces 5 valeurs :
+
+| Variable CSS | Valeur | Usage |
+|---|---|---|
+| `--fs-section` | 11px | Titres section (uppercase, bold, letter-spacing) |
+| `--fs-body` | 13px | Texte corps, boutons, descriptions |
+| `--fs-label` | 12px | Labels secondaires, dates, metadata |
+| `--fs-help` | 11px | Aide, footnotes, disclaimers |
+| `--fs-tiny` | 9px | Légendes, axes, calendrier |
+
+Jamais de `14px`, `15px`, `16px` ou `rem` dans le code inline. Exceptions : emojis display (18px), scores numériques (20px+).
+
 ### Mobile overflow — Règle obligatoire
 
 Tout layout multi-colonnes (grid, flex row) doit être testé mentalement pour un viewport de **320px** (plus petit iPhone SE). Si le nombre de colonnes × taille minimale dépasse 320px, appliquer systématiquement :

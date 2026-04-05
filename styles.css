@@ -24,9 +24,16 @@
 
   /* Typographie — alignée vitrine */
   --font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-size-base: 16px;
-  --font-size-small: 14px;
-  --font-size-large: 18px;
+  --font-size-base: 13px;
+  --font-size-small: 12px;
+  --font-size-large: 15px;
+
+  /* Échelle typographique harmonisée */
+  --fs-section: 11px;   /* titres section (uppercase, bold, letter-spacing) */
+  --fs-body: 13px;      /* texte corps, boutons, descriptions */
+  --fs-label: 12px;     /* labels secondaires, dates, metadata */
+  --fs-help: 11px;      /* aide, footnotes, disclaimers */
+  --fs-tiny: 9px;       /* légendes, axes, calendrier */
 
   /* Espacements */
   --spacing-xs: 4px;
