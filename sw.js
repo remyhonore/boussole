@@ -31,6 +31,7 @@ const ASSETS_TO_CACHE = [
   '/favicon.svg',
   '/confidentialite.html',
   '/cgu.html',
+  '/articles.html',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 

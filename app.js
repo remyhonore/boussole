@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const banner = document.getElementById('welcome-banner');
     if (banner) banner.style.display = 'block';
   }
-  switchPanel('today');
+  // Panel initial : depuis URL ?panel= ou défaut today
+  const urlPanel = new URLSearchParams(window.location.search).get('panel');
+  const validPanels = ['today', 'resume', 'tbsante', 'params'];
+  switchPanel(validPanels.includes(urlPanel) ? urlPanel : 'today');
 
   // Feature D — listeners modale profil
   document.getElementById('btn-changer-profil')?.addEventListener('click', ouvrirModaleProfil);
@@ -116,7 +119,7 @@ function initNavigation() {
   navButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const panel = btn.dataset.panel;
-      switchPanel(panel);
+      if (panel) switchPanel(panel);
     });
   });
 }
