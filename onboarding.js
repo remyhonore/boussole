@@ -162,7 +162,7 @@ const onboarding = (() => {
       }
 
       .ob-dot-active {
-        background: #22c55e;
+        background: #2d6a4f;
         width: 24px;
         border-radius: 4px;
       }

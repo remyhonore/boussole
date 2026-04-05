@@ -13,7 +13,7 @@
   /* Curseurs (inchangés — sémantiques) */
   --color-low: #ef4444;
   --color-mid: #f97316;
-  --color-high: #22c55e;
+  --color-high: #2d6a4f;
 
   /* Neutrals — palette vitrine */
   --color-bg: #F8F6F0;             /* paper2 vitrine */
@@ -50,8 +50,8 @@
   --color-text-secondary: rgba(6,23,45,.65);
   --color-text-hint: rgba(6,23,45,.45);
 
-  /* Vert score (unique — remplace rgb(45,158,110) et rgb(46,158,110)) */
-  --color-score: #2d9e6e;
+  /* Vert score (harmonisé sur forest #2d6a4f) */
+  --color-score: #2d6a4f;
 
   /* Bordures interactives */
   --color-border-input: rgba(110,135,125,.35);
@@ -408,9 +408,9 @@ textarea:focus-visible {
 }
 
 .status-success {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #10b981;
+  background: rgba(45,106,79,.1);
+  color: #1e4d38;
+  border: 1px solid #2d6a4f;
 }
 
 .status-info {

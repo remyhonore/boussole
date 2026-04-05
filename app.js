@@ -1094,7 +1094,7 @@ function refreshSummary() {
         '<span style="font-size:12px;font-weight:700;color:var(--color-score);">' + dist.vert + ' j.</span>' +
       '</div>' +
       '<div style="background:rgba(6,23,45,.12);border-radius:8px;height:8px;">' +
-        '<div style="background:#2d9e6e;border-radius:8px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
+        '<div style="background:#2d6a4f;border-radius:8px;height:8px;width:' + Math.round(dist.vert / dist.total * 100) + '%;"></div>' +
       '</div>' +
     '</div>';
     html += '<div style="margin-bottom:10px;">' +
@@ -2471,7 +2471,7 @@ window._ouvrirModePresentation = function() {
         data: {
           labels: chartLabels,
           datasets: [
-            { label: 'Énergie',          data: cEnergie, borderColor: 'var(--color-score)', backgroundColor: 'rgba(45,158,110,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
+            { label: 'Énergie',          data: cEnergie, borderColor: 'var(--color-score)', backgroundColor: 'rgba(45,106,79,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Sommeil',          data: cSommeil, borderColor: '#e07b2a', backgroundColor: 'rgba(224,123,42,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Confort physique', data: cConfort, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 },
             { label: 'Clarté mentale',   data: cClarte,  borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.08)', tension: 0.3, spanGaps: true, pointRadius: 3 }

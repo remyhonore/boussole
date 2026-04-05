@@ -10,7 +10,7 @@
   var RANGES = [7, 14, 30, 90];
 
   var COLORS = {
-    energie:  { border: '#2d9e6e', bg: 'rgba(45,158,110,0.08)' },
+    energie:  { border: '#2d6a4f', bg: 'rgba(45,106,79,0.08)' },
     sommeil:  { border: '#e07b2a', bg: 'rgba(224,123,42,0.08)' },
     confort:  { border: '#9b59b6', bg: 'rgba(155,89,182,0.08)' },
     clarte:   { border: '#2980b9', bg: 'rgba(41,128,185,0.08)' }
