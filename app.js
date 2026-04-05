@@ -1008,6 +1008,7 @@ function refreshSummary() {
 
   // ============ TIER 1 — VUE D'ENSEMBLE ============
 
+  html += '<div class="card-group">';
   // 1. Synthèse fonctionnelle 7j
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
 
@@ -1088,8 +1089,11 @@ function refreshSummary() {
   html += `</div>`;
 
 
+  html += '</div>'; // end card-group Mon etat
+
   // ============ TIER 2 — TENDANCES ============
 
+  html += '<div class="card-group">';
   // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
   if (window.BoussoleCharts) {
     html += window.BoussoleCharts.buildHTML();
@@ -1104,8 +1108,11 @@ function refreshSummary() {
   }
 
 
+  html += '</div>'; // end card-group Evolution
+
   // ============ TIER 3 — CLINIQUE ============
 
+  html += '<div class="card-group">';
   // 5b. Episodes PEM detectes (30 jours)
   if (typeof window.detectPEMEvents === 'function') {
     var pemDays = [];
@@ -1236,8 +1243,11 @@ function refreshSummary() {
   }
 
 
+  html += '</div>'; // end card-group Clinique
+
   // ============ TIER 4 — OUTILS ============
 
+  html += '<div class="card-group">';
   // Score de récupération (Feature R — ADR-2026-032)
   html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
     '<div id="jauge-sna"></div>' +
@@ -1316,6 +1326,8 @@ function refreshSummary() {
     html += `</div>`;
   }
   
+
+  html += '</div>'; // end card-group Outils
 
   // ============ TIER 5 — ACTIONS ============
 
