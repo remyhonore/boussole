@@ -73,7 +73,7 @@ window.Traitements = (function () {
       return(b.date_debut||'').localeCompare(a.date_debut||'');
     });
     if(!liste.length){
-      container.innerHTML='<p style="color:#9ca3af;font-size:14px;font-style:italic;margin:8px 0 0;">Aucun traitement enregistré.</p>';return;
+      container.innerHTML='<p style="color:#9ca3af;font-size:13px;font-style:italic;margin:8px 0 0;">Aucun traitement enregistré.</p>';return;
     }
     var html='';
     liste.forEach(function(t){
@@ -84,7 +84,7 @@ window.Traitements = (function () {
       html+='<div style="border-left:3px solid '+col+';border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fafafa;">';
       html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px;">';
       html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
-      html+='<strong style="font-size:14px;color:#06172D;">'+t.nom+'</strong>';
+      html+='<strong style="font-size:13px;color:#06172D;">'+t.nom+'</strong>';
       if(t.dci&&t.dci!==t.nom)html+='<span style="font-size:11px;color:#6b7280;font-style:italic;">('+t.dci+')</span>';
       html+='<span style="font-size:11px;padding:2px 8px;border-radius:12px;background:'+col+'20;color:'+col+';font-weight:600;">'+_labelStatut(t.statut)+'</span>';
       html+='</div><div style="display:flex;gap:6px;">';
@@ -129,7 +129,7 @@ window.Traitements = (function () {
       h+='<span style="color:'+(act?'#2d6a4f':'#9ca3af')+';flex:1;">';
       h+=_formatDateFr(pal.date_debut)+(pal.date_fin?' → '+_formatDateFr(pal.date_fin):' → aujourd\'hui')+' : <strong>'+pal.dose+' '+pal.unite+'</strong>';
       if(act)h+=' <span style="color:#2d6a4f;font-weight:600;">(actuel)</span>';
-      h+='</span><button onclick="Traitements._supprimerPalier('+i+')" style="background:none;border:none;color:#dc2626;font-size:14px;cursor:pointer;padding:0 4px;" title="Supprimer">×</button></div>';
+      h+='</span><button onclick="Traitements._supprimerPalier('+i+')" style="background:none;border:none;color:#dc2626;font-size:13px;cursor:pointer;padding:0 4px;" title="Supprimer">×</button></div>';
     });
     c.innerHTML=h;
   }
@@ -364,9 +364,9 @@ window.Traitements = (function () {
     h+='<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#2d6a4f;">Traitement actuel</p>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
     h+='<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">💊 Médicaments</div>';
-    h+=meds.length?meds.map(lh).join(''):'<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>';
+    h+=meds.length?meds.map(lh).join(''):'<div style="font-size:12px;color:rgba(6,23,45,.42);font-style:italic;">Non renseigné</div>';
     h+='</div><div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">🌿 Compléments</div>';
-    h+=comps.length?comps.map(lh).join(''):'<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>';
+    h+=comps.length?comps.map(lh).join(''):'<div style="font-size:12px;color:rgba(6,23,45,.42);font-style:italic;">Non renseigné</div>';
     h+='</div></div>';
     if(allergies.length){
       h+='<div style="margin-top:8px;padding:6px 10px;background:#fef2f2;border-radius:6px;font-size:12px;color:#991b1b;">🚫 Allergies / CI : ';

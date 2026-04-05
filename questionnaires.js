@@ -135,7 +135,7 @@
 
     var isPCFS = scaleId === 'PCFS';
     var html = '<div class="modal-content" style="max-width:520px;max-height:85vh;overflow-y:auto;">';
-    html += '<h3 style="margin:0 0 4px;font-size:16px;color:#06172D;">' + scale.emoji + ' ' + scale.label + '</h3>';
+    html += '<h3 style="margin:0 0 4px;font-size:13px;color:#06172D;">' + scale.emoji + ' ' + scale.label + '</h3>';
     html += '<p style="font-size:12px;color:rgba(6,23,45,.55);margin:0 0 14px;">' + scale.description + '</p>';
 
     if (isPCFS) {
@@ -143,7 +143,7 @@
       html += '<div id="q-pcfs-choices">';
       scale.pcfsChoices.forEach(function(c) {
         html += '<div class="q-pcfs-choice" data-value="' + c.value + '" style="padding:12px;border:1.5px solid rgba(6,23,45,.12);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .15s;">';
-        html += '<strong style="font-size:14px;">' + c.value + ' — ' + c.label + '</strong>';
+        html += '<strong style="font-size:13px;">' + c.value + ' — ' + c.label + '</strong>';
         html += '<p style="font-size:12px;color:rgba(6,23,45,.6);margin:4px 0 0;">' + c.desc + '</p>';
         html += '</div>';
       });
@@ -259,7 +259,7 @@
         cardsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);">' +
           '<div><span style="font-size:13px;font-weight:600;">' + scale.emoji + ' ' + scale.shortLabel + '</span>' +
           '<span style="font-size:11px;color:rgba(6,23,45,.45);margin-left:6px;">' + dateLabel + '</span></div>' +
-          '<div style="text-align:right;"><span style="font-size:15px;font-weight:700;color:' + interp.color + ';">' + last.score + '/' + scale.maxScore + '</span>' +
+          '<div style="text-align:right;"><span style="font-size:13px;font-weight:700;color:' + interp.color + ';">' + last.score + '/' + scale.maxScore + '</span>' +
           '<span style="font-size:11px;color:' + interp.color + ';margin-left:4px;">' + interp.label + '</span></div>' +
         '</div>';
       }

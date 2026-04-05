@@ -107,7 +107,7 @@ function renderDayTypeCard(dayType) {
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
         <span style="font-size: 22px;">${dayType.emoji}</span>
         <div>
-          <div style="font-weight: 700; font-size: 16px; color: ${dayType.couleur};">
+          <div style="font-weight: 700; font-size: 13px; color: ${dayType.couleur};">
             ${dayType.label}
           </div>
           <div style="font-size: 13px; color: #666;">
@@ -121,7 +121,7 @@ function renderDayTypeCard(dayType) {
         border-radius: 8px;
         padding: 10px 12px;
         margin-bottom: 10px;
-        font-size: 14px;
+        font-size: 13px;
         color: #333;
         border-left: 3px solid ${dayType.couleur};
       ">
@@ -184,7 +184,7 @@ function renderDayTypeDistribution(entries, days = 14) {
         align-items: center; justify-content: center;
         font-size: 10px; color: #666; gap: 1px;
       ">
-        <span style="font-size: 14px; line-height: 1;">${emoji}</span>
+        <span style="font-size: 13px; line-height: 1;">${emoji}</span>
         <span style="font-size: 10px;">${dayNum}</span>
       </div>
     `;
@@ -216,7 +216,7 @@ function renderDayTypeDistribution(entries, days = 14) {
         ${calendarHTML}
       </div>
 
-      <p style="font-size: 12px; color: #999; margin: 0;">
+      <p style="font-size: 12px; color: rgba(6,23,45,.42); margin: 0;">
         Garder 20-30% d'énergie en réserve lors des jours verts réduit les crashs du lendemain.
       </p>
     </div>

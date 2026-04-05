@@ -326,7 +326,7 @@
       html += '<div style="background:#2d6a4f;height:100%;width:' + progress + '%;border-radius:4px;transition:width .3s;"></div></div>';
 
       html += '<p style="font-size:11px;color:#6b7280;margin:0 0 4px;">' + (currentDomain + 1) + ' / ' + DOMAINS.length + '</p>';
-      html += '<p style="font-size:16px;font-weight:700;margin:0 0 16px;color:#06172D;">' + domain.emoji + ' ' + domain.label + '</p>';
+      html += '<p style="font-size:13px;font-weight:700;margin:0 0 16px;color:#06172D;">' + domain.emoji + ' ' + domain.label + '</p>';
     // Progress bar
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">';
     html += '<span style="font-size:11px;font-weight:600;color:rgba(6,23,45,.45);">Etape ' + (_currentDomainIdx + 1) + ' / ' + totalDomains + '</span>';
@@ -494,7 +494,7 @@
     if (!top3.length) top3 = results.slice(0, 1);
 
     if (top.length === 0) {
-      html += '<p style="text-align:center;color:rgba(6,23,45,.5);font-size:14px;">Aucune piste significative identifiee. Si vos symptomes persistent, consultez votre professionnel de sante.</p>';
+      html += '<p style="text-align:center;color:rgba(6,23,45,.5);font-size:13px;">Aucune piste significative identifiee. Si vos symptomes persistent, consultez votre professionnel de sante.</p>';
     } else {
       top.forEach(function(r, idx) {
         var piste = PISTES[r.id];
@@ -503,7 +503,7 @@
         html += '<div style="border:1.5px solid rgba(6,23,45,.1);border-radius:12px;padding:14px;margin-bottom:12px;background:' + (idx === 0 ? 'rgba(45,106,79,.04)' : '#fff') + ';">';
         html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
         html += '<span style="font-size:11px;font-weight:700;color:' + piste.color + ';background:' + piste.color + '18;padding:2px 8px;border-radius:12px;">#' + rank + '</span>';
-        html += '<span style="font-size:14px;font-weight:700;color:#06172D;">' + piste.icon + ' ' + piste.label + '</span>';
+        html += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + piste.icon + ' ' + piste.label + '</span>';
         html += '</div>';
 
         // Progress bar
@@ -532,8 +532,8 @@
       var barWidth = Math.max(r.pct, 4);
       html += '<div style="margin-bottom:14px;padding:14px;border-radius:12px;border:1.5px solid rgba(6,23,45,.08);background:rgba(6,23,45,.02);">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-      html += '<span style="font-size:14px;font-weight:700;color:#06172D;">' + piste.emoji + ' ' + piste.label + '</span>';
-      html += '<span style="font-size:14px;font-weight:700;color:' + piste.color + ';">' + r.pct + '%</span></div>';
+      html += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + piste.emoji + ' ' + piste.label + '</span>';
+      html += '<span style="font-size:13px;font-weight:700;color:' + piste.color + ';">' + r.pct + '%</span></div>';
       // Progress bar
       html += '<div style="background:rgba(6,23,45,.06);border-radius:4px;height:8px;margin-bottom:8px;overflow:hidden;">';
       html += '<div style="background:' + piste.color + ';height:100%;width:' + barWidth + '%;border-radius:4px;"></div></div>';
@@ -545,7 +545,7 @@
     html += '<div style="background:rgba(220,38,38,.05);border-radius:8px;padding:10px 12px;margin-top:4px;margin-bottom:16px;">';
     html += '<p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.4;">⚠️ Cet outil ne remplace pas un avis medical. Il vise a structurer votre reflexion avant une consultation. Les pistes proposees reposent sur vos reponses et des associations symptomatiques connues.</p>';
     html += '</div>';
-    html += '<button onclick="SymptomTree._close()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">Fermer</button>';
+    html += '<button onclick="SymptomTree._close()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Fermer</button>';
     html += '</div>';
 
     modal.innerHTML = html;
@@ -568,7 +568,7 @@
         var piste = PISTES[r.id];
         html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
         html += '<span style="font-size:13px;font-weight:600;">' + piste.icon + ' ' + piste.short + '</span>';
-        html += '<span style="font-size:14px;font-weight:700;color:' + piste.color + ';">' + r.pct + ' %</span>';
+        html += '<span style="font-size:13px;font-weight:700;color:' + piste.color + ';">' + r.pct + ' %</span>';
         html += '</div>';
       });
     } else {

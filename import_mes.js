@@ -287,7 +287,7 @@ window.ImportMES = (function() {
     if (medecin && medecin.nom) {
       h += '<div style="margin-bottom:12px;padding:10px 12px;background:rgba(45,106,79,.06);border-radius:8px;">';
       h += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2d6a4f;margin:0 0 4px;">Medecin traitant</p>';
-      h += '<p style="margin:0;font-size:14px;font-weight:600;color:#06172D;">Dr ' + medecin.nom + '</p>';
+      h += '<p style="margin:0;font-size:13px;font-weight:600;color:#06172D;">Dr ' + medecin.nom + '</p>';
       if (medecin.organisation) h += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.55);">' + medecin.organisation + '</p>';
       if (medecin.depuis) h += '<p style="margin:2px 0 0;font-size:12px;color:rgba(6,23,45,.45);">Depuis le ' + medecin.depuis + '</p>';
       h += '</div>';
@@ -341,18 +341,18 @@ window.ImportMES = (function() {
     overlay.className = 'modal-profil-overlay active';
     overlay.innerHTML =
       '<div class="modal-profil" style="max-width:500px;">' +
-        '<h3 style="font-size:16px;font-weight:700;color:#06172D;margin:0 0 6px;">Importer depuis Mon Espace Sante</h3>' +
+        '<h3 style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 6px;">Importer depuis Mon Espace Sante</h3>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;line-height:1.4;">Telecharge ta Synthese medicale en PDF depuis <a href="https://www.monespacesante.fr" target="_blank" style="color:#2d6a4f;">monespacesante.fr</a>, puis selectionne le fichier ci-dessous.</p>' +
         '<div style="border:2px dashed rgba(45,106,79,.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px;cursor:pointer;" id="import-mes-dropzone">' +
           '<p style="margin:0 0 8px;font-size:24px;" aria-hidden="true">📄</p>' +
-          '<p style="margin:0;font-size:14px;color:#06172D;font-weight:600;">Selectionner le PDF</p>' +
+          '<p style="margin:0;font-size:13px;color:#06172D;font-weight:600;">Selectionner le PDF</p>' +
           '<p style="margin:4px 0 0;font-size:12px;color:rgba(6,23,45,.45);">Synthese medicale Mon Espace Sante</p>' +
           '<input type="file" accept=".pdf" id="import-mes-file" style="display:none;">' +
         '</div>' +
         '<div id="import-mes-preview" style="display:none;"></div>' +
         '<div id="import-mes-actions" style="display:none;gap:10px;">' +
-          '<button id="btn-import-mes-cancel" style="flex:1;padding:12px;background:none;border:1.5px solid rgba(6,23,45,.2);border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;">Annuler</button>' +
-          '<button id="btn-import-mes-confirm" style="flex:1;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Importer</button>' +
+          '<button id="btn-import-mes-cancel" style="flex:1;padding:12px;background:none;border:1.5px solid rgba(6,23,45,.2);border-radius:12px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>' +
+          '<button id="btn-import-mes-confirm" style="flex:1;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Importer</button>' +
         '</div>' +
         '<p style="font-size:11px;color:rgba(6,23,45,.35);margin:12px 0 0;text-align:center;">🔒 Le fichier est lu uniquement sur ton appareil. Rien n\'est transmis.</p>' +
       '</div>';

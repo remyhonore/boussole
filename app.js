@@ -570,7 +570,7 @@ function refreshDegradationAlert() {
   if (allLow) {
     alertEl.innerHTML =
       '<button onclick="dismissDegradationAlert()" aria-label="Fermer l\'alerte" style="position:absolute;top:8px;right:10px;background:none;border:none;font-size:18px;cursor:pointer;color:#c0392b;line-height:1;">&times;</button>' +
-      '<span style="font-size:15px;">⚠️</span> ' +
+      '<span style="font-size:18px;">⚠️</span> ' +
       'Score bas depuis 5 jours. Si tu as un suivi médical prévu, c\'est un bon moment d\'en parler à ton professionnel de santé.' +
       '<br><a href="#" onclick="window._ouvrirModePresentation && window._ouvrirModePresentation(); return false;" style="display:inline-block;margin-top:8px;color:#c0392b;font-weight:600;text-decoration:none;">Préparer ma consultation →</a>';
     alertEl.style.display = 'block';
@@ -890,9 +890,9 @@ function openInfoModal(key) {
     modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
     modal.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;position:relative;max-height:80vh;overflow-y:auto;">' +
       '<button onclick="document.getElementById(\'' + id + '\').style.display=\'none\'" ' +
-      'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;color:#9ca3af;cursor:pointer;">✕</button>' +
-      '<h3 style="font-size:15px;font-weight:700;color:#06172D;margin:0 0 12px;">' + info.title + '</h3>' +
-      '<div style="font-size:13px;color:#4b5563;line-height:1.6;">' + info.body + '</div>' +
+      'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;">✕</button>' +
+      '<h3 style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px;">' + info.title + '</h3>' +
+      '<div style="font-size:13px;color:rgba(6,23,45,.55);line-height:1.6;">' + info.body + '</div>' +
       '</div>';
     modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
     document.body.appendChild(modal);
@@ -902,7 +902,7 @@ function openInfoModal(key) {
 
 function _infoBtn(key) {
   return '<button onclick="openInfoModal(\'' + key + '\')" ' +
-    'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:0.7rem;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
+    'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:9px;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
     'aria-label="En savoir plus">?</button>';
 }
 
@@ -941,7 +941,7 @@ function openBackfillModal(dateStr) {
 
   var html = '<div style="background:#fff;border-radius:16px;max-width:400px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-  html += '<p style="font-size:15px;font-weight:700;margin:0;color:#06172D;">' + titleText + '</p>';
+  html += '<p style="font-size:13px;font-weight:700;margin:0;color:#06172D;">' + titleText + '</p>';
   html += '<button onclick="document.getElementById(\'backfill-modal\').style.display=\'none\'" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);padding:0;line-height:1;">\u2715</button>';
   html += '</div>';
 
@@ -1419,7 +1419,7 @@ function refreshSummary() {
   // 6. Prudence
   html += `<div class="card">`;
   html += `<h2 class="summary-section">PRUDENCE</h2>`;
-  html += `<p style="color: var(--color-text-muted); font-size: 14px;">`;
+  html += `<p style="color: var(--color-text-muted); font-size:13px;">`;
   html += `⚠️ Infos générales uniquement.<br>`;
   html += `Pas d'avis médical personnalisé.<br>`;
   html += `Urgence : 15`;
@@ -1836,7 +1836,7 @@ function buildBlocStabilite(mode) {
     return '<div class="card">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 class="summary-section" style="margin:0;">SCORE DE STABILITÉ — 30 JOURS</h2>' + _infoBtn('stabilite') + '</div>' +
       '<p style="margin:8px 0;font-size:13px;">' + stabIcon + ' ' + stabPhrase + '</p>' +
-      '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
+      '<p style="font-size:12px;color:rgba(6,23,45,.42);margin:4px 0 0;">' + ecartType + '</p>' +
       '</div>';
   }
   // mode === 'medecin'
@@ -1845,7 +1845,7 @@ function buildBlocStabilite(mode) {
   return '<div style="' + SS + 'background:#fff;border:1px solid rgba(6,23,45,.12);">' +
     '<p style="' + ST + 'color:#06172D;">Score de stabilité — 30 jours</p>' +
     '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
-    '<p style="font-size:12px;color:#aaa;margin:4px 0 0;">' + ecartType + '</p>' +
+    '<p style="font-size:12px;color:rgba(6,23,45,.42);margin:4px 0 0;">' + ecartType + '</p>' +
     '</div>';
 }
 
@@ -1979,7 +1979,7 @@ function _joursBasCount(vals) {
   return vals.filter(x => x !== null && x !== undefined && x < 5).length;
 }
 function _impactLabel(moy) {
-  if (moy === null) return { txt: '—', color: '#999' };
+  if (moy === null) return { txt: '—', color: 'rgba(6,23,45,.42)' };
   if (moy < 4) return { txt: 'Altéré', color: '#dc2626' };
   if (moy < 7) return { txt: 'Modéré', color: '#d97706' };
   return { txt: 'Correct', color: 'var(--color-score)' };
@@ -1987,7 +1987,7 @@ function _impactLabel(moy) {
 function _tendanceHtml(t) {
   if (t === 'hausse') return '<span style="color:var(--color-score);">↑ Hausse</span>';
   if (t === 'baisse') return '<span style="color:#dc2626;">↓ Baisse</span>';
-  return '<span style="color:#999;">→ Stable</span>';
+  return '<span style="color:rgba(6,23,45,.42);">→ Stable</span>';
 }
 
 function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
@@ -2000,7 +2000,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
         (isProb ? '1.5px solid #fca5a5' : '1px solid rgba(6,23,45,.12)') + ';">' +
         '<div style="font-size:18px;">' + m.emoji + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:#06172D;margin:4px 0 2px;">' + m.label + '</div>' +
-        '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : '#999') + ';line-height:1;">' +
+        '<div style="font-size:22px;font-weight:700;color:' + (m.moy !== null ? impact.color : 'rgba(6,23,45,.42)') + ';line-height:1;">' +
           (m.moy !== null ? m.moy.toFixed(1) : '—') + '</div>' +
         '<div style="font-size:10px;color:rgba(6,23,45,.55);margin-top:2px;">' + tend + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:' + impact.color + ';margin-top:4px;">' + impact.txt + '</div>' +
@@ -2049,17 +2049,17 @@ function buildProblemePrincipal(pointAttention, metriques, noteLC, avgSommeil) {
       '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
         '<div style="text-align:center;">' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Moyenne 7j</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Moyenne 7j</div>' +
           '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.moy.toFixed(1) + '</div>' +
-          '<div style="font-size:11px;color:#999;">/10</div>' +
+          '<div style="font-size:11px;color:rgba(6,23,45,.42);">/10</div>' +
         '</div>' +
         '<div style="text-align:center;">' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours bas</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Jours bas</div>' +
           '<div style="font-size:26px;font-weight:700;color:' + attColor + ';line-height:1;">' + pointAttention.joursBas + '</div>' +
-          '<div style="font-size:11px;color:#999;">/7</div>' +
+          '<div style="font-size:11px;color:rgba(6,23,45,.42);">/7</div>' +
         '</div>' +
         '<div>' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Retentissement</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Retentissement</div>' +
           retentParts.map(p => '<div style="font-size:11px;color:#06172D;padding:1px 0;">' + p + '</div>').join('') +
         '</div>' +
       '</div>' +
@@ -2086,15 +2086,15 @@ function buildDetailSommeil(dataSommeil, avgSommeil, noteLC, pointAttention) {
       '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
       '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
         '<div style="text-align:center;min-width:70px;">' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Score moyen</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Score moyen</div>' +
           '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somMoyStr + '</div>' +
         '</div>' +
         '<div style="text-align:center;min-width:70px;">' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Jours mauvais</div>' +
           '<div style="font-size:24px;font-weight:700;color:#3B82F6;">' + somJoursStr + '</div>' +
         '</div>' +
         '<div style="flex:1;min-width:120px;">' +
-          '<div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:4px;">Plainte principale</div>' +
+          '<div style="font-size:10px;color:rgba(6,23,45,.42);text-transform:uppercase;margin-bottom:4px;">Plainte principale</div>' +
           '<div style="font-size:13px;color:#06172D;font-style:italic;">' + plainteTxt + '</div>' +
         '</div>' +
       '</div>' +
@@ -2202,10 +2202,10 @@ window._ouvrirModePresentation = function() {
           '<p style="' + SECTION_TITLE + 'color:#2d6a4f;">Traitement actuel</p>' +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
             '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Médicaments</div>' +
-              (medL.length ? medL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+              (medL.length ? medL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:rgba(6,23,45,.42);font-style:italic;">Non renseigné</div>') +
             '</div>' +
             '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Compléments</div>' +
-              (compL.length ? compL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:#999;font-style:italic;">Non renseigné</div>') +
+              (compL.length ? compL.map(l=>'<div style="font-size:13px;color:#06172D;padding:2px 0;">• '+l+'</div>').join('') : '<div style="font-size:12px;color:rgba(6,23,45,.42);font-style:italic;">Non renseigné</div>') +
             '</div>' +
           '</div>' + allerH + '</div>';
       })();
@@ -2302,7 +2302,7 @@ window._ouvrirModePresentation = function() {
       pemHtml =
         '<div style="' + SECTION_STYLE + 'background:#FFF7ED;border:1.5px solid #f97316;">' +
           '<p style="' + SECTION_TITLE + 'color:#f97316;">Épisodes de crash (PEM)</p>' +
-          '<div style="font-size:14px;color:#06172D;">' +
+          '<div style="font-size:13px;color:#06172D;">' +
             '<strong>' + pemSum.count + ' épisode(s)</strong> de dégradation fonctionnelle détecté(s) sur 7 jours.' +
             (pemSum.avgDelta !== null ? ' Chute moyenne : <strong>' + avgDeltaStr + ' pts</strong>.' : '') +
           '</div>' +
@@ -2545,7 +2545,7 @@ window._ouvrirModePresentation = function() {
     essaisRecentsHtml +
     questionsHtml +
     partagerBtn +
-    '<p style="font-size:11px;color:#aaa;text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
+    '<p style="font-size:11px;color:rgba(6,23,45,.42);text-align:center;margin-top:24px;">Document d\'information personnelle · Pas un avis médical</p>';
 
   const overlay = document.getElementById('mode-presentation');
   const content = document.getElementById('mode-presentation-content');
@@ -3912,7 +3912,7 @@ function _journalCleanStr(str) {
 function _pdfOpenTab(doc, filename) {
   var win = window.open('', '_blank');
   if (win) {
-    win.document.write('<html><head><title>' + filename + '</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:16px;">Generation...</p></body></html>');
+    win.document.write('<html><head><title>' + filename + '</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:13px;">Generation...</p></body></html>');
   }
   var blob = doc.output('blob');
   var url = URL.createObjectURL(blob);

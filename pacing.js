@@ -186,7 +186,7 @@ window.MorningPace = (function() {
           '<span style="font-size:22px;">' + info.emoji + '</span>' +
         '</div>' +
         (res.crashRecent ? '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#991b1b;">⚠️ Crash/PEM signalé récemment — niveau abaissé</div>' : '') +
-        '<div style="font-size:15px;font-weight:700;color:' + info.color + ';margin-bottom:4px;">' + info.label + '</div>' +
+        '<div style="font-size:13px;font-weight:700;color:' + info.color + ';margin-bottom:4px;">' + info.label + '</div>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.72);line-height:1.4;margin:0 0 10px;">' + info.tip + '</p>' +
         '<div style="display:flex;align-items:center;margin-bottom:8px;">' + dots + '</div>' +
         '<div style="display:flex;align-items:center;justify-content:space-between;">' +
@@ -380,7 +380,7 @@ window.EnergyEnvelope = (function() {
           '</div>' +
           '<div style="display:flex;align-items:center;gap:6px;">' +
             '<span style="font-weight:600;color:' + coul + ';">' + signe + entry.cout + '</span>' +
-            '<button onclick="window.EnergyEnvelope.removeActivity(' + idx + ')" style="background:none;border:none;color:#d1d5db;cursor:pointer;font-size:14px;padding:0 2px;" aria-label="Supprimer cette activité">&times;</button>' +
+            '<button onclick="window.EnergyEnvelope.removeActivity(' + idx + ')" style="background:none;border:none;color:#d1d5db;cursor:pointer;font-size:13px;padding:0 2px;" aria-label="Supprimer cette activité">&times;</button>' +
           '</div>' +
         '</div>';
       });
@@ -642,7 +642,7 @@ window.PacingCorrelations = (function() {
     res.insights.forEach(function(ins) {
       var color = ins.impact < -0.5 ? '#dc2626' : ins.impact > 0.5 ? '#2d6a4f' : '#6b7280';
       html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(6,23,45,.06);">';
-      html += '<span style="font-size:16px;">' + ins.emoji + '</span>';
+      html += '<span style="font-size:13px;">' + ins.emoji + '</span>';
       html += '<p style="margin:0;font-size:13px;color:' + color + ';line-height:1.4;">' + ins.text + '</p>';
       html += '</div>';
     });

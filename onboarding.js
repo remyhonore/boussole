@@ -171,7 +171,7 @@ const onboarding = (() => {
         background: none;
         border: none;
         color: rgba(6,23,45,.58);
-        font-size: 14px;
+        font-size: 13px;
         cursor: pointer;
         padding: 6px 10px;
         border-radius: 6px;
@@ -215,14 +215,14 @@ const onboarding = (() => {
       }
 
       .ob-subtitle {
-        font-size: 16px;
+        font-size: 13px;
         color: #6E877D;
         font-weight: 600;
         margin-bottom: 16px;
       }
 
       .ob-text {
-        font-size: 15px;
+        font-size: 13px;
         line-height: 1.7;
         color: rgba(6,23,45,.72);
         margin-bottom: 20px;
@@ -269,7 +269,7 @@ const onboarding = (() => {
 
       .ob-list li > div strong {
         display: block;
-        font-size: 15px;
+        font-size: 13px;
         font-weight: 600;
         color: #06172D;
         margin-bottom: 2px;
@@ -284,7 +284,7 @@ const onboarding = (() => {
 
       .ob-privacy {
         margin-top: 18px;
-        font-size: 14px;
+        font-size: 13px;
         color: #065f46;
         padding: 12px 16px;
         background: #f0fdf4;
@@ -311,7 +311,7 @@ const onboarding = (() => {
         color: #ffffff;
         border: none;
         border-radius: 12px;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s, transform 0.1s;

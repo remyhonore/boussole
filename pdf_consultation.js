@@ -389,7 +389,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // Ouvrir une fenêtre IMMÉDIATEMENT (avant tout await) — seul moyen d'éviter le blocage popup Chrome
   const _pdfWin = window.open('', '_blank');
   if (_pdfWin) {
-    _pdfWin.document.write('<html><head><title>Génération du PDF...</title></head><body style="font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:24px;font-weight:700;margin:0 0 12px;">Génération du PDF en cours…</p><p style="color:#6b7280;font-size:16px;margin:0;">Veuillez patienter, cela peut prendre quelques secondes.</p></body></html>');
+    _pdfWin.document.write('<html><head><title>Génération du PDF...</title></head><body style="font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8faf9;"><p style="color:#2d6a4f;font-size:24px;font-weight:700;margin:0 0 12px;">Génération du PDF en cours…</p><p style="color:#6b7280;font-size:13px;margin:0;">Veuillez patienter, cela peut prendre quelques secondes.</p></body></html>');
   }
 
   // --- Générer la narrative EN PREMIER (avant le PDF) pour l'insérer en page 2 ---
