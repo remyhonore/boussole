@@ -844,13 +844,13 @@ var INFO_MODALS = {
     title: 'Graphique d\'evolution',
     body: '<p>Visualise l\'evolution de tes 4 indicateurs sur <strong>7, 14, 30 ou 90 jours</strong>.</p>' +
       '<p>Les <strong>lignes verticales tiretees</strong> indiquent les debuts de traitements.</p>' +
-      '<p>Les <strong>triangles rouges</strong> signalent les episodes de crash (PEM) detectes.</p>' +
+      '<p>Les <strong>triangles rouges</strong> signalent les variations d\'energie importantes observees.</p>' +
       '<p>Les <strong>losanges verts</strong> marquent les bonnes journees (score >= 8).</p>'
   },
   stabilite: {
-    title: 'Score de stabilite',
+    title: 'Variabilite de ton ressenti',
     body: '<p>Compare la <strong>regularite de tes scores</strong> entre les 15 premiers et les 15 derniers jours du mois.</p>' +
-      '<p>Une stabilite qui s\'ameliore signifie moins de fluctuations au quotidien : ton etat devient plus previsible.</p>' +
+      '<p>Une variabilite qui s\'ameliore signifie moins de fluctuations au quotidien : ton etat devient plus previsible.</p>' +
       '<p>Le pourcentage indique la reduction (ou l\'augmentation) de l\'ecart-type entre les deux periodes.</p>'
   },
   yip: {
@@ -860,9 +860,9 @@ var INFO_MODALS = {
       '<p>Le mois le plus recent est affiche en haut. Les mois sans donnees sont masques.</p>'
   },
   pem: {
-    title: 'Episodes de crash (PEM)',
-    body: '<p>Le <strong>malaise post-effort</strong> (PEM) est une degradation retardee apres un effort physique, cognitif ou emotionnel.</p>' +
-      '<p>L\'algorithme detecte les chutes de score de <strong>2+ points en 24-72h</strong> apres un jour correct.</p>' +
+    title: 'Variations d\'energie',
+    body: '<p>Une <strong>variation d\'energie importante</strong> correspond a une degradation retardee apres un effort physique, cognitif ou emotionnel.</p>' +
+      '<p>L\'algorithme observe les chutes de score de <strong>2+ points en 24-72h</strong> apres un jour correct.</p>' +
       '<p>Le niveau (Probable / Confirme / Renforce) depend de la presence de donnees objectives (FC repos, VFC).</p>' +
       '<p>Montre ces episodes a ton professionnel de sante pour en discuter.</p>'
   },
@@ -1169,7 +1169,7 @@ function refreshSummary() {
   html += `</div>`;
 
 
-  // 5. Score de stabilité 30j
+  // 5. Variabilité du ressenti 30j
   html += buildBlocStabilite('resume');
 
   // 4. Points marquants
@@ -1343,7 +1343,7 @@ function refreshSummary() {
 
   // ============ TRAITEMENTS ============
   html += '<div class="card-group">';
-  // 6. Feature E — Corrélations traitements × score
+  // 6. Feature E — Observations traitements × score
   html += buildBlocCorrelations();
 
   // 6b. Feature E bis — Corrélations activités → crash
@@ -1359,7 +1359,7 @@ function refreshSummary() {
   html += '</div>';
 
   // ============ ARBRE SYMPTOME ============
-  // 5c. Arbre symptome -> piste clinique
+  // 5c. Arbre ressenti -> piste exploration
   if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
     html += window.SymptomTree.buildBloc();
   }
@@ -1514,10 +1514,10 @@ function renderEventsSummary() {
   });
   if (recent.length === 0) { container.innerHTML = ''; return; }
   const labels = {
-    'crash-pem': 'Crash / PEM',
+    'crash-pem': 'Baisse d\'energie apres effort',
     'reaction-medicament': 'Réaction médicament',
     'effet-paradoxal': 'Effet paradoxal',
-    'symptome-inhabituel': 'Symptôme inhabituel',
+    'symptome-inhabituel': 'Ressenti inhabituel',
     'presyncope': 'Pré-syncope / malaise',
     'syncope': 'Syncope',
     'vertiges': 'Vertiges / étourdissements',
@@ -1826,9 +1826,9 @@ function buildBlocStabilite(mode) {
   const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
   let stabPhrase;
   if (stab.trend === 'amelioration') {
-    stabPhrase = 'Ta stabilité s\'améliore — ' + stabPct + '% moins de fluctuations ces 15 derniers jours.';
+    stabPhrase = 'Ta variabilité s\'améliore — ' + stabPct + '% moins de fluctuations ces 15 derniers jours.';
   } else if (stab.trend === 'stable') {
-    stabPhrase = 'Ta stabilité est stable ces 15 derniers jours.';
+    stabPhrase = 'Ta variabilité est stable ces 15 derniers jours.';
   } else {
     stabPhrase = 'Tes scores sont plus irréguliers — ' + stabPct + '% plus de fluctuations ces 15 derniers jours.';
   }
@@ -1844,14 +1844,14 @@ function buildBlocStabilite(mode) {
   // SS migrated to CSS class .section-card
   // ST migrated to CSS class .section-title
   return '<div class="section-card" style="background:#fff;border:1px solid rgba(6,23,45,.12);">' +
-    '<p class="section-title" style="color:#06172D;">Score de stabilité — 30 jours</p>' +
+    '<p class="section-title" style="color:#06172D;">Variabilité de ton ressenti — 30 jours</p>' +
     '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
     '<p style="font-size:12px;color:rgba(6,23,45,.42);margin:4px 0 0;">' + ecartType + '</p>' +
     '</div>';
 }
 
 /**
- * Feature E — Corrélations traitements × score (N-of-1 simplifié)
+ * Feature E — Observations traitements × score (N-of-1 simplifié)
  * Compare le score moyen avant vs après le début de chaque traitement actif.
  */
 function buildBlocCorrelations() {
@@ -2013,7 +2013,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p class="section-title" style="margin:0;">Synthèse fonctionnelle — 7 jours</p>' + _infoBtn('synthese') + '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
-      '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
+      '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Indice personnel de bien-être — pas un indicateur médical. Moyennes sur 7 jours.</p>' +
     '</div>'
   );
 }
@@ -2302,9 +2302,9 @@ window._ouvrirModePresentation = function() {
       const avgDeltaStr = pemSum.avgDelta !== null ? pemSum.avgDelta.toFixed(1) : '—';
       pemHtml =
         '<div class="section-card" style="background:#FFF7ED;border:1.5px solid #f97316;">' +
-          '<p class="section-title" style="color:#f97316;">Épisodes de crash (PEM)</p>' +
+          '<p class="section-title" style="color:#f97316;">Variations d\'énergie observées</p>' +
           '<div style="font-size:13px;color:#06172D;">' +
-            '<strong>' + pemSum.count + ' épisode(s)</strong> de dégradation fonctionnelle détecté(s) sur 7 jours.' +
+            '<strong>' + pemSum.count + ' épisode(s)</strong> de variation d\'énergie observé(s) sur 7 jours.' +
             (pemSum.avgDelta !== null ? ' Chute moyenne : <strong>' + avgDeltaStr + ' pts</strong>.' : '') +
           '</div>' +
         '</div>';
@@ -2360,7 +2360,7 @@ window._ouvrirModePresentation = function() {
   }
 
   // ============================================================
-  // 9. QUESTIONS À POSER AU MÉDECIN (conditionnel)
+  // 9. POINTS DE RÉFLEXION PERSONNELS (conditionnel)
   // ============================================================
   const scores7jQ = recentEntries.map(function(e) {
     const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
@@ -2409,18 +2409,18 @@ window._ouvrirModePresentation = function() {
 
   const fcMoyQ = fcVals.length >= 3 ? avg(fcVals) : null;
   const questionsQ = [];
-  if (pemCount7jQ >= 1)  questionsQ.push("Mes données montrent des chutes de score après les jours à bonne énergie. Faut-il évoquer le malaise post-effort / PEM ?");
-  if (daysWithCycleQ >= 1) questionsQ.push("Mon score varie selon les phases de mon cycle. Ce suivi mérite-t-il une attention hormonale ?");
-  if (fcMoyQ !== null && fcMoyQ > 85) questionsQ.push("Ma fréquence cardiaque au repos est élevée sur cette période. Faut-il évaluer une composante orthostatique ?");
-  if (scoreMoy7jQ !== null && scoreMoy7jQ < 5.0) questionsQ.push("Mon score global est bas de façon persistante. Quels examens complémentaires seraient pertinents à ce stade ?");
-  if (scoreStdDevQ > 2.5) questionsQ.push("Ma variabilité est importante d'un jour à l'autre. Ce profil évoque-t-il quelque chose de spécifique ?");
-  if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) questionsQ.push("Mon ressenti global est souvent différent de mon score composite. Cette dissociation est-elle un signal clinique ?");
+  if (pemCount7jQ >= 1)  questionsQ.push("Ton énergie a fortement baissé après des jours à bonne énergie. C\'est une observation que tu pourrais partager avec ton professionnel de santé.");
+  if (daysWithCycleQ >= 1) questionsQ.push("Ton ressenti varie selon les phases de ton cycle. C\'est un point que tu pourrais évoquer avec ton professionnel de santé.");
+  if (fcMoyQ !== null && fcMoyQ > 85) questionsQ.push("Ta fréquence cardiaque au repos est élevée sur cette période. C\'est un point que tu pourrais évoquer avec ton professionnel de santé.");
+  if (scoreMoy7jQ !== null && scoreMoy7jQ < 5.0) questionsQ.push("Ton score de bien-être est bas depuis plusieurs jours. C\'est une observation à partager si tu as un suivi médical.");
+  if (scoreStdDevQ > 2.5) questionsQ.push("Ta variabilité est importante d'un jour à l\'autre. C\'est un point que tu pourrais noter pour ton professionnel de santé.");
+  if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) questionsQ.push("Ton ressenti global est souvent différent de ton score composite. C\'est une observation intéressante à partager si tu le souhaites.");
 
   let questionsHtml = '';
   if (questionsQ.length > 0) {
     questionsHtml =
       '<div class="section-card" style="background:#F0FDF4;border:1.5px solid #2d6a4f;">' +
-        '<p class="section-title" style="color:#2d6a4f;">Questions à poser au médecin</p>' +
+        '<p class="section-title" style="color:#2d6a4f;">Points de réflexion personnels</p>' +
         questionsQ.slice(0, 5).map(q => '<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(45,106,79,.1);">→ ' + q + '</div>').join('') +
         '<div style="font-size:10px;color:rgba(6,23,45,.42);font-style:italic;margin-top:8px;">Suggestions basées sur vos données · Pas un avis médical</div>' +
       '</div>';
@@ -3729,11 +3729,11 @@ function toggleHubHistory() {
   var btn = document.getElementById('btn-hub-history');
   if (container.style.display === 'none') {
     container.style.display = 'block';
-    btn.textContent = '📓 Mon historique clinique ▲';
+    btn.textContent = '📓 Mon historique personnel ▲';
     renderHubHistory('all');
   } else {
     container.style.display = 'none';
-    btn.textContent = '📓 Mon historique clinique';
+    btn.textContent = '📓 Mon historique personnel';
   }
 }
 
@@ -3745,8 +3745,8 @@ function collectHubEntries() {
 
   // Feature T — Événements (boussole_event_*)
   var eventTypeLabels = {
-    'crash-pem': 'Crash / PEM', 'reaction-medicament': 'Réaction médicament',
-    'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Symptôme inhabituel',
+    'crash-pem': 'Baisse d\'energie apres effort', 'reaction-medicament': 'Réaction médicament',
+    'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Ressenti inhabituel',
     'presyncope': 'Pré-syncope / malaise', 'syncope': 'Syncope',
     'vertiges': 'Vertiges', 'palpitations': 'Palpitations',
     'bonne-journee-exceptionnelle': 'Bonne journée exceptionnelle',
@@ -4075,7 +4075,7 @@ function generateEventsPDF() {
     try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; }
   }).filter(Boolean);
   if (events.length === 0) { alert('Aucun événement enregistré.'); return; }
-  var labels = { 'crash-pem': 'Crash / PEM', 'reaction-medicament': 'Reaction medicament', 'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Symptome inhabituel',
+  var labels = { 'crash-pem': 'Baisse d\'energie apres effort', 'reaction-medicament': 'Reaction medicament', 'effet-paradoxal': 'Effet paradoxal', 'symptome-inhabituel': 'Symptome inhabituel',
     'presyncope': 'Pre-syncope / malaise', 'syncope': 'Syncope', 'vertiges': 'Vertiges', 'palpitations': 'Palpitations',
     'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle', 'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle', 'autre': 'Autre' };
   var { jsPDF } = window.jspdf;

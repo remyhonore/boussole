@@ -185,7 +185,7 @@ window.MorningPace = (function() {
           '<div class="section-title" style="color:#06172D;">Pacing — Stabilité du jour</div>' +
           '<span style="font-size:22px;">' + info.emoji + '</span>' +
         '</div>' +
-        (res.crashRecent ? '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#991b1b;">⚠️ Crash/PEM signalé récemment — niveau abaissé</div>' : '') +
+        (res.crashRecent ? '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#991b1b;">⚠️ Baisse d\'énergie signalée récemment — niveau abaissé</div>' : '') +
         '<div style="font-size:13px;font-weight:700;color:' + info.color + ';margin-bottom:4px;">' + info.label + '</div>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.72);line-height:1.4;margin:0 0 10px;">' + info.tip + '</p>' +
         '<div style="display:flex;align-items:center;margin-bottom:8px;">' + dots + '</div>' +
@@ -356,7 +356,7 @@ window.EnergyEnvelope = (function() {
     var alertHtml = '';
     if (pct >= 100) {
       alertHtml = '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#991b1b;line-height:1.4;">' +
-        '⚠️ Budget dépassé. Risque de crash dans les 24-48h. Repose-toi.</div>';
+        '⚠️ Budget dépassé. Risque de baisse d\'énergie dans les 24-48h. Repose-toi.</div>';
     } else if (pct >= 80) {
       alertHtml = '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#92400e;line-height:1.4;">' +
         'Il te reste peu d\'énergie. Pense à te reposer.</div>';
@@ -489,7 +489,7 @@ window.EnergyEnvelope = (function() {
 })();
 
 
-// === Feature E bis : Corrélations activités → crash (J+1/J+2) ===
+// === Feature E bis : Observations activités → crash (J+1/J+2) ===
 // Analyse le lien entre dépassement de budget énergétique et dégradation du score les jours suivants
 
 window.PacingCorrelations = (function() {
@@ -637,7 +637,7 @@ window.PacingCorrelations = (function() {
     if (!res) return '';
 
     var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p class="section-title" style="color:#06172D;">Corrélations activités</p>';
+    html += '<p class="section-title" style="color:#06172D;">Observations activités</p>';
 
     res.insights.forEach(function(ins) {
       var color = ins.impact < -0.5 ? '#dc2626' : ins.impact > 0.5 ? '#2d6a4f' : '#6b7280';

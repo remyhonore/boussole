@@ -183,7 +183,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
   lines.push('=== EVENEMENTS NOTABLES ===');
   var typeLabels = {
     'reaction-medicament': 'Reaction medicament',
-    'symptome-inhabituel': 'Symptome inhabituel',
+    'symptome-inhabituel': 'Ressenti inhabituel',
     'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle',
     'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle',
     'autre': 'Autre'
@@ -286,7 +286,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
   }
   lines.push('');
 
-  // --- Arbre symptome → pistes cliniques ---
+  // --- Arbre ressenti → pistes exploration ---
   if (window.SymptomTree && typeof window.SymptomTree.exportPourPDF === 'function') {
     var stExport = window.SymptomTree.exportPourPDF();
     if (stExport && stExport.pistes && stExport.pistes.length > 0) {
@@ -618,7 +618,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       doc.setFontSize(8.5);
       tc(MUTED, false);
       doc.text(
-        "Document d'information personnelle \xB7 Donn\xe9es auto-\xe9valu\xe9es \xB7 Pas un avis m\xe9dical",
+        "Outil de bien-etre et d'auto-observation \xB7 Pas un dispositif m\xe9dical \xB7 Ne remplace pas une consultation",
         marginL, fy + 2
       );
       if (idTel) {
@@ -1758,7 +1758,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       y += 4;
       if (pctDepas > 50) {
         tc(_pal.ALERT_RED, false);
-        doc.text('/!\\ Depassement frequent — risque de crash post-effort (PEM)', marginL, y);
+        doc.text('/!\\ Depassement frequent — risque de baisse d\'energie apres effort', marginL, y);
       } else if (pctDepas > 25) {
         tc(_pal.ALERT_ORANGE, false);
         doc.text('Depassements reguliers — vigilance sur la gestion de l\'enveloppe', marginL, y);
@@ -1966,7 +1966,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   y = 15;
 
   // ============================================================
-  // 9. QUESTIONS A POSER A MON MEDECIN (conditionnel)
+  // 9. POINTS DE REFLEXION PERSONNELS (conditionnel)
   // ============================================================
 
   // Scores composites 7j pour les regles
@@ -2026,22 +2026,22 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   const questionsQ = [];
   if (pemCount7jQ >= 1) {
-    questionsQ.push('Mes donnees montrent des chutes de score apres les jours a bonne energie. Faut-il evoquer le malaise post-effort / PEM ?');
+    questionsQ.push('Ton energie a fortement baisse apres des jours a bonne energie. C\'est une observation que tu pourrais partager avec ton professionnel de sante.');
   }
   if (daysWithCycleQ >= 1) {
-    questionsQ.push('Mon score varie selon les phases de mon cycle. Ce suivi merite-t-il une attention hormonale ?');
+    questionsQ.push('Ton ressenti varie selon les phases de ton cycle. C\'est un point que tu pourrais evoquer avec ton professionnel de sante.');
   }
   if (fcMoyQ !== null && fcMoyQ > 85) {
-    questionsQ.push('Ma frequence cardiaque au repos est elevee sur cette periode. Faut-il evaluer une composante orthostatique ?');
+    questionsQ.push('Ta frequence cardiaque au repos est elevee sur cette periode. C\'est un point que tu pourrais evoquer avec ton professionnel de sante.');
   }
   if (scoreMoy7jQ !== null && scoreMoy7jQ < 5.0) {
-    questionsQ.push('Mon score global est bas de facon persistante. Quels examens complementaires seraient pertinents a ce stade ?');
+    questionsQ.push('Ton score de bien-etre est bas depuis plusieurs jours. C\'est une observation a partager si tu as un suivi medical.');
   }
   if (scoreStdDevQ > 2.5) {
-    questionsQ.push('Ma variabilite est importante d un jour a l autre. Ce profil evoque-t-il quelque chose de specifique ?');
+    questionsQ.push('Ta variabilite est importante d un jour a l autre. C\'est un point que tu pourrais noter pour ton professionnel de sante.');
   }
   if (humeurMoy7jQ !== null && scoreMoy7jQ !== null && humeurValsQ.length >= 3 && Math.abs(humeurMoy7jQ - scoreMoy7jQ) > 2) {
-    questionsQ.push('Mon ressenti global est souvent different de mon score composite. Cette dissociation est-elle un signal clinique ?');
+    questionsQ.push('Ton ressenti global est souvent different de ton score composite. C\'est une observation interessante a partager si tu le souhaites.');
   }
   const questionsAffQ = questionsQ.slice(0, 5);
 
@@ -2056,7 +2056,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(NAVY_Q[0], NAVY_Q[1], NAVY_Q[2]);
-    doc.text('QUESTIONS A POSER A MON MEDECIN', marginL, y);
+    doc.text('POINTS DE REFLEXION PERSONNELS', marginL, y);
     y += 3;
 
     doc.setDrawColor(SAGE_Q[0], SAGE_Q[1], SAGE_Q[2]);
@@ -2076,7 +2076,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
     y += 3;
 
-    const discTxt = 'Ces questions sont des suggestions basees sur vos donnees. Elles ne constituent pas un avis medical.';
+    const discTxt = 'Ces points de reflexion sont bases sur tes donnees personnelles. Ils ne constituent pas un avis medical.';
     const discLines = doc.splitTextToSize(discTxt, contentW);
     doc.setFontSize(7);
     doc.setFont('helvetica', 'italic');
@@ -2104,7 +2104,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     y += 6;
     const typeLabels = {
       'reaction-medicament': 'Reaction medicament',
-      'symptome-inhabituel': 'Symptome inhabituel',
+      'symptome-inhabituel': 'Ressenti inhabituel',
       'bonne-journee-exceptionnelle': 'Bonne journee exceptionnelle',
       'mauvaise-journee-exceptionnelle': 'Mauvaise journee exceptionnelle',
       'autre': 'Autre'

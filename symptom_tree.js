@@ -1,5 +1,5 @@
 /**
- * symptom_tree.js — Arbre symptome -> piste clinique
+ * symptom_tree.js — Arbre ressenti -> piste exploration
  * Questionnaire interactif par domaines symptomatiques
  * Scoring pondere vers 6 pistes cliniques
  * Stockage localStorage, integration Resume + PDF
@@ -10,8 +10,8 @@
   // === PISTES CLINIQUES ===
   var PISTES = {
     EMSFC: { label: 'EM/SFC - Malaise post-effort', emoji: '⚡', icon: '⚡', color: '#dc2626', short: 'EM/SFC',
-      description: 'L\'encephalomyelite myalgique se caracterise par un malaise post-effort (PEM) : aggravation disproportionnee des symptomes apres un effort physique ou mental.',
-      suggest: 'Evaluer le PEM avec un journal d\'activite. Demander un test d\'effort en 2 jours (CPET) si accessible.' },
+      description: 'L\'encephalomyelite myalgique se caracterise par une aggravation disproportionnee des ressentis apres un effort physique ou mental.',
+      suggest: 'Observer les variations d\'energie avec un journal d\'activite. Le test d\'effort en 2 jours (CPET) est une piste a evoquer avec ton professionnel de sante.' },
     POTS: { label: 'POTS - Dysautonomie', emoji: '💓', icon: '💓', color: '#e07b2a', short: 'POTS',
       description: 'Le syndrome de tachycardie orthostatique posturale se manifeste par une acceleration du rythme cardiaque au passage en position debout, souvent accompagnee de vertiges et fatigue.',
       suggest: 'Demander un test de table basculante (tilt test) ou un test actif du pouls (test de NASA lean). Mesurer la FC couchee vs debout sur 10 minutes.' },
@@ -97,9 +97,9 @@
       label: 'Temporalite et declencheur',
       emoji: '📅',
       items: [
-        { text: 'Mes symptomes ont debute apres une infection (Covid, grippe, mono...)', weights: { EMSFC: 2, NEURO: 1 } },
-        { text: 'Mes symptomes se sont installes progressivement sans evenement declencheur', weights: { FIBRO: 1, DECON: 2 } },
-        { text: 'Mes symptomes fluctuent par crises avec des periodes d\'accalmie', weights: { MCAS: 2, FIBRO: 1 } }
+        { text: 'Mes ressentis ont debute apres une infection (Covid, grippe, mono...)', weights: { EMSFC: 2, NEURO: 1 } },
+        { text: 'Mes ressentis se sont installes progressivement sans evenement declencheur', weights: { FIBRO: 1, DECON: 2 } },
+        { text: 'Mes ressentis fluctuent par crises avec des periodes d\'accalmie', weights: { MCAS: 2, FIBRO: 1 } }
       ]
     }
   ];
@@ -216,7 +216,7 @@
       var progress = Math.round(((currentDomain) / DOMAINS.length) * 100);
 
       var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-      html += '<p class="section-title" style="margin:0;color:#06172D;">Arbre symptomes</p>';
+      html += '<p class="section-title" style="margin:0;color:#06172D;">Arbre ressentis</p>';
       html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
 
       // Progress bar
@@ -351,7 +351,7 @@
     'FIBRO': 'Evoquer le diagnostic avec le medecin traitant. Demander un bilan rhumatologique pour exclure d\'autres causes.',
     'MCAS':  'Doser la tryptase serique et les metabolites urinaires de l\'histamine. Consulter un allergologue ou immunologue.',
     'NEURO': 'Demander un bilan neuro-inflammatoire (IRM cerebrale, marqueurs inflammatoires). Consulter un neurologue.',
-    'DECON': 'Envisager un reconditionnement progressif supervise. Ecarter d\'abord un PEM (malaise post-effort) avant tout programme d\'exercice.'
+    'DECON': 'Envisager un reconditionnement progressif supervise. Ecarter d\'abord une intolerance a l\'effort avant tout programme d\'exercice.'
   };
 
   function _showResults(answers) {
@@ -363,7 +363,7 @@
     if (!top3.length) top3 = results.slice(0, 1);
 
     if (top.length === 0) {
-      html += '<p style="text-align:center;color:rgba(6,23,45,.5);font-size:13px;">Aucune piste significative identifiee. Si vos symptomes persistent, consultez votre professionnel de sante.</p>';
+      html += '<p style="text-align:center;color:rgba(6,23,45,.5);font-size:13px;">Aucune piste significative identifiee. Si tes ressentis persistent, parles-en a ton professionnel de sante.</p>';
     } else {
       top.forEach(function(r, idx) {
         var piste = PISTES[r.id];
@@ -425,7 +425,7 @@
   function buildBloc() {
     var last = getLastResult();
     var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
-    html += '<p class="section-title" style="color:#06172D;">Arbre symptomes -> pistes</p>';
+    html += '<p class="section-title" style="color:#06172D;">Arbre ressentis -> pistes</p>';
 
     if (last && last.results) {
       var top3 = last.results.slice(0, 3).filter(function(r) { return r.pct > 0; });
@@ -441,7 +441,7 @@
         html += '</div>';
       });
     } else {
-      html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Identifie les pistes cliniques a explorer avec ton professionnel de sante.</p>';
+      html += '<p style="font-size:13px;color:rgba(6,23,45,.45);margin:0 0 10px;">Identifie les pistes a explorer avec ton professionnel de sante.</p>';
     }
 
     html += '<button onclick="SymptomTree.open()" style="width:100%;padding:10px;margin-top:10px;border:1.5px solid rgba(45,106,79,.3);border-radius:8px;background:#fff;color:#2d6a4f;font-size:12px;font-weight:600;cursor:pointer;">🧭 ' + (last ? 'Refaire l\'evaluation' : 'Commencer l\'evaluation') + '</button>';

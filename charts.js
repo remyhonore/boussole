@@ -260,7 +260,7 @@
       '</div>' +
       '<canvas id="chart-temporal-canvas" height="200"></canvas>' +
       '<div id="chart-legend-overlay" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;justify-content:center;">' +
-        '<span style="font-size:10px;color:#dc2626;">▼ Crash/PEM</span>' +
+        '<span style="font-size:10px;color:#dc2626;">▼ Variation énergie</span>' +
         '<span style="font-size:10px;color:#2d6a4f;">◆ Bonne journée</span>' +
         '<span style="font-size:10px;color:rgba(45,106,79,.5);">┆ Début traitement</span>' +
         '<span style="font-size:10px;color:#3B82F6;">● Questionnaire PRO</span>' +

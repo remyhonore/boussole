@@ -14,7 +14,7 @@ window.PROFILS_DATA = {
   },
   pem_energie: {
     id: 'pem_energie',
-    label: 'PEM / Énergie',
+    label: 'Énergie',
     emoji: '🔋',
     description: 'Crash après effort, enveloppe énergétique très réduite.',
     tip: "Le crash post-effort est ton signal prioritaire. Surveille l'énergie J+1 après un effort.",
@@ -40,7 +40,7 @@ window.PROFILS_DATA = {
     id: 'mixte',
     label: 'Profil mixte',
     emoji: '🔄',
-    description: 'Plusieurs foyers actifs, symptômes variés et changeants.',
+    description: 'Plusieurs foyers actifs, ressentis variés et changeants.',
     tip: 'Ton profil est multifactoriel. Tous tes indicateurs comptent — surveille les patterns sur 7 jours.',
     metriques_prioritaires: ['energie', 'sommeil', 'cognition']
   }

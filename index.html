@@ -592,9 +592,9 @@
         <button
           onclick="ouvrirModaleConsultation('pdf')"
           style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;"
-          aria-label="Préparer ma consultation en PDF"
+          aria-label="Mon résumé personnel en PDF"
         >
-          &#x1F4CB; Préparer ma consultation
+          &#x1F4CB; Mon résumé personnel
         </button>
         
         <button
@@ -964,7 +964,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.14 — </span>
+    <span>Boussole v10.15 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -980,6 +980,14 @@
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.15</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 05 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Sprint réglementaire : vocabulaire UI revu pour conformité bien-être (MDR 2017/745)</li>
+          <li>« Variation d'énergie » remplace les termes médicaux dans toute l'app</li>
+          <li>Points de réflexion personnels (ex-questions médecin) reformulés</li>
+          <li>Disclaimer renforcé dans le résumé, le PDF et les CGU</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.90</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 21 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Clarté mentale : libellé mis à jour → "Ma mémoire et ma concentration..."</li>
@@ -1112,7 +1120,7 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Feature P : score de stabilité 30j (écart-type, comparaison quinzaines)</li>
+          <li>Feature P : variabilité du ressenti 30j (écart-type, comparaison quinzaines)</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.24</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
@@ -1168,14 +1176,14 @@
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.14</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 16 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Questions suggérées pour le médecin générées automatiquement dans le PDF consultation</li>
-          <li>6 règles cliniques : PEM, cycle hormonal, FC repos, score bas, variabilité, dissociation humeur/score</li>
+          <li>6 règles : énergie, cycle hormonal, FC repos, score bas, variabilité, dissociation humeur/score</li>
           <li>Section conditionnelle — absente si aucune règle déclenchée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v8.13</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 15 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>PDF consultation repensé pour le médecin remplaçant</li>
-          <li>Hiérarchie clinique : traitement, problème principal, synthèse fonctionnelle</li>
+          <li>Hiérarchie : traitement, problème principal, synthèse fonctionnelle</li>
           <li>Vocabulaire médical (impact, modérément altéré, dégradation fonctionnelle)</li>
           <li>Médicaments : espacement automatique de la posologie</li>
         </ul>
@@ -1190,23 +1198,23 @@
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v3.4</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Détection automatique des épisodes de crash post-effort (PEM)</li>
+          <li>Observation automatique des variations d'énergie après effort</li>
           <li>3 niveaux de confiance : probable, confirmé (FC), renforcé (FC + VFC)</li>
           <li>Section crash dans le Résumé avec historique</li>
           <li>Alerte préventive pacing après 3 jours verts consécutifs</li>
-          <li>Intégration crash dans les deux rapports PDF</li>
+          <li>Intégration variations énergie dans les deux résumés PDF</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v3.1</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Section "Mes mesures" : FC repos, tension, VFC/RMSSD, poids</li>
-          <li>Données objectives intégrées dans les rapports PDF</li>
+          <li>Données objectives intégrées dans les résumés PDF</li>
           <li>Page Confidentialité ajoutée</li>
         </ul>
         <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#6E877D;">v2.3</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 10 mars 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
-          <li>Mode "Préparer ma consultation" : PDF 1 page pour ton prochain rendez-vous</li>
+          <li>Mode "Mon résumé personnel" : PDF 1 page pour ton prochain rendez-vous</li>
           <li>3 points à aborder générés automatiquement</li>
           <li>Note libre pour préparer tes questions</li>
         </ul>
@@ -1222,7 +1230,7 @@
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>PDF enrichi : score global coloré, tableau synthèse par métrique, pastilles type de journées</li>
           <li>Variabilité élevée signalée en rouge pour ton professionnel de santé</li>
-          <li>Phrase résumé automatique générée dans le rapport</li>
+          <li>Phrase résumé automatique générée dans l'aperçu</li>
           <li>Pagination intelligente (4 ou 5 pages selon tes données)</li>
           <li>Corrections : accents typographiques, courbes d'évolution, lien footer</li>
         </ul>
@@ -1367,7 +1375,7 @@
   <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;">Préparer ma consultation</h2>
+        <h2 id="consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;">Mon résumé personnel</h2>
         <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
       </div>
       <p style="font-size:13px;font-weight:600;color:#06172D;margin:0 0 10px;">Motifs fréquents</p>
@@ -1530,7 +1538,7 @@
       <select id="event-type" aria-label="Type d'événement">
         <option value="">Type (optionnel)</option>
         <optgroup label="Pacing / Énergie">
-          <option value="crash-pem">Crash / PEM (malaise post-effort)</option>
+          <option value="crash-pem">Baisse d'énergie après effort</option>
           <option value="mauvaise-journee-exceptionnelle">Mauvaise journée exceptionnelle</option>
           <option value="bonne-journee-exceptionnelle">Bonne journée exceptionnelle</option>
         </optgroup>
@@ -1545,7 +1553,7 @@
           <option value="effet-paradoxal">Effet paradoxal</option>
         </optgroup>
         <optgroup label="Autre">
-          <option value="symptome-inhabituel">Symptôme inhabituel</option>
+          <option value="symptome-inhabituel">Ressenti inhabituel</option>
           <option value="autre">Autre</option>
         </optgroup>
       </select>
@@ -1693,8 +1701,8 @@
           </div>
 
           <div class="trt-field-group">
-            <label for="trt-objectif">Objectif clinique</label>
-            <input id="trt-objectif" type="text" maxlength="150" placeholder="Ex : insomnie de maintien, anxiété, énergie…" class="trt-input" aria-label="Objectif clinique">
+            <label for="trt-objectif">Objectif personnel</label>
+            <input id="trt-objectif" type="text" maxlength="150" placeholder="Ex : insomnie de maintien, anxiété, énergie…" class="trt-input" aria-label="Objectif personnel">
           </div>
 
           <div class="trt-field-group">
@@ -1893,7 +1901,7 @@
   <div class="modal-profil-overlay" id="modal-profil" role="dialog" aria-modal="true" aria-labelledby="profil-modal-title">
     <div class="modal-profil">
       <h2 id="profil-modal-title" style="font-size:20px;font-weight:800;color:#06172D;margin:0 0 4px;">Quel est ton profil ?</h2>
-      <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">Choisis le foyer dominant de tes symptômes. Tu pourras le modifier dans Paramètres.</p>
+      <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 16px;">Choisis le foyer dominant de tes ressentis. Tu pourras le modifier dans Paramètres.</p>
       <div id="profil-cards-container"></div>
       <button class="btn-confirmer-profil" id="btn-confirmer-profil" disabled>Confirmer mon profil</button>
       <button id="btn-passer-profil" style="width:100%;padding:10px;background:none;border:none;color:rgba(6,23,45,.42);font-size:13px;cursor:pointer;margin-top:8px;">Passer cette étape</button>

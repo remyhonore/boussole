@@ -70,7 +70,7 @@ window.generateShareProfile = function() {
 
   var profileLabel;
   if (hasPEM) {
-    profileLabel = 'Profil PEM';
+    profileLabel = 'Profil Énergie';
   } else if (hasDysautonomie) {
     profileLabel = 'Profil Dysautonomie';
   } else if (hasCycle) {
