@@ -201,35 +201,15 @@
     var totalDomains = DOMAINS.length;
     var progress = Math.round(((_currentDomainIdx) / totalDomains) * 100);
 
-    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">';
-    modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.18);">';
 
-    var box = document.createElement('div');
-    box.style.cssText = 'background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.18);';
-
-    // State
-    var currentDomain = 0;
-    var answers = {};
-
-    function renderDomain() {
-      var domain = DOMAINS[currentDomain];
-      var progress = Math.round(((currentDomain) / DOMAINS.length) * 100);
-
-      var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-      html += '<p class="section-title" style="margin:0;color:#06172D;">Arbre ressentis</p>';
-      html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
-
-      // Progress bar
-      html += '<div style="background:rgba(45,106,79,.1);border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden;">';
-      html += '<div style="background:#2d6a4f;height:100%;width:' + progress + '%;border-radius:4px;transition:width .3s;"></div></div>';
-
-      html += '<p style="font-size:11px;color:#6b7280;margin:0 0 4px;">' + (currentDomain + 1) + ' / ' + DOMAINS.length + '</p>';
-      html += '<p style="font-size:13px;font-weight:700;margin:0 0 16px;color:#06172D;">' + domain.emoji + ' ' + domain.label + '</p>';
-    // Progress bar
+    // Header + close
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">';
     html += '<span style="font-size:11px;font-weight:600;color:rgba(6,23,45,.45);">Etape ' + (_currentDomainIdx + 1) + ' / ' + totalDomains + '</span>';
     html += '<button onclick="SymptomTree._close()" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);padding:0;line-height:1;">✕</button>';
     html += '</div>';
+
+    // Progress bar
     html += '<div style="height:4px;background:rgba(6,23,45,.08);border-radius:2px;margin-bottom:20px;"><div style="height:100%;width:' + progress + '%;background:#2d6a4f;border-radius:2px;transition:width .3s;"></div></div>';
 
     // Domain header
@@ -252,31 +232,6 @@
       html += '</div></div>';
     });
 
-
-      domain.items.forEach(function(item, idx) {
-        var key = domain.id + '_' + idx;
-        var selected = answers[key] !== undefined ? answers[key] : -1;
-        html += '<div style="margin-bottom:14px;padding:12px;border-radius:10px;background:rgba(6,23,45,.03);">';
-        html += '<p style="font-size:13px;margin:0 0 8px;color:#06172D;line-height:1.4;">' + item.text + '</p>';
-        html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-        OPTIONS.forEach(function(opt) {
-          var isSelected = selected === opt.value;
-          var bg = isSelected ? '#2d6a4f' : '#fff';
-          var clr = isSelected ? '#fff' : '#06172D';
-          var brd = isSelected ? '#2d6a4f' : 'rgba(6,23,45,.15)';
-          html += '<button data-key="' + key + '" data-val="' + opt.value + '" ';
-          html += 'style="flex:1;min-width:70px;padding:7px 4px;border:1.5px solid ' + brd + ';border-radius:8px;';
-          html += 'background:' + bg + ';color:' + clr + ';font-size:11px;font-weight:600;cursor:pointer;">';
-          html += opt.label + '</button>';
-        });
-        html += '</div></div>';
-      });
-
-      // Navigation buttons
-      html += '<div style="display:flex;gap:8px;margin-top:16px;">';
-      if (currentDomain > 0) {
-        html += '<button id="st-prev" style="flex:1;padding:10px;border:1.5px solid rgba(45,106,79,.3);border-radius:10px;background:#fff;color:#2d6a4f;font-size:13px;font-weight:600;cursor:pointer;">Precedent</button>';
-      }
     // Navigation buttons
     html += '<div style="display:flex;gap:10px;margin-top:20px;">';
     if (_currentDomainIdx > 0) {
@@ -293,7 +248,6 @@
 
     modal.innerHTML = html;
   }
-  } // ferme _renderDomain
 
   function _answer(itemId, value) {
     _answers[itemId] = value;
