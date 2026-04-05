@@ -2209,24 +2209,6 @@ window._ouvrirModePresentation = function() {
       '<canvas id="mode-presentation-chart" height="180"></canvas>' +
     '</div>';
 
-  // MOTIF DE CONSULTATION (bloc 2)
-  let motifHtml;
-  if (noteConsultation) {
-    const parts = noteConsultation.split(' — ');
-    const cochees = parts[0] ? parts[0].split(' · ').map(function(s) { return s.trim(); }).filter(Boolean) : [];
-    const texteLibre = parts[1] ? parts[1].trim() : '';
-    const allItems = cochees.concat(texteLibre ? [texteLibre] : []);
-    const listHtml = allItems.map(function(item) {
-      return '<div style="font-size:14px;color:#06172D;padding:3px 0;">• ' + item + '</div>';
-    }).join('');
-    motifHtml = '<div style="' + SECTION_STYLE + 'background:#fffbf0;border:1.5px solid #d4a017;">' +
-      '<p style="' + SECTION_TITLE + 'color:#d4a017;">Motif de consultation</p>' +
-      listHtml +
-      '</div>';
-  } else {
-    motifHtml = '';
-  }
-
   // CALENDRIER 14 JOURS (bloc 7)
   const today14mp = new Date(); today14mp.setHours(0, 0, 0, 0);
   const entryMap14mp = {};
@@ -2281,9 +2263,8 @@ window._ouvrirModePresentation = function() {
   window._boussoleShareText = shareLines.join('\n');
 
   const partagerBtn = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;justify-content:center;">' +
-    '<button onclick="window.print()" style="padding:12px 24px;background:#fff;color:#2d6a4f;border:1.5px solid #2d6a4f;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">🖨️ Imprimer</button>' +
-    (navigator.share || navigator.clipboard ? '<button onclick="partagerResume()" style="padding:12px 28px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">Partager ce résumé</button>' : '') +
-    '<button onclick="window.generateShareProfile()" style="padding:12px 24px;background:#06172D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">🌟 Mon profil Boussole</button>' +
+    '<button onclick="window.print()" style="padding:10px 14px;background:#fff;color:#2d6a4f;border:1.5px solid #2d6a4f;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Imprimer</button>' +
+    (navigator.share || navigator.clipboard ? '<button onclick="partagerResume()" style="padding:10px 14px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;">Partager ce résumé</button>' : '') +
     '</div>';
 
   // ============================================================
@@ -2324,7 +2305,6 @@ window._ouvrirModePresentation = function() {
 
   const html =
     enTeteHtml +
-    motifHtml +
     traitementHtml +
     problemePrincipalHtml +
     syntheseHtml +
