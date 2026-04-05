@@ -920,6 +920,11 @@ function refreshSummary() {
     html += window.Questionnaires.buildBloc();
   }
 
+  // 5c. Arbre symptome -> piste clinique
+  if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
+    html += window.SymptomTree.buildBloc();
+  }
+
   // 6. Feature E — Corrélations traitements × score
   html += buildBlocCorrelations();
 

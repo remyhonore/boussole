@@ -2,6 +2,23 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [9.87] - 2026-04-05
+
+### Ajouté
+- **Arbre symptôme → piste clinique** (`symptom_tree.js`) : questionnaire interactif 7 domaines (23 items), scoring pondéré vers 6 pistes cliniques (EM/SFC, POTS, fibromyalgie, MCAS, neuro-inflammation, déconditionnement), barres de concordance, suggestions pour le médecin, stockage localStorage, intégration Résumé + export PDF
+
+## [9.78–9.86] - 2026-04-04/05
+
+### Ajouté
+- **PDF consultation dual mode** : palette N&B clinique + palette couleur (vert forêt, navy, orange, rouge)
+- **PDF couleur v2–v3** : calendrier coloré, labels vert forêt, QUESTIONS en page 3, narrative noir/titres verts
+- **Card "Mon dossier"** : 5 accordéons Suivi regroupés dans une seule card
+- **PDF clinique** : NIR patient, label période dynamique, titres bold, motif grossi
+
+### Corrigé
+- PDF Mes consultations s'ouvre dans un nouvel onglet (harmonisation `_pdfOpenTab`)
+- Force redeploy Vercel v9.82 (webhook retry)
+
 ## [9.77] - 2026-04-04
 
 ### Ajouté
