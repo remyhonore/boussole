@@ -169,6 +169,7 @@ function switchPanel(panelId) {
   // Repositionner les smileys quand le panel today devient visible (offsetWidth valide)
   if (panelId === 'today') {
     loadTodayData();
+    updateDashboardTiles();
     requestAnimationFrame(() => {
       ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
         const slider = document.getElementById(id);
@@ -182,6 +183,81 @@ function switchPanel(panelId) {
       initRetroDateSelect();
     });
   }
+}
+
+
+/**
+ * Dashboard tiles — preview dynamique (ADR-2026-043 Chantier B).
+ */
+function updateDashboardTiles() {
+  var data = loadEntries();
+  var today = localDateStr(new Date());
+  var todayEntry = data.entries.find(function(e) { return e.date === today; });
+
+  // Tile "Ma journée" : score du jour
+  var tileJ = document.getElementById('tile-journee-sub');
+  if (tileJ) {
+    if (todayEntry) {
+      var sc = calculateDayScore(todayEntry);
+      tileJ.textContent = sc !== null ? 'Score : ' + sc.toFixed(1) + ' / 10' : 'Rempli';
+    } else {
+      tileJ.textContent = 'Pas encore rempli';
+    }
+  }
+
+  // Tile "Mon résumé" : moyenne 7 jours
+  var tileR = document.getElementById('tile-resume-sub');
+  if (tileR) {
+    var scores7 = [];
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      var e = data.entries.find(function(x) { return x.date === localDateStr(d); });
+      if (e) { var s = calculateDayScore(e); if (s !== null) scores7.push(s); }
+    }
+    tileR.textContent = scores7.length > 0
+      ? 'Moy. 7j : ' + (scores7.reduce(function(a, b) { return a + b; }, 0) / scores7.length).toFixed(1)
+      : 'Aucune donnée';
+  }
+
+  // Tile "Mon suivi" : nombre de saisies total
+  var tileS = document.getElementById('tile-suivi-sub');
+  if (tileS) {
+    var nb = data.entries.length;
+    tileS.textContent = nb > 0 ? nb + ' jour' + (nb > 1 ? 's' : '') + ' enregistré' + (nb > 1 ? 's' : '') : 'Aucune saisie';
+  }
+
+  // Tile "Agenda" : prochain RDV
+  var tileA = document.getElementById('tile-agenda-sub');
+  if (tileA) {
+    try {
+      var rdvs = JSON.parse(localStorage.getItem('boussole_agenda_rdv') || '[]');
+      var now = new Date();
+      var futurs = rdvs.filter(function(r) { return new Date(r.datetime) >= now; })
+        .sort(function(a, b) { return new Date(a.datetime) - new Date(b.datetime); });
+      if (futurs.length > 0) {
+        var next = futurs[0];
+        var dt = new Date(next.datetime);
+        var jour = dt.getDate() + '/' + (dt.getMonth() + 1);
+        tileA.textContent = (next.specialiste ? next.specialiste + ' — ' : '') + jour;
+      } else {
+        tileA.textContent = 'Aucun RDV';
+      }
+    } catch (e) { tileA.textContent = 'Aucun RDV'; }
+  }
+}
+
+/**
+ * Navigue vers la section Agenda dans l'onglet Suivi (ADR-2026-043).
+ */
+function navigateToAgenda() {
+  switchPanel('tbsante');
+  requestAnimationFrame(function() {
+    var accord = document.getElementById('accord-consultations');
+    if (accord) {
+      accord.open = true;
+      accord.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 }
 
 /**
@@ -636,6 +712,7 @@ function saveCurrentEntry() {
     }
 
     showFeedbackPanel(today);
+    updateDashboardTiles();
   } else {
     showStatus('Erreur lors de l\'enregistrement', 'warning');
   }

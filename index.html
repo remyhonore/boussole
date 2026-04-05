@@ -236,8 +236,32 @@
         </div>
       </div>
 
+      <!-- ===== DASHBOARD TILES (ADR-2026-043 Chantier B) ===== -->
+      <div id="dashboard-tiles" class="dashboard-grid">
+        <button class="dash-tile dash-tile--forest" onclick="document.getElementById('card-saisie').scrollIntoView({behavior:'smooth',block:'start'})" aria-label="Ma journée">
+          <span class="dash-tile-icon">☀️</span>
+          <span class="dash-tile-label">Ma journée</span>
+          <span class="dash-tile-sub" id="tile-journee-sub">Pas encore rempli</span>
+        </button>
+        <button class="dash-tile dash-tile--navy" onclick="switchPanel('resume')" aria-label="Mon résumé">
+          <span class="dash-tile-icon">📊</span>
+          <span class="dash-tile-label">Mon résumé</span>
+          <span class="dash-tile-sub" id="tile-resume-sub">—</span>
+        </button>
+        <button class="dash-tile dash-tile--info" onclick="switchPanel('tbsante')" aria-label="Mon suivi">
+          <span class="dash-tile-icon">📋</span>
+          <span class="dash-tile-label">Mon suivi</span>
+          <span class="dash-tile-sub" id="tile-suivi-sub">—</span>
+        </button>
+        <button class="dash-tile dash-tile--warning" onclick="navigateToAgenda()" aria-label="Agenda">
+          <span class="dash-tile-icon">🗓️</span>
+          <span class="dash-tile-label">Agenda</span>
+          <span class="dash-tile-sub" id="tile-agenda-sub">—</span>
+        </button>
+      </div>
+
       <!-- ===== CARD 1 : Mon bilan du jour ===== -->
-      <div class="card">
+      <div class="card" id="card-saisie">
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
 
@@ -938,7 +962,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.18 — </span>
+    <span>Boussole v10.19 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

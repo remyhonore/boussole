@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.19] - 2026-04-05
+
+### Ajouté — Chantier B : Dashboard tiles Accueil (ADR-2026-043)
+- Grid 2×2 dashboard : Ma journée (forest), Mon résumé (navy), Mon suivi (info), Agenda (orange)
+- Previews dynamiques : score du jour, moyenne 7j, nb saisies, prochain RDV
+- Tiles cliquables : scroll vers saisie, switch Résumé/Suivi, navigation Agenda
+- `updateDashboardTiles()` appelée au switch panel et après enregistrement
+- `navigateToAgenda()` : switch Suivi + ouverture accordéon Mes rendez-vous
+- Dark mode support sur les 4 tiles
+- 4 fichiers modifiés (index.html, styles.css, app.js, sw.js), 70/70 tests
+
 ## [10.18] - 2026-04-05
 
 ### Modifié — Chantier A : Bottom tab bar (ADR-2026-043)
