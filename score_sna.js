@@ -154,7 +154,7 @@ window.ScoreSNA = (function() {
 
     container.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
-        '<div style="font-size:13px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.08em;">Score de récupération</div>' +
+        '<div style="font-size:13px;font-weight:700;color:#06172D;text-transform:uppercase;letter-spacing:0.08em;">Score de récupération</div>' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'flex\'" ' +
           'style="background:none;border:1px solid #d1d5db;border-radius:50%;width:20px;height:20px;font-size:11px;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" ' +
           'aria-label="En savoir plus sur le Score de récupération">?</button>' +
@@ -189,7 +189,7 @@ window.ScoreSNA = (function() {
       modal.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">' +
         '<button onclick="document.getElementById(\'modal-sna\').style.display=\'none\'" ' +
           'style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;" aria-label="Fermer">x</button>' +
-        '<h3 style="font-size:15px;font-weight:700;color:#1a2332;margin:0 0 12px 0;">Score de récupération</h3>' +
+        '<h3 style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px 0;">Score de récupération</h3>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.55);line-height:1.5;margin:0 0 10px 0;">Ce score [0-100] estime ta récupération en comparant tes données du jour à ta propre baseline des 30 derniers jours.</p>' +
         '<p style="font-size:13px;color:rgba(6,23,45,.55);line-height:1.5;margin:0 0 10px 0;">Il peut combiner jusqu\'à 6 sources : VFC (RMSSD), FC repos, qualité et durée du sommeil, tension artérielle, poids. <strong>Plus tu renseignes de mesures objectives, plus le score est fiable.</strong></p>' +
         '<div style="background:#f8f6f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.6;">' +

@@ -104,6 +104,32 @@ Toute taille de police dans l'app doit utiliser l'une de ces 5 valeurs :
 
 Jamais de `14px`, `15px`, `16px` ou `rem` dans le code inline. Exceptions : emojis display (18px), scores numériques (20px+).
 
+### Palette couleurs (harmonisée v10)
+
+Ne jamais utiliser de gris hex directs (`#999`, `#aaa`, `#4b5563`). Utiliser les valeurs rgba du thème :
+
+| Couleur | Valeur | Usage |
+|---|---|---|
+| Navy | `#06172D` | Texte principal |
+| Vert forêt | `#2d6a4f` | Accents, CTA, positif |
+| Muted fort | `rgba(6,23,45,.55)` | Texte secondaire, descriptions |
+| Muted doux | `rgba(6,23,45,.42)` | Footnotes, placeholders, labels légers |
+| Muted léger | `rgba(6,23,45,.18)` | Bordures très discrètes |
+| Erreur | `#dc2626` | Alertes, crash, suppression |
+| Warning | `#d97706` | Attention, problème principal |
+| Info | `#3B82F6` | Sommeil, données objectives |
+
+### Classes CSS utilitaires (v10.06)
+
+| Classe | Usage | Propriétés |
+|---|---|---|
+| `.section-title` | Sous-titres de section dans les cards | `11px`, bold, uppercase, `letter-spacing:.08em`, `margin:0 0 10px`, color `#06172D` |
+| `.section-card` | Conteneur de section (cards Résumé/Présentation) | `border-radius:12px`, `padding:14px`, `margin-bottom:12px` |
+| `h2.summary-section` | Titres principaux du Résumé | `11px`, bold, uppercase, `letter-spacing:.08em`, color `#06172D`, `margin:0 0 12px` |
+| `.card` / `.card-group` | Cards de base (définis dans `styles.css`) | padding/shadow/border via variables CSS |
+
+Ne jamais réinliner les propriétés de `.section-title` ou `.section-card`. Ajouter la couleur en `style="color:X;"` si différente du défaut.
+
 ### Mobile overflow — Règle obligatoire
 
 Tout layout multi-colonnes (grid, flex row) doit être testé mentalement pour un viewport de **320px** (plus petit iPhone SE). Si le nombre de colonnes × taille minimale dépasse 320px, appliquer systématiquement :
@@ -120,7 +146,7 @@ Seuils de vigilance :
 ### PDF
 
 - `pdf.js` : export enrichi multi-pages avec graphiques Chart.js. Canvas attaché au DOM, délai 300ms avant capture JPEG (600×220px, qualité 0.82).
-- `pdf_consultation.js` : export 1 page consultation + mode narratif. Intègre automatiquement les traitements via `Traitements.exportPourPDF()`.
+- `pdf_consultation.js` : export 1 page consultation + mode narratif. Intègre automatiquement les traitements via `Traitements.exportPourPDF()`, les questionnaires PRO via `Questionnaires.exportPourPDF()`, et l'arbre symptôme via `SymptomTree.exportPourPDF()`.
 - Encodage Latin-1 (jsPDF). Substitutions : `→` → `->` · `•` → `-` · `⚠️` → `/!\` · `☐` → `[ ]`
 - Police Helvetica uniquement. Emojis strippés pour compatibilité.
 - Points publics : `window.generatePDF` · `window.downloadPDF` · `window.generatePDFPreview`

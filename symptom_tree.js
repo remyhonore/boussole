@@ -359,12 +359,12 @@
         var key = domain.id + '_' + idx;
         var selected = answers[key] !== undefined ? answers[key] : -1;
         html += '<div style="margin-bottom:14px;padding:12px;border-radius:10px;background:rgba(6,23,45,.03);">';
-        html += '<p style="font-size:13px;margin:0 0 8px;color:#1a2332;line-height:1.4;">' + item.text + '</p>';
+        html += '<p style="font-size:13px;margin:0 0 8px;color:#06172D;line-height:1.4;">' + item.text + '</p>';
         html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
         OPTIONS.forEach(function(opt) {
           var isSelected = selected === opt.value;
           var bg = isSelected ? '#2d6a4f' : '#fff';
-          var clr = isSelected ? '#fff' : '#1a2332';
+          var clr = isSelected ? '#fff' : '#06172D';
           var brd = isSelected ? '#2d6a4f' : 'rgba(6,23,45,.15)';
           html += '<button data-key="' + key + '" data-val="' + opt.value + '" ';
           html += 'style="flex:1;min-width:70px;padding:7px 4px;border:1.5px solid ' + brd + ';border-radius:8px;';
@@ -577,10 +577,10 @@
 
 
     html += '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(45,106,79,.06);border-left:3px solid #2d6a4f;">';
-    html += '<p style="font-size:11px;color:#1a2332;margin:0;line-height:1.4;">';
+    html += '<p style="font-size:11px;color:#06172D;margin:0;line-height:1.4;">';
     html += '/!\\ Cet outil est informatif. Il ne remplace pas l\'avis d\'un professionnel de sante. Parlez-en a votre medecin.</p></div>';
 
-    html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px;">Fermer</button>';
+    html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-top:16px;">Fermer</button>';
 
     box.innerHTML = html;
   }

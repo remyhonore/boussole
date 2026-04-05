@@ -375,7 +375,7 @@ window.EnergyEnvelope = (function() {
         logHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6;font-size:12px;">' +
           '<div style="display:flex;align-items:center;gap:6px;">' +
             '<span>' + (entry.emoji || '⚡') + '</span>' +
-            '<span style="color:#1a2332;">' + entry.nom + '</span>' +
+            '<span style="color:#06172D;">' + entry.nom + '</span>' +
             '<span style="color:#9ca3af;font-size:11px;">' + entry.heure + '</span>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:6px;">' +
@@ -400,7 +400,7 @@ window.EnergyEnvelope = (function() {
         var signe = a.cout >= 0 ? '+' : '';
         var bg = a.cout < 0 ? 'rgba(45,106,79,.08)' : 'rgba(6,23,45,.04)';
         pickerHtml += '<button onclick="window.EnergyEnvelope.logActivity(\'' + a.id + '\')" ' +
-          'style="background:' + bg + ';border:1px solid rgba(6,23,45,.12);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;color:#1a2332;" ' +
+          'style="background:' + bg + ';border:1px solid rgba(6,23,45,.12);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;color:#06172D;" ' +
           'aria-label="Ajouter ' + a.nom + '">' +
           a.emoji + ' ' + a.nom + ' <span style="color:#9ca3af;">(' + signe + a.cout + ')</span></button>';
       });
@@ -416,7 +416,7 @@ window.EnergyEnvelope = (function() {
       customs.forEach(function(a) {
         var signe = a.cout >= 0 ? '+' : '';
         pickerHtml += '<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(45,106,79,.06);border:1px solid rgba(45,106,79,.2);border-radius:8px;padding:4px 6px 4px 10px;font-size:12px;">' +
-          '<button onclick="window.EnergyEnvelope.logActivity(\'' + a.id + '\')" style="background:none;border:none;cursor:pointer;font-size:12px;font-family:inherit;color:#1a2332;padding:0;">' +
+          '<button onclick="window.EnergyEnvelope.logActivity(\'' + a.id + '\')" style="background:none;border:none;cursor:pointer;font-size:12px;font-family:inherit;color:#06172D;padding:0;">' +
           (a.emoji || '⚡') + ' ' + a.nom + ' <span style="color:#9ca3af;">(' + signe + a.cout + ')</span></button>' +
           '<button onclick="window.EnergyEnvelope.deleteCustomActivity(\'' + a.id + '\')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px;padding:0 2px;" title="Supprimer">&times;</button>' +
         '</div>';
@@ -457,7 +457,7 @@ window.EnergyEnvelope = (function() {
         // Jauge
         '<div style="position:relative;height:18px;background:#f3f4f6;border-radius:9px;overflow:hidden;margin-bottom:6px;">' +
           '<div style="position:absolute;left:0;top:0;height:100%;width:' + Math.min(pct, 100) + '%;background:' + gaugeColor + ';border-radius:9px;transition:width 0.4s ease;"></div>' +
-          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:' + (pct > 45 ? '#fff' : '#1a2332') + ';">' +
+          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:' + (pct > 45 ? '#fff' : '#06172D') + ';">' +
             Math.round(pct) + '%</div>' +
         '</div>' +
         '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">' +
