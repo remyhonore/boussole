@@ -1747,7 +1747,7 @@ function buildBlocRepos() {
     idSommeil: idSommeil, idRepos: idRepos };
 
   var html =
-    '<div style="background:#fff;border:1.5px solid rgba(6,23,45,.12);border-radius:12px;padding:14px;margin-bottom:12px;">' +
+    '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(6,23,45,.55);text-transform:uppercase;margin:0 0 10px;">TEMPS DE REPOS — 14 JOURS</p>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
         '<div>' +
@@ -1840,9 +1840,9 @@ function buildBlocStabilite(mode) {
       '</div>';
   }
   // mode === 'medecin'
-  const SS = 'border-radius:12px;padding:14px;margin-bottom:12px;';
+  // SS migrated to CSS class .section-card
   // ST migrated to CSS class .section-title
-  return '<div style="' + SS + 'background:#fff;border:1px solid rgba(6,23,45,.12);">' +
+  return '<div class="section-card" style="background:#fff;border:1px solid rgba(6,23,45,.12);">' +
     '<p class="section-title" style="color:#06172D;">Score de stabilité — 30 jours</p>' +
     '<p style="margin:4px 0 2px;font-size:13px;color:#06172D;">' + stabIcon + ' ' + stabPhrase + '</p>' +
     '<p style="font-size:12px;color:rgba(6,23,45,.42);margin:4px 0 0;">' + ecartType + '</p>' +
@@ -1902,7 +1902,7 @@ function buildBlocCorrelations() {
   resultats.sort(function(a, b) { return Math.abs(b.diff) - Math.abs(a.diff); });
 
   // ST migrated to CSS class .section-title
-  var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+  var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p style="' + ST + 'color:#06172D;margin:0;">Observations traitements</p>' + _infoBtn('traitements') + '</div>';
 
   resultats.forEach(function(r) {
@@ -2009,7 +2009,7 @@ function buildSyntheseFonctionnelle7j(metriques, pointAttention) {
     );
   }).join('');
   return (
-    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+    '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><p class="section-title" style="margin:0;">Synthèse fonctionnelle — 7 jours</p>' + _infoBtn('synthese') + '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' + grid + '</div>' +
       '<p style="font-size:10px;color:rgba(6,23,45,.55);font-style:italic;margin:8px 0 0;text-align:center;">Les valeurs affichées sont des moyennes calculées sur les 7 derniers jours enregistrés.</p>' +
@@ -2044,7 +2044,7 @@ function buildProblemePrincipal(pointAttention, metriques, noteLC, avgSommeil) {
     ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #fca5a5;font-size:12px;color:#d97706;">Plainte déclarée : ' + _detectPlainteSommeil(noteLC, avgSommeil !== undefined ? avgSommeil : null) + '</div>'
     : '';
   return (
-    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#FEE2E2;border-left:4px solid #dc2626;">' +
+    '<div class="section-card" style="background:#FEE2E2;border-left:4px solid #dc2626;">' +
       '<p class="section-title" style="color:#d97706;">PROBLÈME PRINCIPAL</p>' +
       '<div style="font-size:17px;font-weight:700;color:' + attColor + ';margin-bottom:10px;">' + titreBloc + '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">' +
@@ -2082,7 +2082,7 @@ function buildDetailSommeil(dataSommeil, avgSommeil, noteLC, pointAttention) {
   else if (noteLC.indexOf('réveil') !== -1 || noteLC.indexOf('reveil') !== -1) plainteTxt = 'réveils nocturnes';
   else if (avgSommeil !== null && avgSommeil < 5)                              plainteTxt = 'insomnie de maintien';
   return (
-    '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#EFF6FF;border:1.5px solid #3B82F6;">' +
+    '<div class="section-card" style="background:#EFF6FF;border:1.5px solid #3B82F6;">' +
       '<p class="section-title" style="color:#3B82F6;">Détail sommeil — données déclaratives</p>' +
       '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">' +
         '<div style="text-align:center;min-width:70px;">' +
@@ -2170,7 +2170,7 @@ window._ouvrirModePresentation = function() {
   const now = new Date();
   const dateJourLong = now.getDate() + ' ' + monthsFr[now.getMonth()] + ' ' + now.getFullYear();
 
-  const SECTION_STYLE = 'border-radius:12px;padding:14px;margin-bottom:12px;';
+  // SECTION_STYLE migrated to CSS class .section-card
   // SECTION_TITLE migrated to CSS class .section-title
 
   // ============================================================
@@ -2198,7 +2198,7 @@ window._ouvrirModePresentation = function() {
         const allerH = (txAll && txAll.toUpperCase() !== 'RAS')
           ? '<div style="margin-top:8px;padding:6px 10px;background:#fff3cd;border-radius:8px;font-size:12px;color:#92400e;font-weight:600;">⚠️ Allergies : ' + txAll + '</div>'
           : '';
-        return '<div style="' + SECTION_STYLE + 'background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
+        return '<div class="section-card" style="background:#f0f7f4;border:1.5px solid #2d6a4f;">' +
           '<p class="section-title" style="color:#2d6a4f;">Traitement actuel</p>' +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
             '<div><div style="font-size:11px;font-weight:600;color:#2d6a4f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Médicaments</div>' +
@@ -2272,7 +2272,7 @@ window._ouvrirModePresentation = function() {
       rows.push('<div style="font-size:13px;color:#06172D;padding:4px 0;">⚖️ Poids : <strong>' + pMoy + ' kg</strong> moy.</div>');
     }
     donneesObjectivesHtml =
-      '<div style="' + SECTION_STYLE + 'background:#F9FAFB;border:1.5px solid rgba(6,23,45,.18);">' +
+      '<div class="section-card" style="background:#F9FAFB;border:1.5px solid rgba(6,23,45,.18);">' +
         '<p class="section-title" style="color:rgba(6,23,45,.55);">Données objectives déclaratives</p>' +
         rows.join('') +
         '<div style="font-size:10px;color:rgba(6,23,45,.42);font-style:italic;margin-top:6px;">Mesures déclaratives — pas de valeur diagnostique</div>' +
@@ -2300,7 +2300,7 @@ window._ouvrirModePresentation = function() {
       const pemSum = (typeof window.getPEMSummary === 'function') ? window.getPEMSummary(pemEvents) : { count: pemEvents.length, avgDelta: null };
       const avgDeltaStr = pemSum.avgDelta !== null ? pemSum.avgDelta.toFixed(1) : '—';
       pemHtml =
-        '<div style="' + SECTION_STYLE + 'background:#FFF7ED;border:1.5px solid #f97316;">' +
+        '<div class="section-card" style="background:#FFF7ED;border:1.5px solid #f97316;">' +
           '<p class="section-title" style="color:#f97316;">Épisodes de crash (PEM)</p>' +
           '<div style="font-size:13px;color:#06172D;">' +
             '<strong>' + pemSum.count + ' épisode(s)</strong> de dégradation fonctionnelle détecté(s) sur 7 jours.' +
@@ -2348,7 +2348,7 @@ window._ouvrirModePresentation = function() {
         ? cyclePhases7j[phaseDominante].reduce((a, b) => a + b, 0) / cyclePhases7j[phaseDominante].length
         : null;
       cycleHtml =
-        '<div style="' + SECTION_STYLE + 'background:#FDF4FF;border:1.5px solid #a855f7;">' +
+        '<div class="section-card" style="background:#FDF4FF;border:1.5px solid #a855f7;">' +
           '<p class="section-title" style="color:#a855f7;">Cycle et bien-être</p>' +
           '<div style="font-size:13px;color:#06172D;">' +
             'Phase dominante cette semaine : <strong>' + phaseDomLabel + '</strong> (' + maxCount + ' jour' + (maxCount > 1 ? 's' : '') + ')' +
@@ -2418,7 +2418,7 @@ window._ouvrirModePresentation = function() {
   let questionsHtml = '';
   if (questionsQ.length > 0) {
     questionsHtml =
-      '<div style="' + SECTION_STYLE + 'background:#F0FDF4;border:1.5px solid #2d6a4f;">' +
+      '<div class="section-card" style="background:#F0FDF4;border:1.5px solid #2d6a4f;">' +
         '<p class="section-title" style="color:#2d6a4f;">Questions à poser au médecin</p>' +
         questionsQ.slice(0, 5).map(q => '<div style="font-size:13px;color:#06172D;padding:4px 0;border-bottom:1px solid rgba(45,106,79,.1);">→ ' + q + '</div>').join('') +
         '<div style="font-size:10px;color:rgba(6,23,45,.42);font-style:italic;margin-top:8px;">Suggestions basées sur vos données · Pas un avis médical</div>' +
@@ -2429,7 +2429,7 @@ window._ouvrirModePresentation = function() {
   // GRAPHIQUE 30J
   // ============================================================
   const graphique30jHtml =
-    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+    '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p class="section-title" style="color:#06172D;">Évolution 30 jours</p>' +
       '<canvas id="mode-presentation-chart" height="180"></canvas>' +
     '</div>';
@@ -2463,7 +2463,7 @@ window._ouvrirModePresentation = function() {
       '</div>';
   }
   const calendrier14jHtml =
-    '<div style="' + SECTION_STYLE + 'background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+    '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<p class="section-title" style="color:#06172D;">Calendrier 14 jours</p>' +
       '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px;">' +
       '<div class="cal-grid">' + calCells14mp + '</div>' +
@@ -2516,7 +2516,7 @@ window._ouvrirModePresentation = function() {
         '</tr>';
     }).join('');
     essaisRecentsHtml =
-      '<div style="' + SECTION_STYLE + 'background:#FAF5FF;border-left:3px solid #a855f7;">' +
+      '<div class="section-card" style="background:#FAF5FF;border-left:3px solid #a855f7;">' +
         '<p class="section-title" style="color:#a855f7;">Essais récents (90 jours)</p>' +
         '<table style="width:100%;border-collapse:collapse;">' +
           '<thead><tr>' +

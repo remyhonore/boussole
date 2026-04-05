@@ -180,7 +180,7 @@
       return '<button data-range="' + r + '" class="chart-range-btn' + (active ? ' chart-range-btn--active' : '') + '">' + r + 'j</button>';
     }).join('');
 
-    return '<div id="chart-temporal-card" style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
+    return '<div id="chart-temporal-card" class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
         '<div style="display:flex;align-items:center;gap:6px;"><p class="section-title" style="margin:0;color:#06172D;">Évolution</p>' + (typeof _infoBtn === 'function' ? _infoBtn('evolution') : '') + '</div>' +
         '<div id="chart-range-btns" style="display:flex;gap:4px;">' + btns + '</div>' +
@@ -375,7 +375,7 @@
       return '<button class="yip-filter-btn' + (active ? ' yip-filter-btn--active' : '') + '" data-filter="' + f.key + '">' + f.label + '</button>';
     }).join('');
 
-    var html = '<div id="year-in-pixels-card" style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    var html = '<div id="year-in-pixels-card" class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
     html += '<div style="display:flex;align-items:center;gap:6px;"><p class="section-title" style="margin:0;color:#06172D;">Year in Pixels ' + year + '</p>' + (typeof _infoBtn === 'function' ? _infoBtn('yip') : '') + '</div>';
     html += '<div id="yip-filter-btns" style="display:flex;gap:3px;">' + filterBtns + '</div>';

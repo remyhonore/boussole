@@ -485,6 +485,13 @@ h2.summary-section {
   color: #06172D;
 }
 
+/* Conteneur de section dans les cards Résumé/Présentation (remplace SECTION_STYLE inline) */
+.section-card {
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
 .summary-item {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);

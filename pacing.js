@@ -636,7 +636,7 @@ window.PacingCorrelations = (function() {
     var res = analyser();
     if (!res) return '';
 
-    var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<p class="section-title" style="color:#06172D;">Corrélations activités</p>';
 
     res.insights.forEach(function(ins) {

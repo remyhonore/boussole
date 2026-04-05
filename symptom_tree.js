@@ -500,7 +500,7 @@
         var piste = PISTES[r.id];
         var barW = Math.max(r.pct, 8);
         var rank = idx + 1;
-        html += '<div style="border:1.5px solid rgba(6,23,45,.1);border-radius:12px;padding:14px;margin-bottom:12px;background:' + (idx === 0 ? 'rgba(45,106,79,.04)' : '#fff') + ';">';
+        html += '<div class="section-card" style="border:1.5px solid rgba(6,23,45,.1);background:' + (idx === 0 ? 'rgba(45,106,79,.04)' : '#fff') + ';">';
         html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
         html += '<span style="font-size:11px;font-weight:700;color:' + piste.color + ';background:' + piste.color + '18;padding:2px 8px;border-radius:12px;">#' + rank + '</span>';
         html += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + piste.icon + ' ' + piste.label + '</span>';
@@ -555,7 +555,7 @@
 
   function buildBloc() {
     var last = getLastResult();
-    var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<p class="section-title" style="color:#06172D;">Arbre symptome -> piste</p>';
 
     if (last && last.results) {
@@ -589,7 +589,7 @@
 
   function buildBloc() {
     var last = getLastResult();
-    var html = '<div style="border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
+    var html = '<div class="section-card" style="background:#fff;border:1.5px solid rgba(6,23,45,.12);">';
     html += '<p class="section-title" style="color:#06172D;">Arbre symptomes -> pistes</p>';
 
     if (last && last.results) {
