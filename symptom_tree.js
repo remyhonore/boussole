@@ -23,7 +23,7 @@
       suggest: 'Doser la tryptase serique basale et en crise. Envisager un dosage d\'histamine et prostaglandines urinaires. Consultation allergologie/immunologie.' },
     NEURO: { label: 'Fatigue centrale / neuro-inflammation', emoji: '🧠', icon: '🧠', color: '#6366f1', short: 'Neuro-inflam.',
       description: 'La neuro-inflammation peut provoquer brouillard cognitif, fatigue centrale et troubles de la memoire. Souvent associee aux suites d\'infections virales.',
-      suggest: 'IRM cerebrale si non realisee. Evaluer marqueurs inflammatoires (CRP, IL-6). Envisager consultation neurologique.' },
+      suggest: 'IRM cerebrale si non realisee. Evaluer marqueurs inflammatoires (CRP, IL-6). Envisager un avis neurologique.' },
     DECON: { label: 'Deconditionnement physique', emoji: '🏃', icon: '🏃', color: '#6E877D', short: 'Decond.',
       description: 'La reduction prolongee d\'activite physique entraine un cercle vicieux : fatigue -> inactivite -> perte de condition -> fatigue accrue.',
       suggest: 'Envisager une reeducation progressive adaptee (programme GET modifie ou pacing). Evaluer la VO2max si possible.' }
@@ -394,7 +394,7 @@
     html += '<p class="section-title" style="margin:0;color:#06172D;">Pistes a explorer</p>';
     html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
 
-    html += '<p style="font-size:12px;color:#6b7280;margin:0 0 16px;line-height:1.5;">Ces pistes sont des orientations, pas des diagnostics. Elles t\'aident a preparer ta consultation.</p>';
+    html += '<p style="font-size:12px;color:#6b7280;margin:0 0 16px;line-height:1.5;">Ces pistes sont des orientations, pas des diagnostics. Elles t\'aident a preparer un entretien avec ton professionnel de sante.</p>';
 
     top3.forEach(function(r, idx) {
       var piste = PISTES[r.id];
@@ -412,7 +412,7 @@
     });
     // Disclaimer + close
     html += '<div style="background:rgba(220,38,38,.05);border-radius:8px;padding:10px 12px;margin-top:4px;margin-bottom:16px;">';
-    html += '<p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.4;">⚠️ Cet outil ne remplace pas un avis medical. Il vise a structurer votre reflexion avant une consultation. Les pistes proposees reposent sur vos reponses et des associations symptomatiques connues.</p>';
+    html += '<p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.4;">⚠️ Cet outil ne remplace pas un avis medical. Il vise a structurer ta reflexion avant un rendez-vous. Les pistes proposees reposent sur tes reponses et des associations symptomatiques connues.</p>';
     html += '</div>';
     html += '<button onclick="SymptomTree._close()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Fermer</button>';
     html += '</div>';
