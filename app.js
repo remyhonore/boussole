@@ -1005,49 +1005,18 @@ function refreshSummary() {
     </div>`;
   }
 
+
+  // ============ TIER 1 — VUE D'ENSEMBLE ============
+
   // 1. Synthèse fonctionnelle 7j
   html += buildSyntheseFonctionnelle7j(metriques7j, pointAttention7j);
-
-  // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
-  if (window.BoussoleCharts) {
-    html += window.BoussoleCharts.buildHTML();
-  }
 
   // 3. Problème principal
   html += buildProblemePrincipal(pointAttention7j, metriques7j, noteLC7j, _avgVals(dataSommeil7j));
 
-  // 3b. Carte Pacing Repos 14j
-  html += buildBlocRepos();
-
   // 3c. Mini-fiches contextuelles (Feature S)
   const fichesPatterns = detectFichesPatterns(recent7j);
   html += buildBlocFiches(fichesPatterns);
-
-  // 5. Score de stabilité 30j
-  html += buildBlocStabilite('resume');
-
-  // 5b. Questionnaires PRO (PHQ-9, GAD-7, PCFS)
-  if (window.Questionnaires && typeof window.Questionnaires.buildBloc === 'function') {
-    html += window.Questionnaires.buildBloc();
-  }
-
-  // 5c. Arbre symptome -> piste clinique
-  if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
-    html += window.SymptomTree.buildBloc();
-  }
-
-  // 6. Feature E — Corrélations traitements × score
-  html += buildBlocCorrelations();
-
-  // 6b. Feature E bis — Corrélations activités → crash
-  if (window.PacingCorrelations && typeof window.PacingCorrelations.render === 'function') {
-    html += window.PacingCorrelations.render();
-  }
-
-  // 6c. Year in Pixels
-  if (window.BoussoleCharts && typeof window.BoussoleCharts.buildYearInPixels === 'function') {
-    html += window.BoussoleCharts.buildYearInPixels();
-  }
 
   // 7. Calendrier 30j (résumé 30 jours)
   html += `<div class="card">`;
@@ -1118,15 +1087,168 @@ function refreshSummary() {
     html += `</div>`;
   }
 
-  // Score de récupération (Feature R — ADR-2026-032)
-  html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
-    '<div id="jauge-sna"></div>' +
-    '</div>';
+
+  // ============ TIER 2 — TENDANCES ============
+
+  // 2. Graphique temporel interactif (7/14/30/90j + overlays traitements/événements)
+  if (window.BoussoleCharts) {
+    html += window.BoussoleCharts.buildHTML();
+  }
+
+  // 5. Score de stabilité 30j
+  html += buildBlocStabilite('resume');
+
+  // 6c. Year in Pixels
+  if (window.BoussoleCharts && typeof window.BoussoleCharts.buildYearInPixels === 'function') {
+    html += window.BoussoleCharts.buildYearInPixels();
+  }
+
+
+  // ============ TIER 3 — CLINIQUE ============
+
+  // 5b. Episodes PEM detectes (30 jours)
+  if (typeof window.detectPEMEvents === 'function') {
+    var pemDays = [];
+    var pemMesures = {};
+    var cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 29);
+    var cutoffStr = cutoffDate.toISOString().split('T')[0];
+
+    data.entries.forEach(function(entry) {
+      if (entry.date >= cutoffStr) {
+        var sc = calculateDayScore(entry);
+        if (sc !== null) pemDays.push({ date: entry.date, score: sc });
+      }
+    });
+    pemDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+
+    pemDays.forEach(function(d) {
+      var raw = localStorage.getItem('boussole_mesures_' + d.date);
+      if (raw) {
+        try { pemMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
+      }
+    });
+
+    var pemEvents = window.detectPEMEvents(pemDays, pemMesures);
+
+    if (pemEvents.length > 0) {
+      var levelLabel = { probable: 'Probable', confirmed: 'Confirme (FC)', reinforced: 'Renforce (FC + VFC)' };
+      var displayed = pemEvents.slice(0, 5);
+      html += '<div class="card pem-section">';
+      html += '<h3 class="pem-header">ÉPISODES DE CRASH DÉTECTÉS</h3>';
+      html += '<p class="pem-count">' + pemEvents.length + ' episode(s) identifie(s)</p>';
+      displayed.forEach(function(ev) {
+        var deltaStr = '-' + ev.delta.toFixed(1) + ' pts';
+        html += '<div class="pem-card">';
+        html += '<div class="pem-dates">' + ev.dateJFr + ' puis ' + ev.dateCrashFr + '</div>';
+        html += '<div class="pem-scores">Score : ' + ev.scoreJ.toFixed(1) + ' puis ' +
+                '<span class="pem-crash-score">' + ev.scoreCrash.toFixed(1) + '</span>' +
+                ' (<span class="pem-delta">' + deltaStr + '</span>)</div>';
+        html += '<div class="pem-level">Niveau : ' + (levelLabel[ev.level] || ev.level) + '</div>';
+        if (ev.fcJ !== null && ev.fcCrash !== null) {
+          var fcSign = ev.fcDelta >= 0 ? '+' : '';
+          html += '<div class="pem-fc">FC repos : ' + ev.fcJ + ' bpm puis ' + ev.fcCrash + ' bpm (' + fcSign + ev.fcDelta + ' bpm)</div>';
+        }
+        html += '</div>';
+      });
+      html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montre ces episodes a ton professionnel de sante pour en discuter.</p>';
+      html += '</div>';
+    }
+  }
+
+  // 5c. Arbre symptome -> piste clinique
+  if (window.SymptomTree && typeof window.SymptomTree.buildBloc === 'function') {
+    html += window.SymptomTree.buildBloc();
+  }
+
+  // 6. Feature E — Corrélations traitements × score
+  html += buildBlocCorrelations();
+
+  // 6b. Feature E bis — Corrélations activités → crash
+  if (window.PacingCorrelations && typeof window.PacingCorrelations.render === 'function') {
+    html += window.PacingCorrelations.render();
+  }
 
   // Corrélations mesures biologiques / bien-être
   if (typeof window.renderCorrelationsCard === 'function') {
     const corrHtml = window.renderCorrelationsCard(data.entries);
     if (corrHtml) html += corrHtml;
+  }
+
+  // 5c. Corrélation cycle hormonal (30 jours)
+  if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
+    var cycleDays = [];
+    var cycleMesures = {};
+    var cycleCutoff = new Date();
+    cycleCutoff.setDate(cycleCutoff.getDate() - 29);
+    var cycleCutoffStr = cycleCutoff.toISOString().split('T')[0];
+
+    data.entries.forEach(function(entry) {
+      if (entry.date >= cycleCutoffStr) {
+        var sc = calculateDayScore(entry);
+        if (sc !== null) cycleDays.push({ date: entry.date, score: sc });
+      }
+    });
+    cycleDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+
+    cycleDays.forEach(function(d) {
+      var raw = localStorage.getItem('boussole_mesures_' + d.date);
+      if (raw) {
+        try { cycleMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
+      }
+    });
+
+    var cyclePhaseScores = window.collectCycleData(cycleDays, cycleMesures, 30);
+    var cycleAnalysis = window.analyzeCycleCorrelation(cyclePhaseScores);
+
+    if (cycleAnalysis !== null) {
+      html += '<div class="cycle-section">';
+      html += '<h3>Cycle et bien-être (30 derniers jours)</h3>';
+      html += '<table class="cycle-table"><tbody>';
+
+      Object.keys(cycleAnalysis.phases).forEach(function(phase) {
+        var p = cycleAnalysis.phases[phase];
+        var label = window.getCyclePhaseLabel(phase);
+        var color = window.getCyclePhaseColor(phase);
+        var barWidth = Math.round((p.avg / 10) * 80);
+        html += '<tr>';
+        html += '<td style="white-space:nowrap">' + label + '</td>';
+        html += '<td style="white-space:nowrap">' + p.avg.toFixed(1) + '/10</td>';
+        html += '<td style="white-space:nowrap">' + p.count + 'j</td>';
+        html += '<td style="width:100%"><span class="cycle-bar" style="width:' + barWidth + 'px;background:' + color + '"></span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+
+      if (cycleAnalysis.significant) {
+        var minLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMin);
+        var maxLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMax);
+        var minAvg = cycleAnalysis.phases[cycleAnalysis.phaseMin].avg.toFixed(1);
+        var maxAvg = cycleAnalysis.phases[cycleAnalysis.phaseMax].avg.toFixed(1);
+        html += '<p class="cycle-message">Tes jours les plus difficiles coïncident avec la phase ' + minLabel + ' (score moyen ' + minAvg + '/10 vs ' + maxAvg + '/10 en phase ' + maxLabel + '). Cette information peut être utile à partager avec ton professionnel de santé.</p>';
+      } else {
+        html += '<p class="cycle-message">Tes scores ne montrent pas de variation marquée entre les phases de ton cycle sur cette période.</p>';
+      }
+
+      html += '</div>';
+    }
+  }
+
+
+  // ============ TIER 4 — OUTILS ============
+
+  // Score de récupération (Feature R — ADR-2026-032)
+  html += '<div class="card" id="card-score-sna" style="margin-bottom:16px;">' +
+    '<div id="jauge-sna"></div>' +
+    '</div>';
+
+  // 3b. Carte Pacing Repos 14j
+  html += buildBlocRepos();
+
+  // 5b. Questionnaires PRO (PHQ-9, GAD-7, PCFS)
+  if (window.Questionnaires && typeof window.Questionnaires.buildBloc === 'function') {
+    html += window.Questionnaires.buildBloc();
   }
 
   // Variations
@@ -1194,115 +1316,8 @@ function refreshSummary() {
     html += `</div>`;
   }
   
-  // 5b. Episodes PEM detectes (30 jours)
-  if (typeof window.detectPEMEvents === 'function') {
-    var pemDays = [];
-    var pemMesures = {};
-    var cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 29);
-    var cutoffStr = cutoffDate.toISOString().split('T')[0];
 
-    data.entries.forEach(function(entry) {
-      if (entry.date >= cutoffStr) {
-        var sc = calculateDayScore(entry);
-        if (sc !== null) pemDays.push({ date: entry.date, score: sc });
-      }
-    });
-    pemDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
-
-    pemDays.forEach(function(d) {
-      var raw = localStorage.getItem('boussole_mesures_' + d.date);
-      if (raw) {
-        try { pemMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
-      }
-    });
-
-    var pemEvents = window.detectPEMEvents(pemDays, pemMesures);
-
-    if (pemEvents.length > 0) {
-      var levelLabel = { probable: 'Probable', confirmed: 'Confirme (FC)', reinforced: 'Renforce (FC + VFC)' };
-      var displayed = pemEvents.slice(0, 5);
-      html += '<div class="card pem-section">';
-      html += '<h3 class="pem-header">ÉPISODES DE CRASH DÉTECTÉS</h3>';
-      html += '<p class="pem-count">' + pemEvents.length + ' episode(s) identifie(s)</p>';
-      displayed.forEach(function(ev) {
-        var deltaStr = '-' + ev.delta.toFixed(1) + ' pts';
-        html += '<div class="pem-card">';
-        html += '<div class="pem-dates">' + ev.dateJFr + ' puis ' + ev.dateCrashFr + '</div>';
-        html += '<div class="pem-scores">Score : ' + ev.scoreJ.toFixed(1) + ' puis ' +
-                '<span class="pem-crash-score">' + ev.scoreCrash.toFixed(1) + '</span>' +
-                ' (<span class="pem-delta">' + deltaStr + '</span>)</div>';
-        html += '<div class="pem-level">Niveau : ' + (levelLabel[ev.level] || ev.level) + '</div>';
-        if (ev.fcJ !== null && ev.fcCrash !== null) {
-          var fcSign = ev.fcDelta >= 0 ? '+' : '';
-          html += '<div class="pem-fc">FC repos : ' + ev.fcJ + ' bpm puis ' + ev.fcCrash + ' bpm (' + fcSign + ev.fcDelta + ' bpm)</div>';
-        }
-        html += '</div>';
-      });
-      html += '<p class="pem-message">Un crash survient souvent 24 a 48h apres un effort. Montre ces episodes a ton professionnel de sante pour en discuter.</p>';
-      html += '</div>';
-    }
-  }
-
-  // 5c. Corrélation cycle hormonal (30 jours)
-  if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
-    var cycleDays = [];
-    var cycleMesures = {};
-    var cycleCutoff = new Date();
-    cycleCutoff.setDate(cycleCutoff.getDate() - 29);
-    var cycleCutoffStr = cycleCutoff.toISOString().split('T')[0];
-
-    data.entries.forEach(function(entry) {
-      if (entry.date >= cycleCutoffStr) {
-        var sc = calculateDayScore(entry);
-        if (sc !== null) cycleDays.push({ date: entry.date, score: sc });
-      }
-    });
-    cycleDays.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
-
-    cycleDays.forEach(function(d) {
-      var raw = localStorage.getItem('boussole_mesures_' + d.date);
-      if (raw) {
-        try { cycleMesures['boussole_mesures_' + d.date] = JSON.parse(raw); } catch(e) {}
-      }
-    });
-
-    var cyclePhaseScores = window.collectCycleData(cycleDays, cycleMesures, 30);
-    var cycleAnalysis = window.analyzeCycleCorrelation(cyclePhaseScores);
-
-    if (cycleAnalysis !== null) {
-      html += '<div class="cycle-section">';
-      html += '<h3>Cycle et bien-être (30 derniers jours)</h3>';
-      html += '<table class="cycle-table"><tbody>';
-
-      Object.keys(cycleAnalysis.phases).forEach(function(phase) {
-        var p = cycleAnalysis.phases[phase];
-        var label = window.getCyclePhaseLabel(phase);
-        var color = window.getCyclePhaseColor(phase);
-        var barWidth = Math.round((p.avg / 10) * 80);
-        html += '<tr>';
-        html += '<td style="white-space:nowrap">' + label + '</td>';
-        html += '<td style="white-space:nowrap">' + p.avg.toFixed(1) + '/10</td>';
-        html += '<td style="white-space:nowrap">' + p.count + 'j</td>';
-        html += '<td style="width:100%"><span class="cycle-bar" style="width:' + barWidth + 'px;background:' + color + '"></span></td>';
-        html += '</tr>';
-      });
-
-      html += '</tbody></table>';
-
-      if (cycleAnalysis.significant) {
-        var minLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMin);
-        var maxLabel = window.getCyclePhaseLabel(cycleAnalysis.phaseMax);
-        var minAvg = cycleAnalysis.phases[cycleAnalysis.phaseMin].avg.toFixed(1);
-        var maxAvg = cycleAnalysis.phases[cycleAnalysis.phaseMax].avg.toFixed(1);
-        html += '<p class="cycle-message">Tes jours les plus difficiles coïncident avec la phase ' + minLabel + ' (score moyen ' + minAvg + '/10 vs ' + maxAvg + '/10 en phase ' + maxLabel + '). Cette information peut être utile à partager avec ton professionnel de santé.</p>';
-      } else {
-        html += '<p class="cycle-message">Tes scores ne montrent pas de variation marquée entre les phases de ton cycle sur cette période.</p>';
-      }
-
-      html += '</div>';
-    }
-  }
+  // ============ TIER 5 — ACTIONS ============
 
   // 6. Prudence
   html += `<div class="card">`;
