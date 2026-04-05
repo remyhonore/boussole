@@ -18,7 +18,7 @@ const onboarding = (() => {
       <p class="ob-subtitle">Ton tableau de bord santé quotidien</p>
       <p class="ob-text">Chaque jour, 4 questions simples pour objectiver comment tu te sens — et en parler avec ton professionnel de santé avec des données, pas des impressions.</p>
       <div class="ob-colors" aria-hidden="true">
-        <span>🟢</span>
+        <span style="color:#2d6a4f;font-size:22px;">●</span>
         <span>🟠</span>
         <span>🔴</span>
       </div>
@@ -64,7 +64,7 @@ const onboarding = (() => {
       <h2 class="ob-title">Ton score du jour</h2>
       <ul class="ob-list" aria-label="Système de couleurs">
         <li>
-          <span class="ob-list-icon" aria-hidden="true">🟢</span>
+          <span class="ob-list-icon" aria-hidden="true" style="color:#2d6a4f;">●</span>
           <div>
             <strong>Bonne journée</strong>
             <p>Score ≥ 7</p>

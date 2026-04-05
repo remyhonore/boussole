@@ -28,10 +28,10 @@ function getDayType(entry) {
       type: 'vert',
       score,
       label: 'Jour Vert',
-      emoji: '🟢',
-      couleur: '#4caf50',
-      couleurBg: '#f0faf0',
-      couleurBorder: '#a5d6a7',
+      emoji: '<span style="color:#2d6a4f;">●</span>',
+      couleur: '#2d6a4f',
+      couleurBg: 'rgba(45,106,79,0.06)',
+      couleurBorder: 'rgba(45,106,79,0.3)',
       conseil: '1 priorité · pauses planifiées · sommeil protégé',
       detail: 'C\'est un bon jour. Garde 20-30% d\'énergie en réserve — ne rattrape pas tout ce qui n\'a pas été fait.',
       reserve: 'Évite de "sur-utiliser" ce bon jour. Le crash du lendemain se prépare aujourd\'hui.'
@@ -195,9 +195,9 @@ function renderDayTypeDistribution(entries, days = 14) {
       <h2 class="summary-section">📅 TYPE DE JOURNÉES — ${days} JOURS</h2>
 
       <div style="display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 80px; background: #f0faf0; border: 1.5px solid #a5d6a7; border-radius: 10px; padding: 12px; text-align: center;">
-          <div style="font-size: 22px;">🟢</div>
-          <div style="font-weight: 700; font-size: 20px; color: #4caf50;">${dist.vert}</div>
+        <div style="flex: 1; min-width: 80px; background: rgba(45,106,79,0.06); border: 1.5px solid rgba(45,106,79,0.3); border-radius: 10px; padding: 12px; text-align: center;">
+          <div style="font-size: 22px; color: #2d6a4f;">●</div>
+          <div style="font-weight: 700; font-size: 20px; color: #2d6a4f;">${dist.vert}</div>
           <div style="font-size: 12px; color: #666;">Jours Verts</div>
         </div>
         <div style="flex: 1; min-width: 80px; background: #fff8f0; border: 1.5px solid #ffcc80; border-radius: 10px; padding: 12px; text-align: center;">

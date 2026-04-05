@@ -1030,7 +1030,7 @@ function refreshSummary() {
     const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     const today14 = new Date();
     let calCells = '';
-    for (let i = 29; i >= 0; i--) {
+    for (let i = 0; i <= 29; i++) {
       const d = new Date(today14);
       d.setDate(d.getDate() - i);
       const dateStr = localDateStr(d);
@@ -1059,7 +1059,7 @@ function refreshSummary() {
     html += `<h2 class="summary-section">TYPE DE JOURNÉES</h2>`;
     html += '<div style="margin-bottom:10px;">' +
       '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
-        '<span style="font-size:12px;color:#06172D;">🟢 Hauts (&gt;= 7)</span>' +
+        '<span style="font-size:12px;color:#06172D;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2d6a4f;vertical-align:middle;margin-right:4px;"></span>Hauts (&gt;= 7)</span>' +
         '<span style="font-size:12px;font-weight:700;color:var(--color-score);">' + dist.vert + ' j.</span>' +
       '</div>' +
       '<div style="background:rgba(6,23,45,.12);border-radius:8px;height:8px;">' +
@@ -1723,7 +1723,8 @@ function renderSparkRepos() {
 function buildBlocStabilite(mode) {
   const stab = computeStabilityScore();
   if (stab === null) return '';
-  const stabIcon = stab.trend === 'amelioration' ? '🟢' : stab.trend === 'stable' ? '🟡' : '🔴';
+  const stabDot = '<span style="display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;background:';
+  const stabIcon = stab.trend === 'amelioration' ? stabDot + '#2d6a4f;"></span>' : stab.trend === 'stable' ? stabDot + '#D97706;"></span>' : stabDot + '#DC2626;"></span>';
   const stabPct = Math.round(Math.abs(1 - stab.stdDevSecond / (stab.stdDevFirst || 1)) * 100);
   let stabPhrase;
   if (stab.trend === 'amelioration') {

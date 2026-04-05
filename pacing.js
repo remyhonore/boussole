@@ -10,8 +10,8 @@ window.MorningPace = (function() {
     1: { emoji: '🔴', label: 'Journée de repos', tip: 'Protège ton énergie. Limite les activités au strict nécessaire.', color: '#dc2626' },
     2: { emoji: '🟠', label: 'Journée légère', tip: 'Privilégie le repos actif. Évite les efforts prolongés.', color: '#f59e0b' },
     3: { emoji: '🟡', label: 'Journée modérée', tip: 'Choisis tes activités. Alterne effort et repos.', color: '#eab308' },
-    4: { emoji: '🟢', label: 'Journée favorable', tip: 'Tu as de la marge. Reste à l\'écoute de ton corps.', color: '#2d6a4f' },
-    5: { emoji: '🟢', label: 'Bonne stabilité', tip: 'Bonne récupération. Profite de cette journée en restant attentif(ve).', color: '#2d6a4f' }
+    4: { emoji: '<span style="color:#2d6a4f;">●</span>', label: 'Journée favorable', tip: 'Tu as de la marge. Reste à l\'écoute de ton corps.', color: '#2d6a4f' },
+    5: { emoji: '<span style="color:#2d6a4f;">●</span>', label: 'Bonne stabilité', tip: 'Bonne récupération. Profite de cette journée en restant attentif(ve).', color: '#2d6a4f' }
   };
 
   // Vérifie si un événement crash/PEM a été signalé dans les 48 dernières heures
