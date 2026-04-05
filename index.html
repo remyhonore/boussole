@@ -725,8 +725,12 @@
           Télécharger une copie de toutes tes données (entrées, mesures, consultations, paramètres).
         </p>
         <button id="btn-export-data" onclick="exportDonneesJSON()"
-          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">
+          style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;">
           ↓ Exporter mes données (.json)
+        </button>
+        <button onclick="exportDonneesCSV()"
+          style="width:100%;background:#fff;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;">
+          ↓ Export tableur (.csv) — pour Excel / Google Sheets
         </button>
         <p style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 8px;">
           Restaurer tes données depuis un fichier exporté précédemment.
@@ -960,7 +964,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.11 — </span>
+    <span>Boussole v10.12 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>

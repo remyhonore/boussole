@@ -3456,6 +3456,50 @@ function exportJournalConsultationPDF() {
 // IMPORT / EXPORT JSON (v8.30)
 // ============================================================
 
+function exportDonneesCSV() {
+  var entries = [];
+  try { entries = JSON.parse(localStorage.getItem('entries') || '[]'); } catch(e) {}
+  if (!entries.length) { alert('Aucune donnée à exporter.'); return; }
+  var header = ['Date','Score global','Energie','Sommeil','Douleurs','Clarte mentale','Note','FC repos','HRV (RMSSD)','SpO2','Poids','Type journee'];
+  var rows = [header.join(';')];
+  entries.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
+  entries.forEach(function(e) {
+    var score = typeof calculateDayScore === 'function' ? calculateDayScore(e) : '';
+    var mesures = {};
+    try { mesures = JSON.parse(localStorage.getItem('boussole_mesures_' + e.date) || '{}'); } catch(x) {}
+    var dayType = '';
+    if (typeof classifyDayType === 'function' && score !== '') {
+      var dt = classifyDayType(score);
+      dayType = dt ? dt.label || '' : '';
+    }
+    var note = (e.note || '').replace(/[\r\n;]/g, ' ').replace(/"/g, "'");
+    var row = [
+      e.date || '',
+      score !== null && score !== undefined && score !== '' ? Math.round(score * 10) / 10 : '',
+      e.energie !== undefined ? e.energie : '',
+      e.qualite_sommeil !== undefined ? e.qualite_sommeil : '',
+      e.douleurs !== undefined ? e.douleurs : '',
+      e.clarte_mentale !== undefined ? e.clarte_mentale : '',
+      '"' + note + '"',
+      mesures.fc_repos || '',
+      mesures.hrv_rmssd || '',
+      mesures.spo2 || '',
+      mesures.poids || '',
+      dayType
+    ];
+    rows.push(row.join(';'));
+  });
+  var csv = '\uFEFF' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'boussole-export-' + getTodayDate() + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+}
+
 function exportDonneesJSON() {
   var data = {};
   for (var i = 0; i < localStorage.length; i++) {
