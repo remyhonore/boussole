@@ -1094,6 +1094,39 @@ function refreshSummary() {
   // 5. Score de stabilité 30j
   html += buildBlocStabilite('resume');
 
+  // 4. Points marquants
+  html += `<div class="card">`;
+  html += `<h2 class="summary-section">POINTS MARQUANTS</h2>`;
+  
+  let hasAnyPoint = false;
+  html += `<ul class="summary-list">`;
+  
+  if (summary.pointsMarquants.meilleurJour) {
+    hasAnyPoint = true;
+    const mj = summary.pointsMarquants.meilleurJour;
+    html += `<li><span role="img" aria-label="positif">✅</span> Meilleur jour : ${formatDateFr(mj.date)} (score ${mj.score.toFixed(1)}/10)</li>`;
+  }
+  
+  if (summary.pointsMarquants.jourLePlusBas) {
+    hasAnyPoint = true;
+    const jb = summary.pointsMarquants.jourLePlusBas;
+    html += `<li><span role="img" aria-label="attention">⚠️</span> Jour le plus bas : ${formatDateFr(jb.date)} (score ${jb.score.toFixed(1)}/10)</li>`;
+  }
+  
+  if (summary.pointsMarquants.gap) {
+    hasAnyPoint = true;
+    const gap = summary.pointsMarquants.gap;
+    html += `<li><span role="img" aria-label="en pause">⏸️</span> Jours non renseignés : ${formatDateFr(gap.start)}–${formatDateFr(gap.end)} (${gap.count} jours)</li>`;
+  }
+  
+  html += `</ul>`;
+  
+  if (!hasAnyPoint) {
+    html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible.</p>`;
+  }
+  
+  html += `</div>`;
+  
   html += '</div>';
 
   // ============ YEAR IN PIXELS ============
@@ -1287,39 +1320,6 @@ function refreshSummary() {
     html += `</ul>`;
     html += `</div>`;
   }
-  
-  // 4. Points marquants
-  html += `<div class="card">`;
-  html += `<h2 class="summary-section">POINTS MARQUANTS</h2>`;
-  
-  let hasAnyPoint = false;
-  html += `<ul class="summary-list">`;
-  
-  if (summary.pointsMarquants.meilleurJour) {
-    hasAnyPoint = true;
-    const mj = summary.pointsMarquants.meilleurJour;
-    html += `<li><span role="img" aria-label="positif">✅</span> Meilleur jour : ${formatDateFr(mj.date)} (score ${mj.score.toFixed(1)}/10)</li>`;
-  }
-  
-  if (summary.pointsMarquants.jourLePlusBas) {
-    hasAnyPoint = true;
-    const jb = summary.pointsMarquants.jourLePlusBas;
-    html += `<li><span role="img" aria-label="attention">⚠️</span> Jour le plus bas : ${formatDateFr(jb.date)} (score ${jb.score.toFixed(1)}/10)</li>`;
-  }
-  
-  if (summary.pointsMarquants.gap) {
-    hasAnyPoint = true;
-    const gap = summary.pointsMarquants.gap;
-    html += `<li><span role="img" aria-label="en pause">⏸️</span> Jours non renseignés : ${formatDateFr(gap.start)}–${formatDateFr(gap.end)} (${gap.count} jours)</li>`;
-  }
-  
-  html += `</ul>`;
-  
-  if (!hasAnyPoint) {
-    html += `<p style="color: var(--color-text-muted); font-style: italic;">Aucune donnée disponible.</p>`;
-  }
-  
-  html += `</div>`;
   
   // 4. Notes
   if (summary.notes && summary.notes.length > 0) {
