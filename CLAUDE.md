@@ -41,6 +41,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 | `agenda_view.js` | Vue Agenda calendrier mensuel — grille lun-dim, pastilles couleur par spécialiste, navigation mois, détail RDV au clic |
 | `journal.js` | Journal intime — CRUD entrées, 7 tags, 5 moods, vue chrono, export PDF, filtres, partage |
 | `onboarding_guide.js` | Guide de démarrage — overlay 5 étapes, dots progression, clé boussole_guide_done |
+| `help_guide.js` | Mode d'emploi complet — overlay ~18 slides, toutes fonctionnalités, accessible depuis Paramètres |
 | `share_profile.js` | Partage profil patient |
 | `fiches_data.js` | Données des fiches pratiques |
 | `profil_data.js` | Données profil utilisateur |
@@ -51,7 +52,7 @@ Application PWA santé **locale-first** : zéro serveur, toutes les données dan
 ```
 storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_consultation.js
 → pem_detector.js → cycle_tracker.js → correlations.js → charts.js → score_sna.js → pacing.js → questionnaires.js → symptom_tree.js → agenda_view.js → journal.js
-→ share_profile.js → profil_data.js → traitements.js → import_mes.js → app.js
+→ share_profile.js → profil_data.js → traitements.js → import_mes.js → onboarding_guide.js → help_guide.js → app.js
 ```
 
 `app.js` est chargé en dernier : il orchestre tout, charge les données via `storage.js`, les agrège via `calc.js`/`daytype.js`, met à jour le DOM, et déclenche les exports PDF.

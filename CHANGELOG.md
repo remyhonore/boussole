@@ -2,6 +2,12 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.63] - 2026-04-06
+### Added
+- Mode d'emploi complet (help_guide.js) : 18 slides couvrant toutes les fonctionnalités
+- Bouton "Mode d'emploi complet" dans Paramètres (section Guides)
+- Nettoyage doublon guide de démarrage dans Paramètres
+
 ## [10.62] - 2026-04-06
 ### Added
 - Bouton micro (dictée vocale) dans l'éditeur Journal — même modale que Ma journée
