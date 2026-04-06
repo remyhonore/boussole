@@ -2,6 +2,13 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.54] - 2026-04-06
+
+### Hotfix dark mode + cycle genre
+- Dark mode complet : header, score hero, sparkline, pills, agenda peek, CTA, Paramètres
+- Fix cycle genre : lire boussole_genre en priorité (clé du formulaire Paramètres)
+- SW v10.54
+
 ## [10.52] - 2026-04-06
 
 ### ADR-2026-046 Sprint 5 — Propagation Design System v2

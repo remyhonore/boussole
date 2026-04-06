@@ -1182,8 +1182,8 @@ html.dark body {
   --color-primary: #8aab9e;
   --color-primary-dark: #1b4332;
   --color-primary-light: #2a3d35;
-  --shadow-card: 0 14px 34px rgba(0,0,0,.3);
-  --shadow-soft: 0 4px 12px rgba(0,0,0,.2);
+  --shadow-card: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.2);
   background: #0d1b2a;
 }
 
@@ -1248,10 +1248,38 @@ html.dark .dash-tile-label { color: #e4e0de; }
 html.dark .dash-tile-sub { color: rgba(232,228,222,.45); }
 html.dark .dash-tile-chevron { color: rgba(232,228,222,.2); }
 
-/* === Panel Paramètres — Design System v2 === */
-#panel-params .card {
-  background: #fff;
-}
+/* Header dark (ADR-2026-046) */
+html.dark .header h1 { color: #e4e0de; }
+html.dark .header p { color: rgba(232,228,222,.45); }
+
+/* Score Hero card dark */
+html.dark #accueil-score-cta { background: #1a2332; }
+html.dark #accueil-score-display p,
+html.dark #accueil-score-display div { color: #e4e0de; }
+html.dark #accueil-score-trend { color: rgba(232,228,222,.55) !important; }
+html.dark #score-ring-container circle:first-child { stroke: rgba(255,255,255,.08); }
+
+/* Quick metrics pills dark */
+html.dark .metric-pill,
+html.dark #accueil-quick-metrics > div > div { background: #1a2332 !important; box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+html.dark #accueil-quick-metrics [id^="metric-"] { color: #e4e0de !important; }
+
+/* Agenda peek dark */
+html.dark #accueil-agenda-peek { background: #1a2332 !important; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+html.dark #agenda-peek-title { color: #e4e0de !important; }
+html.dark #agenda-peek-time { color: rgba(232,228,222,.45) !important; }
+html.dark #agenda-peek-date div:first-child { color: #e4e0de !important; }
+html.dark #agenda-peek-date div:last-child { color: rgba(232,228,222,.45) !important; }
+
+/* CTA buttons dark */
+html.dark #accueil-cta-saisie p { color: #e4e0de; }
+html.dark #accueil-welcome-name { color: #e4e0de !important; }
+
+/* Panel Paramètres dark */
+html.dark #panel-params .card { background: #1a2332; }
+
+/* Panel Paramètres light */
+#panel-params .card { background: #fff; }
 
 /* Padding bas pour que le gradient reste visible sous la carte */
 #panel-params {
