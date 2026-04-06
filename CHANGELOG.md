@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.50] - 2026-04-06
+
+### ADR-2026-046 Sprint 3 — Cards Navigation + Fixes
+- Nav cards blanches r16 + shadow subtile (exit fonds saturés forest/navy/blue/orange)
+- Structure : icon-wrap teinté 40×40 + body (titre + sous-titre) + chevron gris
+- Dark mode adapté pour les nouvelles cards
+- Fix : cycle masqué si genre masculin (re-check dans loadTodayData)
+- Fix : message validation Paramètres local sous chaque bouton Enregistrer
+- Fix : getAllEntries → loadEntries().entries (ReferenceError accueil)
+- SW v10.50, changelog + footer synchronisés
+
 ## [10.47] - 2026-04-06
 
 ### ADR-2026-046 Sprint 2 — Score Hero + Quick Metrics

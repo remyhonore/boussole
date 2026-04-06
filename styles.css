@@ -194,61 +194,82 @@ body {
   stroke-width: 1.8;
 }
 
-/* === DASHBOARD TILES (ADR-2026-043 Chantier B) === */
+/* === DASHBOARD NAV CARDS (ADR-2026-046 Sprint 3) === */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
 .dash-tile {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 20px 18px;
-  border-radius: 18px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
   border: none;
   cursor: pointer;
   text-align: left;
   font-family: var(--font-ui);
   transition: transform 0.1s, box-shadow 0.15s;
   -webkit-tap-highlight-color: transparent;
-  min-height: 130px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(6,23,45,0.06);
 }
 
 .dash-tile:active {
   transform: scale(0.97);
 }
 
-.dash-tile-icon {
-  line-height: 1;
-  margin-bottom: 12px;
-  color: #fff;
+.dash-tile-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-tile-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dash-tile-body {
+  flex: 1;
+  min-width: 0;
 }
 
 .dash-tile-label {
   font-size: 13px;
-  font-weight: 800;
-  color: #fff;
+  font-weight: 700;
+  color: #06172D;
   line-height: 1.2;
-  letter-spacing: 0.01em;
 }
 
 .dash-tile-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,.78);
-  margin-top: 6px;
-  line-height: 1.4;
-  font-weight: 500;
+  font-size: 11px;
+  color: rgba(6,23,45,.45);
+  margin-top: 2px;
+  line-height: 1.3;
+  font-weight: 400;
 }
 
-.dash-tile--forest { background: #2d6a4f; }
-.dash-tile--navy   { background: #06172D; }
-.dash-tile--info   { background: #3B82F6; }
-.dash-tile--warning { background: #d97706; }
+.dash-tile-chevron {
+  color: rgba(6,23,45,.2);
+  flex-shrink: 0;
+}
+
+.dash-tile--forest .dash-tile-icon-wrap { background: rgba(45,106,79,0.07); }
+.dash-tile--forest .dash-tile-icon-wrap svg { stroke: #2d6a4f; }
+.dash-tile--navy .dash-tile-icon-wrap { background: rgba(6,23,45,0.06); }
+.dash-tile--navy .dash-tile-icon-wrap svg { stroke: #06172D; }
+.dash-tile--info .dash-tile-icon-wrap { background: rgba(59,130,246,0.07); }
+.dash-tile--info .dash-tile-icon-wrap svg { stroke: #3B82F6; }
+.dash-tile--warning .dash-tile-icon-wrap { background: rgba(217,119,6,0.07); }
+.dash-tile--warning .dash-tile-icon-wrap svg { stroke: #D97706; }
 
 /* === PANELS === */
 .panel {
@@ -1219,10 +1240,10 @@ html.dark .status { background: #162230; }
 html.dark .bottom-tab-bar { background: #0d1b2a; border-top-color: rgba(255,255,255,.08); box-shadow: 0 -2px 8px rgba(0,0,0,.3); }
 html.dark .tab-btn { color: rgba(232,228,222,.45); }
 html.dark .tab-btn.active { color: #8aab9e; }
-html.dark .dash-tile--forest { background: #1e4d38; }
-html.dark .dash-tile--navy   { background: #0a1e33; }
-html.dark .dash-tile--info   { background: #2563EB; }
-html.dark .dash-tile--warning { background: #b45309; }
+html.dark .dash-tile { background: #1a2332; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+html.dark .dash-tile-label { color: #e4e0de; }
+html.dark .dash-tile-sub { color: rgba(232,228,222,.45); }
+html.dark .dash-tile-chevron { color: rgba(232,228,222,.2); }
 
 /* === Panel Paramètres (ADR-2026-025) === */
 
