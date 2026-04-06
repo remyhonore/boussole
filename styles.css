@@ -1741,3 +1741,14 @@ button[aria-label="Dicter"]:hover {
 #summary-content [role="img"] {
   font-style: normal;
 }
+
+/* === COMPLETION INDICATOR (ADR-044 Sprint 4) === */
+.completion-bar{height:6px;border-radius:3px;background:rgba(6,23,45,.1);overflow:hidden;margin:0 0 6px}
+.completion-bar-fill{height:100%;border-radius:3px;transition:width .3s ease}
+.completion-dots{display:flex;gap:6px;justify-content:center;align-items:center}
+.completion-dot{width:8px;height:8px;border-radius:50%;transition:background .2s}
+.completion-dot--done{background:#2d6a4f}
+.completion-dot--empty{background:rgba(6,23,45,.15)}
+.completion-text{font-size:11px;color:rgba(6,23,45,.55);text-align:center;margin:4px 0 0}
+.completion-text--done{color:#2d6a4f;font-weight:600}
+.btn-compact{padding:10px 12px;font-size:12px}

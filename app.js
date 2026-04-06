@@ -72,6 +72,63 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * === INDICATEUR COMPLÉTION JOUR (ADR-2026-044 Sprint 4) ===
+ */
+function updateCompletionIndicator() {
+  var date = window._saisieDate || getTodayDate();
+  var entry = getEntry(date);
+  var fields = [
+    { key: 'energie', label: 'É' },
+    { key: 'qualite_sommeil', label: 'S' },
+    { key: 'douleurs', label: 'C' },
+    { key: 'clarte_mentale', label: 'M' },
+    { key: 'humeur', label: 'H' }
+  ];
+  var filled = 0;
+  var fieldStatus = fields.map(function(f) {
+    var val = entry ? entry[f.key] : null;
+    var done = val !== null && val !== undefined;
+    if (done) filled++;
+    return { label: f.label, done: done };
+  });
+
+  // #saisie-completion-bar
+  var barEl = document.getElementById('saisie-completion-bar');
+  if (barEl) {
+    var pct = (filled / 5) * 100;
+    var color = filled === 5 ? '#2d6a4f' : filled > 0 ? '#D97706' : 'transparent';
+    var textClass = filled === 5 ? 'completion-text completion-text--done' : 'completion-text';
+    var textMsg = filled === 5 ? 'Saisie complete ✓' : filled + '/5 reperes renseignes';
+    barEl.innerHTML = '<div class="completion-bar"><div class="completion-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div><div class="' + textClass + '">' + textMsg + '</div>';
+  }
+
+  // Helper: render dots
+  function renderDots(containerId) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    var html = '<div class="completion-dots">';
+    fieldStatus.forEach(function(f) {
+      html += '<div style="text-align:center;"><div class="completion-dot ' + (f.done ? 'completion-dot--done' : 'completion-dot--empty') + '"></div><div style="font-size:9px;color:rgba(6,23,45,.42);margin-top:2px;">' + f.label + '</div></div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // #accueil-completion-dots (in score display)
+  renderDots('accueil-completion-dots');
+
+  // #accueil-completion-preview (in CTA before saisie)
+  renderDots('accueil-completion-preview');
+
+  // tile-journee-sub
+  var tileJ = document.getElementById('tile-journee-sub');
+  if (tileJ && filled > 0 && filled < 5) {
+    tileJ.textContent = filled + '/5 renseignes';
+  }
+}
+window.updateCompletionIndicator = updateCompletionIndicator;
+
+/**
  * === ACCUEIL : Score du jour / CTA (ADR-2026-044 Sprint 1) ===
  */
 function updateAccueilScoreCTA() {
@@ -107,6 +164,7 @@ function updateAccueilScoreCTA() {
       welcomeEl.textContent = prenom ? 'Bonjour ' + prenom + ', comment tu te sens ?' : 'Comment tu te sens aujourd\'hui ?';
     }
   }
+  updateCompletionIndicator();
 }
 window.updateAccueilScoreCTA = updateAccueilScoreCTA;
 
@@ -549,6 +607,8 @@ function loadTodayData() {
       if (slider) updateSmiley(id, parseInt(slider.value));
     });
   });
+
+  updateCompletionIndicator();
 }
 
 /**
@@ -635,6 +695,8 @@ function changerDateSaisie(dateStr) {
       if (slider) updateSmiley(id, parseInt(slider.value));
     });
   });
+
+  updateCompletionIndicator();
 }
 
 function refreshPacingAlert() {
@@ -778,6 +840,7 @@ function saveCurrentEntry() {
 
     showFeedbackPanel(today);
     updateDashboardTiles();
+    updateCompletionIndicator();
   } else {
     showStatus('Erreur lors de l\'enregistrement', 'warning');
   }
@@ -864,7 +927,7 @@ function fillLastValues() {
     showStatus('Aucune entrée précédente', 'info');
     return;
   }
-  
+
   if (lastEntry.energie !== null) {
     document.getElementById('energie').value = lastEntry.energie;
     document.getElementById('energie').dataset.touched = 'true';
@@ -883,9 +946,63 @@ function fillLastValues() {
     document.getElementById('douleurs-value').textContent = lastEntry.douleurs;
     updateSmiley('douleurs', lastEntry.douleurs);
   }
-  
-  showStatus('Dernières valeurs chargées', 'success');
+  if (lastEntry.clarte_mentale !== null) {
+    document.getElementById('clarte-mentale').value = lastEntry.clarte_mentale;
+    document.getElementById('clarte-mentale').dataset.touched = 'true';
+    document.getElementById('clarte-mentale-value').textContent = lastEntry.clarte_mentale;
+    updateSmiley('clarte-mentale', lastEntry.clarte_mentale);
+  }
+
+  showStatus('Dernières valeurs chargées (4 repères)', 'success');
+  updateCompletionIndicator();
 }
+
+function fillYesterdayValues() {
+  var yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  var yDateStr = localDateStr(yesterday);
+  var entry = getEntry(yDateStr);
+  if (!entry) {
+    showStatus('Aucune saisie hier', 'info');
+    return;
+  }
+
+  if (entry.energie !== null && entry.energie !== undefined) {
+    document.getElementById('energie').value = entry.energie;
+    document.getElementById('energie').dataset.touched = 'true';
+    document.getElementById('energie-value').textContent = entry.energie;
+    updateSmiley('energie', entry.energie);
+  }
+  if (entry.qualite_sommeil !== null && entry.qualite_sommeil !== undefined) {
+    document.getElementById('qualite-sommeil').value = entry.qualite_sommeil;
+    document.getElementById('qualite-sommeil').dataset.touched = 'true';
+    document.getElementById('qualite-sommeil-value').textContent = entry.qualite_sommeil;
+    updateSmiley('qualite-sommeil', entry.qualite_sommeil);
+  }
+  if (entry.douleurs !== null && entry.douleurs !== undefined) {
+    document.getElementById('douleurs').value = entry.douleurs;
+    document.getElementById('douleurs').dataset.touched = 'true';
+    document.getElementById('douleurs-value').textContent = entry.douleurs;
+    updateSmiley('douleurs', entry.douleurs);
+  }
+  if (entry.clarte_mentale !== null && entry.clarte_mentale !== undefined) {
+    document.getElementById('clarte-mentale').value = entry.clarte_mentale;
+    document.getElementById('clarte-mentale').dataset.touched = 'true';
+    document.getElementById('clarte-mentale-value').textContent = entry.clarte_mentale;
+    updateSmiley('clarte-mentale', entry.clarte_mentale);
+  }
+  var humeurRange = document.getElementById('humeur-range');
+  if (humeurRange && entry.humeur !== null && entry.humeur !== undefined) {
+    humeurRange.value = entry.humeur;
+    humeurRange.dataset.touched = 'true';
+    var humeurDisplay = document.getElementById('humeur-smiley-display');
+    if (humeurDisplay) humeurDisplay.textContent = getHumeurSmiley(entry.humeur);
+  }
+
+  showStatus("Valeurs d'hier reprises", 'success');
+  updateCompletionIndicator();
+}
+window.fillYesterdayValues = fillYesterdayValues;
 
 function updateLastSavedDisplay() {
   const lastEntry = getLastEntry();

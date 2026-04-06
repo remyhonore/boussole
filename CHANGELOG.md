@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.41] - 2026-04-06
+
+### ADR-2026-044 Sprint 4 — Indicateur complétion jour + Saisie rapide améliorée
+- Indicateur de complétion jour : barre de progression + pastilles É S C M H
+- Affichage dans accueil (score + CTA) et panel Ma journée
+- Nouveau bouton "Hier" pour reprendre les valeurs de la veille
+- fillLastValues() inclut désormais la clarté mentale (4 repères)
+- fillYesterdayValues() copie les 4 curseurs + humeur
+- Classes CSS : completion-bar, completion-dots, btn-compact
+- SW v10.41, changelog + footer synchronisés
+
 ## [10.25] - 2026-04-06
 
 ### ADR-2026-044 Sprint 2 — Guide de démarrage

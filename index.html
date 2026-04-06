@@ -219,29 +219,13 @@
           <p style="font-size:11px;font-weight:700;color:rgba(6,23,45,.45);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Score du jour</p>
           <div id="accueil-score-value" style="font-size:56px;font-weight:800;line-height:1;color:#2d6a4f;margin:0 0 8px;">—</div>
           <p id="accueil-score-label" style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 12px;">—</p>
+          <div id="accueil-completion-dots" style="margin:8px 0;"></div>
           <button onclick="switchPanel('resume')" style="background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:12px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">Modifier ma saisie</button>
         </div>
         <!-- État B : pas de saisie -->
         <div id="accueil-cta-saisie" style="display:none;">
           <p id="accueil-welcome-name" style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px;text-align:center;"></p>
-          <div style="display:flex;gap:12px;margin:0 0 16px;">
-            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
-              <div style="font-size:22px;margin:0 0 4px;">💪</div>
-              <div style="font-size:11px;color:rgba(6,23,45,.55);">Énergie</div>
-            </div>
-            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
-              <div style="font-size:22px;margin:0 0 4px;">🌙</div>
-              <div style="font-size:11px;color:rgba(6,23,45,.55);">Sommeil</div>
-            </div>
-            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
-              <div style="font-size:22px;margin:0 0 4px;">❤️</div>
-              <div style="font-size:11px;color:rgba(6,23,45,.55);">Confort</div>
-            </div>
-            <div style="flex:1;text-align:center;padding:12px 8px;background:rgba(45,106,79,.06);border-radius:12px;">
-              <div style="font-size:22px;margin:0 0 4px;">🧠</div>
-              <div style="font-size:11px;color:rgba(6,23,45,.55);">Clarté</div>
-            </div>
-          </div>
+          <div id="accueil-completion-preview" style="margin:0 0 16px;"></div>
           <button onclick="switchPanel('resume')" style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">Commence ta journée</button>
           <p style="font-size:11px;color:rgba(6,23,45,.38);text-align:center;margin:8px 0 0;">🔒 Tes données restent sur ton appareil</p>
         </div>
@@ -256,6 +240,7 @@
       <div class="card" id="card-saisie">
         <h2 class="card-title">Bilan du jour</h2>
         <p class="card-hint">Échelle 0 → 10 : plus le score est élevé, mieux c'est.</p>
+        <div id="saisie-completion-bar" style="margin-bottom:12px;"></div>
 
         <!-- Saisie rétroactive (Feature S) -->
         <div id="retro-date-selector" style="margin-bottom:16px;background:rgba(6,23,45,.04);border-radius:12px;padding:10px 14px;border:1px solid rgba(6,23,45,.12);display:flex;align-items:center;justify-content:space-between;">
@@ -448,20 +433,9 @@
 
         <!-- Boutons d'action -->
         <div class="btn-row">
-          <button
-            class="btn btn-secondary"
-            id="btn-quick"
-            aria-label="Reprendre les dernières valeurs"
-          >
-            Reprendre dernières valeurs
-          </button>
-          <button
-            class="btn"
-            id="btn-save"
-            aria-label="Enregistrer la saisie du jour"
-          >
-            Enregistrer
-          </button>
+          <button class="btn btn-secondary btn-compact" onclick="fillYesterdayValues()" aria-label="Reprendre les valeurs d'hier">📋 Hier</button>
+          <button class="btn btn-secondary btn-compact" id="btn-quick" aria-label="Reprendre les dernières valeurs">Dernières</button>
+          <button class="btn" id="btn-save" aria-label="Enregistrer la saisie du jour">Enregistrer</button>
         </div>
 
         <div id="save-confirmation" aria-live="polite" aria-atomic="true" style="display:none; text-align:center; color:#2d6a4f; font-weight:600; font-size:15px; padding:10px;">
@@ -978,7 +952,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.40 — </span>
+    <span>Boussole v10.41 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -990,12 +964,18 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.31</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.41</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.41</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Indicateur de completion jour (barre + pastilles E S C M H)</li>
+          <li>Saisie rapide : bouton Hier + clarte mentale dans Dernieres valeurs</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.31</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
-        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Agenda simplifie : les couleurs distinguent les types de praticiens</li>
           <li>Suppression des scores de la vue calendrier</li>
         </ul>
