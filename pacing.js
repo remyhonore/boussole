@@ -182,7 +182,7 @@ window.MorningPace = (function() {
     container.innerHTML =
       '<div style="border-radius:12px;padding:14px 16px;margin-bottom:12px;background:linear-gradient(135deg,rgba(45,106,79,.06),rgba(45,106,79,.02));border:1.5px solid rgba(45,106,79,.18);">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-          '<div class="section-title" style="color:#06172D;">Pacing — Stabilité du jour</div>' +
+          '<div style="font-size:13px;font-weight:600;color:#06172D;">Stabilité du jour</div>' +
           '<span style="font-size:22px;">' + info.emoji + '</span>' +
         '</div>' +
         (res.crashRecent ? '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#991b1b;">⚠️ Baisse d\'énergie signalée récemment — niveau abaissé</div>' : '') +
@@ -446,7 +446,7 @@ window.EnergyEnvelope = (function() {
         '<div onclick="var b=this.nextElementSibling;var c=this.querySelector(\'.ee-chevron\');if(b.style.display===\'none\'){b.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{b.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;">' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             '<span class="ee-chevron" style="font-size:10px;color:#6b7280;transition:transform 0.2s;transform:rotate(90deg);">&#9654;</span>' +
-            '<span class="section-title" style="color:#06172D;">Pacing — Enveloppe énergie</span>' +
+            '<span style="font-size:13px;font-weight:600;color:#06172D;">Enveloppe énergie</span>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             '<span style="font-size:12px;color:' + gaugeColor + ';font-weight:600;">' + Math.round(pct) + '%</span>' +
