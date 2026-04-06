@@ -188,7 +188,7 @@ function updateAccueilScoreCTA() {
     var sparkContainer = document.getElementById('accueil-sparkline');
     if (sparkContainer) {
       sparkContainer.innerHTML = '';
-      var entries = getAllEntries ? getAllEntries() : [];
+      var entries = loadEntries().entries || [];
       var last7 = [];
       for (var d = 6; d >= 0; d--) {
         var dt = new Date();
@@ -212,7 +212,7 @@ function updateAccueilScoreCTA() {
     // Tendance vs semaine précédente
     var trendEl = document.getElementById('accueil-score-trend');
     if (trendEl) {
-      var entries2 = getAllEntries ? getAllEntries() : [];
+      var entries2 = loadEntries().entries || [];
       var thisWeekSum = 0, thisWeekCount = 0, lastWeekSum = 0, lastWeekCount = 0;
       for (var w = 0; w < 7; w++) {
         var d1 = new Date(); d1.setDate(d1.getDate() - w);
