@@ -97,19 +97,15 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 
 Toute nouvelle page HTML doit inclure la navigation principale complète avec les mêmes styles que `index.html`. La navigation est une bottom tab bar fixe (`.bottom-tab-bar` + `.tab-btn`). L'onglet actif est indiqué visuellement (classe `.tab-btn.active`).
 
-### Échelle typographique (harmonisée v10)
+### Échelle typographique (Design System v2 — ADR-2026-046)
 
-Toute taille de police dans l'app doit utiliser l'une de ces 5 valeurs :
+Le DS v2 autorise toutes les tailles en px. Seul `rem` est interdit (lint R1).
 
-| Variable CSS | Valeur | Usage |
-|---|---|---|
-| `--fs-section` | 11px | Titres section (uppercase, bold, letter-spacing) |
-| `--fs-body` | 13px | Texte corps, boutons, descriptions |
-| `--fs-label` | 12px | Labels secondaires, dates, metadata |
-| `--fs-help` | 11px | Aide, footnotes, disclaimers |
-| `--fs-tiny` | 9px | Légendes, axes, calendrier |
+Tailles de référence : 9px (légendes, axes) / 10px (micro-labels) / 11px (titres section uppercase) / 12px (labels, dates, boutons compacts) / 13px (corps, boutons standard) / 14px (sous-titres cards) / 15px (titres accordéons) / 16px (pills valeur, titres modales) / 17-18px (scores, emojis) / 20-22px+ (score ring, hero).
 
-Jamais de `14px`, `15px`, `16px` ou `rem` dans le code inline. Exceptions : emojis display (18px), scores numériques (20px+).
+Variables CSS disponibles : `--fs-section:11px` / `--fs-body:13px` / `--fs-label:12px` / `--fs-help:11px` / `--fs-tiny:9px` / `--text-base:14px` / `--text-md:16px` / `--text-lg:18px`.
+
+Référence complète : skill `boussole-design-system-app`.
 
 ### Palette couleurs (harmonisée v10)
 
@@ -144,7 +140,7 @@ Exécuté automatiquement par `npm test`. Bloque le build si violation détecté
 | Règle | Ce qui est vérifié | Action si violation |
 |---|---|---|
 | R0 | Syntaxe JS valide (`node -c` sur chaque fichier) | Fix la SyntaxError avant de commiter |
-| R1 | `font-size: 14px/15px/16px/rem` dans les .js | Utiliser 9/11/12/13px |
+| R1 | `font-size: Xrem` dans les .js (px toutes tailles autorisées depuis DS v2) | Utiliser px |
 | R2 | Couleurs hex `#999`, `#aaa`, `#4b5563`, `#1a2332` | `rgba(6,23,45,.42)`, `.55`, `#06172D` |
 | R3 | Inline `font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;` | `class="section-title"` |
 | R4 | Inline `border-radius:12px;padding:14px;margin-bottom:12px;` | `class="section-card"` |
