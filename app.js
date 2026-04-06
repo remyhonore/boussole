@@ -184,6 +184,18 @@ function updateAccueilScoreCTA() {
     if (mC) mC.textContent = (typeof entry.confort === 'number' ? entry.confort : '--') + '/10';
     if (mCl) mCl.textContent = (typeof entry.clarte === 'number' ? entry.clarte : '--') + '/10';
 
+    // Humeur pill (emoji seul)
+    var humeurPill = document.getElementById('accueil-humeur-pill');
+    var mH = document.getElementById('metric-humeur');
+    if (humeurPill && mH) {
+      if (entry.humeur) {
+        mH.textContent = entry.humeur;
+        humeurPill.style.display = 'block';
+      } else {
+        humeurPill.style.display = 'none';
+      }
+    }
+
     // Sparkline 7 jours
     var sparkContainer = document.getElementById('accueil-sparkline');
     if (sparkContainer) {

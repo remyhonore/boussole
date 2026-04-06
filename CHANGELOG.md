@@ -2,6 +2,11 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.57] - 2026-04-06
+### Changed
+- Pills métriques accueil : grille 2×2 (tout visible sans scroll sur mobile)
+- Ajout pill humeur du jour (emoji centré sous les métriques)
+
 ## [10.56] - 2026-04-06
 ### Changed
 - ADR-047 : Normalisation clés localStorage entry schema v2 (qualite_sommeil→sommeil, douleurs→confort, clarte_mentale→clarte)
