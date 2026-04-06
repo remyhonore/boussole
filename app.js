@@ -136,6 +136,7 @@ function updateAccueilScoreCTA() {
   var ctaSaisie = document.getElementById('accueil-cta-saisie');
   var scoreValue = document.getElementById('accueil-score-value');
   var scoreLabel = document.getElementById('accueil-score-label');
+  var quickMetrics = document.getElementById('accueil-quick-metrics');
   if (!scoreDisplay || !ctaSaisie) return;
 
   var today = localDateStr(new Date());
@@ -145,6 +146,26 @@ function updateAccueilScoreCTA() {
     var avg = calculateDayScore(entry);
     scoreDisplay.style.display = 'block';
     ctaSaisie.style.display = 'none';
+    if (quickMetrics) quickMetrics.style.display = 'block';
+
+    // Ring SVG animé
+    var ring = document.getElementById('score-ring-progress');
+    if (ring) {
+      var circumference = 2 * Math.PI * 42; // 263.9
+      var offset = circumference - (avg / 10) * circumference;
+      var color = avg >= 7 ? '#2d6a4f' : avg >= 4 ? '#D97706' : '#DC2626';
+      ring.style.stroke = color;
+      // Reset puis animer
+      ring.style.transition = 'none';
+      ring.setAttribute('stroke-dashoffset', circumference);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          ring.style.transition = 'stroke-dashoffset 1s ease-out';
+          ring.setAttribute('stroke-dashoffset', offset);
+        });
+      });
+    }
+
     if (scoreValue) {
       scoreValue.textContent = avg.toFixed(1);
       scoreValue.style.color = avg >= 7 ? '#2d6a4f' : avg >= 4 ? '#D97706' : '#DC2626';
@@ -152,12 +173,76 @@ function updateAccueilScoreCTA() {
     if (scoreLabel) {
       scoreLabel.textContent = avg >= 7 ? 'Bonne journée' : avg >= 4 ? 'Journée moyenne' : 'Journée difficile';
     }
+
+    // Quick metrics pills
+    var mE = document.getElementById('metric-energie');
+    var mS = document.getElementById('metric-sommeil');
+    var mC = document.getElementById('metric-confort');
+    var mCl = document.getElementById('metric-clarte');
+    if (mE) mE.textContent = entry.energie + '/10';
+    if (mS) mS.textContent = (typeof entry.sommeil === 'number' ? entry.sommeil : '--') + '/10';
+    if (mC) mC.textContent = (typeof entry.confort === 'number' ? entry.confort : '--') + '/10';
+    if (mCl) mCl.textContent = (typeof entry.clarte === 'number' ? entry.clarte : '--') + '/10';
+
+    // Sparkline 7 jours
+    var sparkContainer = document.getElementById('accueil-sparkline');
+    if (sparkContainer) {
+      sparkContainer.innerHTML = '';
+      var entries = getAllEntries ? getAllEntries() : [];
+      var last7 = [];
+      for (var d = 6; d >= 0; d--) {
+        var dt = new Date();
+        dt.setDate(dt.getDate() - d);
+        var key = localDateStr(dt);
+        var e = null;
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].date === key) { e = entries[i]; break; }
+        }
+        last7.push(e && typeof e.energie === 'number' ? calculateDayScore(e) : 0);
+      }
+      for (var j = 0; j < last7.length; j++) {
+        var bar = document.createElement('div');
+        var h = last7[j] > 0 ? Math.max(4, (last7[j] / 10) * 32) : 4;
+        var barColor = last7[j] >= 7 ? '#2d6a4f' : last7[j] >= 4 ? '#D97706' : last7[j] > 0 ? '#DC2626' : 'rgba(6,23,45,0.08)';
+        bar.style.cssText = 'width:7px;border-radius:3px;background:' + barColor + ';height:' + h + 'px;';
+        sparkContainer.appendChild(bar);
+      }
+    }
+
+    // Tendance vs semaine précédente
+    var trendEl = document.getElementById('accueil-score-trend');
+    if (trendEl) {
+      var entries2 = getAllEntries ? getAllEntries() : [];
+      var thisWeekSum = 0, thisWeekCount = 0, lastWeekSum = 0, lastWeekCount = 0;
+      for (var w = 0; w < 7; w++) {
+        var d1 = new Date(); d1.setDate(d1.getDate() - w);
+        var d2 = new Date(); d2.setDate(d2.getDate() - w - 7);
+        var k1 = localDateStr(d1), k2 = localDateStr(d2);
+        for (var ii = 0; ii < entries2.length; ii++) {
+          if (entries2[ii].date === k1 && typeof entries2[ii].energie === 'number') {
+            thisWeekSum += calculateDayScore(entries2[ii]); thisWeekCount++;
+          }
+          if (entries2[ii].date === k2 && typeof entries2[ii].energie === 'number') {
+            lastWeekSum += calculateDayScore(entries2[ii]); lastWeekCount++;
+          }
+        }
+      }
+      if (thisWeekCount > 0 && lastWeekCount > 0) {
+        var diff = (thisWeekSum / thisWeekCount) - (lastWeekSum / lastWeekCount);
+        var arrow = diff >= 0 ? '↑' : '↓';
+        trendEl.textContent = arrow + ' ' + Math.abs(diff).toFixed(1) + ' vs semaine précédente';
+        trendEl.style.color = diff >= 0 ? '#2d6a4f' : '#DC2626';
+      } else {
+        trendEl.textContent = '';
+      }
+    }
+
     var tileSub = document.getElementById('tile-journee-sub');
     if (tileSub) tileSub.textContent = 'Score : ' + avg.toFixed(1) + '/10';
   } else {
     scoreDisplay.style.display = 'none';
     ctaSaisie.style.display = 'block';
-    // Message de bienvenue personnalisé
+    if (quickMetrics) quickMetrics.style.display = 'none';
     var welcomeEl = document.getElementById('accueil-welcome-name');
     if (welcomeEl) {
       var prenom = localStorage.getItem('boussole_prenom');

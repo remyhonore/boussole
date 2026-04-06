@@ -217,22 +217,86 @@
 
 
 
-      <!-- Score du jour / CTA (ADR-2026-044 Sprint 1) -->
-      <div id="accueil-score-cta" class="card" style="margin-top:4px;padding:24px 20px;">
+      <!-- Score Hero Card (ADR-2026-046 Sprint 2) -->
+      <div id="accueil-score-cta" class="card" style="margin-top:4px;padding:24px 20px;border-radius:20px;background:#fff;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
         <!-- État A : score du jour (saisie faite) -->
-        <div id="accueil-score-display" style="display:none;text-align:center;">
-          <p style="font-size:11px;font-weight:700;color:rgba(6,23,45,.45);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Score du jour</p>
-          <div id="accueil-score-value" style="font-size:56px;font-weight:800;line-height:1;color:#2d6a4f;margin:0 0 8px;">—</div>
-          <p id="accueil-score-label" style="font-size:13px;color:rgba(6,23,45,.6);margin:0 0 12px;">—</p>
-          <div id="accueil-completion-dots" style="margin:8px 0;"></div>
-          <button onclick="switchPanel('resume')" style="background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:12px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">Modifier ma saisie</button>
+        <div id="accueil-score-display" style="display:none;">
+          <!-- Row : Ring + Infos -->
+          <div style="display:flex;align-items:center;gap:20px;">
+            <!-- Ring SVG animé -->
+            <div id="score-ring-container" style="position:relative;width:100px;height:100px;flex-shrink:0;">
+              <svg viewBox="0 0 100 100" width="100" height="100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(6,23,45,0.06)" stroke-width="6"/>
+                <circle id="score-ring-progress" cx="50" cy="50" r="42" fill="none" stroke="#2d6a4f" stroke-width="6" stroke-linecap="round"
+                  stroke-dasharray="263.9" stroke-dashoffset="263.9"
+                  transform="rotate(-90 50 50)"
+                  style="transition:stroke-dashoffset 1s ease-out;"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <span id="accueil-score-value" style="font-family:var(--font-heading);font-size:30px;font-weight:600;line-height:1;color:#2d6a4f;">--</span>
+                <span style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">score</span>
+              </div>
+            </div>
+            <!-- Infos droite -->
+            <div style="flex:1;min-width:0;">
+              <p id="accueil-score-label" style="font-family:var(--font-heading);font-size:15px;font-weight:700;color:#06172D;margin:0 0 4px;">--</p>
+              <p id="accueil-score-trend" style="font-family:var(--font-ui);font-size:12px;color:rgba(6,23,45,0.55);margin:0 0 10px;"></p>
+              <!-- Sparkline 7j -->
+              <div id="accueil-sparkline" style="display:flex;align-items:flex-end;gap:3px;height:32px;"></div>
+            </div>
+          </div>
+          <!-- Completion dots -->
+          <div id="accueil-completion-dots" style="margin:14px 0 8px;"></div>
+          <button onclick="switchPanel('resume')" style="background:rgba(45,106,79,.1);color:#2d6a4f;border:none;border-radius:12px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-ui);width:100%;">Modifier ma saisie</button>
         </div>
         <!-- État B : pas de saisie -->
         <div id="accueil-cta-saisie" style="display:none;">
-          <p id="accueil-welcome-name" style="font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px;text-align:center;"></p>
+          <p id="accueil-welcome-name" style="font-family:var(--font-heading);font-size:13px;font-weight:700;color:#06172D;margin:0 0 12px;text-align:center;"></p>
           <div id="accueil-completion-preview" style="margin:0 0 16px;"></div>
-          <button onclick="switchPanel('resume')" style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">Commence ta journée</button>
+          <button onclick="switchPanel('resume')" style="width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-ui);">Commence ta journée</button>
           <p style="font-size:11px;color:rgba(6,23,45,.38);text-align:center;margin:8px 0 0;">🔒 Tes données restent sur ton appareil</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Pills (ADR-2026-046 Sprint 2) -->
+      <div id="accueil-quick-metrics" style="display:none;margin-top:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0;">
+        <div style="display:flex;gap:10px;min-width:max-content;">
+          <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(45,106,79,0.07);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <div id="metric-energie" style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:#06172D;line-height:1;">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Énergie</div>
+            </div>
+          </div>
+          <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.07);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+            <div>
+              <div id="metric-sommeil" style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:#06172D;line-height:1;">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Sommeil</div>
+            </div>
+          </div>
+          <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(217,119,6,0.07);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div>
+              <div id="metric-confort" style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:#06172D;line-height:1;">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Confort</div>
+            </div>
+          </div>
+          <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(124,58,237,0.07);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div id="metric-clarte" style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:#06172D;line-height:1;">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Clarté</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -962,7 +1026,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.46 — </span>
+    <span>Boussole v10.47 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -974,10 +1038,17 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.46</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.47</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.47</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Score du jour : anneau animé coloré</li>
+          <li>Mini-graphique des 7 derniers jours</li>
+          <li>4 métriques rapides (scroll horizontal)</li>
+          <li>Tendance vs semaine précédente</li>
+        </ul>
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.46</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Nouvelle typographie Nunito pour plus de lisibilité</li>

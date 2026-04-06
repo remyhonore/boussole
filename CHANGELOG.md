@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.47] - 2026-04-06
+
+### ADR-2026-046 Sprint 2 — Score Hero + Quick Metrics
+- Ring SVG animé : anneau circulaire coloré (vert/orange/rouge) avec score centré
+- Sparkline 7 jours : barres dynamiques depuis localStorage, couleur par seuil
+- 4 pills métriques scrollables : Énergie (forest), Sommeil (blue), Confort (orange), Clarté (violet)
+- Tendance textuelle : comparaison score moyen vs semaine précédente (↑/↓)
+- SW v10.47, changelog + footer synchronisés
+
 ## [10.46] - 2026-04-06
 
 ### ADR-2026-046 Sprint 1 — Fondations Design System
