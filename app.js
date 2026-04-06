@@ -678,6 +678,11 @@ function loadTodayData() {
   var mesuresSection = document.getElementById('section-mesures');
   if (mesuresSection) mesuresSection.style.display = secPrefs.mesures ? '' : 'none';
 
+  // Re-appliquer la visibilité cycle après affichage mesures (ADR-2026-025)
+  var genrePref = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var cycleDiv = document.querySelector('.mesures-cycle');
+  if (cycleDiv) cycleDiv.style.display = genrePref === 'femme' ? '' : 'none';
+
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
     ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {

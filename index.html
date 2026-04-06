@@ -944,11 +944,14 @@
         </div>
 
         <div style="margin-top:20px;text-align:center;">
-          <button onclick="document.getElementById('btn-save-params').click()"
+          <button onclick="document.getElementById('btn-save-params').click(); var c=document.getElementById('prefs-save-confirmation'); if(c){c.textContent='Enregistr\u00e9 \u2713'; setTimeout(function(){c.textContent='';},2500);}"
             style="background:#2d6a4f;color:#fff;border:none;
             padding:12px 32px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;width:100%;">
             Enregistrer
           </button>
+          <div id="prefs-save-confirmation" aria-live="polite" aria-atomic="true"
+            style="margin-top:8px;font-size:12px;color:#2d6a4f;min-height:18px;">
+          </div>
         </div>
       </div>
     </div>
@@ -1026,7 +1029,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.48 — </span>
+    <span>Boussole v10.49 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
