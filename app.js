@@ -447,6 +447,46 @@ function updateDashboardTiles() {
       }
     } catch (e) { tileA.textContent = 'Aucun RDV'; }
   }
+
+  // Header greeting avec prénom (ADR-2026-046 Sprint 4)
+  var greetEl = document.getElementById('header-greeting');
+  if (greetEl) {
+    var prenom = localStorage.getItem('boussole_prenom');
+    greetEl.textContent = prenom ? 'Bonjour ' + prenom : 'Bonjour';
+  }
+
+  // Agenda Peek Card (ADR-2026-046 Sprint 4)
+  var peekCard = document.getElementById('accueil-agenda-peek');
+  if (peekCard) {
+    try {
+      var rdvsPeek = JSON.parse(localStorage.getItem('boussole_agenda_rdv') || '[]');
+      var nowPeek = new Date();
+      var futursPeek = rdvsPeek.filter(function(r) { return new Date(r.datetime) >= nowPeek; })
+        .sort(function(a, b) { return new Date(a.datetime) - new Date(b.datetime); });
+      if (futursPeek.length > 0) {
+        var nextRdv = futursPeek[0];
+        var dtPeek = new Date(nextRdv.datetime);
+        var MOIS_PEEK = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+        var dateDiv = document.getElementById('agenda-peek-date');
+        if (dateDiv) {
+          dateDiv.children[0].textContent = dtPeek.getDate();
+          dateDiv.children[1].textContent = MOIS_PEEK[dtPeek.getMonth()];
+        }
+        var titleEl = document.getElementById('agenda-peek-title');
+        if (titleEl) titleEl.textContent = nextRdv.specialiste || 'Rendez-vous';
+        var timeEl = document.getElementById('agenda-peek-time');
+        if (timeEl) timeEl.textContent = dtPeek.getHours() + 'h' + (dtPeek.getMinutes() < 10 ? '0' : '') + dtPeek.getMinutes();
+        var dotEl = document.getElementById('agenda-peek-dot');
+        if (dotEl) {
+          var catColors = { mg: '#2d6a4f', specialiste: '#D97706', therapie: '#7c3aed', examens: '#3B82F6', autre: '#6b7280' };
+          dotEl.style.background = catColors[nextRdv.categorie] || '#6b7280';
+        }
+        peekCard.style.display = 'block';
+      } else {
+        peekCard.style.display = 'none';
+      }
+    } catch (e) { peekCard.style.display = 'none'; }
+  }
 }
 
 /**

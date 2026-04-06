@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.51] - 2026-04-06
+
+### ADR-2026-046 Sprint 4 — Agenda Peek + Header + Polish
+- Header redesign : "Bonjour [prénom]" Nunito 700 26px à gauche, "myBoussole" Jura 11px à droite
+- Agenda Peek card : prochain RDV visible sur l'accueil (date + spécialiste + heure + dot catégorie)
+- Peek card masquée si aucun RDV futur
+- SW v10.51, changelog + footer synchronisés
+
 ## [10.50] - 2026-04-06
 
 ### ADR-2026-046 Sprint 3 — Cards Navigation + Fixes
