@@ -180,9 +180,9 @@ function updateAccueilScoreCTA() {
     var mC = document.getElementById('metric-confort');
     var mCl = document.getElementById('metric-clarte');
     if (mE) mE.textContent = entry.energie + '/10';
-    if (mS) mS.textContent = (typeof entry.sommeil === 'number' ? entry.sommeil : '--') + '/10';
-    if (mC) mC.textContent = (typeof entry.confort === 'number' ? entry.confort : '--') + '/10';
-    if (mCl) mCl.textContent = (typeof entry.clarte === 'number' ? entry.clarte : '--') + '/10';
+    if (mS) mS.textContent = (typeof entry.qualite_sommeil === 'number' ? entry.qualite_sommeil : '--') + '/10';
+    if (mC) mC.textContent = (typeof entry.douleurs === 'number' ? entry.douleurs : '--') + '/10';
+    if (mCl) mCl.textContent = (typeof entry.clarte_mentale === 'number' ? entry.clarte_mentale : '--') + '/10';
 
     // Sparkline 7 jours
     var sparkContainer = document.getElementById('accueil-sparkline');
