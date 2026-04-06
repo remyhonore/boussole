@@ -271,107 +271,47 @@
     if (!allAnswered) return;
 
     var results = computeScores(_answers);
-    saveResult(_answers, results);
-    _renderResults(results);
+    var today = new Date().toISOString().slice(0, 10);
+    saveResult(today, _answers, results);
+    _showResultsClean(results);
 
     // Refresh resume if visible
     if (typeof window.refreshResume === 'function') window.refreshResume();
   }
 
-  function _renderResults(results) {
+  function _showResultsClean(results) {
     var modal = document.getElementById('symptom-tree-modal');
     if (!modal) return;
-
-    // Take top 3 with pct > 0
-    var top = results.filter(function(r) { return r.pct > 0; }).slice(0, 3);
-
-    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">';
-    html += '<div style="text-align:center;margin-bottom:20px;">';
-    html += '<p style="font-size:28px;margin:0;">🧭</p>';
-    html += '<p style="font-size:18px;font-weight:700;margin:4px 0 0;color:#06172D;">Pistes a explorer</p>';
-    html += '<p style="font-size:12px;color:rgba(6,23,45,.5);margin:6px 0 0;">Ces pistes ne sont pas un diagnostic. Elles orientent la discussion avec votre professionnel de sante.</p>';
-    html += '</div>';
-
-
-    renderDomain();
-    modal.appendChild(box);
-    document.body.appendChild(modal);
-  }
-
-  // === AFFICHAGE RESULTATS ===
-
-  var SUGGESTIONS = {
-    'EMSFC': 'Demander un avis specialise en medecine interne ou centre de reference EM/SFC. Envisager un test d\'effort cardio-pulmonaire (CPET) sur 2 jours.',
-    'POTS':  'Demander un tilt test (test d\'inclinaison). Mesurer la FC couche/debout sur 10 min (test du pauvre).',
-    'FIBRO': 'Evoquer le diagnostic avec le medecin traitant. Demander un bilan rhumatologique pour exclure d\'autres causes.',
-    'MCAS':  'Doser la tryptase serique et les metabolites urinaires de l\'histamine. Consulter un allergologue ou immunologue.',
-    'NEURO': 'Demander un bilan neuro-inflammatoire (IRM cerebrale, marqueurs inflammatoires). Consulter un neurologue.',
-    'DECON': 'Envisager un reconditionnement progressif supervise. Ecarter d\'abord une intolerance a l\'effort avant tout programme d\'exercice.'
-  };
-
-  function _showResults(answers) {
-    var results = computeScores(answers);
-    var today = new Date().toISOString().slice(0, 10);
-    saveResult(today, answers, results);
-
-    var top3 = results.slice(0, 3).filter(function(r) { return r.pct > 0; });
+    var top3 = results.filter(function(r) { return r.pct > 0; }).slice(0, 3);
     if (!top3.length) top3 = results.slice(0, 1);
 
-    if (top.length === 0) {
-      html += '<p style="text-align:center;color:rgba(6,23,45,.5);font-size:13px;">Aucune piste significative identifiee. Si tes ressentis persistent, parles-en a ton professionnel de sante.</p>';
-    } else {
-      top.forEach(function(r, idx) {
-        var piste = PISTES[r.id];
-        var barW = Math.max(r.pct, 8);
-        var rank = idx + 1;
-        html += '<div class="section-card" style="border:1.5px solid rgba(6,23,45,.1);background:' + (idx === 0 ? 'rgba(45,106,79,.04)' : '#fff') + ';">';
-        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
-        html += '<span style="font-size:11px;font-weight:700;color:' + piste.color + ';background:' + piste.color + '18;padding:2px 8px;border-radius:12px;">#' + rank + '</span>';
-        html += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + piste.icon + ' ' + piste.label + '</span>';
-        html += '</div>';
-
-        // Progress bar
-        html += '<div style="height:6px;background:rgba(6,23,45,.06);border-radius:3px;margin-bottom:10px;">';
-        html += '<div style="height:100%;width:' + barW + '%;background:' + piste.color + ';border-radius:3px;"></div>';
-        html += '</div>';
-        html += '<p style="font-size:11px;font-weight:600;color:' + piste.color + ';margin:0 0 8px;">Concordance : ' + r.pct + ' %</p>';
-        html += '<p style="font-size:12px;color:rgba(6,23,45,.65);margin:0 0 10px;line-height:1.5;">' + piste.description + '</p>';
-        html += '<div style="background:rgba(45,106,79,.06);border-left:3px solid #2d6a4f;padding:8px 12px;border-radius:0 8px 8px 0;">';
-        html += '<p style="font-size:11px;font-weight:600;color:#2d6a4f;margin:0 0 2px;">A en parler avec votre professionnel de sante :</p>';
-        html += '<p style="font-size:12px;color:#06172D;margin:0;line-height:1.4;">' + piste.suggest + '</p>';
-        html += '</div></div>';
-      });
-    }
-
-    var box = document.getElementById('symptom-tree-modal').querySelector('div');
-
-    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
+    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
     html += '<p class="section-title" style="margin:0;color:#06172D;">Pistes a explorer</p>';
-    html += '<button onclick="document.getElementById(\'symptom-tree-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
-
+    html += '<button onclick="SymptomTree._close()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;padding:0;">✕</button></div>';
     html += '<p style="font-size:12px;color:#6b7280;margin:0 0 16px;line-height:1.5;">Ces pistes sont des orientations, pas des diagnostics. Elles t\'aident a preparer un entretien avec ton professionnel de sante.</p>';
 
-    top3.forEach(function(r, idx) {
+    top3.forEach(function(r) {
       var piste = PISTES[r.id];
       var barWidth = Math.max(r.pct, 4);
       html += '<div style="margin-bottom:14px;padding:14px;border-radius:12px;border:1.5px solid rgba(6,23,45,.08);background:rgba(6,23,45,.02);">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
       html += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + piste.emoji + ' ' + piste.label + '</span>';
       html += '<span style="font-size:13px;font-weight:700;color:' + piste.color + ';">' + r.pct + '%</span></div>';
-      // Progress bar
       html += '<div style="background:rgba(6,23,45,.06);border-radius:4px;height:8px;margin-bottom:8px;overflow:hidden;">';
       html += '<div style="background:' + piste.color + ';height:100%;width:' + barWidth + '%;border-radius:4px;"></div></div>';
-      // Suggestion
-      html += '<p style="font-size:11px;color:#6b7280;margin:0;line-height:1.4;">' + SUGGESTIONS[r.id] + '</p>';
-      html += '</div>';
+      html += '<p style="font-size:12px;color:rgba(6,23,45,.65);margin:0 0 8px;line-height:1.5;">' + piste.description + '</p>';
+      html += '<div style="background:rgba(45,106,79,.06);border-left:3px solid #2d6a4f;padding:8px 12px;border-radius:0 8px 8px 0;">';
+      html += '<p style="font-size:11px;font-weight:600;color:#2d6a4f;margin:0 0 2px;">A en parler avec votre professionnel de sante :</p>';
+      html += '<p style="font-size:12px;color:#06172D;margin:0;line-height:1.4;">' + piste.suggest + '</p>';
+      html += '</div></div>';
     });
-    // Disclaimer + close
+
     html += '<div style="background:rgba(220,38,38,.05);border-radius:8px;padding:10px 12px;margin-top:4px;margin-bottom:16px;">';
-    html += '<p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.4;">⚠️ Cet outil ne remplace pas un avis medical. Il vise a structurer ta reflexion avant un rendez-vous. Les pistes proposees reposent sur tes reponses et des associations symptomatiques connues.</p>';
+    html += '<p style="font-size:11px;color:rgba(6,23,45,.55);margin:0;line-height:1.4;">⚠️ Cet outil ne remplace pas un avis medical. Il vise a structurer ta reflexion avant un rendez-vous.</p>';
     html += '</div>';
     html += '<button onclick="SymptomTree._close()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2d6a4f;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Fermer</button>';
     html += '</div>';
-
     modal.innerHTML = html;
   }
 
