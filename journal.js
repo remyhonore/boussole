@@ -101,10 +101,51 @@
     html += '</div>';
 
     // Bouton nouvelle entrée
-    html += '<button onclick="Journal.openEditor()" style="width:100%;padding:14px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:inherit;">✍️ Écrire dans mon journal</button>';
+    html += '<button onclick="Journal.openEditor()" style="width:100%;padding:13px;background:#2d6a4f;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit;">✍️ Écrire dans mon journal</button>';
+
+    // Filtres
+    var currentFilter = window._journalFilter || 'all';
+    var currentPeriod = window._journalPeriod || '30';
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">';
+    html += '<select onchange="Journal.setPeriod(this.value)" style="font-size:11px;padding:4px 8px;border:1.5px solid rgba(6,23,45,.15);border-radius:8px;font-family:inherit;color:#06172D;background:#fff;">';
+    ['7','30','all'].forEach(function(p) {
+      var label = p === '7' ? '7 jours' : p === '30' ? '30 jours' : 'Tout';
+      html += '<option value="' + p + '"' + (currentPeriod === p ? ' selected' : '') + '>' + label + '</option>';
+    });
+    html += '</select>';
+    TAGS.forEach(function(t) {
+      var active = currentFilter === t.id;
+      html += '<button onclick="Journal.setFilter(\'' + t.id + '\')" style="padding:3px 8px;border-radius:12px;border:1.5px solid ' + (active ? '#2d6a4f' : 'rgba(6,23,45,.12)') + ';background:' + (active ? 'rgba(45,106,79,.1)' : '#fff') + ';color:' + (active ? '#2d6a4f' : 'rgba(6,23,45,.55)') + ';font-size:11px;cursor:pointer;font-family:inherit;">' + t.emoji + '</button>';
+    });
+    if (currentFilter !== 'all') {
+      html += '<button onclick="Journal.setFilter(\'all\')" style="padding:3px 8px;border-radius:12px;border:1px solid rgba(220,38,38,.3);background:rgba(220,38,38,.05);color:#dc2626;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>';
+    }
+    html += '</div>';
+
+    // Export buttons
+    if (entries.length > 0) {
+      html += '<div style="display:flex;gap:8px;margin-bottom:16px;">';
+      html += '<button onclick="Journal.exportPDF()" style="flex:1;padding:8px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📄 Exporter en PDF</button>';
+      if (navigator.share) {
+        html += '<button onclick="Journal.shareAll()" style="flex:1;padding:8px;background:none;border:1.5px solid rgba(6,23,45,.15);color:#06172D;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📤 Partager</button>';
+      }
+      html += '</div>';
+    }
+
+    // Filtrer les entrées
+    var filtered = entries;
+    if (currentFilter !== 'all') {
+      filtered = entries.filter(function(e) { return e.tag === currentFilter; });
+    }
+    if (currentPeriod !== 'all') {
+      var cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - parseInt(currentPeriod));
+      var cutoffStr = _localDateStr(cutoff);
+      filtered = filtered.filter(function(e) { return e.date >= cutoffStr; });
+    }
 
     // Entrées groupées par jour
-    if (entries.length === 0) {
+    if (filtered.length === 0) {
       html += '<div class="card" style="text-align:center;padding:32px 20px;">';
       html += '<p style="font-size:32px;margin:0 0 12px;">📓</p>';
       html += '<p style="font-size:13px;color:rgba(6,23,45,.55);line-height:1.5;margin:0;">Ton journal est vide.<br>Commence par écrire ce que tu ressens.</p>';
@@ -112,7 +153,7 @@
     } else {
       // Grouper par date
       var grouped = {};
-      entries.forEach(function(e) {
+      filtered.forEach(function(e) {
         if (!grouped[e.date]) grouped[e.date] = [];
         grouped[e.date].push(e);
       });
@@ -133,6 +174,7 @@
           html += '</div>';
           html += '<div style="display:flex;gap:6px;">';
           html += '<button onclick="Journal.openEditor(\'' + entry.id + '\')" style="background:none;border:1px solid #6E877D;color:#6E877D;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;">Modifier</button>';
+          html += '<button onclick="Journal.shareEntry(\'' + entry.id + '\')" style="background:none;border:1px solid rgba(6,23,45,.15);color:rgba(6,23,45,.45);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;">📤</button>';
           html += '<button onclick="Journal.remove(\'' + entry.id + '\')" style="background:none;border:1px solid #dc2626;color:#dc2626;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;">Suppr.</button>';
           html += '</div></div>';
           html += '<p style="font-size:13px;color:#06172D;line-height:1.6;margin:0;white-space:pre-wrap;">' + moodStr + textPreview.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
@@ -287,6 +329,110 @@
     tileEl.textContent = count > 0 ? count + ' entrée' + (count > 1 ? 's' : '') : 'Espace privé';
   }
 
+  // === FILTRES ===
+
+  function setFilter(tagId) {
+    window._journalFilter = tagId;
+    render();
+  }
+
+  function setPeriod(period) {
+    window._journalPeriod = period;
+    render();
+  }
+
+  // === EXPORT PDF ===
+
+  function exportPDF() {
+    if (typeof window.jspdf === 'undefined') { alert('jsPDF non disponible.'); return; }
+    var entries = _getAllEntries();
+    if (entries.length === 0) { alert('Aucune entree dans le journal.'); return; }
+
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    var mL = 18, mR = 18, pageW = 210, pageH = 297, contentW = pageW - mL - mR;
+    var y = 20;
+
+    function chk(n) { if (y + n > pageH - 18) { doc.addPage(); y = 20; } }
+    function clean(s) { return (s || '').replace(/[^\x00-\x7F\u00C0-\u024F]/g, function(c) { var m = {'\u00e9':'e','\u00e8':'e','\u00ea':'e','\u00eb':'e','\u00e0':'a','\u00e2':'a','\u00e7':'c','\u00ee':'i','\u00ef':'i','\u00f4':'o','\u00f9':'u','\u00fb':'u','\u00fc':'u','\u2019':"'",'\u2018':"'",'\u201c':'"','\u201d':'"','\u2013':'-','\u2014':'--','\u2026':'...'}; return m[c] || ''; }).trim(); }
+
+    // Titre
+    doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(45,106,79);
+    doc.text('Mon journal', mL, y); y += 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,140,130);
+    doc.text(clean(entries.length + ' entrees - exporte le ' + new Date().toLocaleDateString('fr-FR')), mL, y); y += 4;
+    doc.setDrawColor(45,106,79); doc.setLineWidth(0.5); doc.line(mL, y, pageW - mR, y); y += 8;
+
+    // Grouper par date
+    var grouped = {};
+    entries.forEach(function(e) { if (!grouped[e.date]) grouped[e.date] = []; grouped[e.date].push(e); });
+    var dates = Object.keys(grouped).sort().reverse();
+
+    dates.forEach(function(date) {
+      chk(12);
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(45,106,79);
+      doc.text(clean(_formatDateLong(date)), mL, y); y += 6;
+
+      grouped[date].forEach(function(entry) {
+        chk(10);
+        var tag = _getTagById(entry.tag);
+        var heure = _formatHeure(entry.timestamp);
+        doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,140,130);
+        doc.text(clean(heure + ' - ' + tag.label), mL, y); y += 4;
+
+        doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(6,23,45);
+        var lines = doc.splitTextToSize(clean(entry.text), contentW);
+        lines.forEach(function(l) { chk(5); doc.text(l, mL, y); y += 4.5; });
+        y += 4;
+      });
+      // Separateur
+      doc.setDrawColor(220,230,225); doc.setLineWidth(0.2); doc.line(mL, y, pageW - mR, y); y += 6;
+    });
+
+    // Footer
+    var tot = doc.getNumberOfPages();
+    for (var p = 1; p <= tot; p++) {
+      doc.setPage(p); doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(160,170,165);
+      doc.text('Page ' + p + ' / ' + tot, pageW/2, pageH-10, {align:'center'});
+      doc.text('myboussole.fr - Donnees privees', mL, pageH-10);
+    }
+
+    // Ouvrir
+    var blob = doc.output('blob');
+    var url = URL.createObjectURL(blob);
+    var win = window.open('', '_blank');
+    if (win) win.location.href = url; else doc.save('myBoussole-journal-' + _localDateStr(new Date()) + '.pdf');
+  }
+
+  // === PARTAGE ===
+
+  function shareAll() {
+    var entries = _getAllEntries().slice(0, 10);
+    var text = 'Mon journal Boussole\n\n';
+    entries.forEach(function(e) {
+      var tag = _getTagById(e.tag);
+      text += _formatDateLong(e.date) + ' ' + _formatHeure(e.timestamp) + ' [' + tag.label + ']\n';
+      text += e.text.substring(0, 100) + (e.text.length > 100 ? '...' : '') + '\n\n';
+    });
+    text += 'Donnees privees - myboussole.fr';
+    if (navigator.share) {
+      navigator.share({ title: 'Mon journal Boussole', text: text }).catch(function(){});
+    }
+  }
+
+  function shareEntry(id) {
+    var entry = null;
+    try { entry = JSON.parse(localStorage.getItem(STORAGE_PREFIX + id)); } catch(e) {}
+    if (!entry) return;
+    var tag = _getTagById(entry.tag);
+    var text = _formatDateLong(entry.date) + ' ' + _formatHeure(entry.timestamp) + '\n[' + tag.label + ']\n\n' + entry.text;
+    if (navigator.share) {
+      navigator.share({ title: 'Mon journal', text: text }).catch(function(){});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function() { alert('Copie dans le presse-papier.'); });
+    }
+  }
+
   // === PUBLIC API ===
 
   window.Journal = {
@@ -296,6 +442,11 @@
     updateTile: updateTile,
     getEntries: _getAllEntries,
     countEntries: _countEntries,
+    setFilter: setFilter,
+    setPeriod: setPeriod,
+    exportPDF: exportPDF,
+    shareAll: shareAll,
+    shareEntry: shareEntry,
     _closeEditor: _closeEditor,
     _selectTag: _selectTag,
     _selectMood: _selectMood,

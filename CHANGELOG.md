@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.45] - 2026-04-06
+
+### ADR-2026-045 Sprint 3 — Export PDF journal + filtres + partage
+- Export PDF journal complet (jsPDF, charte sage/navy)
+- Filtres par tag (7 catégories) et par période (7j/30j/tout)
+- Partage entrée individuelle (Web Share API / clipboard)
+- Bouton partage 📤 sur chaque entrée
+- SW v10.45, changelog + footer synchronisés
+
 ## [10.44] - 2026-04-06
 
 ### ADR-2026-045 Sprint 2 — Module journal.js complet
