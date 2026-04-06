@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v10.42';
+const CACHE_NAME = 'boussole-v10.43';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
@@ -33,7 +33,6 @@ const ASSETS_TO_CACHE = [
   '/favicon.svg',
   '/confidentialite.html',
   '/cgu.html',
-  '/articles.html',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 

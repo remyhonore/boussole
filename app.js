@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAccueilScoreCTA();
   // Panel initial : depuis URL ?panel= ou défaut today
   const urlPanel = new URLSearchParams(window.location.search).get('panel');
-  const validPanels = ['today', 'resume', 'tbsante', 'params'];
+  const validPanels = ['today', 'resume', 'journal', 'tbsante', 'params'];
   switchPanel(validPanels.includes(urlPanel) ? urlPanel : 'today');
 
   // Feature D — listeners modale profil
@@ -284,6 +284,10 @@ function switchPanel(panelId) {
     applyAccordionPref();
   }
 
+  if (panelId === 'journal') {
+    // Sprint 1 — panel statique, pas de rafraîchissement
+  }
+
   if (panelId === 'settings') {
     if (typeof window.Traitements !== 'undefined' && typeof window.Traitements.renderResumeParametres === 'function') {
       window.Traitements.renderResumeParametres();
@@ -329,18 +333,10 @@ function updateDashboardTiles() {
     }
   }
 
-  // Tile "Mon résumé" : moyenne 7 jours
-  var tileR = document.getElementById('tile-resume-sub');
-  if (tileR) {
-    var scores7 = [];
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(); d.setDate(d.getDate() - i);
-      var e = data.entries.find(function(x) { return x.date === localDateStr(d); });
-      if (e) { var s = calculateDayScore(e); if (s !== null) scores7.push(s); }
-    }
-    tileR.textContent = scores7.length > 0
-      ? 'Moy. 7j : ' + (scores7.reduce(function(a, b) { return a + b; }, 0) / scores7.length).toFixed(1)
-      : 'Aucune donnée';
+  // Tile "Mon journal" : statique Sprint 1
+  var tileJournal = document.getElementById('tile-journal-sub');
+  if (tileJournal) {
+    tileJournal.textContent = 'Espace privé';
   }
 
   // Tile "Mon suivi" : nombre de saisies total

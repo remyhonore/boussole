@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.43] - 2026-04-06
+
+### ADR-2026-045 Sprint 1 — Onglet Journal + fusion tiles + renommages
+- Nouvel onglet Journal dans la tab bar (remplace Articles)
+- Nouveau panel journal avec placeholder (module en cours de développement)
+- Nouvelle tile "Mon journal" sur l'accueil (remplace "Mon résumé")
+- Renommage "Mon journal du jour" → "Mes remarques" dans Ma journée
+- Renommage "Mon journal" → "Mes remarques" dans l'accordéon Suivi
+- articles.html retiré du cache SW (toujours accessible via URL directe)
+- SW v10.43, changelog + footer synchronisés
+
 ## [10.41] - 2026-04-06
 
 ### ADR-2026-044 Sprint 4 — Indicateur complétion jour + Saisie rapide améliorée
