@@ -2,6 +2,12 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.58] - 2026-04-06
+### Changed
+- Historique consultations : cards avec pastille catégorie (aligné sur RDV à venir)
+- Suppression doublon _renderHistoriqueTab (une seule source de vérité)
+- Opacity 75% sur cards passées pour distinguer visuellement des RDV futurs
+
 ## [10.57] - 2026-04-06
 ### Changed
 - Pills métriques accueil : grille 2×2 (tout visible sans scroll sur mobile)
