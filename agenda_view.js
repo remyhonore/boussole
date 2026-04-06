@@ -169,9 +169,10 @@
         html += '<span style="font-size:12px;font-weight:700;color:#fff;">' + d + '</span>';
         html += '</div>';
       } else if (hasRdv) {
-        // Jour avec RDV : cercle bordure verte, fond vert pâle
-        html += '<div style="width:34px;height:34px;border-radius:50%;background:rgba(45,106,79,.08);border:2px solid #2d6a4f;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
-        html += '<span style="font-size:12px;font-weight:700;color:#2d6a4f;">' + d + '</span>';
+        // Jour avec RDV : cercle bordure couleur catégorie
+        var rdvCol = _getCatColor(rdvs[0]);
+        html += '<div style="width:34px;height:34px;border-radius:50%;background:' + rdvCol + '12;border:2px solid ' + rdvCol + ';display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
+        html += '<span style="font-size:12px;font-weight:700;color:' + rdvCol + ';">' + d + '</span>';
         html += '</div>';
       } else {
         // Jour normal
