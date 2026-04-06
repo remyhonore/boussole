@@ -285,7 +285,7 @@ function switchPanel(panelId) {
   }
 
   if (panelId === 'journal') {
-    // Sprint 1 — panel statique, pas de rafraîchissement
+    if (typeof window.Journal !== 'undefined') window.Journal.render('journal-content');
   }
 
   if (panelId === 'settings') {
@@ -333,11 +333,8 @@ function updateDashboardTiles() {
     }
   }
 
-  // Tile "Mon journal" : statique Sprint 1
-  var tileJournal = document.getElementById('tile-journal-sub');
-  if (tileJournal) {
-    tileJournal.textContent = 'Espace privé';
-  }
+  // Tile "Mon journal" : nombre d'entrées
+  if (typeof window.Journal !== 'undefined') window.Journal.updateTile();
 
   // Tile "Mon suivi" : nombre de saisies total
   var tileS = document.getElementById('tile-suivi-sub');

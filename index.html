@@ -548,13 +548,7 @@
 
     <!-- Panel Journal (Sprint 1 — placeholder) -->
     <div class="panel" id="panel-journal" role="tabpanel" aria-labelledby="tab-journal" aria-label="Mon journal">
-      <div class="card" style="text-align:center;padding:32px 20px;">
-        <p style="font-size:32px;margin:0 0 12px;">📓</p>
-        <h2 style="font-size:18px;font-weight:700;color:#06172D;margin:0 0 8px;">Mon journal</h2>
-        <p style="font-size:13px;color:rgba(6,23,45,.55);line-height:1.5;margin:0 0 20px;">Ton espace privé pour écrire librement.<br>Raconte ton parcours, tes ressentis, tes victoires.</p>
-        <p style="font-size:11px;color:rgba(6,23,45,.35);margin:0;">🔒 Tout reste sur ton appareil</p>
-        <p style="font-size:12px;color:rgba(6,23,45,.35);margin:16px 0 0;font-style:italic;">Module en cours de développement</p>
-      </div>
+      <div id="journal-content"></div>
     </div>
 
     <!-- Panel TB Santé -->
@@ -963,7 +957,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.43 — </span>
+    <span>Boussole v10.44 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -975,10 +969,15 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.43</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.44</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.44</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Mon journal : écriture libre, tags, humeur</li>
+          <li>Multi-entrées par jour, vue chronologique</li>
+        </ul>
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.43</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Mon journal : nouvel onglet</li>
@@ -1983,6 +1982,7 @@
   <script src="pacing.js" defer></script>
   <script src="questionnaires.js" defer></script>
   <script src="symptom_tree.js" defer></script>
+  <script src="journal.js" defer></script>
   <script src="agenda_view.js" defer></script>
   <script src="share_profile.js" defer></script>
   <script src="profil_data.js" defer></script>

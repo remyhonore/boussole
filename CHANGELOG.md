@@ -2,6 +2,18 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.44] - 2026-04-06
+
+### ADR-2026-045 Sprint 2 — Module journal.js complet
+- Nouveau module journal.js (IIFE, ~260 lignes)
+- CRUD entrées journal : créer, modifier, supprimer
+- 7 tags : Pensées, Santé, Victoire, Difficulté, Traitement, RDV, Autre
+- 5 moods emoji optionnels par entrée
+- Vue chronologique inversée groupée par jour
+- Éditeur modale avec textarea 2000 car + dictée
+- Tile accueil dynamique (nombre d'entrées)
+- SW v10.44, changelog + footer synchronisés
+
 ## [10.43] - 2026-04-06
 
 ### ADR-2026-045 Sprint 1 — Onglet Journal + fusion tiles + renommages
