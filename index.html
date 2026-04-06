@@ -287,11 +287,11 @@
       <div id="accueil-quick-metrics" style="display:none;margin-top:12px;padding:2px 0;">
         <!-- Humeur du jour — tuile pleine largeur au-dessus des 4 pills -->
         <div id="accueil-humeur-pill" style="display:none;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:10px 16px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
-            <span id="metric-humeur" style="font-size:28px;line-height:1;">--</span>
+          <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
+            <span id="metric-humeur" style="font-size:20px;line-height:1;">--</span>
             <div>
-              <div style="font-family:var(--font-heading);font-size:14px;font-weight:600;color:#06172D;line-height:1.2;" id="humeur-label-text">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Humeur du jour</div>
+              <div id="humeur-label-text" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Humeur</div>
             </div>
           </div>
         </div>
@@ -1731,6 +1731,11 @@
       </div>
 
       <div style="margin-bottom:12px;">
+        <label for="pc-professionnel" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Nom du professionnel</label>
+        <input type="text" id="pc-professionnel" maxlength="100" placeholder="Ex: Dr André, Kiné Martin..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;">
+      </div>
+
+      <div style="margin-bottom:12px;">
         <label for="pc-decisions" style="font-size:13px;color:rgba(6,23,45,.6);display:block;margin-bottom:4px;">Décisions prises</label>
         <textarea id="pc-decisions" maxlength="500" rows="3" placeholder="Ex: Continuer Brintellix 20mg, arrêter X..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(110,135,125,.35);border-radius:12px;font-size:14px;font-family:inherit;color:#06172D;background:#fff;box-sizing:border-box;resize:vertical;"></textarea>
       </div>
@@ -2044,7 +2049,7 @@
         <input type="datetime-local" id="rdv-datetime" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Date et heure du RDV">
       </div>
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Spécialiste *</label>
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Nom du professionnel *</label>
         <input type="text" id="rdv-specialiste" placeholder="Ex : Dr Dupont" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Nom du spécialiste">
       </div>
       <div style="margin-bottom:12px;">

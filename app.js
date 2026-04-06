@@ -3260,6 +3260,7 @@ function loadPostConsultation(dateStr) {
   try {
     var data = JSON.parse(raw);
     document.getElementById('pc-date-rdv').value = data.date_rdv || dateStr;
+    document.getElementById('pc-professionnel').value = data.professionnel || '';
     document.getElementById('pc-decisions').value = data.decisions || '';
     document.getElementById('pc-examens').value = data.examens || '';
     document.getElementById('pc-traitement').value = data.traitement_teste || '';
@@ -3379,6 +3380,7 @@ function openPostConsultation() {
   var dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
   window._pcOriginalDate = dateStr;
   document.getElementById('pc-date-rdv').value = dateStr;
+  document.getElementById('pc-professionnel').value = '';
   document.getElementById('pc-decisions').value = '';
   document.getElementById('pc-examens').value = '';
   document.getElementById('pc-traitement').value = '';
@@ -3400,6 +3402,7 @@ function openPostConsultationFromDate(dateStr) {
   if (!modal) return;
   window._pcOriginalDate = dateStr;
   document.getElementById('pc-date-rdv').value = dateStr;
+  document.getElementById('pc-professionnel').value = '';
   document.getElementById('pc-decisions').value = '';
   document.getElementById('pc-examens').value = '';
   document.getElementById('pc-traitement').value = '';
@@ -3510,6 +3513,7 @@ function savePostConsultation() {
   }
   var data = {
     date_rdv: dateRdv,
+    professionnel: document.getElementById('pc-professionnel').value,
     decisions: document.getElementById('pc-decisions').value,
     examens: document.getElementById('pc-examens').value,
     traitement_teste: document.getElementById('pc-traitement').value,
