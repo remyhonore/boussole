@@ -1,6 +1,6 @@
 /**
- * Boussole v2.0 - Styles harmonisés avec myboussole.fr
- * Palette organique (sage/lavande/rose) + dégradé vitrine
+ * Boussole — Design System v2 (ADR-2026-046)
+ * Fond #FAFAF9, cards blanches, Nunito/Jura/DM Mono
  */
 
 /* === VARIABLES === */
@@ -15,8 +15,8 @@
   --color-mid: #f97316;
   --color-high: #2d6a4f;
 
-  /* Neutrals — palette vitrine */
-  --color-bg: #F8F6F0;             /* paper2 vitrine */
+  /* Neutrals — Design System v2 */
+  --color-bg: #FAFAF9;             /* fond principal DS v2 */
   --color-card: #ffffff;
   --color-border: rgba(6,23,45,.12);  /* border vitrine */
   --color-text: #06172D;           /* ink vitrine (navy) */
@@ -46,14 +46,14 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 
-  /* Radius — plus généreux, alignés vitrine */
+  /* Radius — Design System v2 */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 20px;
 
-  /* Ombres — douces comme vitrine */
-  --shadow-card: 0 14px 34px rgba(6,23,45,.11);
-  --shadow-soft: 0 4px 12px rgba(6,23,45,.08);
+  /* Ombres — Design System v2 (subtiles) */
+  --shadow-card: 0 1px 3px rgba(6,23,45,0.06);
+  --shadow-soft: 0 1px 2px rgba(6,23,45,0.04);
 
   /* === DESIGN TOKENS v2 (audit 04/04/2026) === */
 
@@ -111,29 +111,25 @@ body {
   padding: var(--spacing-md);
 }
 
+/* === HEADER — Design System v2 (ADR-2026-046 Sprint 4) === */
 .header {
-  text-align: center;
-  padding: var(--spacing-lg) 0;
+  padding: 16px 0 8px;
   position: relative;
 }
 
 .header h1 {
-  font-size: 24px;
+  font-family: var(--font-heading);
+  font-size: 26px;
   font-weight: 700;
-  margin-bottom: var(--spacing-xs);
+  margin: 0;
   color: var(--color-text);
-}
-
-.header h1 a::after {
-  content: ' ↗';
-  opacity: 0.4;
-  font-size: 10px;
-  vertical-align: super;
+  line-height: 1.2;
 }
 
 .header p {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
+  font-size: 12px;
+  color: rgba(6,23,45,0.45);
+  margin: 2px 0 0;
 }
 
 /* === BOTTOM TAB BAR (ADR-2026-043) === */
@@ -280,14 +276,15 @@ body {
   display: block;
 }
 
-/* === CARD === */
+/* === CARD — Design System v2 === */
 .card {
   background: var(--color-card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-card);
-  margin-bottom: var(--spacing-lg);
-  border: 1px solid rgba(6,23,45,.06);
+  margin-bottom: var(--spacing-md);
+  border: none;
+  font-family: var(--font-ui);
 }
 
 /* Card groups — sections fusionnées dans une seule card */
@@ -296,8 +293,9 @@ body {
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-card);
-  margin-bottom: var(--spacing-lg);
-  border: 1px solid rgba(6,23,45,.06);
+  margin-bottom: var(--spacing-md);
+  border: none;
+  font-family: var(--font-ui);
 }
 .card-group > .card {
   background: transparent;
@@ -314,8 +312,10 @@ body {
 }
 
 .card-title {
-  font-size: var(--font-size-large);
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: #06172D;
   margin-bottom: var(--spacing-md);
 }
 
@@ -478,7 +478,7 @@ textarea:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
-/* === BUTTONS === */
+/* === BUTTONS — Design System v2 === */
 .btn {
   display: inline-block;
   padding: 10px 14px;
@@ -486,6 +486,7 @@ textarea:focus-visible {
   color: white;
   border: none;
   border-radius: var(--radius-md);
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -758,12 +759,13 @@ h2.summary-section {
   margin-top: 2px;
 }
 
-/* === Footer version === */
+/* === Footer version — Design System v2 === */
 .app-footer {
   text-align: center;
   padding: 20px 16px 72px;
-  font-size: 12px;
-  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(6,23,45,0.35);
 }
 
 .app-footer a {
@@ -1192,8 +1194,9 @@ html.dark .indicator-card--confort  { background: #231e2e; }
 html.dark .indicator-card--mental   { background: #1a2230; }
 
 /* Generic cards */
-html.dark .card { border-color: rgba(255,255,255,.06); }
-html.dark .card-group { border-color: rgba(255,255,255,.06); }
+html.dark .card { background: #1a2332; border: none; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+html.dark .card-group { background: #1a2332; border: none; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+html.dark .card-title { color: #e4e0de; }
 
 /* Section titles & cards */
 html.dark .section-title { color: #e8e4de; }
@@ -1245,13 +1248,9 @@ html.dark .dash-tile-label { color: #e4e0de; }
 html.dark .dash-tile-sub { color: rgba(232,228,222,.45); }
 html.dark .dash-tile-chevron { color: rgba(232,228,222,.2); }
 
-/* === Panel Paramètres (ADR-2026-025) === */
-
-/* Fond transparent sur la carte Paramètres pour laisser respirer le gradient body */
+/* === Panel Paramètres — Design System v2 === */
 #panel-params .card {
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: #fff;
 }
 
 /* Padding bas pour que le gradient reste visible sous la carte */

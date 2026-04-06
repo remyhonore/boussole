@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.52] - 2026-04-06
+
+### ADR-2026-046 Sprint 5 — Propagation Design System v2
+- Variables globales : --radius-lg 20px, --shadow-card subtil, --color-bg #FAFAF9
+- .card : border-radius 20px, shadow 0 1px 3px, border supprimé, font-family Nunito
+- .card-title : Nunito 700 15px (remplace system font 600 15px)
+- .btn : font-family Nunito propagé
+- Footer : DM Mono 400 11px (exit system font 12px)
+- Header CSS nettoyé (exit text-align center, exit arrow ↗)
+- Panel Paramètres : exit backdrop-filter, fond blanc solide
+- Dark mode : cards #1a2332, card-title #e4e0de
+- Commentaire CSS mis à jour (exit "palette organique sage/lavande/rose")
+- SW v10.52, changelog + footer synchronisés
+
 ## [10.51] - 2026-04-06
 
 ### ADR-2026-046 Sprint 4 — Agenda Peek + Header + Polish
