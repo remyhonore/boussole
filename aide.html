@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mode d'emploi — myBoussole</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .help-page{max-width:640px;margin:0 auto;padding:24px 16px 80px;}
+    .help-page h1{font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;color:#06172D;margin:0 0 4px;}
+    .help-page .subtitle{font-size:13px;color:rgba(6,23,45,.5);margin:0 0 24px;}
+    .help-section{margin-bottom:8px;}
+    .help-section summary{
+      font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:#06172D;
+      padding:14px 16px;background:#fff;border-radius:14px;cursor:pointer;
+      list-style:none;display:flex;align-items:center;gap:10px;
+      box-shadow:0 1px 3px rgba(6,23,45,0.06);
+    }
+    .help-section summary::-webkit-details-marker{display:none;}
+    .help-section summary::after{content:'›';margin-left:auto;font-size:18px;color:rgba(6,23,45,.35);transition:transform .2s;}
+    .help-section[open] summary::after{transform:rotate(90deg);}
+    .help-section .help-body{
+      padding:10px 16px 16px;font-size:13px;color:rgba(6,23,45,.72);line-height:1.7;
+    }
+    .help-body p{margin:0 0 8px;}
+    .help-body .tip{
+      background:rgba(45,106,79,.06);border-left:3px solid #2d6a4f;
+      padding:8px 12px;border-radius:0 8px 8px 0;font-size:12px;
+      color:rgba(6,23,45,.6);margin:8px 0;
+    }
+    .help-back{font-size:13px;color:#2d6a4f;text-decoration:none;font-weight:600;}
+  </style>
+</head>
+<body>
+<div class="help-page">
+  <a href="/index.html" class="help-back">&larr; Retour à l'app</a>
+  <h1 style="margin-top:16px;">📖 Mode d'emploi</h1>
+  <p class="subtitle">Tout ce que myBoussole peut faire pour toi</p>
+
+  <details class="help-section" open>
+    <summary>🏠 Accueil</summary>
+    <div class="help-body">
+      <p>Ton tableau de bord personnel. Tu y retrouves :</p>
+      <p>Le <strong>score du jour</strong> dans un anneau coloré, calculé automatiquement à partir de ta saisie (énergie, sommeil, confort, clarté).</p>
+      <p>La <strong>tendance</strong> par rapport à la semaine précédente (hausse ou baisse).</p>
+      <p>Les <strong>4 métriques</strong> du jour en grille, plus ton <strong>humeur</strong> si renseignée.</p>
+      <p>Le <strong>prochain rendez-vous</strong> si tu en as planifié un.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>☀️ Ma journée</summary>
+    <div class="help-body">
+      <p>C'est ici que tu notes comment tu te sens. <strong>4 curseurs</strong> de 0 à 10 : énergie, sommeil, confort physique, clarté mentale.</p>
+      <p>Tu peux aussi choisir ton <strong>humeur</strong> en emoji et écrire une <strong>note libre</strong>.</p>
+      <div class="tip">Astuce : les boutons « Hier » et « Dernières valeurs » pré-remplissent les curseurs pour aller plus vite.</div>
+      <p>Les <strong>5 pastilles</strong> (É S C M H) sous le score indiquent quelles données sont renseignées pour la journée.</p>
+      <p>La section <strong>Mes mesures</strong> (dépliable) permet de saisir des données objectives : fréquence cardiaque, tension, VFC/RMSSD, poids.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>🎤 Dictée vocale</summary>
+    <div class="help-body">
+      <p>Le bouton micro 🎤 est disponible dans la note libre (Ma journée) et dans l'éditeur du Journal.</p>
+      <p>Appuie dessus, parle naturellement, et le texte s'insère automatiquement dans le champ.</p>
+      <div class="tip">Fonctionne avec le micro de ton téléphone. Nécessite une connexion internet sur certains navigateurs.</div>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📓 Journal</summary>
+    <div class="help-body">
+      <p>Ton espace d'écriture privé. Chaque entrée peut avoir un <strong>tag</strong> (fatigue, douleur, moral, sommeil, énergie, PEM, autre) et un <strong>mood</strong>.</p>
+      <p>Filtre tes entrées par tag ou par période (7j, 30j, 90j, tout).</p>
+      <p>Tu peux <strong>exporter ton journal en PDF</strong> et <strong>partager une entrée</strong> individuellement.</p>
+      <div class="tip">Tout reste sur ton appareil. Aucune entrée n'est jamais envoyée quelque part.</div>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📋 Mes rendez-vous</summary>
+    <div class="help-body">
+      <p>Planifie tes prochains RDV avec la date, l'heure, le nom du praticien et sa <strong>catégorie</strong> (MG, spécialiste, thérapie douce, examens).</p>
+      <p>Les RDV apparaissent sur le <strong>calendrier mensuel</strong> avec des pastilles colorées par catégorie.</p>
+      <p>Les RDV passés restent visibles (légèrement estompés) avec un résumé des décisions.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>🩺 Historique consultations</summary>
+    <div class="help-body">
+      <p>Après chaque rendez-vous, enregistre ce qui a été décidé : <strong>décisions</strong>, <strong>examens</strong> demandés, <strong>traitement à tester</strong>, <strong>date de réévaluation</strong>.</p>
+      <p>Ces informations alimentent automatiquement ton résumé PDF pour le prochain RDV.</p>
+      <div class="tip">La date de réévaluation change de couleur quand elle approche (orange) ou qu'elle est dépassée (rouge).</div>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>💊 Mes traitements</summary>
+    <div class="help-body">
+      <p>Documente tes médicaments, compléments alimentaires et stratégies. Pour chaque traitement : <strong>nom</strong>, <strong>DCI</strong>, <strong>dose</strong>, <strong>fréquence</strong>, <strong>moment de prise</strong>.</p>
+      <p>Tu peux ajouter des <strong>paliers</strong> (augmentation progressive de dose) et marquer un traitement comme arrêté.</p>
+      <p>Les traitements actifs sont automatiquement intégrés dans ton PDF de consultation.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📊 Graphiques et tendances</summary>
+    <div class="help-body">
+      <p>Visualise l'évolution de tes 4 indicateurs sur <strong>7, 14, 30 ou 90 jours</strong>.</p>
+      <p>Les <strong>lignes verticales</strong> marquent les débuts de traitement. Les <strong>triangles rouges</strong> signalent les variations d'énergie importantes.</p>
+      <p>Tu peux choisir quel indicateur afficher et zoomer sur la période qui t'intéresse.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>🎯 Stabilité et variabilité</summary>
+    <div class="help-body">
+      <p>Compare la régularité de tes scores entre la première et la deuxième quinzaine du mois.</p>
+      <p>Moins de variabilité = un état plus prévisible au quotidien.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>🧩 Arbre des ressentis</summary>
+    <div class="help-body">
+      <p>Un questionnaire interactif qui explore tes ressentis par <strong>7 domaines</strong> (23 questions).</p>
+      <p>À la fin, tu obtiens des <strong>pistes à explorer</strong> avec ton professionnel de santé : EM/SFC, POTS, fibromyalgie, MCAS, neuro-inflammation, déconditionnement.</p>
+      <div class="tip">Ce n'est pas un diagnostic. C'est un outil pour structurer la discussion avec ton médecin.</div>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>⚡ Pacing et énergie</summary>
+    <div class="help-body">
+      <p>Suis ta <strong>stabilité matinale</strong> et gère ton <strong>enveloppe d'énergie</strong> quotidienne.</p>
+      <p>Le détecteur PEM repère les variations d'énergie importantes (chute de 2+ points après une bonne journée).</p>
+      <p>Tu peux personnaliser ton catalogue d'activités avec leur coût énergétique.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📄 Exports PDF</summary>
+    <div class="help-body">
+      <p>Deux exports disponibles :</p>
+      <p><strong>PDF enrichi</strong> (multi-pages) : graphiques 30 jours, corrélations, score SNA, traitements, résumé complet.</p>
+      <p><strong>PDF consultation</strong> (1 page) : synthèse concise pour ton médecin avec tes données clés, le problème principal, et les traitements actifs.</p>
+      <div class="tip">Onglet Suivi → « Mon résumé personnel » ou « Message à mon médecin ».</div>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📅 Year in Pixels</summary>
+    <div class="help-body">
+      <p>Chaque jour est une case colorée selon ton score pour l'indicateur choisi.</p>
+      <p>🟢 8-10 (très bon) · 🟡 6-8 (correct) · 🟠 4-6 (moyen) · 🔴 2-4 (bas) · ⛔ 0-2 (critique)</p>
+      <p>Le mois le plus récent est affiché en haut. Les mois sans données sont masqués.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>🔒 Confidentialité</summary>
+    <div class="help-body">
+      <p><strong>Aucune donnée ne quitte ton appareil.</strong> Pas de compte, pas de serveur, pas de cloud.</p>
+      <p>Tout est stocké dans le navigateur de ton téléphone (localStorage). Si tu changes d'appareil, tu peux exporter tes données en JSON depuis les Paramètres et les réimporter.</p>
+      <p>L'app fonctionne aussi <strong>hors connexion</strong> grâce au Service Worker.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>📲 Ajouter à l'écran d'accueil</summary>
+    <div class="help-body">
+      <p>Pour accéder rapidement à myBoussole, ajoute-la à ton écran d'accueil :</p>
+      <p><strong>iPhone</strong> : bouton Partager (carré avec flèche) → « Sur l'écran d'accueil ».</p>
+      <p><strong>Android</strong> : menu ⋮ (trois points) → « Ajouter à l'écran d'accueil ».</p>
+      <p><strong>Ordinateur</strong> : dans Chrome, cliquer sur l'icône d'installation dans la barre d'adresse.</p>
+    </div>
+  </details>
+
+  <details class="help-section">
+    <summary>⚙️ Paramètres</summary>
+    <div class="help-body">
+      <p><strong>Genre</strong> : la section cycle hormonal s'affiche uniquement si « Femme » est sélectionné.</p>
+      <p><strong>Accordéons</strong> : choisis si les blocs du Suivi sont ouverts ou fermés par défaut.</p>
+      <p><strong>Thème sombre</strong> : bascule entre le mode clair et le mode sombre.</p>
+      <p><strong>Export / Import</strong> : sauvegarde toutes tes données en JSON, ou restaure-les depuis un fichier.</p>
+      <p><strong>Guides</strong> : relance le guide de démarrage ou ouvre le mode d'emploi complet.</p>
+    </div>
+  </details>
+
+  <div style="margin-top:24px;text-align:center;">
+    <p style="font-size:13px;color:rgba(6,23,45,.45);line-height:1.6;">Une question ? Écris-nous sur <a href="https://facebook.com/myboussole" style="color:#2d6a4f;">Facebook</a>.</p>
+    <a href="/index.html" class="help-back" style="display:inline-block;margin-top:12px;">← Retour à l'app</a>
+  </div>
+
+</div>
+
+<!-- Bottom tab bar (identique à index.html) -->
+<nav class="bottom-tab-bar" style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid rgba(6,23,45,.08);display:flex;justify-content:space-around;align-items:center;height:56px;z-index:100;max-width:100%;">
+  <a href="/index.html" class="tab-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:rgba(6,23,45,.45);font-size:10px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg>
+    Accueil
+  </a>
+  <a href="/index.html?panel=resume" class="tab-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:rgba(6,23,45,.45);font-size:10px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+    Ma journ&eacute;e
+  </a>
+  <a href="/index.html?panel=journal" class="tab-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:rgba(6,23,45,.45);font-size:10px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Journal
+  </a>
+  <a href="/index.html?panel=tbsante" class="tab-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:rgba(6,23,45,.45);font-size:10px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Suivi
+  </a>
+  <a href="/index.html?panel=params" class="tab-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:rgba(6,23,45,.45);font-size:10px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Param&egrave;tres
+  </a>
+</nav>
+
+</body>
+</html>

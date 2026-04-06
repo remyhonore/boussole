@@ -2,6 +2,12 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.64] - 2026-04-06
+### Added
+- Page aide.html : mode d'emploi consultable avec 13 sections accordéon
+- Lien "Aide" dans le footer de l'app
+- Lien "Consulter la page d'aide" dans Paramètres → Guides
+
 ## [10.63] - 2026-04-06
 ### Added
 - Mode d'emploi complet (help_guide.js) : 18 slides couvrant toutes les fonctionnalités
