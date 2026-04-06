@@ -2,6 +2,10 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.59] - 2026-04-06
+### Changed
+- Lint UX R1 : px toutes tailles autorisées (DS v2), seul rem reste interdit
+
 ## [10.58] - 2026-04-06
 ### Changed
 - Historique consultations : cards avec pastille catégorie (aligné sur RDV à venir)

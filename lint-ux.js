@@ -6,7 +6,7 @@
  *
  * Règles :
  *  0. Syntaxe JS valide (node -c)
- *  1. font-size interdit : 14px, 15px, 16px, rem (dans les .js)
+ *  1. font-size interdit : rem (dans les .js). px autorisés (DS v2).
  *  2. Couleurs hex interdites : #999, #aaa, #4b5563, #1a2332
  *  3. Inline section-title : font-size:11px;font-weight:700;text-transform:uppercase
  *  4. Inline section-card : border-radius:12px;padding:14px;margin-bottom:12px
@@ -25,8 +25,8 @@ const JS_FILES = fs.readdirSync('.').filter(f =>
 
 let errors = 0;
 
-// === RÈGLE 1 : font-size interdit ===
-const FONT_SIZE_BANNED = /font-size\s*:\s*(14px|15px|16px|[0-9.]+rem)/g;
+// === RÈGLE 1 : font-size interdit (rem uniquement — px autorisés depuis DS v2) ===
+const FONT_SIZE_BANNED = /font-size\s*:\s*[0-9.]+rem/g;
 // Exceptions : margin, padding, width, height (faux positifs du grep)
 const FONT_SIZE_CONTEXT = /font-size/;
 
