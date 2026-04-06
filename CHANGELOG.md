@@ -2,6 +2,10 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.62] - 2026-04-06
+### Added
+- Bouton micro (dictée vocale) dans l'éditeur Journal — même modale que Ma journée
+
 ## [10.61] - 2026-04-06
 ### Fixed
 - Fix SW fetch handler : catch offline retournait undefined au lieu d'une Response

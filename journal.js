@@ -238,7 +238,7 @@
 
     // Textarea
     html += '<textarea id="journal-editor-text" rows="8" maxlength="2000" placeholder="Écris librement ce que tu ressens, ce que tu vis, ce que tu veux te rappeler…" style="width:100%;padding:12px;border:1.5px solid rgba(45,106,79,.25);border-radius:12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#06172D;line-height:1.6;background:#f8faf9;">' + textVal.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
-    html += '<div style="display:flex;justify-content:space-between;margin-top:4px;margin-bottom:14px;"><span id="journal-editor-count" style="font-size:11px;color:rgba(6,23,45,.35);">' + textVal.length + '/2000</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:14px;"><span id="journal-editor-count" style="font-size:11px;color:rgba(6,23,45,.35);">' + textVal.length + '/2000</span><button onclick="ouvrirModaleDictee(\'journal-editor-text\')" style="background:none;border:none;padding:4px;cursor:pointer;font-size:18px;line-height:1;" aria-label="Dicter" title="Dicter">&#x1F3A4;</button></div>';
 
     // Date
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">';
