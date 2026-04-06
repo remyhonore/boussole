@@ -62,7 +62,7 @@ def main():
           None if color_present else "couleur absente du HTML")
 
     # --- Navigation 4 onglets ---
-    nav_labels = ["Aujourd'hui", "Résumé", "Suivi", "Paramètres"]
+    nav_labels = ["Accueil", "Ma journée", "Suivi", "Paramètres"]
     for label in nav_labels:
         found = label in html
         check(f"Onglet navigation '{label}'", found,

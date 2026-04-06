@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v10.66';
+const CACHE_NAME = 'boussole-v10.67';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
@@ -28,7 +28,6 @@ const ASSETS_TO_CACHE = [
   '/symptom_tree.js',
   '/agenda_view.js',
   '/journal.js',
-  '/lint-ux.js',
   '/share_profile.js',
   '/styles.css',
   '/manifest.json',
@@ -36,7 +35,8 @@ const ASSETS_TO_CACHE = [
   '/confidentialite.html',
   '/cgu.html',
   '/aide.html',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'
 ];
 
 // Installation : mise en cache des assets
