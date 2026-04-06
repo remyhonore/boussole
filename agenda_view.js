@@ -168,7 +168,7 @@
         rdvs.forEach(function(r) {
           var col = _getSpecColor(r.specialiste);
           var past = _isPast(r.datetime);
-          html += '<span style="width:5px;height:5px;border-radius:50%;background:' + col + ';display:inline-block;' + (past ? 'opacity:.4;' : '') + '"></span>';
+          html += '<span style="width:8px;height:8px;border-radius:50%;background:' + col + ';display:inline-block;' + (past ? 'opacity:.4;' : '') + '"></span>';
         });
         html += '</div>';
       }
@@ -176,8 +176,53 @@
     }
     html += '</div>';
 
-    // === Zone detail jour selectionne ===
-    html += '<div id="agenda-day-detail" style="margin-top:12px;"></div>';
+    // === Liste des RDV (prochains en haut, passés en details) ===
+    var allRdvs = _chargerAgenda();
+    var now = new Date();
+    var futurs = allRdvs.filter(function(r) { return !_isPast(r.datetime); }).sort(function(a, b) { return (a.datetime || '').localeCompare(b.datetime || ''); });
+    var passes = allRdvs.filter(function(r) { return _isPast(r.datetime); }).sort(function(a, b) { return (b.datetime || '').localeCompare(a.datetime || ''); });
+
+    var MOIS_LISTE = ['janv.','f\u00e9vr.','mars','avr.','mai','juin','juil.','ao\u00fbt','sept.','oct.','nov.','d\u00e9c.'];
+
+    function _renderRdvCard(r, isPast) {
+      var d = new Date(r.datetime);
+      var heure = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      var dateLabel = d.getDate() + ' ' + MOIS_LISTE[d.getMonth()] + ' ' + d.getFullYear();
+      var col = _getSpecColor(r.specialiste);
+      var c = '';
+      c += '<div style="border-left:3px solid ' + col + ';border-radius:8px;padding:10px 12px;margin-bottom:6px;background:' + (isPast ? '#f9fafb' : '#fff') + ';box-shadow:0 1px 3px rgba(0,0,0,.06);' + (isPast ? 'opacity:.7;' : '') + '">';
+      c += '<div style="display:flex;align-items:center;justify-content:space-between;">';
+      c += '<div>';
+      c += '<div style="font-size:13px;font-weight:700;color:#06172D;">' + (r.specialiste || 'RDV') + '</div>';
+      c += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-top:2px;">' + dateLabel + ' \u00e0 ' + heure;
+      if (r.lieu) c += ' \u00b7 ' + r.lieu;
+      c += '</div>';
+      c += '</div>';
+      c += '<div style="display:flex;gap:4px;">';
+      c += '<button onclick="ouvrirModaleAgendaRDV(\'' + r.id + '\')" style="background:rgba(45,106,79,.08);border:none;color:#2d6a4f;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Modifier</button>';
+      c += '<button onclick="supprimerAgendaRDV(\'' + r.id + '\')" style="background:rgba(220,38,38,.06);border:none;color:#dc2626;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Suppr.</button>';
+      c += '</div></div>';
+      if (r.notes) c += '<div style="font-size:11px;color:rgba(6,23,45,.5);margin-top:4px;line-height:1.4;">' + r.notes + '</div>';
+      c += '</div>';
+      return c;
+    }
+
+    // Prochains RDV
+    if (futurs.length > 0) {
+      html += '<div style="margin-top:14px;">';
+      html += '<p class="section-title" style="margin:0 0 8px;">Prochains rendez-vous</p>';
+      futurs.forEach(function(r) { html += _renderRdvCard(r, false); });
+      html += '</div>';
+    } else {
+      html += '<p style="margin-top:14px;font-size:12px;color:rgba(6,23,45,.4);">Aucun rendez-vous \u00e0 venir.</p>';
+    }
+
+    // Passés (collapsible)
+    if (passes.length > 0) {
+      html += '<details style="margin-top:10px;"><summary class="section-title" style="cursor:pointer;color:rgba(6,23,45,.42);">RDV pass\u00e9s (' + passes.length + ')</summary><div style="margin-top:8px;">';
+      passes.forEach(function(r) { html += _renderRdvCard(r, true); });
+      html += '</div></details>';
+    }
 
     // === Bouton ajouter ===
     html += '<div style="margin-top:12px;">';
@@ -217,48 +262,6 @@
     _rendering = true;
     render();
     _rendering = false;
-
-    var detail = document.getElementById('agenda-day-detail');
-    if (!detail) return;
-
-    var rdvs = _getRdvParJour(_currentYear, _currentMonth)[day] || [];
-    var dateStr = String(day).padStart(2, '0') + '/' + String(_currentMonth + 1).padStart(2, '0') + '/' + _currentYear;
-
-    var h = '<div style="background:#f8faf9;border-radius:12px;padding:12px 14px;border:1px solid rgba(45,106,79,.12);">';
-    h += '<div style="margin-bottom:8px;">';
-    h += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + dateStr + '</span>';
-    h += '</div>';
-
-    // RDV du jour
-    if (rdvs.length > 0) {
-      rdvs.sort(function(a, b) { return (a.datetime || '').localeCompare(b.datetime || ''); });
-      rdvs.forEach(function(r) {
-        var d = new Date(r.datetime);
-        var heure = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-        var past = _isPast(r.datetime);
-        var col = _getSpecColor(r.specialiste);
-
-        h += '<div style="border-left:3px solid ' + col + ';border-radius:8px;padding:10px 12px;margin-bottom:6px;background:' + (past ? '#f9fafb' : '#fff') + ';box-shadow:0 1px 3px rgba(0,0,0,.06);">';
-        h += '<div style="display:flex;align-items:center;justify-content:space-between;">';
-        h += '<div>';
-        h += '<div style="font-size:13px;font-weight:700;color:#06172D;">' + (r.specialiste || 'RDV') + '</div>';
-        h += '<div style="font-size:11px;color:rgba(6,23,45,.5);margin-top:1px;">' + heure;
-        if (r.lieu) h += ' · ' + r.lieu;
-        h += '</div>';
-        h += '</div>';
-        h += '<div style="display:flex;gap:4px;">';
-        h += '<button onclick="ouvrirModaleAgendaRDV(\'' + r.id + '\')" style="background:rgba(45,106,79,.08);border:none;color:#2d6a4f;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Modifier</button>';
-        h += '<button onclick="supprimerAgendaRDV(\'' + r.id + '\')" style="background:rgba(220,38,38,.06);border:none;color:#dc2626;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Suppr.</button>';
-        h += '</div></div>';
-        if (r.notes) h += '<div style="font-size:11px;color:rgba(6,23,45,.5);margin-top:4px;line-height:1.4;">' + r.notes + '</div>';
-        h += '</div>';
-      });
-    } else {
-      h += '<p style="font-size:12px;color:rgba(6,23,45,.4);margin:0;">Aucun rendez-vous ce jour.</p>';
-    }
-    h += '</div>';
-
-    detail.innerHTML = h;
   }
 
   function _prevMonth() {
