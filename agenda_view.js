@@ -144,9 +144,6 @@
       var isToday = isCurrentMonth && d === today.getDate();
       var isSelected = d === _selectedDay;
       var rdvs = rdvMap[d] || [];
-      var score = _getDayScore(_currentYear, _currentMonth, d);
-      var sColor = _scoreColor(score);
-      var sBg = _scoreBg(score);
 
       // Style de la case
       var cellBg = isSelected ? 'rgba(45,106,79,.08)' : 'transparent';
@@ -154,12 +151,8 @@
 
       html += '<div onclick="AgendaView._selectDay(' + d + ')" style="text-align:center;padding:4px 2px;min-height:52px;cursor:pointer;border-radius:10px;' + cellBorder + 'background:' + cellBg + ';transition:all .15s;">';
 
-      // Cercle score ou numéro simple
-      if (score !== null) {
-        html += '<div style="width:32px;height:32px;border-radius:50%;background:' + sBg + ';border:2px solid ' + sColor + ';display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
-        html += '<span style="font-size:12px;font-weight:700;color:' + sColor + ';">' + d + '</span>';
-        html += '</div>';
-      } else if (isToday) {
+      // Numéro du jour (today = vert, sinon neutre)
+      if (isToday) {
         html += '<div style="width:32px;height:32px;border-radius:50%;background:#2d6a4f;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
         html += '<span style="font-size:12px;font-weight:700;color:#fff;">' + d + '</span>';
         html += '</div>';
@@ -204,13 +197,6 @@
       html += '</div>';
     }
 
-    // === Legende scores ===
-    html += '<div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;">';
-    html += '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #2d6a4f;display:inline-block;"></span><span style="font-size:11px;color:rgba(6,23,45,.45);">Score ≥ 7</span></div>';
-    html += '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #D97706;display:inline-block;"></span><span style="font-size:11px;color:rgba(6,23,45,.45);">Score 4-6</span></div>';
-    html += '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #DC2626;display:inline-block;"></span><span style="font-size:11px;color:rgba(6,23,45,.45);">Score &lt; 4</span></div>';
-    html += '</div>';
-
     container.innerHTML = html;
 
     // Auto-select today (sauf si déjà en cours de render, anti-boucle)
@@ -236,18 +222,11 @@
     if (!detail) return;
 
     var rdvs = _getRdvParJour(_currentYear, _currentMonth)[day] || [];
-    var score = _getDayScore(_currentYear, _currentMonth, day);
     var dateStr = String(day).padStart(2, '0') + '/' + String(_currentMonth + 1).padStart(2, '0') + '/' + _currentYear;
 
     var h = '<div style="background:#f8faf9;border-radius:12px;padding:12px 14px;border:1px solid rgba(45,106,79,.12);">';
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+    h += '<div style="margin-bottom:8px;">';
     h += '<span style="font-size:13px;font-weight:700;color:#06172D;">' + dateStr + '</span>';
-
-    // Score badge
-    if (score !== null) {
-      var sCol = _scoreColor(score);
-      h += '<span style="font-size:12px;font-weight:700;color:' + sCol + ';background:' + _scoreBg(score) + ';padding:3px 10px;border-radius:12px;">' + score.toFixed(1) + '/10</span>';
-    }
     h += '</div>';
 
     // RDV du jour

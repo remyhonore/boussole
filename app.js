@@ -303,7 +303,8 @@ function updateDashboardTiles() {
       if (futurs.length > 0) {
         var next = futurs[0];
         var dt = new Date(next.datetime);
-        var jour = dt.getDate() + '/' + (dt.getMonth() + 1);
+        var MOIS_COURT = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+        var jour = dt.getDate() + ' ' + MOIS_COURT[dt.getMonth()] + ' ' + dt.getFullYear();
         tileA.textContent = (next.specialiste ? next.specialiste + ' — ' : '') + jour;
       } else {
         tileA.textContent = 'Aucun RDV';
