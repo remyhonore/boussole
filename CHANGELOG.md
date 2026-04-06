@@ -2,6 +2,11 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.60] - 2026-04-06
+### Changed
+- Mes rendez-vous remonté en 1ère position dans panel Suivi (avant Traitements/Allergies)
+- Accordéon Mes rendez-vous ouvert par défaut (attribut open)
+
 ## [10.59] - 2026-04-06
 ### Changed
 - Lint UX R1 : px toutes tailles autorisées (DS v2), seul rem reste interdit
