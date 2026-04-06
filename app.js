@@ -79,9 +79,9 @@ function updateCompletionIndicator() {
   var entry = getEntry(date);
   var fields = [
     { key: 'energie', label: 'É' },
-    { key: 'qualite_sommeil', label: 'S' },
-    { key: 'douleurs', label: 'C' },
-    { key: 'clarte_mentale', label: 'M' },
+    { key: 'sommeil', label: 'S' },
+    { key: 'confort', label: 'C' },
+    { key: 'clarte', label: 'M' },
     { key: 'humeur', label: 'H' }
   ];
   var filled = 0;
@@ -180,9 +180,9 @@ function updateAccueilScoreCTA() {
     var mC = document.getElementById('metric-confort');
     var mCl = document.getElementById('metric-clarte');
     if (mE) mE.textContent = entry.energie + '/10';
-    if (mS) mS.textContent = (typeof entry.qualite_sommeil === 'number' ? entry.qualite_sommeil : '--') + '/10';
-    if (mC) mC.textContent = (typeof entry.douleurs === 'number' ? entry.douleurs : '--') + '/10';
-    if (mCl) mCl.textContent = (typeof entry.clarte_mentale === 'number' ? entry.clarte_mentale : '--') + '/10';
+    if (mS) mS.textContent = (typeof entry.sommeil === 'number' ? entry.sommeil : '--') + '/10';
+    if (mC) mC.textContent = (typeof entry.confort === 'number' ? entry.confort : '--') + '/10';
+    if (mCl) mCl.textContent = (typeof entry.clarte === 'number' ? entry.clarte : '--') + '/10';
 
     // Sparkline 7 jours
     var sparkContainer = document.getElementById('accueil-sparkline');
@@ -384,7 +384,7 @@ function switchPanel(panelId) {
     loadTodayData();
     updateDashboardTiles();
     requestAnimationFrame(() => {
-      ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+      ['energie', 'qualite-sommeil', 'confort', 'clarte-mentale'].forEach(id => {
         const slider = document.getElementById(id);
         if (slider) updateSmiley(id, parseInt(slider.value));
       });
@@ -559,7 +559,7 @@ function updateSmiley(id, value) {
 }
 
 window.addEventListener('resize', () => {
-  ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+  ['energie', 'qualite-sommeil', 'confort', 'clarte-mentale'].forEach(id => {
     const slider = document.getElementById(id);
     const smileyEl = document.getElementById(`${id}-smiley`);
     if (!slider || !smileyEl || !smileyEl.textContent) return;
@@ -575,7 +575,7 @@ window.addEventListener('resize', () => {
  */
 function initTodayPanel() {
   // Curseurs
-  const sliders = ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'];
+  const sliders = ['energie', 'qualite-sommeil', 'confort', 'clarte-mentale'];
   sliders.forEach(id => {
     const slider = document.getElementById(id);
     const valueDisplay = document.getElementById(`${id}-value`);
@@ -629,20 +629,20 @@ function loadTodayData() {
       document.getElementById('energie-value').textContent = entry.energie;
       updateSmiley('energie', entry.energie);
     }
-    if (entry.qualite_sommeil !== null) {
-      document.getElementById('qualite-sommeil').value = entry.qualite_sommeil;
-      document.getElementById('qualite-sommeil-value').textContent = entry.qualite_sommeil;
-      updateSmiley('qualite-sommeil', entry.qualite_sommeil);
+    if (entry.sommeil !== null) {
+      document.getElementById('qualite-sommeil').value = entry.sommeil;
+      document.getElementById('qualite-sommeil-value').textContent = entry.sommeil;
+      updateSmiley('qualite-sommeil', entry.sommeil);
     }
-    if (entry.douleurs !== null) {
-      document.getElementById('douleurs').value = entry.douleurs;
-      document.getElementById('douleurs-value').textContent = entry.douleurs;
-      updateSmiley('douleurs', entry.douleurs);
+    if (entry.confort !== null) {
+      document.getElementById('confort').value = entry.confort;
+      document.getElementById('confort-value').textContent = entry.confort;
+      updateSmiley('confort', entry.confort);
     }
-    if (entry.clarte_mentale !== null) {
-      document.getElementById('clarte-mentale').value = entry.clarte_mentale;
-      document.getElementById('clarte-mentale-value').textContent = entry.clarte_mentale;
-      updateSmiley('clarte-mentale', entry.clarte_mentale);
+    if (entry.clarte !== null) {
+      document.getElementById('clarte-mentale').value = entry.clarte;
+      document.getElementById('clarte-mentale-value').textContent = entry.clarte;
+      updateSmiley('clarte-mentale', entry.clarte);
     }
     if (entry.note) {
       document.getElementById('note').value = entry.note;
@@ -719,13 +719,13 @@ function loadTodayData() {
   if (mesuresSection) mesuresSection.style.display = secPrefs.mesures ? '' : 'none';
 
   // Re-appliquer la visibilité cycle après affichage mesures (ADR-2026-025)
-  var genrePref = localStorage.getItem('boussole_genre') || localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var genrePref = localStorage.getItem('boussole_genre') || 'non_precise';
   var cycleDiv = document.querySelector('.mesures-cycle');
   if (cycleDiv) cycleDiv.style.display = (genrePref === 'femme' || genrePref === 'Femme') ? '' : 'none';
 
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
-    ['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+    ['energie', 'qualite-sommeil', 'confort', 'clarte-mentale'].forEach(id => {
       const slider = document.getElementById(id);
       if (slider) updateSmiley(id, parseInt(slider.value));
     });
@@ -770,9 +770,9 @@ function changerDateSaisie(dateStr) {
 
   const sliders = [
     { id: 'energie', key: 'energie' },
-    { id: 'qualite-sommeil', key: 'qualite_sommeil' },
-    { id: 'douleurs', key: 'douleurs' },
-    { id: 'clarte-mentale', key: 'clarte_mentale' }
+    { id: 'qualite-sommeil', key: 'sommeil' },
+    { id: 'confort', key: 'confort' },
+    { id: 'clarte-mentale', key: 'clarte' }
   ];
   sliders.forEach(({ id, key }) => {
     const slider = document.getElementById(id);
@@ -918,14 +918,14 @@ function dismissDegradationAlert() {
 function saveCurrentEntry() {
   const energie = getSliderValue('energie');
   const qualiteSommeil = getSliderValue('qualite-sommeil');
-  const douleurs = getSliderValue('douleurs');
+  const confort = getSliderValue('confort');
   const clarteMentale = getSliderValue('clarte-mentale');
   const note = document.getElementById('note').value.trim();
   // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssdInput = document.getElementById('rmssd-input');
   // DEPRECATED: ancien RMSSD — ADR-2026-021 // const rmssd = rmssdInput && rmssdInput.value !== '' ? parseFloat(rmssdInput.value) : null;
   
   // Vérifier qu'au moins 1 curseur est renseigné
-  const filledCount = [energie, qualiteSommeil, douleurs, clarteMentale].filter(v => v !== null).length;
+  const filledCount = [energie, qualiteSommeil, confort, clarteMentale].filter(v => v !== null).length;
   
   if (filledCount === 0) {
     showStatus('Renseigne au moins 1 repère pour enregistrer.', 'warning');
@@ -938,9 +938,9 @@ function saveCurrentEntry() {
   const humeurRangeEl = document.getElementById('humeur-range');
   const entry = {
     energie,
-    qualite_sommeil: qualiteSommeil,
-    douleurs,
-    clarte_mentale: clarteMentale,
+    sommeil: qualiteSommeil,
+    confort,
+    clarte: clarteMentale,
     note: note || null,
     humeur: (humeurRangeEl && humeurRangeEl.dataset.touched === 'true') ? parseInt(humeurRangeEl.value) : null,
     // DEPRECATED: ancien RMSSD — ADR-2026-021 // rmssd: rmssd
@@ -1034,7 +1034,7 @@ function getSliderValue(id) {
 }
 
 // Marquer les curseurs comme touchés
-['energie', 'qualite-sommeil', 'douleurs', 'clarte-mentale'].forEach(id => {
+['energie', 'qualite-sommeil', 'confort', 'clarte-mentale'].forEach(id => {
   const slider = document.getElementById(id);
   if (slider) {
     slider.addEventListener('input', () => {
@@ -1057,23 +1057,23 @@ function fillLastValues() {
     document.getElementById('energie-value').textContent = lastEntry.energie;
     updateSmiley('energie', lastEntry.energie);
   }
-  if (lastEntry.qualite_sommeil !== null) {
-    document.getElementById('qualite-sommeil').value = lastEntry.qualite_sommeil;
+  if (lastEntry.sommeil !== null) {
+    document.getElementById('qualite-sommeil').value = lastEntry.sommeil;
     document.getElementById('qualite-sommeil').dataset.touched = 'true';
-    document.getElementById('qualite-sommeil-value').textContent = lastEntry.qualite_sommeil;
-    updateSmiley('qualite-sommeil', lastEntry.qualite_sommeil);
+    document.getElementById('qualite-sommeil-value').textContent = lastEntry.sommeil;
+    updateSmiley('qualite-sommeil', lastEntry.sommeil);
   }
-  if (lastEntry.douleurs !== null) {
-    document.getElementById('douleurs').value = lastEntry.douleurs;
-    document.getElementById('douleurs').dataset.touched = 'true';
-    document.getElementById('douleurs-value').textContent = lastEntry.douleurs;
-    updateSmiley('douleurs', lastEntry.douleurs);
+  if (lastEntry.confort !== null) {
+    document.getElementById('confort').value = lastEntry.confort;
+    document.getElementById('confort').dataset.touched = 'true';
+    document.getElementById('confort-value').textContent = lastEntry.confort;
+    updateSmiley('confort', lastEntry.confort);
   }
-  if (lastEntry.clarte_mentale !== null) {
-    document.getElementById('clarte-mentale').value = lastEntry.clarte_mentale;
+  if (lastEntry.clarte !== null) {
+    document.getElementById('clarte-mentale').value = lastEntry.clarte;
     document.getElementById('clarte-mentale').dataset.touched = 'true';
-    document.getElementById('clarte-mentale-value').textContent = lastEntry.clarte_mentale;
-    updateSmiley('clarte-mentale', lastEntry.clarte_mentale);
+    document.getElementById('clarte-mentale-value').textContent = lastEntry.clarte;
+    updateSmiley('clarte-mentale', lastEntry.clarte);
   }
 
   showStatus('Dernières valeurs chargées (4 repères)', 'success');
@@ -1096,23 +1096,23 @@ function fillYesterdayValues() {
     document.getElementById('energie-value').textContent = entry.energie;
     updateSmiley('energie', entry.energie);
   }
-  if (entry.qualite_sommeil !== null && entry.qualite_sommeil !== undefined) {
-    document.getElementById('qualite-sommeil').value = entry.qualite_sommeil;
+  if (entry.sommeil !== null && entry.sommeil !== undefined) {
+    document.getElementById('qualite-sommeil').value = entry.sommeil;
     document.getElementById('qualite-sommeil').dataset.touched = 'true';
-    document.getElementById('qualite-sommeil-value').textContent = entry.qualite_sommeil;
-    updateSmiley('qualite-sommeil', entry.qualite_sommeil);
+    document.getElementById('qualite-sommeil-value').textContent = entry.sommeil;
+    updateSmiley('qualite-sommeil', entry.sommeil);
   }
-  if (entry.douleurs !== null && entry.douleurs !== undefined) {
-    document.getElementById('douleurs').value = entry.douleurs;
-    document.getElementById('douleurs').dataset.touched = 'true';
-    document.getElementById('douleurs-value').textContent = entry.douleurs;
-    updateSmiley('douleurs', entry.douleurs);
+  if (entry.confort !== null && entry.confort !== undefined) {
+    document.getElementById('confort').value = entry.confort;
+    document.getElementById('confort').dataset.touched = 'true';
+    document.getElementById('confort-value').textContent = entry.confort;
+    updateSmiley('confort', entry.confort);
   }
-  if (entry.clarte_mentale !== null && entry.clarte_mentale !== undefined) {
-    document.getElementById('clarte-mentale').value = entry.clarte_mentale;
+  if (entry.clarte !== null && entry.clarte !== undefined) {
+    document.getElementById('clarte-mentale').value = entry.clarte;
     document.getElementById('clarte-mentale').dataset.touched = 'true';
-    document.getElementById('clarte-mentale-value').textContent = entry.clarte_mentale;
-    updateSmiley('clarte-mentale', entry.clarte_mentale);
+    document.getElementById('clarte-mentale-value').textContent = entry.clarte;
+    updateSmiley('clarte-mentale', entry.clarte);
   }
   var humeurRange = document.getElementById('humeur-range');
   if (humeurRange && entry.humeur !== null && entry.humeur !== undefined) {
@@ -1140,9 +1140,9 @@ function updateLastSavedDisplay() {
   
   const parts = [];
   if (lastEntry.energie !== null) parts.push(`Énergie ${lastEntry.energie}`);
-  if (lastEntry.qualite_sommeil !== null) parts.push(`Sommeil ${lastEntry.qualite_sommeil}`);
-  if (lastEntry.douleurs !== null) parts.push(`Confort ${lastEntry.douleurs}`);
-  if (lastEntry.clarte_mentale !== null && lastEntry.clarte_mentale !== undefined) parts.push(`Clarté ${lastEntry.clarte_mentale}`);
+  if (lastEntry.sommeil !== null) parts.push(`Sommeil ${lastEntry.sommeil}`);
+  if (lastEntry.confort !== null) parts.push(`Confort ${lastEntry.confort}`);
+  if (lastEntry.clarte !== null && lastEntry.clarte !== undefined) parts.push(`Clarté ${lastEntry.clarte}`);
   
   const dateStr = formatDateFr(lastEntry.date);
   display.textContent = `Dernière saisie : ${dateStr} · ${parts.join(' · ')}`;
@@ -1304,9 +1304,9 @@ function openBackfillModal(dateStr) {
   var jourLabel = joursSemaine[dObj.getDay()] + ' ' + dateLabel;
 
   var eVal = existing ? (existing.energie || 5) : 5;
-  var sVal = existing ? (existing.qualite_sommeil || 5) : 5;
-  var cVal = existing ? (existing.douleurs || 5) : 5;
-  var mVal = existing ? (existing.clarte_mentale || 5) : 5;
+  var sVal = existing ? (existing.sommeil || 5) : 5;
+  var cVal = existing ? (existing.confort || 5) : 5;
+  var mVal = existing ? (existing.clarte || 5) : 5;
   var nVal = existing && existing.note ? existing.note : '';
 
   var modal = document.getElementById('backfill-modal');
@@ -1332,7 +1332,7 @@ function openBackfillModal(dateStr) {
   var sliders = [
     { id: 'bf-energie', label: 'Energie', val: eVal, low: '0 = epuise(e)', high: '10 = pleine forme' },
     { id: 'bf-sommeil', label: 'Sommeil', val: sVal, low: '0 = insomnie', high: '10 = parfait' },
-    { id: 'bf-confort', label: 'Confort physique', val: cVal, low: '0 = douleurs intenses', high: '10 = aucune douleur' },
+    { id: 'bf-confort', label: 'Confort physique', val: cVal, low: '0 = confort intenses', high: '10 = aucune douleur' },
     { id: 'bf-clarte', label: 'Clarte mentale', val: mVal, low: '0 = brouillard total', high: '10 = esprit vif' }
   ];
 
@@ -1377,9 +1377,9 @@ function saveBackfill(dateStr) {
   var entry = {
     date: dateStr,
     energie: energie,
-    qualite_sommeil: sommeil,
-    douleurs: confort,
-    clarte_mentale: clarte,
+    sommeil: sommeil,
+    confort: confort,
+    clarte: clarte,
     note: note || ''
   };
 
@@ -1416,14 +1416,14 @@ function refreshSummary() {
   const recent7j = rawEntries7j.filter(e => e.date >= cutoff7jStr);
 
   const dataEnergie7j = recent7j.map(e => e.energie);
-  const dataSommeil7j = recent7j.map(e => e.qualite_sommeil);
-  const dataConfort7j = recent7j.map(e => e.douleurs);
-  const dataClarte7j  = recent7j.map(e => e.clarte_mentale);
+  const dataSommeil7j = recent7j.map(e => e.sommeil);
+  const dataConfort7j = recent7j.map(e => e.confort);
+  const dataClarte7j  = recent7j.map(e => e.clarte);
 
   const _metriques7jBase = [
     { key: 'energie',   label: 'Énergie',          emoji: '💪', moy: _avgVals(dataEnergie7j), vals: dataEnergie7j },
     { key: 'sommeil',   label: 'Sommeil',          emoji: '🌙', moy: _avgVals(dataSommeil7j), vals: dataSommeil7j },
-    { key: 'douleur',   label: 'Confort physique', emoji: '❤️', moy: _avgVals(dataConfort7j), vals: dataConfort7j },
+    { key: 'confort',   label: 'Confort physique', emoji: '❤️', moy: _avgVals(dataConfort7j), vals: dataConfort7j },
     { key: 'cognition', label: 'Clarté mentale',   emoji: '🧠', moy: _avgVals(dataClarte7j),  vals: dataClarte7j  }
   ].map(m => Object.assign({}, m, {
     tendance: _tendance7j(m.vals),
@@ -2050,7 +2050,7 @@ function computeStabilityScore() {
   const scores = [];
   for (let i = sorted.length - 1; i >= 0 && scores.length < 30; i--) {
     const e = sorted[i];
-    const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale]
+    const vals = [e.energie, e.sommeil, e.confort, e.clarte]
       .filter(v => v !== null && v !== undefined);
     if (vals.length > 0) {
       scores.unshift(vals.reduce((a, b) => a + b, 0) / vals.length);
@@ -2508,9 +2508,9 @@ window._ouvrirModePresentation = function() {
 
   // Métriques 7j
   const dataEnergie = recentEntries.map(e => e.energie);
-  const dataSommeil = recentEntries.map(e => e.qualite_sommeil);
-  const dataConfort = recentEntries.map(e => e.douleurs);
-  const dataClarte  = recentEntries.map(e => e.clarte_mentale);
+  const dataSommeil = recentEntries.map(e => e.sommeil);
+  const dataConfort = recentEntries.map(e => e.confort);
+  const dataClarte  = recentEntries.map(e => e.clarte);
   const dataHumeur  = recentEntries.map(e => e.humeur).filter(v => v !== undefined && v !== null);
 
   const avgEnergie = avg(dataEnergie);
@@ -2668,7 +2668,7 @@ window._ouvrirModePresentation = function() {
   let pemHtml = '';
   if (typeof window.detectPEMEvents === 'function') {
     const days7jPEM = recentEntries.map(function(e) {
-      const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const vals = [e.energie, e.sommeil, e.confort, e.clarte].filter(v => v !== null && v !== undefined);
       const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
       return { date: e.date, score: score };
     }).filter(d => d.score !== null);
@@ -2699,7 +2699,7 @@ window._ouvrirModePresentation = function() {
   let cycleHtml = '';
   if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
     const days7jCycle = recentEntries.map(function(e) {
-      const vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const vals = [e.energie, e.sommeil, e.confort, e.clarte].filter(v => v !== null && v !== undefined);
       const score = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
       return { date: e.date, score: score };
     }).filter(d => d.score !== null);
@@ -2745,7 +2745,7 @@ window._ouvrirModePresentation = function() {
   // 9. POINTS DE RÉFLEXION PERSONNELS (conditionnel)
   // ============================================================
   const scores7jQ = recentEntries.map(function(e) {
-    const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+    const vv = [e.energie, e.sommeil, e.confort, e.clarte].filter(v => v !== null && v !== undefined);
     return vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null;
   }).filter(v => v !== null);
   const scoreMoy7jQ = avg(scores7jQ);
@@ -2761,7 +2761,7 @@ window._ouvrirModePresentation = function() {
   let pemCount7jQ = 0;
   if (typeof window.detectPEMEvents === 'function') {
     const days7jQpem = recentEntries.map(function(e) {
-      const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const vv = [e.energie, e.sommeil, e.confort, e.clarte].filter(v => v !== null && v !== undefined);
       return { date: e.date, score: vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null };
     }).filter(d => d.score !== null);
     const m7jpem = {};
@@ -2776,7 +2776,7 @@ window._ouvrirModePresentation = function() {
   let daysWithCycleQ = 0;
   if (typeof window.collectCycleData === 'function') {
     const days7jQcyc = recentEntries.map(function(e) {
-      const vv = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const vv = [e.energie, e.sommeil, e.confort, e.clarte].filter(v => v !== null && v !== undefined);
       return { date: e.date, score: vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : null };
     }).filter(d => d.score !== null);
     const m7jcyc = {};
@@ -2832,7 +2832,7 @@ window._ouvrirModePresentation = function() {
     const e14mp = entryMap14mp[cdStr14];
     let dotClass14 = 'cal-dot cal-dot-vide';
     if (e14mp) {
-      const vals14 = [e14mp.energie, e14mp.qualite_sommeil, e14mp.douleurs, e14mp.clarte_mentale].filter(v => v !== null && v !== undefined);
+      const vals14 = [e14mp.energie, e14mp.sommeil, e14mp.confort, e14mp.clarte].filter(v => v !== null && v !== undefined);
       if (vals14.length > 0) {
         const sc14 = vals14.reduce((a, b) => a + b, 0) / vals14.length;
         dotClass14 = sc14 >= 7 ? 'cal-dot cal-dot-vert' : sc14 >= 4 ? 'cal-dot cal-dot-orange' : 'cal-dot cal-dot-rouge';
@@ -2957,9 +2957,9 @@ window._ouvrirModePresentation = function() {
         chartLabels.push(String(cd.getDate()) + '/' + String(cd.getMonth() + 1).padStart(2, '0'));
         const e = entryMapChart[ds];
         cEnergie.push(e ? e.energie         : null);
-        cSommeil.push(e ? e.qualite_sommeil  : null);
-        cConfort.push(e ? e.douleurs         : null);
-        cClarte.push( e ? e.clarte_mentale   : null);
+        cSommeil.push(e ? e.sommeil  : null);
+        cConfort.push(e ? e.confort         : null);
+        cClarte.push( e ? e.clarte   : null);
       }
 
       window._modePresentationChart = new Chart(canvas, {
@@ -3050,7 +3050,7 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
     }
   }
 
-  var genreStored = localStorage.getItem('boussole_genre') || localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var genreStored = localStorage.getItem('boussole_genre') || 'non_precise';
   applyProfilGenre(genreStored);
   var genreRadioInit = document.querySelector('input[name="profil-genre"][value="' + genreStored + '"]');
   if (genreRadioInit) genreRadioInit.checked = true;
@@ -3058,7 +3058,7 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
   document.querySelectorAll('input[name="profil-genre"]').forEach(function(radio) {
     radio.addEventListener('change', function() {
       if (this.checked) {
-        localStorage.setItem('boussole_profil_genre', this.value);
+        localStorage.setItem('boussole_genre', this.value);
         applyProfilGenre(this.value);
       }
     });
@@ -3856,9 +3856,9 @@ function exportDonneesCSV() {
       e.date || '',
       score !== null && score !== undefined && score !== '' ? Math.round(score * 10) / 10 : '',
       e.energie !== undefined ? e.energie : '',
-      e.qualite_sommeil !== undefined ? e.qualite_sommeil : '',
-      e.douleurs !== undefined ? e.douleurs : '',
-      e.clarte_mentale !== undefined ? e.clarte_mentale : '',
+      e.sommeil !== undefined ? e.sommeil : '',
+      e.confort !== undefined ? e.confort : '',
+      e.clarte !== undefined ? e.clarte : '',
       '"' + note + '"',
       mesures.fc_repos || '',
       mesures.hrv_rmssd || '',
@@ -4269,7 +4269,7 @@ function renderJournalNotes(showAll) {
         var parts = [];
         if (entry.humeur != null) parts.push('Humeur ' + entry.humeur);
         if (entry.energie != null) parts.push('\u00c9nergie ' + entry.energie);
-        if (entry.qualite_sommeil != null) parts.push('Sommeil ' + entry.qualite_sommeil);
+        if (entry.sommeil != null) parts.push('Sommeil ' + entry.sommeil);
         if (parts.length > 0) scores = '<span style="font-size:11px;color:rgba(6,23,45,.42);margin-left:8px;">' + parts.join(' · ') + '</span>';
       }
       var editZoneId = 'journal-empty-edit-' + safeDate;
@@ -4344,7 +4344,7 @@ function saveNoteAdd() {
   if (!note) { alert('La note est vide.'); return; }
   // Récupérer ou créer l'entrée
   var existing = getEntry(date);
-  var entry = existing || { energie: null, qualite_sommeil: null, douleurs: null, clarte_mentale: null, humeur: null, rmssd: null };
+  var entry = existing || { energie: null, sommeil: null, confort: null, clarte: null, humeur: null, rmssd: null };
   entry.note = note;
   saveEntry(date, entry);
   // Fermer le formulaire
@@ -4378,7 +4378,7 @@ function saveEmptyNote(date) {
   var note = ta.value.trim();
   if (!note) { alert('La note est vide.'); return; }
   var existing = getEntry(date);
-  var entry = existing || { energie: null, qualite_sommeil: null, douleurs: null, clarte_mentale: null, humeur: null, rmssd: null };
+  var entry = existing || { energie: null, sommeil: null, confort: null, clarte: null, humeur: null, rmssd: null };
   entry.note = note;
   saveEntry(date, entry);
   renderJournalNotes(document.getElementById('journal-notes-list').dataset.showAll === 'true');
@@ -4628,9 +4628,9 @@ function generateJournalPDF() {
     var scores = [];
     if (e.humeur != null)         scores.push('Humeur ' + e.humeur + '/10');
     if (e.energie != null)        scores.push('Energie ' + e.energie + '/10');
-    if (e.qualite_sommeil != null) scores.push('Sommeil ' + e.qualite_sommeil + '/10');
-    if (e.douleurs != null)       scores.push('Confort ' + e.douleurs + '/10');
-    if (e.clarte_mentale != null) scores.push('Clarte ' + e.clarte_mentale + '/10');
+    if (e.sommeil != null) scores.push('Sommeil ' + e.sommeil + '/10');
+    if (e.confort != null)       scores.push('Confort ' + e.confort + '/10');
+    if (e.clarte != null) scores.push('Clarte ' + e.clarte + '/10');
     if (scores.length > 0) {
       checkPage(7);
       doc.setFont('helvetica', 'normal');
@@ -4696,11 +4696,11 @@ function detectFichesPatterns(entries7j) {
   }
 
   // Pattern 3 : qualité sommeil mauvaise + énergie basse au réveil (fatigue matinale)
-  const sommeilBas = sorted.filter(e => (e.qualite_sommeil || 0) <= 3).length;
+  const sommeilBas = sorted.filter(e => (e.sommeil || 0) <= 3).length;
   if (sommeilBas >= 4) patterns.push('fatigue-matinale');
 
   // Pattern 4 : clarté mentale basse fréquente (brouillard)
-  const clarteBas = sorted.filter(e => (e.clarte_mentale || 0) <= 3).length;
+  const clarteBas = sorted.filter(e => (e.clarte || 0) <= 3).length;
   if (clarteBas >= 4) patterns.push('brouillard-mental');
 
   // Max 2 fiches affichées simultanément

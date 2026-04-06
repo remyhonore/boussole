@@ -27,7 +27,7 @@ describe('MorningPace — calculer', () => {
   });
 
   test('score élevé (8/8/8/8) → niveau 4 ou 5', () => {
-    setEntries([{ date: '2026-04-05', energie: 8, qualite_sommeil: 8, douleurs: 8, clarte_mentale: 8 }]);
+    setEntries([{ date: '2026-04-05', energie: 8, sommeil: 8, confort: 8, clarte: 8 }]);
     var r = MorningPace.calculer();
     expect(r).not.toBeNull();
     expect(r.niveau).toBeGreaterThanOrEqual(4);
@@ -35,14 +35,14 @@ describe('MorningPace — calculer', () => {
   });
 
   test('score bas (2/2/2/2) → niveau 1 ou 2', () => {
-    setEntries([{ date: '2026-04-05', energie: 2, qualite_sommeil: 2, douleurs: 2, clarte_mentale: 2 }]);
+    setEntries([{ date: '2026-04-05', energie: 2, sommeil: 2, confort: 2, clarte: 2 }]);
     var r = MorningPace.calculer();
     expect(r).not.toBeNull();
     expect(r.niveau).toBeLessThanOrEqual(2);
   });
 
   test('score moyen (5/5/5/5) → niveau 3', () => {
-    setEntries([{ date: '2026-04-05', energie: 5, qualite_sommeil: 5, douleurs: 5, clarte_mentale: 5 }]);
+    setEntries([{ date: '2026-04-05', energie: 5, sommeil: 5, confort: 5, clarte: 5 }]);
     var r = MorningPace.calculer();
     expect(r).not.toBeNull();
     expect(r.niveau).toBe(3);
@@ -50,7 +50,7 @@ describe('MorningPace — calculer', () => {
   });
 
   test('crash 48h baisse le niveau de 1 cran', () => {
-    setEntries([{ date: '2026-04-05', energie: 7, qualite_sommeil: 7, douleurs: 7, clarte_mentale: 7 }]);
+    setEntries([{ date: '2026-04-05', energie: 7, sommeil: 7, confort: 7, clarte: 7 }]);
     // Simuler un événement crash récent
     var now = new Date();
     var yesterday = new Date(now.getTime() - 24 * 3600 * 1000);
@@ -70,7 +70,7 @@ describe('EnergyEnvelope — budget et log', () => {
 
   test('getBudget retourne le budget selon le niveau Morning Pace', () => {
     // Niveau 3 (score moyen) → budget 80
-    setEntries([{ date: '2026-04-05', energie: 5, qualite_sommeil: 5, douleurs: 5, clarte_mentale: 5 }]);
+    setEntries([{ date: '2026-04-05', energie: 5, sommeil: 5, confort: 5, clarte: 5 }]);
     var budget = EnergyEnvelope.getBudget();
     expect(budget).toBe(80); // BUDGETS[3] = 80
   });

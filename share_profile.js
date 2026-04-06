@@ -31,13 +31,13 @@ window.generateShareProfile = function() {
     } catch (err) {}
   });
 
-  // Helper : score journalier (moyenne énergie + sommeil + (10-douleurs) + clarté)
+  // Helper : score journalier (moyenne énergie + sommeil + (10-confort) + clarté)
   function dayScore(entry) {
     var vals = [
       entry.energie,
-      entry.qualite_sommeil,
-      entry.douleurs !== undefined && entry.douleurs !== null ? 10 - entry.douleurs : null,
-      entry.clarte_mentale
+      entry.sommeil,
+      entry.confort !== undefined && entry.confort !== null ? 10 - entry.confort : null,
+      entry.clarte
     ].filter(function(v) { return v !== null && v !== undefined; });
     if (vals.length === 0) return null;
     return vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
@@ -90,9 +90,9 @@ window.generateShareProfile = function() {
 
   var metrics = [
     { label: 'Énergie',          std: stdDev(entries.map(function(e) { return e.energie; })) },
-    { label: 'Sommeil',          std: stdDev(entries.map(function(e) { return e.qualite_sommeil; })) },
-    { label: 'Confort physique', std: stdDev(entries.map(function(e) { return e.douleurs; })) },
-    { label: 'Clarté mentale',   std: stdDev(entries.map(function(e) { return e.clarte_mentale; })) }
+    { label: 'Sommeil',          std: stdDev(entries.map(function(e) { return e.sommeil; })) },
+    { label: 'Confort physique', std: stdDev(entries.map(function(e) { return e.confort; })) },
+    { label: 'Clarté mentale',   std: stdDev(entries.map(function(e) { return e.clarte; })) }
   ];
   metrics.sort(function(a, b) { return b.std - a.std; });
   var top3 = metrics.slice(0, 3);

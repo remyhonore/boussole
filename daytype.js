@@ -5,7 +5,7 @@
 
 /**
  * Calcule le type de journée à partir d'une entrée
- * @param {Object} entry - entrée avec energie, qualite_sommeil, douleurs, clarte_mentale
+ * @param {Object} entry - entrée avec energie, sommeil, confort, clarte
  * @returns {Object} { type: 'vert'|'orange'|'rouge', score, label, emoji, conseil, reserve }
  */
 function getDayType(entry) {
@@ -14,9 +14,9 @@ function getDayType(entry) {
   // Collecte des valeurs non nulles (toutes les métriques, haute = mieux)
   const valeurs = [
     entry.energie,
-    entry.qualite_sommeil,
-    entry.douleurs,       // renommé "Confort physique" — 10 = très à l'aise
-    entry.clarte_mentale
+    entry.sommeil,
+    entry.confort,       // renommé "Confort physique" — 10 = très à l'aise
+    entry.clarte
   ].filter(v => v !== null && v !== undefined);
 
   if (valeurs.length === 0) return null;

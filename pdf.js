@@ -295,24 +295,24 @@ function renderTendances(engine, summary) {
       bold: true,
     });
   }
-  if (summary.qualite_sommeil.moyenne !== null) {
+  if (summary.sommeil.moyenne !== null) {
     rows.push({
-      main: `Qualité sommeil : ${summary.qualite_sommeil.moyenne}/10`,
-      sub:  `- ${summary.qualite_sommeil.tendance}`,
+      main: `Qualité sommeil : ${summary.sommeil.moyenne}/10`,
+      sub:  `- ${summary.sommeil.tendance}`,
       bold: true,
     });
   }
-  if (summary.douleurs.moyenne !== null) {
+  if (summary.confort.moyenne !== null) {
     rows.push({
-      main: `Confort physique : ${summary.douleurs.moyenne}/10`,
-      sub:  `- ${summary.douleurs.tendance}`,
+      main: `Confort physique : ${summary.confort.moyenne}/10`,
+      sub:  `- ${summary.confort.tendance}`,
       bold: true,
     });
   }
-  if (summary.clarte_mentale && summary.clarte_mentale.moyenne !== null) {
+  if (summary.clarte && summary.clarte.moyenne !== null) {
     rows.push({
-      main: `Clarté mentale : ${summary.clarte_mentale.moyenne}/10`,
-      sub:  `- ${summary.clarte_mentale.tendance}`,
+      main: `Clarté mentale : ${summary.clarte.moyenne}/10`,
+      sub:  `- ${summary.clarte.tendance}`,
       bold: true,
     });
   }
@@ -480,17 +480,17 @@ function generatePDFPreview(summary) {
     lines.push(`Énergie : ${summary.energie.moyenne}/10`);
     lines.push(`- ${_sanitize(summary.energie.tendance)}`);
   }
-  if (summary.qualite_sommeil.moyenne !== null) {
-    lines.push(`Qualité sommeil : ${summary.qualite_sommeil.moyenne}/10`);
-    lines.push(`- ${_sanitize(summary.qualite_sommeil.tendance)}`);
+  if (summary.sommeil.moyenne !== null) {
+    lines.push(`Qualité sommeil : ${summary.sommeil.moyenne}/10`);
+    lines.push(`- ${_sanitize(summary.sommeil.tendance)}`);
   }
-  if (summary.douleurs.moyenne !== null) {
-    lines.push(`Confort physique : ${summary.douleurs.moyenne}/10`);
-    lines.push(`- ${_sanitize(summary.douleurs.tendance)}`);
+  if (summary.confort.moyenne !== null) {
+    lines.push(`Confort physique : ${summary.confort.moyenne}/10`);
+    lines.push(`- ${_sanitize(summary.confort.tendance)}`);
   }
-  if (summary.clarte_mentale && summary.clarte_mentale.moyenne !== null) {
-    lines.push(`Clarté mentale : ${summary.clarte_mentale.moyenne}/10`);
-    lines.push(`- ${_sanitize(summary.clarte_mentale.tendance)}`);
+  if (summary.clarte && summary.clarte.moyenne !== null) {
+    lines.push(`Clarté mentale : ${summary.clarte.moyenne}/10`);
+    lines.push(`- ${_sanitize(summary.clarte.tendance)}`);
   }
   lines.push('');
 

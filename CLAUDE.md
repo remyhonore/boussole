@@ -65,7 +65,7 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 
 | Clé | Contenu |
 |---|---|
-| `entries` | Tableau saisies quotidiennes `{ date, energie, qualite_sommeil, douleurs, clarte_mentale, note }` |
+| `entries` | Tableau saisies quotidiennes `{ date, energie, sommeil, confort, clarte, note, humeur, rmssd }` (schema v2 — ADR-047) |
 | `boussole_traitements` | Tableau structuré T-MED `{ id, categorie, nom, dci, dose, unite, frequence, statut, paliers[], ... }` |
 | `boussole_pace_feedback` | Feedbacks stabilité matinale `[{ date, match: bool }]` (90j max) |
 | `boussole_pacing_catalogue` | Activités personnalisées pour l'enveloppe énergie |
@@ -76,6 +76,7 @@ storage.js → calc.js → daytype.js → fiches_data.js → pdf.js → pdf_cons
 | `boussole_q_PCFS_YYYY-MM-DD` | Résultat PCFS `{ date, scale, answers, score, ts }` |
 | `boussole_symptom_tree_YYYY-MM-DD` | Résultat arbre symptôme `{ date, answers, results, ts }` |
 | `boussole_agenda_rdv` | Agenda consultations `[{ id, datetime, specialiste, lieu, notes }]` |
+| `boussole_genre` | Genre utilisateur (`femme`, `homme`, `non_precise`) — unique clé depuis ADR-047 |
 | `version_seen` | Version modale changelog vue |
 | `newsletter_done` | Email gate newsletter |
 | `brevo_subscribed` | Statut abonnement Brevo |
@@ -84,7 +85,7 @@ Jamais de données personnelles identifiantes. Jamais de transmission réseau de
 
 ### Conventions
 
-- **Nommage** : fonctions en camelCase, champs de données en snake_case français (`qualite_sommeil`, `clarte_mentale`)
+- **Nommage** : fonctions en camelCase, champs entry en snake_case court (`sommeil`, `confort`, `clarte`) — ADR-047 schema v2
 - **Moment de prise** : stocké en comma-separated (`"matin,soir"`) — rétrocompatible avec l'ancien format string simple (`"matin"`)
 - **Fonctions pures** dans `calc.js` : toujours testables sans mock
 - **HTML dynamique** généré par template literals (pas de framework de rendu)

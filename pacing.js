@@ -56,7 +56,7 @@ window.MorningPace = (function() {
     if (entries.length > 0) {
       entries.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
       var last = entries[entries.length - 1];
-      var vals = [last.energie, last.qualite_sommeil, last.douleurs, last.clarte_mentale].filter(function(v) { return typeof v === 'number'; });
+      var vals = [last.energie, last.sommeil, last.confort, last.clarte].filter(function(v) { return typeof v === 'number'; });
       if (vals.length > 0) {
         hierScore = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
         subjectif = hierScore * 10; // 0-10 → 0-100
@@ -500,13 +500,13 @@ window.PacingCorrelations = (function() {
   function _getScore(entries, date) {
     var e = entries.find(function(x) { return x.date === date; });
     if (!e) return null;
-    var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return typeof v === 'number'; });
+    var vals = [e.energie, e.sommeil, e.confort, e.clarte].filter(function(v) { return typeof v === 'number'; });
     return vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
   }
 
   function _getClarte(entries, date) {
     var e = entries.find(function(x) { return x.date === date; });
-    return e && typeof e.clarte_mentale === 'number' ? e.clarte_mentale : null;
+    return e && typeof e.clarte === 'number' ? e.clarte : null;
   }
 
   function _getEnergie(entries, date) {

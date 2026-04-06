@@ -36,19 +36,19 @@ describe('calc_v1 - Dataset de référence', () => {
     // Calcul manuel :
     // energie: (4+5+7+6+3+5+7)/7 = 37/7 = 5,29 → arrondi 5
     // sommeil: (4+5+7+6+4+6+7)/7 = 39/7 = 5,57 → arrondi 6
-    // douleurs: (6+5+7+6+2+5+7)/7 = 38/7 = 5,43 → arrondi 5
+    // confort: (6+5+7+6+2+5+7)/7 = 38/7 = 5,43 → arrondi 5
     
     expect(result.energie.moyenne).toBe(5);
-    expect(result.qualite_sommeil.moyenne).toBe(6);
-    expect(result.douleurs.moyenne).toBe(5);
+    expect(result.sommeil.moyenne).toBe(6);
+    expect(result.confort.moyenne).toBe(5);
   });
   
   test('Tendances définies', () => {
     const result = calculateSummary(DATASET_REF, 14);
     
     expect(result.energie.tendance).toBeDefined();
-    expect(result.qualite_sommeil.tendance).toBeDefined();
-    expect(result.douleurs.tendance).toBeDefined();
+    expect(result.sommeil.tendance).toBeDefined();
+    expect(result.confort.tendance).toBeDefined();
     
     // Vérifier que ce sont des valeurs valides
     const validTrends = [
@@ -60,8 +60,8 @@ describe('calc_v1 - Dataset de référence', () => {
     ];
     
     expect(validTrends).toContain(result.energie.tendance);
-    expect(validTrends).toContain(result.qualite_sommeil.tendance);
-    expect(validTrends).toContain(result.douleurs.tendance);
+    expect(validTrends).toContain(result.sommeil.tendance);
+    expect(validTrends).toContain(result.confort.tendance);
   });
   
   test('Variations détectées', () => {
@@ -127,25 +127,25 @@ describe('calc_v1 - Dataset de référence', () => {
 describe('calc_v1 - Fonctions unitaires', () => {
   
   test('calculateDayScore avec tous les curseurs', () => {
-    const entry = { energie: 5, qualite_sommeil: 7, douleurs: 3 };
+    const entry = { energie: 5, sommeil: 7, confort: 3 };
     const score = calculateDayScore(entry);
     expect(score).toBe((5 + 7 + 3) / 3);
   });
   
   test('calculateDayScore avec 2 curseurs', () => {
-    const entry = { energie: 6, qualite_sommeil: null, douleurs: 4 };
+    const entry = { energie: 6, sommeil: null, confort: 4 };
     const score = calculateDayScore(entry);
     expect(score).toBe((6 + 4) / 2);
   });
   
   test('calculateDayScore avec 1 curseur', () => {
-    const entry = { energie: null, qualite_sommeil: 8, douleurs: null };
+    const entry = { energie: null, sommeil: 8, confort: null };
     const score = calculateDayScore(entry);
     expect(score).toBe(8);
   });
   
   test('calculateDayScore sans curseur', () => {
-    const entry = { energie: null, qualite_sommeil: null, douleurs: null };
+    const entry = { energie: null, sommeil: null, confort: null };
     const score = calculateDayScore(entry);
     expect(score).toBeNull();
   });
@@ -166,11 +166,11 @@ describe('calc_v1 - Reproductibilité', () => {
     expect(result1.energie.moyenne).toBe(result2.energie.moyenne);
     expect(result2.energie.moyenne).toBe(result3.energie.moyenne);
     
-    expect(result1.qualite_sommeil.moyenne).toBe(result2.qualite_sommeil.moyenne);
-    expect(result2.qualite_sommeil.moyenne).toBe(result3.qualite_sommeil.moyenne);
+    expect(result1.sommeil.moyenne).toBe(result2.sommeil.moyenne);
+    expect(result2.sommeil.moyenne).toBe(result3.sommeil.moyenne);
     
-    expect(result1.douleurs.moyenne).toBe(result2.douleurs.moyenne);
-    expect(result2.douleurs.moyenne).toBe(result3.douleurs.moyenne);
+    expect(result1.confort.moyenne).toBe(result2.confort.moyenne);
+    expect(result2.confort.moyenne).toBe(result3.confort.moyenne);
     
     // Tendances identiques
     expect(result1.energie.tendance).toBe(result2.energie.tendance);
@@ -197,16 +197,16 @@ describe('calc_v1 - Robustesse', () => {
   
   test('Gère les données partielles', () => {
     const partial = [
-      { date: '2026-02-01', energie: 5, qualite_sommeil: null, douleurs: null },
-      { date: '2026-02-02', energie: null, qualite_sommeil: 6, douleurs: null },
-      { date: '2026-02-03', energie: null, qualite_sommeil: null, douleurs: 4 }
+      { date: '2026-02-01', energie: 5, sommeil: null, confort: null },
+      { date: '2026-02-02', energie: null, sommeil: 6, confort: null },
+      { date: '2026-02-03', energie: null, sommeil: null, confort: 4 }
     ];
     
     const result = calculateSummary(partial, 14);
     expect(result.status).toBe('insufficient');
     expect(result.energie.moyenne).toBe(5);
-    expect(result.qualite_sommeil.moyenne).toBe(6);
-    expect(result.douleurs.moyenne).toBe(4);
+    expect(result.sommeil.moyenne).toBe(6);
+    expect(result.confort.moyenne).toBe(4);
   });
   
 });

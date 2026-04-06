@@ -490,15 +490,15 @@
         <!-- Confort physique -->
         <div class="indicator-card indicator-card--confort">
           <div class="field">
-            <label class="field-label" for="douleurs">
+            <label class="field-label" for="confort">
               <span class="indicator-label"><span aria-hidden="true">❤️</span> Confort physique</span>
-              <span class="field-value indicator-score" id="douleurs-value">—</span>
+              <span class="field-value indicator-score" id="confort-value">—</span>
             </label>
             <div class="range-wrapper">
-              <span class="smiley-thumb" id="douleurs-smiley"></span>
+              <span class="smiley-thumb" id="confort-smiley"></span>
               <input
                 type="range"
-                id="douleurs"
+                id="confort"
                 min="0"
                 max="10"
                 value="0"
@@ -1070,7 +1070,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.55 — </span>
+    <span>Boussole v10.56 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1082,8 +1082,16 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.52</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.56</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
+      </div>
+      <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.56</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Noms des métriques harmonisés (sommeil, confort, clarté)</li>
+          <li>Migration automatique de vos données existantes</li>
+          <li>Unification du paramètre genre</li>
+        </ul>
       </div>
       <div>
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.52</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
@@ -2366,9 +2374,9 @@
         entries.forEach(e => {
           let parts = [e.date];
           if (e.energie != null) parts.push('Énergie ' + e.energie + '/10');
-          if (e.qualite_sommeil != null) parts.push('Sommeil ' + e.qualite_sommeil + '/10');
-          if (e.douleurs != null) parts.push('Confort ' + e.douleurs + '/10');
-          if (e.clarte_mentale != null) parts.push('Clarté ' + e.clarte_mentale + '/10');
+          if (e.sommeil != null) parts.push('Sommeil ' + e.sommeil + '/10');
+          if (e.confort != null) parts.push('Confort ' + e.confort + '/10');
+          if (e.clarte != null) parts.push('Clarté ' + e.clarte + '/10');
           if (e.note) parts.push('Note : "' + e.note + '"');
           ctx += parts.join(' — ') + '\n';
         });

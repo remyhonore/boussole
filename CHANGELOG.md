@@ -2,6 +2,13 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.56] - 2026-04-06
+### Changed
+- ADR-047 : Normalisation clés localStorage entry schema v2 (qualite_sommeil→sommeil, douleurs→confort, clarte_mentale→clarte)
+- Migration automatique transparente au chargement (idempotente)
+- Unification genre : boussole_profil_genre supprimé, seul boussole_genre subsiste
+- Ajout removeItem() dans storage.js
+
 ## [10.54] - 2026-04-06
 
 ### Hotfix dark mode + cycle genre

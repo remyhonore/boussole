@@ -42,9 +42,9 @@ window.ScoreSNA = (function() {
     var series = { rmssd: [], fc: [], sommeil: [], ta_sys: [], ta_dia: [], poids_kg: [], duree_sommeil: [] };
 
     recent.forEach(function(e) {
-      // Sommeil : qualite_sommeil (1-10), normalise sur [0-100]
-      if (typeof e.qualite_sommeil === 'number' && e.qualite_sommeil > 0) {
-        series.sommeil.push(e.qualite_sommeil * 10);
+      // Sommeil : sommeil (1-10), normalise sur [0-100]
+      if (typeof e.sommeil === 'number' && e.sommeil > 0) {
+        series.sommeil.push(e.sommeil * 10);
       }
       // Mesures biologiques : boussole_mesures_YYYY-MM-DD
       var rawM;
@@ -67,7 +67,7 @@ window.ScoreSNA = (function() {
   }
 
   function _scoreSommeil(entry, mesures) {
-    var qualite = typeof entry.qualite_sommeil === 'number' ? entry.qualite_sommeil : null;
+    var qualite = typeof entry.sommeil === 'number' ? entry.sommeil : null;
     var duree = mesures && typeof mesures.duree_sommeil === 'number' ? mesures.duree_sommeil : null;
     if (!qualite) return null;
     var scoreQualite = qualite * 10; // [0-100]

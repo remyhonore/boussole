@@ -140,7 +140,7 @@ function _dateLocale(dateStr) {
 function _buildNarrativeContext(dateFrom, dateTo) {
   var lines = [];
   lines.push('DONNEES PATIENT -- du ' + _dateLocale(dateFrom) + ' au ' + _dateLocale(dateTo));
-  var genre = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var genre = localStorage.getItem('boussole_genre') || 'non_precise';
   var pronoms = genre === 'femme' ? 'la patiente / elle' : genre === 'homme' ? 'le patient / il' : 'le patient / il';
   lines.push('Genre declare : ' + (genre === 'femme' ? 'femme' : genre === 'homme' ? 'homme' : 'non precise') + ' -- utiliser les pronoms : ' + pronoms);
   lines.push('');
@@ -159,9 +159,9 @@ function _buildNarrativeContext(dateFrom, dateTo) {
     entries.forEach(function(e) {
       var parts = [_dateLocale(e.date)];
       if (e.energie          !== null && e.energie          !== undefined) { parts.push('Energie: '         + e.energie          + '/10'); sumE  += e.energie;          cntE++; }
-      if (e.qualite_sommeil  !== null && e.qualite_sommeil  !== undefined) { parts.push('Sommeil: '         + e.qualite_sommeil  + '/10'); sumS  += e.qualite_sommeil;  cntS++; }
-      if (e.douleurs         !== null && e.douleurs         !== undefined) { parts.push('Confort physique: '+ e.douleurs         + '/10'); sumC  += e.douleurs;         cntC++; }
-      if (e.clarte_mentale   !== null && e.clarte_mentale   !== undefined) { parts.push('Clarte mentale: '  + e.clarte_mentale   + '/10'); sumCl += e.clarte_mentale;   cntCl++; }
+      if (e.sommeil  !== null && e.sommeil  !== undefined) { parts.push('Sommeil: '         + e.sommeil  + '/10'); sumS  += e.sommeil;  cntS++; }
+      if (e.confort         !== null && e.confort         !== undefined) { parts.push('Confort physique: '+ e.confort         + '/10'); sumC  += e.confort;         cntC++; }
+      if (e.clarte   !== null && e.clarte   !== undefined) { parts.push('Clarte mentale: '  + e.clarte   + '/10'); sumCl += e.clarte;   cntCl++; }
       if (e.note) parts.push('Note: "' + e.note + '"');
       lines.push(parts.join(' - '));
     });
@@ -172,7 +172,7 @@ function _buildNarrativeContext(dateFrom, dateTo) {
     if (cntCl > 0) moyParts.push('Clarte '   + (sumCl / cntCl).toFixed(1));
     if (moyParts.length) lines.push('Moyenne periode : ' + moyParts.join(' - '));
     var nBas = entries.filter(function(e) {
-      var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return v !== null && v !== undefined; });
+      var vals = [e.energie, e.sommeil, e.confort, e.clarte].filter(function(v) { return v !== null && v !== undefined; });
       return vals.length > 0 && (vals.reduce(function(a, b) { return a + b; }, 0) / vals.length) < 4;
     }).length;
     lines.push('Jours avec score composite < 4 : ' + nBas + '/' + entries.length);
@@ -423,9 +423,9 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     return {
       date:             e.date,
       energie:          e.energie,
-      sommeil:          e.qualite_sommeil,
-      confort_physique: e.douleurs,
-      clarte_mentale:   e.clarte_mentale,
+      sommeil:          e.sommeil,
+      confort_physique: e.confort,
+      clarte:   e.clarte,
       note:             e.note,
       humeur:           e.humeur
     };
@@ -448,7 +448,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   const dataEnergie = entrees.map(function(e) { return e.energie; });
   const dataSommeil = entrees.map(function(e) { return e.sommeil; });
   const dataConfort = entrees.map(function(e) { return e.confort_physique; });
-  const dataClarte  = entrees.map(function(e) { return e.clarte_mentale; });
+  const dataClarte  = entrees.map(function(e) { return e.clarte; });
 
   const moyEnergie = _moyenne(dataEnergie);
   const moySommeil = _moyenne(dataSommeil);
@@ -487,7 +487,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   // VOR -- repartition type de journees
   let nbVert = 0, nbOrange = 0, nbRouge = 0;
   entrees.forEach(function(e) {
-    const vv = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+    const vv = [e.energie, e.sommeil, e.confort_physique, e.clarte]
       .filter(function(v) { return v !== null && v !== undefined; });
     if (vv.length === 0) return;
     const s = vv.reduce(function(a, b) { return a + b; }, 0) / vv.length;
@@ -1201,7 +1201,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
     if (!raw) return;
     let m;
     try { m = JSON.parse(raw); } catch (ex) { return; }
-    const vals  = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+    const vals  = [e.energie, e.sommeil, e.confort_physique, e.clarte]
       .filter(function(v) { return v !== null && v !== undefined; });
     const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
     mesuresParJour.push({
@@ -1374,7 +1374,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   if (typeof window.detectPEMEvents === 'function') {
     const days7jPEM = entrees.map(function(e) {
-      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte]
         .filter(function(v) { return v !== null && v !== undefined; });
       const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
       return { date: e.date, score: score };
@@ -1488,7 +1488,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   if (typeof window.collectCycleData === 'function' && typeof window.analyzeCycleCorrelation === 'function') {
     const days7jCycle = entrees.map(function(e) {
-      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte]
         .filter(function(v) { return v !== null && v !== undefined; });
       const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
       return { date: e.date, score: score };
@@ -1560,7 +1560,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
         try { mesures30jCycle['boussole_mesures_' + ds30] = JSON.parse(raw30); } catch(ex) {}
       }
       const days30jCycle = rawEntries.filter(function(e) { return e.date >= cutoff30jStr; }).map(function(e) {
-        const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+        const vals = [e.energie, e.sommeil, e.confort_physique, e.clarte]
           .filter(function(v) { return v !== null && v !== undefined; });
         const score = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
         return { date: e.date, score: score };
@@ -1675,7 +1675,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
       var entry14 = entryMap14[cdStr];
       var score14Val = null;
       if (entry14) {
-        var vals14 = [entry14.energie, entry14.qualite_sommeil, entry14.douleurs, entry14.clarte_mentale]
+        var vals14 = [entry14.energie, entry14.sommeil, entry14.confort, entry14.clarte]
           .filter(function(v) { return v !== null && v !== undefined; });
         if (vals14.length > 0) {
           score14Val = vals14.reduce(function(a, b) { return a + b; }, 0) / vals14.length;
@@ -1971,7 +1971,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
 
   // Scores composites 7j pour les regles
   const scores7jQ = entrees.map(function(e) {
-    const vvQ = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+    const vvQ = [e.energie, e.sommeil, e.confort_physique, e.clarte]
       .filter(function(v) { return v !== null && v !== undefined; });
     return vvQ.length ? vvQ.reduce(function(a, b) { return a + b; }, 0) / vvQ.length : null;
   }).filter(function(v) { return v !== null; });
@@ -1990,7 +1990,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   let pemCount7jQ = 0;
   if (typeof window.detectPEMEvents === 'function') {
     const days7jQpem = entrees.map(function(e) {
-      const vvQp = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      const vvQp = [e.energie, e.sommeil, e.confort_physique, e.clarte]
         .filter(function(v) { return v !== null && v !== undefined; });
       const scQp = vvQp.length ? vvQp.reduce(function(a, b) { return a + b; }, 0) / vvQp.length : null;
       return { date: e.date, score: scQp };
@@ -2007,7 +2007,7 @@ async function genererPDFConsultation(motifItems, noteLibre, narrativeDateFromOv
   let daysWithCycleQ = 0;
   if (typeof window.collectCycleData === 'function') {
     const days7jQcyc = entrees.map(function(e) {
-      const vvQc = [e.energie, e.sommeil, e.confort_physique, e.clarte_mentale]
+      const vvQc = [e.energie, e.sommeil, e.confort_physique, e.clarte]
         .filter(function(v) { return v !== null && v !== undefined; });
       const scQc = vvQc.length ? vvQc.reduce(function(a, b) { return a + b; }, 0) / vvQc.length : null;
       return { date: e.date, score: scQc };

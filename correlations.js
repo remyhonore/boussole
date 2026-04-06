@@ -56,12 +56,12 @@ function computeCorrelations(entries, windowDays = 30) {
   const rmssdArr   = [];
 
   sorted.forEach(entry => {
-    // Score composite avec douleurs inversé (11 - douleurs pour garder l'échelle 1-10)
+    // Score composite avec confort inversé (11 - confort pour garder l'échelle 1-10)
     const vals = [];
     if (entry.energie        != null) vals.push(entry.energie);
-    if (entry.qualite_sommeil != null) vals.push(entry.qualite_sommeil);
-    if (entry.douleurs        != null) vals.push(11 - entry.douleurs);
-    if (entry.clarte_mentale  != null) vals.push(entry.clarte_mentale);
+    if (entry.sommeil != null) vals.push(entry.sommeil);
+    if (entry.confort        != null) vals.push(11 - entry.confort);
+    if (entry.clarte  != null) vals.push(entry.clarte);
     const composite = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
 
     // Mesures biologiques depuis localStorage
@@ -80,7 +80,7 @@ function computeCorrelations(entries, windowDays = 30) {
 
     scoreArr.push(composite);
     energieArr.push(entry.energie         != null ? entry.energie          : null);
-    sommeilArr.push(entry.qualite_sommeil  != null ? entry.qualite_sommeil  : null);
+    sommeilArr.push(entry.sommeil  != null ? entry.sommeil  : null);
     fcArr.push(fc);
     rmssdArr.push(rmssd);
   });

@@ -54,19 +54,58 @@ function setItem(key, value) {
 }
 
 /**
+ * Supprime une valeur du storage
+ */
+function removeItem(key) {
+  try {
+    if (isLocalStorageAvailable()) {
+      localStorage.removeItem(key);
+    }
+    delete memoryStore[key];
+    return true;
+  } catch (e) {
+    delete memoryStore[key];
+    return false;
+  }
+}
+
+/**
  * Charge toutes les entrées
  */
 function loadEntries() {
   try {
     const data = getItem(STORAGE_KEY);
     if (!data) {
-      return { version: '1.0.0', entries: [] };
+      return { version: '2.0.0', entries: [] };
     }
     const parsed = JSON.parse(data);
+    // ADR-047 : migration transparente des clés entry (v1 → v2)
+    if (parsed.entries && parsed.entries.length > 0) {
+      let migrated = false;
+      parsed.entries.forEach(function(entry) {
+        if ('qualite_sommeil' in entry) { entry.sommeil = entry.qualite_sommeil; delete entry.qualite_sommeil; migrated = true; }
+        if ('douleurs' in entry)         { entry.confort = entry.douleurs;         delete entry.douleurs;         migrated = true; }
+        if ('clarte_mentale' in entry)   { entry.clarte  = entry.clarte_mentale;   delete entry.clarte_mentale;   migrated = true; }
+      });
+      if (migrated) {
+        parsed.version = '2.0.0';
+        setItem(STORAGE_KEY, JSON.stringify(parsed));
+        console.log('[ADR-047] Migration clés entry v1→v2 effectuée');
+      }
+    }
+    // ADR-047 : migration boussole_profil_genre → boussole_genre
+    var oldGenre = getItem('boussole_profil_genre');
+    if (oldGenre) {
+      if (!getItem('boussole_genre')) {
+        setItem('boussole_genre', oldGenre.toLowerCase());
+      }
+      removeItem('boussole_profil_genre');
+      console.log('[ADR-047] Migration boussole_profil_genre → boussole_genre');
+    }
     return parsed;
   } catch (e) {
     console.error('Erreur chargement données:', e);
-    return { version: '1.0.0', entries: [] };
+    return { version: '2.0.0', entries: [] };
   }
 }
 
@@ -96,9 +135,9 @@ function saveEntry(date, entry) {
   const newEntry = {
     date,
     energie: entry.energie,
-    qualite_sommeil: entry.qualite_sommeil,
-    douleurs: entry.douleurs,
-    clarte_mentale: entry.clarte_mentale,
+    sommeil: entry.sommeil,
+    confort: entry.confort,
+    clarte: entry.clarte,
     note: entry.note || null,
     rmssd: entry.rmssd ?? null,
     humeur: entry.humeur !== undefined ? entry.humeur : null

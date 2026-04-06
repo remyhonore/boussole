@@ -58,9 +58,9 @@
       labels.push(showLabel ? (d.getDate() + '/' + String(d.getMonth() + 1).padStart(2, '0')) : '');
       var e = entryMap[ds];
       dEnergie.push(e ? e.energie : null);
-      dSommeil.push(e ? e.qualite_sommeil : null);
-      dConfort.push(e ? e.douleurs : null);
-      dClarte.push(e ? e.clarte_mentale : null);
+      dSommeil.push(e ? e.sommeil : null);
+      dConfort.push(e ? e.confort : null);
+      dClarte.push(e ? e.clarte : null);
     }
 
     var pointRadius = days <= 14 ? 4 : days <= 30 ? 3 : 1.5;
@@ -433,12 +433,12 @@
     (data.entries || []).forEach(function(e) {
       var val = null;
       if (filterKey === 'score') {
-        var vals = [e.energie, e.qualite_sommeil, e.douleurs, e.clarte_mentale].filter(function(v) { return v !== null && v !== undefined; });
+        var vals = [e.energie, e.sommeil, e.confort, e.clarte].filter(function(v) { return v !== null && v !== undefined; });
         val = vals.length ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
       } else if (filterKey === 'energie') val = e.energie;
-      else if (filterKey === 'sommeil') val = e.qualite_sommeil;
-      else if (filterKey === 'confort') val = e.douleurs;
-      else if (filterKey === 'clarte') val = e.clarte_mentale;
+      else if (filterKey === 'sommeil') val = e.sommeil;
+      else if (filterKey === 'confort') val = e.confort;
+      else if (filterKey === 'clarte') val = e.clarte;
       if (val !== null && val !== undefined) map[e.date] = val;
     });
     return map;
