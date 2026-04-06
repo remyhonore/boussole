@@ -8,28 +8,47 @@
   'use strict';
 
   var AGENDA_KEY = 'boussole_agenda_rdv';
-  var COLORS = ['#2d6a4f', '#e07b2a', '#6366f1', '#dc2626', '#0891b2', '#9333ea'];
+  // Couleurs par catégorie (voir CAT_COLORS ci-dessous)
   var JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   var MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
   var _currentYear, _currentMonth, _selectedDay;
   var _rendering = false;
-  var _specColors = {};
-  var _colorIdx = 0;
+  // Couleurs fixes par catégorie de praticien
+  var CAT_COLORS = {
+    mg: '#2d6a4f',
+    specialiste: '#D97706',
+    therapie: '#7c3aed',
+    examens: '#3B82F6',
+    autre: '#6b7280'
+  };
+  var CAT_LABELS = {
+    mg: 'Médecin généraliste',
+    specialiste: 'Spécialiste',
+    therapie: 'Thérapie douce',
+    examens: 'Examens / Analyses',
+    autre: 'Autre'
+  };
 
   function _chargerAgenda() {
     try { return JSON.parse(localStorage.getItem(AGENDA_KEY) || '[]'); }
     catch (e) { return []; }
   }
 
-  function _getSpecColor(spec) {
-    if (!spec) return '#6b7280';
-    if (!_specColors[spec]) {
-      _specColors[spec] = COLORS[_colorIdx % COLORS.length];
-      _colorIdx++;
-    }
-    return _specColors[spec];
+  function _getCatColor(rdv) {
+    var cat = rdv && rdv.categorie ? rdv.categorie : 'mg';
+    return CAT_COLORS[cat] || CAT_COLORS.autre;
+  }
+
+  function _buildCatMap() {
+    var agenda = _chargerAgenda();
+    var cats = {};
+    agenda.forEach(function(r) {
+      var cat = r.categorie || 'mg';
+      cats[cat] = true;
+    });
+    return cats;
   }
 
   function _getRdvParJour(year, month) {
@@ -48,16 +67,7 @@
   }
 
   function _buildSpecMap() {
-    _specColors = {};
-    _colorIdx = 0;
-    var agenda = _chargerAgenda();
-    var seen = {};
-    agenda.forEach(function(r) {
-      if (r.specialiste && !seen[r.specialiste]) {
-        seen[r.specialiste] = true;
-        _getSpecColor(r.specialiste);
-      }
-    });
+    // no-op, cats are static now
   }
 
   function _getDayScore(year, month, day) {
@@ -174,7 +184,7 @@
       if (rdvs.length > 0) {
         html += '<div style="display:flex;gap:3px;justify-content:center;margin-top:3px;">';
         rdvs.forEach(function(r) {
-          var col = _getSpecColor(r.specialiste);
+          var col = _getCatColor(r);
           var past = _isPast(r.datetime);
           html += '<span style="width:10px;height:10px;border-radius:50%;background:' + col + ';display:inline-block;' + (past ? 'opacity:.4;' : '') + '"></span>';
         });
@@ -196,7 +206,7 @@
       var d = new Date(r.datetime);
       var heure = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
       var dateLabel = d.getDate() + ' ' + MOIS_LISTE[d.getMonth()] + ' ' + d.getFullYear();
-      var col = _getSpecColor(r.specialiste);
+      var col = _getCatColor(r);
       var c = '';
       c += '<div style="display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:14px 16px;margin-bottom:10px;background:' + (isPast ? '#f9fafb' : '#fff') + ';box-shadow:0 2px 8px rgba(6,23,45,.08);border:1px solid ' + (isPast ? 'rgba(6,23,45,.06)' : 'rgba(45,106,79,.15)') + ';' + (isPast ? 'opacity:.65;' : '') + '">';
       // Pastille couleur
@@ -239,14 +249,15 @@
     html += '<button onclick="ouvrirModaleAgendaRDV()" style="background:none;border:1.5px dashed rgba(45,106,79,.4);color:#2d6a4f;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">+ Planifier un RDV</button>';
     html += '</div>';
 
-    // === Legende ===
-    var specs = Object.keys(_specColors);
-    if (specs.length > 0) {
+    // === Legende par catégorie ===
+    var activeCats = _buildCatMap();
+    var catKeys = Object.keys(activeCats);
+    if (catKeys.length > 0) {
       html += '<div style="margin-top:12px;padding:8px 0;border-top:1px solid rgba(6,23,45,.06);display:flex;flex-wrap:wrap;gap:12px;">';
-      specs.forEach(function(name) {
+      catKeys.forEach(function(cat) {
         html += '<div style="display:flex;align-items:center;gap:5px;">';
-        html += '<span style="width:8px;height:8px;border-radius:50%;background:' + _specColors[name] + ';display:inline-block;"></span>';
-        html += '<span style="font-size:11px;color:rgba(6,23,45,.55);font-weight:500;">' + name + '</span>';
+        html += '<span style="width:8px;height:8px;border-radius:50%;background:' + (CAT_COLORS[cat] || CAT_COLORS.autre) + ';display:inline-block;"></span>';
+        html += '<span style="font-size:11px;color:rgba(6,23,45,.55);font-weight:500;">' + (CAT_LABELS[cat] || cat) + '</span>';
         html += '</div>';
       });
       html += '</div>';

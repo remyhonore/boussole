@@ -978,7 +978,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.38 — </span>
+    <span>Boussole v10.39 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1850,7 +1850,17 @@
       </div>
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Spécialiste *</label>
-        <input type="text" id="rdv-specialiste" placeholder="Ex : Dr Dupont (cardiologue)" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Nom du spécialiste">
+        <input type="text" id="rdv-specialiste" placeholder="Ex : Dr Dupont" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Nom du spécialiste">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Catégorie *</label>
+        <select id="rdv-categorie" class="trt-input" style="width:100%;padding:10px 12px;box-sizing:border-box;" aria-label="Catégorie du praticien">
+          <option value="mg">Médecin généraliste</option>
+          <option value="specialiste">Spécialiste</option>
+          <option value="therapie">Thérapie douce</option>
+          <option value="examens">Examens / Analyses</option>
+          <option value="autre">Autre</option>
+        </select>
       </div>
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:600;color:#06172D;display:block;margin-bottom:4px;">Lieu</label>

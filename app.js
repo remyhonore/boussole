@@ -3078,6 +3078,8 @@ function ouvrirModaleAgendaRDV(id) {
   modal.dataset.editId = id || '';
   document.getElementById('rdv-datetime').value = rdv ? rdv.datetime : '';
   document.getElementById('rdv-specialiste').value = rdv ? (rdv.specialiste || '') : '';
+  var catSel = document.getElementById('rdv-categorie');
+  if (catSel) catSel.value = rdv ? (rdv.categorie || 'mg') : 'mg';
   document.getElementById('rdv-lieu').value = rdv ? (rdv.lieu || '') : '';
   document.getElementById('rdv-notes').value = rdv ? (rdv.notes || '') : '';
   var titre = document.getElementById('agenda-modal-title');
@@ -3105,6 +3107,7 @@ function sauvegarderAgendaRDV() {
     id: editId || Date.now().toString(),
     datetime: dt,
     specialiste: spec,
+    categorie: (document.getElementById('rdv-categorie') ? document.getElementById('rdv-categorie').value : 'mg'),
     lieu: (document.getElementById('rdv-lieu').value || '').trim(),
     notes: (document.getElementById('rdv-notes').value || '').trim()
   };
