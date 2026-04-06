@@ -190,27 +190,29 @@
       var dateLabel = d.getDate() + ' ' + MOIS_LISTE[d.getMonth()] + ' ' + d.getFullYear();
       var col = _getSpecColor(r.specialiste);
       var c = '';
-      c += '<div style="border-left:3px solid ' + col + ';border-radius:8px;padding:10px 12px;margin-bottom:6px;background:' + (isPast ? '#f9fafb' : '#fff') + ';box-shadow:0 1px 3px rgba(0,0,0,.06);' + (isPast ? 'opacity:.7;' : '') + '">';
-      c += '<div style="display:flex;align-items:center;justify-content:space-between;">';
-      c += '<div>';
+      c += '<div style="display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:14px 16px;margin-bottom:10px;background:' + (isPast ? '#f9fafb' : '#fff') + ';box-shadow:0 2px 8px rgba(6,23,45,.08);border:1px solid ' + (isPast ? 'rgba(6,23,45,.06)' : 'rgba(45,106,79,.15)') + ';' + (isPast ? 'opacity:.65;' : '') + '">';
+      // Pastille couleur
+      c += '<div style="width:12px;height:12px;border-radius:50%;background:' + col + ';margin-top:3px;flex-shrink:0;"></div>';
+      // Contenu
+      c += '<div style="flex:1;min-width:0;">';
       c += '<div style="font-size:13px;font-weight:700;color:#06172D;">' + (r.specialiste || 'RDV') + '</div>';
-      c += '<div style="font-size:12px;color:rgba(6,23,45,.5);margin-top:2px;">' + dateLabel + ' \u00e0 ' + heure;
-      if (r.lieu) c += ' \u00b7 ' + r.lieu;
+      c += '<div style="font-size:13px;color:rgba(6,23,45,.65);margin-top:3px;">' + dateLabel + ' a ' + heure + '</div>';
+      if (r.lieu) c += '<div style="font-size:11px;color:rgba(6,23,45,.42);margin-top:2px;">' + r.lieu + '</div>';
+      if (r.notes) c += '<div style="font-size:11px;color:rgba(6,23,45,.42);margin-top:4px;line-height:1.4;font-style:italic;">' + r.notes + '</div>';
       c += '</div>';
+      // Actions
+      c += '<div style="display:flex;gap:6px;flex-shrink:0;">';
+      c += '<button onclick="ouvrirModaleAgendaRDV(\'' + r.id + '\')" style="background:rgba(45,106,79,.1);border:none;color:#2d6a4f;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">Modifier</button>';
+      c += '<button onclick="supprimerAgendaRDV(\'' + r.id + '\')" style="background:rgba(220,38,38,.06);border:none;color:#dc2626;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">Suppr.</button>';
       c += '</div>';
-      c += '<div style="display:flex;gap:4px;">';
-      c += '<button onclick="ouvrirModaleAgendaRDV(\'' + r.id + '\')" style="background:rgba(45,106,79,.08);border:none;color:#2d6a4f;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Modifier</button>';
-      c += '<button onclick="supprimerAgendaRDV(\'' + r.id + '\')" style="background:rgba(220,38,38,.06);border:none;color:#dc2626;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">Suppr.</button>';
-      c += '</div></div>';
-      if (r.notes) c += '<div style="font-size:11px;color:rgba(6,23,45,.5);margin-top:4px;line-height:1.4;">' + r.notes + '</div>';
       c += '</div>';
       return c;
     }
 
     // Prochains RDV
     if (futurs.length > 0) {
-      html += '<div style="margin-top:14px;">';
-      html += '<p class="section-title" style="margin:0 0 8px;">Prochains rendez-vous</p>';
+      html += '<div style="margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(6,23,45,.08);">';
+      html += '<p class="section-title" style="margin:0 0 10px;">Prochains rendez-vous</p>';
       futurs.forEach(function(r) { html += _renderRdvCard(r, false); });
       html += '</div>';
     } else {
