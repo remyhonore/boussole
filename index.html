@@ -594,6 +594,11 @@
 
         <div style="margin-top:16px;">
 
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
+          <button onclick="toggleAllAccordions(true)" style="background:none;border:1px solid rgba(6,23,45,.15);border-radius:8px;padding:5px 10px;font-size:11px;color:rgba(6,23,45,.55);cursor:pointer;font-family:inherit;">Tout ouvrir</button>
+          <button onclick="toggleAllAccordions(false)" style="background:none;border:1px solid rgba(6,23,45,.15);border-radius:8px;padding:5px 10px;font-size:11px;color:rgba(6,23,45,.55);cursor:pointer;font-family:inherit;">Tout fermer</button>
+        </div>
+
         <details class="journal-accord" id="accord-traitements">
           <summary class="journal-accord-title">&#x1F48A; Mes traitements</summary>
           <div class="journal-accord-body">
@@ -854,6 +859,19 @@
           <button onclick="if(window.OnboardingGuide){OnboardingGuide.reset();OnboardingGuide.show();}" style="padding:9px 18px;background:none;border:1.5px solid #2d6a4f;color:#2d6a4f;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;">Relancer le guide</button>
         </div>
 
+        <!-- Accordéons par défaut (ADR-2026-044 Sprint 3) -->
+        <div class="settings-group" style="margin-bottom:16px;">
+          <p class="settings-label">Affichage des blocs</p>
+          <p style="font-size:13px;color:rgba(6,23,45,.55);margin:0 0 10px;">Choisis si les blocs du suivi médical s'ouvrent automatiquement.</p>
+          <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid rgba(6,23,45,.1);cursor:pointer;">
+            <div>
+              <span style="font-size:13px;font-weight:600;color:#06172D;">Ouvrir les blocs par défaut</span>
+              <span style="font-size:12px;color:rgba(6,23,45,.42);display:block;margin-top:2px;">Les accordéons du suivi seront ouverts au chargement</span>
+            </div>
+            <input type="checkbox" id="toggle-accordions-default" onchange="saveAccordionPref()" style="width:20px;height:20px;accent-color:#2d6a4f;cursor:pointer;">
+          </label>
+        </div>
+
         <!-- Sections actives (Feature P/B) -->
         <div class="settings-group">
           <p class="settings-label">Sections actives</p>
@@ -959,7 +977,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.28 — </span>
+    <span>Boussole v10.30 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -971,10 +989,16 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.25</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.30</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.29</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Boutons "Tout ouvrir" / "Tout fermer" sur les blocs du suivi</li>
+          <li>Reglage dans Parametres : ouvrir les blocs par defaut</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid rgba(6,23,45,.08);margin:12px 0;">
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.25</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:14px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Guide de demarrage en 5 etapes pour les nouveaux utilisateurs</li>

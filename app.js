@@ -85,7 +85,7 @@ function updateAccueilScoreCTA() {
   var entry = getEntry(today);
 
   if (entry && typeof entry.energie === 'number') {
-    var avg = computeScore(entry);
+    var avg = calculateDayScore(entry);
     scoreDisplay.style.display = 'block';
     ctaSaisie.style.display = 'none';
     if (scoreValue) {
@@ -140,6 +140,34 @@ function initSectionsToggles() {
   var tm = document.getElementById('toggle-section-mesures');
   if (tp) tp.checked = prefs.pacing;
   if (tm) tm.checked = prefs.mesures;
+  // Accordéons préférence (ADR-2026-044 Sprint 3)
+  initAccordionPref();
+}
+
+/**
+ * === ACCORDÉONS : tout ouvrir/fermer + préférence (ADR-2026-044 Sprint 3) ===
+ */
+function toggleAllAccordions(open) {
+  var panel = document.getElementById('panel-tbsante');
+  if (!panel) return;
+  var accords = panel.querySelectorAll('details.journal-accord');
+  accords.forEach(function(d) { d.open = open; });
+}
+
+function applyAccordionPref() {
+  var pref = localStorage.getItem('boussole_accordions_default_open');
+  if (pref === 'true') toggleAllAccordions(true);
+}
+
+function saveAccordionPref() {
+  var cb = document.getElementById('toggle-accordions-default');
+  if (cb) localStorage.setItem('boussole_accordions_default_open', cb.checked ? 'true' : 'false');
+}
+
+function initAccordionPref() {
+  var cb = document.getElementById('toggle-accordions-default');
+  var pref = localStorage.getItem('boussole_accordions_default_open');
+  if (cb) cb.checked = (pref === 'true');
 }
 
 function initNavigation() {
@@ -195,6 +223,7 @@ function switchPanel(panelId) {
   if (panelId === 'tbsante') {
     renderAccordeons();
     renderJournalNotes();
+    applyAccordionPref();
   }
 
   if (panelId === 'settings') {

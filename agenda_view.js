@@ -14,6 +14,7 @@
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
   var _currentYear, _currentMonth, _selectedDay;
+  var _rendering = false;
   var _specColors = {};
   var _colorIdx = 0;
 
@@ -212,11 +213,13 @@
 
     container.innerHTML = html;
 
-    // Auto-select today
-    if (isCurrentMonth && !_selectedDay) {
-      _selectDay(today.getDate());
-    } else if (_selectedDay) {
-      _selectDay(_selectedDay);
+    // Auto-select today (sauf si déjà en cours de render, anti-boucle)
+    if (!_rendering) {
+      if (isCurrentMonth && !_selectedDay) {
+        _selectDay(today.getDate());
+      } else if (_selectedDay) {
+        _selectDay(_selectedDay);
+      }
     }
   }
 
@@ -224,8 +227,10 @@
 
   function _selectDay(day) {
     _selectedDay = day;
-    // Re-render pour highlight
+    // Re-render pour highlight (sans re-trigger _selectDay)
+    _rendering = true;
     render();
+    _rendering = false;
 
     var detail = document.getElementById('agenda-day-detail');
     if (!detail) return;
