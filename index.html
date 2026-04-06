@@ -175,12 +175,12 @@
 
     <!-- En-tête (ADR-2026-046 Sprint 4) -->
     <header class="header" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px;">
-      <div>
-        <h1 id="header-greeting" style="font-family:var(--font-heading);font-size:26px;font-weight:700;color:#06172D;margin:0;line-height:1.2;">Bonjour</h1>
+      <div style="min-width:0;">
+        <h1 id="header-greeting" style="font-family:var(--font-heading);font-size:26px;font-weight:700;color:#06172D;margin:0;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Bonjour</h1>
         <p style="font-size:12px;color:rgba(6,23,45,0.45);margin:2px 0 0;">Tes données sur ton appareil</p>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-family:var(--font-micro);font-size:11px;font-weight:300;color:rgba(6,23,45,0.35);letter-spacing:0.04em;"><a href="https://myboussole.fr" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">myBoussole</a></span>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <span style="font-family:var(--font-micro);font-size:11px;font-weight:300;color:rgba(6,23,45,0.35);letter-spacing:0.04em;white-space:nowrap;"><a href="https://myboussole.fr" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">myBoussole</a></span>
         <button id="theme-toggle" class="theme-toggle" aria-label="Basculer le thème sombre" title="Mode sombre">🌙</button>
       </div>
     </header>
@@ -259,7 +259,7 @@
               </svg>
               <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
                 <span id="accueil-score-value" style="font-family:var(--font-heading);font-size:30px;font-weight:600;line-height:1;color:#2d6a4f;">--</span>
-                <span style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">score</span>
+                <span style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">score</span>
               </div>
             </div>
             <!-- Infos droite -->
@@ -291,7 +291,7 @@
             <span id="metric-humeur" style="font-size:20px;line-height:1;">--</span>
             <div>
               <div id="humeur-label-text" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Humeur</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">Humeur</div>
             </div>
           </div>
         </div>
@@ -302,7 +302,7 @@
             </div>
             <div>
               <div id="metric-energie" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Énergie</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">Énergie</div>
             </div>
           </div>
           <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
@@ -311,7 +311,7 @@
             </div>
             <div>
               <div id="metric-sommeil" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Sommeil</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">Sommeil</div>
             </div>
           </div>
           <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
@@ -320,7 +320,7 @@
             </div>
             <div>
               <div id="metric-confort" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Confort</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">Confort</div>
             </div>
           </div>
           <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="metric-clarte" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
-              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Clarté</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.55);margin-top:2px;">Clarté</div>
             </div>
           </div>
         </div>
@@ -1078,7 +1078,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.64 — </span>
+    <span>Boussole v10.66 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -1693,7 +1693,7 @@
         <div style="display:flex;gap:8px;">
           <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1.5px solid rgba(6,23,45,.15);cursor:pointer;font-size:13px;font-weight:600;color:#06172D;background:#fff;transition:border-color .2s,background .2s;" id="label-pdf-bw">
             <input type="radio" name="pdf-color-mode" value="bw" checked style="accent-color:#2d6a4f;cursor:pointer;">
-            <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#333,#aaa);"></span> Clinique N&amp;B</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#333,#aaa);"></span> Noir &amp; blanc</span>
           </label>
           <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1.5px solid rgba(6,23,45,.15);cursor:pointer;font-size:13px;font-weight:600;color:#06172D;background:#fff;transition:border-color .2s,background .2s;" id="label-pdf-color">
             <input type="radio" name="pdf-color-mode" value="color" style="accent-color:#2d6a4f;cursor:pointer;">

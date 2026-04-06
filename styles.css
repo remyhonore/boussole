@@ -763,14 +763,17 @@ h2.summary-section {
 .app-footer {
   text-align: center;
   padding: 20px 16px 72px;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 11px;
-  color: rgba(6,23,45,0.35);
+  font-weight: 400;
+  color: rgba(6,23,45,0.32);
+  letter-spacing: 0.01em;
 }
 
 .app-footer a {
-  color: var(--color-primary);
+  color: rgba(6,23,45,0.45);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .app-footer a:hover {
