@@ -184,12 +184,17 @@ function updateAccueilScoreCTA() {
     if (mC) mC.textContent = (typeof entry.confort === 'number' ? entry.confort : '--') + '/10';
     if (mCl) mCl.textContent = (typeof entry.clarte === 'number' ? entry.clarte : '--') + '/10';
 
-    // Humeur pill (emoji seul)
+    // Humeur pill (emoji + label texte)
     var humeurPill = document.getElementById('accueil-humeur-pill');
     var mH = document.getElementById('metric-humeur');
+    var humeurLabelText = document.getElementById('humeur-label-text');
     if (humeurPill && mH) {
       if (entry.humeur) {
-        mH.textContent = entry.humeur;
+        mH.textContent = getHumeurSmiley(entry.humeur);
+        if (humeurLabelText) {
+          var labels = ['', 'Très difficile', 'Difficile', 'Pas top', 'Moyen-', 'Moyen', 'Correct', 'Plutôt bien', 'Bien', 'Très bien', 'Excellent'];
+          humeurLabelText.textContent = (labels[entry.humeur] || entry.humeur + '/10');
+        }
         humeurPill.style.display = 'block';
       } else {
         humeurPill.style.display = 'none';

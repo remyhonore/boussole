@@ -200,7 +200,7 @@
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'journal-editor-modal';
-      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(6,23,45,.55);display:flex;align-items:center;justify-content:center;padding:16px;';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(6,23,45,.55);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
       modal.addEventListener('click', function(e) { if (e.target === modal) _closeEditor(); });
       document.body.appendChild(modal);
     }
@@ -212,7 +212,7 @@
     var tagVal = existing ? existing.tag : 'pensees';
     var moodVal = existing ? (existing.mood !== null && existing.mood !== undefined ? existing.mood : -1) : -1;
 
-    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;">';
+    var html = '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:min(90vh,calc(100dvh - 32px));overflow-y:auto;padding:24px;">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
     html += '<p style="font-size:13px;font-weight:700;color:#06172D;margin:0;">' + (existing ? 'Modifier' : 'Nouvelle entrée') + '</p>';
     html += '<button onclick="Journal._closeEditor()" style="background:none;border:none;font-size:20px;cursor:pointer;color:rgba(6,23,45,.4);padding:0;line-height:1;">✕</button>';

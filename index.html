@@ -118,7 +118,7 @@
     /* Feature D — Profil foyers dominants */
     .modal-profil-overlay{display:none;position:fixed;inset:0;background:rgba(6,23,45,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;}
     .modal-profil-overlay.active{display:flex;}
-    .modal-profil{background:#fff;border-radius:12px;padding:24px 20px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;}
+    .modal-profil{background:#fff;border-radius:12px;padding:24px 20px;max-width:420px;width:100%;max-height:min(90vh,calc(100dvh - 32px));overflow-y:auto;}
     .profil-card{border:2px solid rgba(6,23,45,.12);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;}
     .profil-card.selected{border-color:#2d6a4f;background:rgba(45,106,79,.07);}
     .profil-card-emoji{font-size:24px;flex-shrink:0;line-height:1.2;}
@@ -285,6 +285,16 @@
 
       <!-- Quick Metrics Pills 2×2 + Humeur (v10.57) -->
       <div id="accueil-quick-metrics" style="display:none;margin-top:12px;padding:2px 0;">
+        <!-- Humeur du jour — tuile pleine largeur au-dessus des 4 pills -->
+        <div id="accueil-humeur-pill" style="display:none;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:10px 16px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
+            <span id="metric-humeur" style="font-size:28px;line-height:1;">--</span>
+            <div>
+              <div style="font-family:var(--font-heading);font-size:14px;font-weight:600;color:#06172D;line-height:1.2;" id="humeur-label-text">--</div>
+              <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Humeur du jour</div>
+            </div>
+          </div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="metric-pill" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(45,106,79,0.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -321,13 +331,6 @@
               <div id="metric-clarte" style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:#06172D;line-height:1;">--</div>
               <div style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);margin-top:2px;">Clarté</div>
             </div>
-          </div>
-        </div>
-        <!-- Humeur du jour (emoji seul, centré) -->
-        <div id="accueil-humeur-pill" style="display:none;margin-top:10px;text-align:center;">
-          <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:8px 20px;box-shadow:0 1px 3px rgba(6,23,45,0.06);">
-            <span id="metric-humeur" style="font-size:22px;line-height:1;">--</span>
-            <span style="font-family:var(--font-micro);font-size:9px;font-weight:400;text-transform:uppercase;letter-spacing:0.12em;color:rgba(6,23,45,0.45);">Humeur</span>
           </div>
         </div>
       </div>
@@ -1617,8 +1620,8 @@
   </div>
 
   <!-- Modale Résumé personnel -->
-  <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;">
-    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
+  <div id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:min(90vh,calc(100dvh - 32px));overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h2 id="consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;">Mon résumé personnel</h2>
         <button id="consultation-modal-close" onclick="fermerModaleConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
@@ -1716,7 +1719,7 @@
 
   <!-- Modale Post-rendez-vous -->
   <div id="modal-post-consultation" role="dialog" aria-modal="true" aria-labelledby="post-consultation-modal-title" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,23,45,0.5);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
-    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:90vh;overflow-y:auto;">
+    <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.24);max-height:min(90vh,calc(100dvh - 32px));overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h2 id="post-consultation-modal-title" style="font-size:16px;font-weight:700;margin:0;color:#06172D;text-transform:uppercase;">Après mon rendez-vous</h2>
         <button onclick="closePostConsultation()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.5);line-height:1;" aria-label="Fermer">&#x00D7;</button>
@@ -2071,7 +2074,7 @@
 
   <!-- Modale Essai (Feature M) -->
   <div id="modal-essai" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="essai-modal-title">
-    <div class="modal-card" style="width:min(480px,94vw);max-height:90vh;overflow-y:auto;">
+    <div class="modal-card" style="width:min(480px,94vw);max-height:min(90vh,calc(100dvh - 32px));overflow-y:auto;">
       <h3 id="essai-modal-title">Nouvel essai</h3>
 
       <div>

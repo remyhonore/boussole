@@ -652,7 +652,7 @@ h2.summary-section {
   padding: var(--spacing-lg);
   max-width: 600px;
   width: 100%;
-  max-height: 90vh;
+  max-height: min(90vh, calc(100dvh - 32px));
   overflow-y: auto;
   box-shadow: 0 22px 60px rgba(6,23,45,.22);
 }
