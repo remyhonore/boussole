@@ -151,24 +151,32 @@
 
       html += '<div onclick="AgendaView._selectDay(' + d + ')" style="text-align:center;padding:4px 2px;min-height:52px;cursor:pointer;border-radius:10px;' + cellBorder + 'background:' + cellBg + ';transition:all .15s;">';
 
-      // Numéro du jour (today = vert, sinon neutre)
+      // Numéro du jour
+      var hasRdv = rdvs.length > 0;
       if (isToday) {
-        html += '<div style="width:32px;height:32px;border-radius:50%;background:#2d6a4f;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
+        // Aujourd'hui : cercle vert plein, texte blanc
+        html += '<div style="width:34px;height:34px;border-radius:50%;background:#2d6a4f;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
         html += '<span style="font-size:12px;font-weight:700;color:#fff;">' + d + '</span>';
         html += '</div>';
+      } else if (hasRdv) {
+        // Jour avec RDV : cercle bordure verte, fond vert pâle
+        html += '<div style="width:34px;height:34px;border-radius:50%;background:rgba(45,106,79,.08);border:2px solid #2d6a4f;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
+        html += '<span style="font-size:12px;font-weight:700;color:#2d6a4f;">' + d + '</span>';
+        html += '</div>';
       } else {
-        html += '<div style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
+        // Jour normal
+        html += '<div style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">';
         html += '<span style="font-size:12px;color:rgba(6,23,45,.6);">' + d + '</span>';
         html += '</div>';
       }
 
       // Pastilles RDV sous le cercle
       if (rdvs.length > 0) {
-        html += '<div style="display:flex;gap:2px;justify-content:center;margin-top:2px;">';
+        html += '<div style="display:flex;gap:3px;justify-content:center;margin-top:3px;">';
         rdvs.forEach(function(r) {
           var col = _getSpecColor(r.specialiste);
           var past = _isPast(r.datetime);
-          html += '<span style="width:8px;height:8px;border-radius:50%;background:' + col + ';display:inline-block;' + (past ? 'opacity:.4;' : '') + '"></span>';
+          html += '<span style="width:10px;height:10px;border-radius:50%;background:' + col + ';display:inline-block;' + (past ? 'opacity:.4;' : '') + '"></span>';
         });
         html += '</div>';
       }
