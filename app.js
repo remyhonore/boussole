@@ -719,9 +719,9 @@ function loadTodayData() {
   if (mesuresSection) mesuresSection.style.display = secPrefs.mesures ? '' : 'none';
 
   // Re-appliquer la visibilité cycle après affichage mesures (ADR-2026-025)
-  var genrePref = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var genrePref = localStorage.getItem('boussole_genre') || localStorage.getItem('boussole_profil_genre') || 'non_precise';
   var cycleDiv = document.querySelector('.mesures-cycle');
-  if (cycleDiv) cycleDiv.style.display = genrePref === 'femme' ? '' : 'none';
+  if (cycleDiv) cycleDiv.style.display = (genrePref === 'femme' || genrePref === 'Femme') ? '' : 'none';
 
   // Repositionner les smileys après que le layout soit calculé (offsetWidth > 0)
   requestAnimationFrame(() => {
@@ -3041,15 +3041,16 @@ document.getElementById('changelog-ok')?.addEventListener('click', closeChangelo
     });
   }
 
-  // Paramètre profil genre (ADR-2026-025)
+  // Paramètre profil genre (ADR-2026-025) — lire les 2 clés (boussole_genre prioritaire)
   function applyProfilGenre(value) {
     var cycleSection = document.querySelector('.mesures-cycle');
     if (cycleSection) {
-      cycleSection.style.display = value === 'femme' ? '' : 'none';
+      var isFemme = (value === 'femme' || value === 'Femme');
+      cycleSection.style.display = isFemme ? '' : 'none';
     }
   }
 
-  var genreStored = localStorage.getItem('boussole_profil_genre') || 'non_precise';
+  var genreStored = localStorage.getItem('boussole_genre') || localStorage.getItem('boussole_profil_genre') || 'non_precise';
   applyProfilGenre(genreStored);
   var genreRadioInit = document.querySelector('input[name="profil-genre"][value="' + genreStored + '"]');
   if (genreRadioInit) genreRadioInit.checked = true;
