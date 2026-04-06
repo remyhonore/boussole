@@ -2,6 +2,16 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.46] - 2026-04-06
+
+### ADR-2026-046 Sprint 1 — Fondations Design System
+- Google Fonts : Nunito 300–800 (headings + UI), Jura 400 (micro-labels), DM Mono 400 (footer)
+- Variables CSS : --font-heading, --font-ui, --font-mono, --font-micro
+- Fond body : gradient rose/lavande → #FAFAF9 gris neutre
+- Tiles accueil : emojis (☀️📓📋🗓️) → SVG inline monochrome stroke 1.5
+- Tab bar : stroke-width 1.5 (actif 1.8), font --font-ui
+- SW v10.46, changelog + footer synchronisés
+
 ## [10.45] - 2026-04-06
 
 ### ADR-2026-045 Sprint 3 — Export PDF journal + filtres + partage

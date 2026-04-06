@@ -22,8 +22,12 @@
   --color-text: #06172D;           /* ink vitrine (navy) */
   --color-text-muted: rgba(6,23,45,.58); /* muted2 vitrine */
 
-  /* Typographie — alignée vitrine */
-  --font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Typographie — Design System v2 (ADR-2026-046) */
+  --font-heading: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --font-micro: 'Jura', ui-sans-serif, sans-serif;
+  --font-family: 'Nunito', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-size-base: 13px;
   --font-size-small: 12px;
   --font-size-large: 15px;
@@ -94,12 +98,8 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.5;
   color: var(--color-text);
-  /* Dégradé radial identique à la vitrine */
-  background:
-    radial-gradient(950px 620px at 14% 0%, rgba(201,185,217,.45), transparent 60%),
-    radial-gradient(920px 620px at 86% 8%, rgba(232,183,200,.40), transparent 62%),
-    radial-gradient(1200px 700px at 55% 115%, rgba(110,135,125,.26), transparent 60%),
-    linear-gradient(180deg, #F8F6F0, #F3F0E8);
+  /* Fond neutre Design System v2 (ADR-2026-046) */
+  background: #FAFAF9;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
@@ -163,7 +163,7 @@ body {
   border: none;
   color: rgba(6,23,45,.45);
   font-size: 10px;
-  font-family: var(--font-family);
+  font-family: var(--font-ui);
   font-weight: 500;
   cursor: pointer;
   transition: color 0.15s;
@@ -176,7 +176,7 @@ body {
   height: 22px;
   stroke: currentColor;
   fill: none;
-  stroke-width: 1.8;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -191,7 +191,7 @@ body {
 }
 
 .tab-btn.active svg {
-  stroke-width: 2;
+  stroke-width: 1.8;
 }
 
 /* === DASHBOARD TILES (ADR-2026-043 Chantier B) === */
@@ -212,7 +212,7 @@ body {
   border: none;
   cursor: pointer;
   text-align: left;
-  font-family: var(--font-family);
+  font-family: var(--font-ui);
   transition: transform 0.1s, box-shadow 0.15s;
   -webkit-tap-highlight-color: transparent;
   min-height: 130px;
@@ -224,9 +224,9 @@ body {
 }
 
 .dash-tile-icon {
-  font-size: 32px;
   line-height: 1;
   margin-bottom: 12px;
+  color: #fff;
 }
 
 .dash-tile-label {

@@ -22,6 +22,11 @@
   <meta name="apple-mobile-web-app-title" content="Boussole">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
+  <!-- Fonts : Nunito (headings + UI), Jura (micro-labels), DM Mono (footer/version) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Jura:wght@400&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
 
@@ -189,22 +194,22 @@
       <!-- ===== DASHBOARD TILES (ADR-2026-043 Chantier B) ===== -->
       <div id="dashboard-tiles" class="dashboard-grid">
         <button class="dash-tile dash-tile--forest" onclick="switchPanel('resume')" aria-label="Ma journée">
-          <span class="dash-tile-icon">☀️</span>
+          <span class="dash-tile-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
           <span class="dash-tile-label">Ma journée</span>
           <span class="dash-tile-sub" id="tile-journee-sub">Pas encore rempli</span>
         </button>
         <button class="dash-tile dash-tile--navy" onclick="switchPanel('journal')" aria-label="Mon journal">
-          <span class="dash-tile-icon">📓</span>
+          <span class="dash-tile-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg></span>
           <span class="dash-tile-label">Mon journal</span>
           <span class="dash-tile-sub" id="tile-journal-sub">Espace privé</span>
         </button>
         <button class="dash-tile dash-tile--info" onclick="switchPanel('tbsante')" aria-label="Mon suivi">
-          <span class="dash-tile-icon">📋</span>
+          <span class="dash-tile-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg></span>
           <span class="dash-tile-label">Mon suivi</span>
           <span class="dash-tile-sub" id="tile-suivi-sub">—</span>
         </button>
         <button class="dash-tile dash-tile--warning" onclick="navigateToAgenda()" aria-label="Agenda">
-          <span class="dash-tile-icon">🗓️</span>
+          <span class="dash-tile-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg></span>
           <span class="dash-tile-label">Agenda</span>
           <span class="dash-tile-sub" id="tile-agenda-sub">—</span>
         </button>
@@ -957,7 +962,7 @@
 
   <!-- Footer version -->
   <footer class="app-footer">
-    <span>Boussole v10.45 — </span>
+    <span>Boussole v10.46 — </span>
     <a href="#" id="changelog-link" aria-label="Notes de version">Notes de version</a>
     <span> — </span>
     <a href="https://myboussole.fr/confidentialite.html" target="_blank" rel="noopener" aria-label="Politique de confidentialité">Confidentialité</a>
@@ -969,10 +974,17 @@
   <div id="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,23,45,0.45);align-items:center;justify-content:center;padding:16px;">
     <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 22px 60px rgba(6,23,45,.22);max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.45</h2>
+        <h2 id="changelog-title" style="font-size:16px;font-weight:700;margin:0;">Quoi de neuf ? — v10.46</h2>
         <button id="changelog-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(6,23,45,.58);line-height:1;" aria-label="Fermer">×</button>
       </div>
       <div>
+        <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.46</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
+        <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
+          <li>Nouvelle typographie Nunito pour plus de lisibilité</li>
+          <li>Fond neutre épuré (adieu dégradé rose)</li>
+          <li>Icônes SVG sur les tiles d'accueil</li>
+          <li>Tab bar affinée</li>
+        </ul>
         <p style="margin:0 0 6px;"><strong style="color:#2d6a4f;">v10.45</strong> <span style="color:rgba(6,23,45,.58);font-size:13px;">— 06 avril 2026</span></p>
         <ul style="margin:0 0 16px 18px;font-size:13px;line-height:1.8;color:rgba(6,23,45,.78);">
           <li>Mon journal : export PDF complet</li>
