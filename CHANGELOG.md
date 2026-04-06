@@ -2,6 +2,12 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [10.61] - 2026-04-06
+### Fixed
+- Fix SW fetch handler : catch offline retournait undefined au lieu d'une Response
+- Erreur console "TypeError: Failed to convert value to 'Response'" corrigée
+- Fallback 503 si index.html absent du cache
+
 ## [10.60] - 2026-04-06
 ### Changed
 - Mes rendez-vous remonté en 1ère position dans panel Suivi (avant Traitements/Allergies)

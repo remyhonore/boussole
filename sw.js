@@ -3,7 +3,7 @@
  * Cache offline : app utilisable sans connexion après premier chargement
  */
 
-const CACHE_NAME = 'boussole-v10.60';
+const CACHE_NAME = 'boussole-v10.61';
 
 const ASSETS_TO_CACHE = [
   '/app.js',
@@ -102,7 +102,7 @@ self.addEventListener('fetch', event => {
           caches.open(CACHE_NAME).then(c => c.put(request, clone));
           return response;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match('/index.html').then(r => r || new Response('Offline', { status: 503 })))
     );
     return;
   }
@@ -121,10 +121,11 @@ self.addEventListener('fetch', event => {
         }
         return response;
       }).catch(() => {
-        // Offline : retourner index.html pour navigation
+        // Offline fallback
         if (event.request.mode === 'navigate') {
           return caches.match('/index.html');
         }
+        return new Response('', { status: 408, statusText: 'Offline' });
       });
     })
   );
